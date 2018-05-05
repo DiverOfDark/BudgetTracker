@@ -1,0 +1,77 @@
+@using System.Globalization
+@using Controllers.ViewModels.Sms
+@using Controllers.ViewModels.Widgets
+@model ExpensesWidgetViewModel
+
+@{
+    var id = Guid.NewGuid().ToString("N");
+
+    var data = Model.Payments.OrderByDescending(v => v.Amount).ToList();
+
+    var toRemove = data.Skip(11).ToList();
+    data = data.Take(11).ToList();
+
+    if (toRemove.Any())
+    {
+        data.Add(new PaymentViewModel(toRemove.SelectMany(s=>s.Items).ToList(), false));
+    }
+    
+    var values = data.Select(v => (int)v.Amount).ToList();
+    var names = data.Select(v => v.What).ToList();
+
+    var columnsData = values.Select((v, i) => $"['col{i}', {v.ToString(CultureInfo.InvariantCulture)}]");
+    var namesData = names.Select((v, i) => $"'col{i}': '{v.Replace("\'","\\'")}'");
+}
+
+<div class="card-body">
+    <div class="h4 text-muted-dark text-center">
+        @Model.Title (30 дней)
+    </div>
+    <div id="chart-@id" class="pie-chart" style="height: 100%;"></div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        c3.generate({
+            bindto: '#chart-@id',
+            data: {
+                columns: [
+                    @Html.Raw(string.Join(",", columnsData))
+                ],
+                type: 'donut',
+                order: null,
+                names: {
+                    @Html.Raw(string.Join(",", namesData))
+                }
+            },
+            donut: {
+                title: d3.format(',.2f')(@values.Sum()) + " @Model.ExpenseSettings.Currency",
+                label: {
+                    format: function (value) {
+                        return d3.format(',.2f')(value);
+                    }
+                }
+            },
+            tooltip: {
+                format: {
+                    value: function (value) {
+                        return d3.format(',.2f')(value) + " @Model.ExpenseSettings.Currency";
+                    }
+                }
+            },
+            size: {
+                height: 300
+            },
+            axis: {
+            },
+            legend: {
+                show: true,
+                position: 'right'
+            },
+            padding: {
+                bottom: 0,
+                top: 0
+            }
+        });
+    });
+</script>

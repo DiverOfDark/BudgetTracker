@@ -1,0 +1,180 @@
+﻿@model Controllers.ViewModels.Table.TableViewModel
+@{
+    ViewData["Title"] = "Таблица";
+
+}
+
+<style>
+    .tooltip-inner {
+        white-space: pre-wrap;
+        text-wrap: none;
+    }
+</style>
+
+<div class="container">
+    <div class="row row-cards row-deck">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        История
+                    </h3>
+                    <div class="card-options">
+                        <a class="btn btn-secondary btn-sm" href="@Url.Action("Index", "Metadata")"><span class="small fe fe-edit-2"></span></a>
+                        <a class="btn btn-secondary btn-sm" href="?ShowDelta=@(!Model.ShowDelta)">
+                            @if (!Model.ShowDelta)
+                            {
+                                <text>&Delta;</text>
+                            }
+                            else
+                            {
+                                <text>&Tau;</text>
+                            }
+                        </a>
+                        <a class="btn btn-secondary btn-sm" href="?ShowAll=@(!Model.ShowAll)">
+                            @if (Model.ShowAll)
+                            {
+                                <text>Только видимые</text>
+                            }
+                            else
+                            {
+                                <text>Все столбцы</text>
+                            }
+                        </a>
+                        <a class="btn btn-secondary btn-sm" href="?ShowControls=@(!Model.ShowControls)">
+                            @if (Model.ShowControls)
+                            {
+                                <text>Скрыть кнопки</text>
+                            }
+                            else
+                            {
+                                <text>Показать кнопки</text>
+                            }
+                        </a>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm table-vcenter card-table table-hover table-striped text-nowrap">
+                        <tr>
+                            <th scope="col" rowspan="2">Когда</th>
+                            @foreach (var p in Model.Headers.Where(v => v.IsVisible || Model.ShowAll).Select(v => v.Provider).Distinct())
+                            {
+                                <th scope="col" colspan="@Model.Headers.Where(v => v.IsVisible || Model.ShowAll).Count(s => s.Provider == p)">
+                                    @p
+                                </th>
+                            }
+                        </tr>
+                        <tr>
+                            @foreach (var p in Model.Headers.Where(v => v.IsVisible || Model.ShowAll))
+                            {
+                                <th title="@p.AccountName">
+                                    @p.UserFriendlyName
+
+                                    @if (Model.ShowControls)
+                                    {
+                                        <a href="@Url.Action("MetadataEdit", "Metadata", new {id = p.Id})">
+                                            <span class="fe fe-edit-2"></span>
+                                        </a>
+                                    }
+                                </th>
+                            }
+                        </tr>
+                        @foreach (var item in Model.Values)
+                        {
+                            <tr>
+                                <th class="table-dark" scope="row">@item.When.ToString("dd.MM.yyyy")</th>
+                                @foreach (var h in Model.Headers.Where(v => v.IsVisible || Model.ShowAll))
+                                {
+                                    var p = item.Cells.FirstOrDefault(v => v.Column == h);
+
+                                    <td class="@(p?.FailedToResolve.Any() == true ? "table-dark" : "")">
+                                        @{
+                                            if (p?.Value != null)
+                                            {
+                                                <div alt="@p.Tooltip" title="@p.Tooltip" data-toggle="tooltip">
+                                                    @if (double.IsNaN(p.Value.Value))
+                                                    {
+                                                        <span class="fe fe-check"></span>
+                                                    }
+                                                    else
+                                                    {
+                                                        if (Model.ShowDelta)
+                                                        {
+                                                            if (p.DiffValue != null)
+                                                            {
+                                                                var ok = p.DiffValue > 0 ? "text-success" : "text-danger";
+
+                                                                <span class="@ok">@(p.DiffValue > 0 ? "+" : "")@p.DiffValue.Value.ToString("#,0.00")</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <text>&mdash;</text>
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>@p.Value.Value.ToString("#,0.00")</span>
+                                                        }
+                                                        if (!string.IsNullOrEmpty(p.Ccy))
+                                                        {
+                                                            <span style="font-size: x-small; color: gray;">
+                                                                <i>@p.Ccy</i>
+                                                            </span>
+                                                        }
+                                                        
+                                                        var percentage = p.DiffPercentage;
+
+                                                        if (percentage != null && Math.Abs(percentage.Value) > 0.01)
+                                                        {
+                                                            var ok = percentage > 0 ? "text-success" : "text-danger";
+
+                                                            var data = (percentage > 0 ? "+" : "") + percentage.Value.ToString("P");
+                                                            
+                                                            <span style="font-size: 0.7em" class="@ok">
+                                                                <text>@data</text>
+                                                            </span>
+                                                        }
+                                                    }
+                                                    @if (Model.ShowControls && p.Money != null)
+                                                    {
+                                                        <a style="position: relative; right: 0;" href="@Url.Action("DeleteMoney", new {id = p.Money.Id})">
+                                                            <span class="fe fe-x-circle"></span>
+                                                        </a>
+                                                    }
+                                                </div>
+                                            }
+                                            else if (p != null)
+                                            {
+                                                <div alt="@p.Tooltip" title="@p.Tooltip">
+                                                    &mdash;
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <text>&mdash;</text>
+                                                if (Model.ShowControls)
+                                                {
+                                                    var calculatedResult = item.Previous?.Cells.FirstOrDefault(s => s.Column == h);
+                                                    if (calculatedResult?.Value != null && !double.IsNaN(calculatedResult.Value.Value))
+                                                    {
+                                                        <a href="@Url.Action("CopyFromPrevious", new {headerId = h.Id, date = item.When.ToString("dd.MM.yyyy")})">
+                                                            <span class="fe fe-copy"></span>
+                                                        </a>
+                                                        <a href="@Url.Action("MarkAsOk", new {headerId = h.Id, date = item.When.ToString("dd.MM.yyyy")})">
+                                                            <span class="fe fe-check"></span>
+                                                        </a>
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="Refresh" content="300">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta http-equiv="Content-Language" content="en"/>
+    <meta name="msapplication-TileColor" content="#2d89ef">
+    <meta name="theme-color" content="#4188c9">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <title>@ViewData["Title"] - Budget Tracker</title>
+    <link rel="icon" href="./favicon.ico" type="image/x-icon"/>
+    <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,300i,400,400i,500,500i,600,600i,700,700i&amp;subset=latin-ext">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/vega-tooltip@0.6.1/build/vega-tooltip.min.css">
+    <link rel="stylesheet" href="/css/dashboard.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="/css/c3.css" asp-append-version="true"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-sparkline@2/jquery.sparkline.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tablesorter@2/dist/js/jquery.tablesorter.combined.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2/dist/Chart.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sifter@0.5.3/sifter.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-circle-progress@1/dist/circle-progress.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/c3@0.5.3/c3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@5.1.0/dist/d3.min.js"></script>
+
+    <script src="/js/dashboard.js" asp-append-version="true"></script>
+</head>
+
+@if (false.Equals(ViewData["RenderBody"]))
+{
+    @RenderBody()
+}
+else
+{
+    <body class="">
+        <div class="page">
+            <div class="page-main">
+                <div class="header py-4">
+                    <div class="container">
+                        <div class="d-flex">
+                            <a asp-area="" asp-controller="Widget" asp-action="Index" class="navbar-brand">
+                                BudgetTracker
+                            </a>
+                            <div class="ml-auto d-flex order-lg-2">
+                                <div class="nav-item">
+                                    <div class="btn btn-sm btn-outline-success">
+                                        @DateTime.Now.ToString("G")
+                                    </div>
+                                </div>
+                                <div class="nav-item">
+                                    <a href="@Url.Action("Logout", "Auth")" class="btn btn-sm btn-outline-primary">Выход</a>
+                                </div>
+                            </div>
+                            <a href="#" class="header-toggler d-lg-none ml-3 ml-lg-0" data-toggle="collapse" data-target="#headerMenuCollapse">
+                                <span class="header-toggler-icon"></span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="header d-lg-flex p-0 collapse" id="headerMenuCollapse">
+                    <div class="container">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <ul class="nav nav-tabs border-0 flex-column flex-lg-row">
+                                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Widget" asp-action="Index">Отчёт</a></li>
+                                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Table" asp-action="Index">История</a></li>
+                                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="SmsList" asp-action="Index">Траты&nbsp;и&nbsp;SMS</a></li>
+                                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Utility" asp-action="ScriptConsole">Консоль</a></li>
+                                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Utility" asp-action="Screenshot">Скриншот&nbsp;браузера</a></li>
+                                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Settings" asp-action="Index">Настройки</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="/Hangfire">Фоновые задачи</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-content">
+                    @RenderBody()
+                </div>
+            </div>
+            <footer class="footer">
+                <div class="container">
+                    <div class="row align-items-center flex-row-reverse">
+                        <div class="col-auto ml-auto">
+                            <p>@Startup.CommmitName / @Startup.CommmitHash @@ @Startup.LaunchTime.ToLocalTime().ToString("G")</p>
+                        </div>
+                        <div class="col-12 col-lg-auto mt-3 mt-lg-0 text-center">
+                            <p>&copy; 2018 - BudgetTracker</p>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+    
+        </div>
+    
+        @RenderSection("Scripts", required: false)
+    </body>
+}
+</html>

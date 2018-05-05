@@ -1,0 +1,134 @@
+@using System.Globalization
+@using Controllers.ViewModels.Widgets
+@model ChartWidgetViewModel
+
+@{
+	string chartItems;
+	string dates;
+	var chartNames = string.Join(",\n ", Model.Values.Select((v, i) => $"'data{i}': '{v.Key}'"));
+	var chartGroups = string.Join(", ", Model.Values.Select((v, i) => $"'data{i}'"));
+
+	string sum = "";
+	string chartClass = "";
+	string type;
+	string showLegend = "true";
+	
+	if (Model.ChartWidgetSettings.ChartKind == ChartKind.Donut)
+	{
+		/*
+		 *         columns: [
+            ['data1', 30],
+            ['data2', 120],
+        ],
+        type : 'donut',
+		 */
+		type = "donut";
+		chartClass = "pie-chart";
+		showLegend = "false";
+		chartItems = string.Join(",\n ", Model.Values.Select((v, i) => $"['data{i}', " + v.Value.OrderByDescending(s=>s.When).First().Value.ToString("0.00", CultureInfo.InvariantCulture) + "]"));
+		sum = Model.Values.Sum(v => v.Value.OrderByDescending(s => s.When).First().Value).ToString(CultureInfo.InvariantCulture);
+		dates = Model.Dates.OrderByDescending(v=>v).Select(v => $"'{v:yyyy-MM-dd}'").First();
+	}	
+	else if (Model.ChartWidgetSettings.ChartKind == ChartKind.Linear)
+	{
+		type = "area";
+		chartItems = string.Join(",\n ", Model.Values.Select((v, i) => $"['data{i}', " + string.Join(", ", v.Value.Select(s => s == null ? "null" : s.Value.ToString("0.00", CultureInfo.InvariantCulture))) + "]"));
+		dates = string.Join(", ", Model.Dates.Select(v => $"'{v:yyyy-MM-dd}'"));
+	}
+	else
+	{
+		throw new NotImplementedException();
+	}
+	var chartId = Guid.NewGuid().ToString("N");
+
+	<div class="card-body">
+		<div class="h4 text-muted-dark text-center">
+			@Model.Title
+		</div>
+	</div>
+	<div class="card-chart-bg" style="height: 100%">
+		<div id="chart-@chartId" class="@chartClass"></div>
+	</div>
+	<script>
+		(function() {
+
+			var names = {
+				@Html.Raw(chartNames)
+			};
+			
+			c3.generate({
+                  			bindto: '#chart-@chartId',
+                  			data: {
+				                columns: [
+					                @Html.Raw(chartItems),
+                                   ['x', @Html.Raw(dates)]
+				                ],
+                  				type: '@(type)', // default type of chart
+                  				groups: [
+                  					[ @Html.Raw(chartGroups) ]
+                  				],
+                  				colors: {
+                  					'data1': tabler.colors["blue"]
+                  				},
+				                x: 'x',
+				                names: names
+                  			},
+@if (Model.ChartWidgetSettings.ChartKind == ChartKind.Linear)
+{
+                        <text>
+                            point: {
+                                show: true
+                            },
+	                        axis: {
+		                        y: {
+			                        show: false
+		                        },
+		                        x: {
+			                        type: 'timeseries',
+			                        show: false
+		                        }
+	                        },
+                        </text>
+}
+else
+{
+                        <Text>
+			                donut: {
+				                title: d3.format(',.2f')(@sum),
+				                label: {
+					               format: function (value, ratio, id) {
+						               return names[id];
+					               }
+				                }
+			                },</text>
+}
+                           size: {
+                               height: 300
+                           },
+                           padding: {
+                               bottom: -10,
+                               left: -1,
+                               right: -1
+                           },
+                  			legend: {
+                  				position: 'inset',
+                  				padding: 0,
+				                show: @showLegend,
+                  				inset: {
+                                   anchor: 'top-left',
+                  					x: 5,
+                  					y: 0,
+                  					step: 999
+                  				}
+                  			},
+                  			tooltip: {
+				                  format: {
+					                  value: function (value) {
+						                  return d3.format(',.2f')(value);
+					                  }
+				                  }
+                  			}
+                  		});
+		})();
+	</script>
+}

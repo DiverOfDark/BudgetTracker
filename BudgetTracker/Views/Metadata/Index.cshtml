@@ -1,0 +1,82 @@
+﻿@model IEnumerable<Model.MoneyColumnMetadataModel>
+@{
+    ViewData["Title"] = "Столбцы";
+}
+
+<div class="container">
+    <div class="row row-cards row-deck">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    Столбцы
+                </div>
+                <div class="table-responsive">
+                    <table class="table card-table table-sm table-vcenter table-hover table-striped">
+                        <tr>
+                            <th></th>
+                            <th>Поставщик</th>
+                            <th>Название</th>
+                            <th>Дружелюбное имя</th>
+                            <th>Используется</th>
+                            <th>Показывать в таблице</th>
+                            <th>
+                                <a href="@Url.Action("MetadataEdit")">
+                                    <span class="fe fe-plus"></span>
+                                </a>
+                            </th>
+                        </tr>
+                        @foreach (var meta in Model)
+                        {
+                            <tr>
+                                <td class="text-nowrap">
+                                    @if (Model.First() != meta)
+                                    {
+                                        <a href="@Url.Action("UpdateColumnOrder", new {id = meta.Id, moveUp = true})">
+                                            <span class="fe fe-arrow-up"></span>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="fe fe-arrow-up"></span>
+                                    }
+                                    @if (Model.Last() != meta)
+                                    {
+                                        <a href="@Url.Action("UpdateColumnOrder", new {id = meta.Id, moveUp = false})">
+                                            <span class="fe fe-arrow-down"></span>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="fe fe-arrow-down"></span>
+                                    }
+                                </td>
+                                <td>@meta.Provider</td>
+                                <td>@(!meta.IsComputed ? meta.AccountName : meta.Function)</td>
+                                <td>@meta.UserFriendlyName</td>
+                                <td>
+                                    @foreach (var item in Model.Where(v => true == v.Function?.Contains("[" + meta.UserFriendlyName + "]") ||
+                                                                           true == v.Function?.Contains("[" + meta.Provider + "/" + meta.AccountName + "]")))
+                                    {
+                                        <text>@item.UserFriendlyName</text><br/>
+                                    }
+                                </td>
+                                <td><span class="fe @(meta.IsVisible ? "fe-plus" : "fe-minus")"></span></td>
+                                <td class="text-nowrap">
+                                    <a href="@Url.Action("MetadataEdit", new {id = meta.Id})">
+                                        <span class="fe fe-edit-2"></span>
+                                    </a>
+                                    @if (meta.IsComputed)
+                                    {
+                                        <a href="@Url.Action("MetadataDelete", new {id = meta.Id})">
+                                            <span class="fe fe-x-circle"></span>
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

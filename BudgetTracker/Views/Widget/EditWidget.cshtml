@@ -1,0 +1,187 @@
+﻿@using Controllers.ViewModels.Widgets
+@using Model
+@model EditWidgetViewModel
+@inject ObjectRepository ObjectRepository
+
+@{
+    ViewData["Title"] = (Model?.Id ?? Guid.Empty) == Guid.Empty ? "Создать виджет" : "Редактировать виджет";
+}
+
+<div class="container">
+    <div class="row row-cards row-deck">
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">
+                    @ViewData["Title"]
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            @using (Html.BeginForm("EditWidget", "Widget", FormMethod.Post))
+                            {
+                                <input type="hidden" name="Id" id="Id" value="@Model?.Id.ToString()" />
+                                <div class="form-horizontal">
+                                    <div class="form-group">
+                                        <label class="control-label">Название</label>
+                                        <div control-labelstyle="padding-top: 7px;">
+                                            @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Тип виджета</label>
+                                        <div control-labelstyle="padding-top: 7px;">
+                                            @Html.DropDownListFor(model => model.Kind, typeof(WidgetKind).GetSelectList(Model?.Kind), new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                    
+                                    @if (Model?.Settings is LastValueWidgetSettings s)
+                                    {
+                                        <div class="form-group">
+                                            <label class="control-label">Провайдер данных</label>
+                                            <div control-labelstyle="padding-top: 7px;">
+                                                <select id="Properties[ProviderName]" name="Properties[ProviderName]" class="form-control">
+                                                    @foreach (var item in s.GetProviders(ObjectRepository))
+                                                    {
+                                                        @Html.Raw($"<option value=\"{item}\" {(item.Equals(s.ProviderName) ? "selected": "")}>{item}</option>")
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label">Аккаунт</label>
+                                            <div control-labelstyle="padding-top: 7px;">
+                                                <select id="Properties[AccountName]" name="Properties[AccountName]" class="form-control">
+                                                    @foreach (var item in s.GetAccounts(ObjectRepository, s.ProviderName))
+                                                    {
+                                                        @Html.Raw($"<option value=\"{item}\" {(item.Equals(s.AccountName) ? "selected": "")}>{item}</option>")
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label">Тип графика</label>
+                                            <div control-labelstyle="padding-top: 7px;">
+                                                <select id="Properties[GraphKind]" name="Properties[GraphKind]" class="form-control">
+                                                    @foreach (var item in typeof(GraphKind).GetSelectList(s.GraphKind))
+                                                    {
+                                                        @Html.Raw($"<option value=\"{item.Value}\" {(item.Selected ? "selected" : "")}>{item.Text}</option>")
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label">Формат строки</label>
+                                            <div control-labelstyle="padding-top: 7px;">
+                                                <input type="text" id="Properties[StringFormat]" name="Properties[StringFormat]" class="form-control" value="@s.StringFormat"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label">Компактный вид</label>
+                                            <div control-labelstyle="padding-top: 7px;">
+                                                <input type="checkbox" id="Properties[Compact]" name="Properties[Compact]" class="form-control" value="@s.Compact"
+                                                       @Html.Raw(s.Compact ? "checked=\"checked\"": "")
+                                                       />
+                                            </div>
+                                        </div>
+                                    }
+                                    else if (Model?.Settings is ExpensesWidgetSettings s2)
+                                    {
+                                        <div class="form-group">
+                                            <label class="control-label">Валюта по которой показывать траты:</label>
+                                            <div control-labelstyle="padding-top: 7px;">
+                                                <input type="text" id="Properties[Currency]" name="Properties[Currency]" class="form-control" value="@s2.Currency"/>
+                                            </div>
+                                        </div>
+                                    }
+                                    else if (Model?.Settings is ChartWidgetSettings s3)
+                                    {
+                                        <div class="form-group">
+                                            <label class="control-label">Провайдер данных</label>
+                                            <div control-labelstyle="padding-top: 7px;">
+                                                <select id="Properties[ProviderName]" name="Properties[ProviderName]" class="form-control">
+                                                    @foreach (var item in s3.GetProviders(ObjectRepository))
+                                                    {
+                                                        @Html.Raw($"<option value=\"{item}\" {(item.Equals(s3.ProviderName) ? "selected": "")}>{item}</option>")
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label">Аккаунт</label>
+                                            <div control-labelstyle="padding-top: 7px;">
+                                                <select id="Properties[AccountName]" name="Properties[AccountName]" class="form-control">
+                                                    @foreach (var item in s3.GetAccounts(ObjectRepository, s3.ProviderName))
+                                                    {
+                                                        @Html.Raw($"<option value=\"{item}\" {(item.Equals(s3.AccountName) ? "selected": "")}>{item}</option>")
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label">Тип графика</label>
+                                            <div control-labelstyle="padding-top: 7px;">
+                                                <select id="Properties[ChartKind]" name="Properties[ChartKind]" class="form-control">
+                                                    @foreach (var item in typeof(ChartKind).GetSelectList(s3.ChartKind))
+                                                    {
+                                                        @Html.Raw($"<option value=\"{item.Value}\" {(item.Selected ? "selected" : "")}>{item.Text}</option>")
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+                                    }
+                                    else if (Model?.Settings is DeltaWidgetSettings s4)
+                                    {
+                                        <div class="form-group">
+                                            <label class="control-label">Провайдер данных</label>
+                                            <div control-labelstyle="padding-top: 7px;">
+                                                <select id="Properties[ProviderName]" name="Properties[ProviderName]" class="form-control">
+                                                    @foreach (var item in s4.GetProviders(ObjectRepository))
+                                                    {
+                                                        @Html.Raw($"<option value=\"{item}\" {(item.Equals(s4.ProviderName) ? "selected": "")}>{item}</option>")
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label">Аккаунт</label>
+                                            <div control-labelstyle="padding-top: 7px;">
+                                                <select id="Properties[AccountName]" name="Properties[AccountName]" class="form-control">
+                                                    @foreach (var item in s4.GetAccounts(ObjectRepository, s4.ProviderName))
+                                                    {
+                                                        @Html.Raw($"<option value=\"{item}\" {(item.Equals(s4.AccountName) ? "selected": "")}>{item}</option>")
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+                                    }
+                                    else if (Model == null) { }
+                                    else
+                                    {
+                                        <div class="well">
+                                            Неподдерживаемый тип виджета
+                                        </div>
+                                    }
+                                    
+                                    <div class="form-group text-center">
+                                        <input type="submit" value="@ViewData["Title"]" class="btn btn-default" />
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        (function() {
+            $('form select').on('change',
+                function() {
+                    $(this).closest('form').submit();
+                });
+        })();
+    </script>
+}

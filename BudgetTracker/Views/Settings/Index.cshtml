@@ -1,0 +1,86 @@
+﻿@model BudgetTracker.Controllers.SettingsController.IndexViewModel
+@{
+    ViewData["Title"] = "Настройки";
+}
+
+<div class="container">
+    <div class="row row-cards row-deck">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    Общие настройки
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm("UpdatePassword", "Settings", FormMethod.Post))
+                    {
+                        <div class="form-group">
+                            <label class="form-label">
+                                Пароль для входа
+                            </label>
+                            <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="Пароль">
+                        </div>
+                        <div class="form-footer">
+                            <button type="submit" class="btn btn-primary btn-block">Обновить</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    Источники данных
+                </div>
+                <table class="table card-table table-vcenter text-nowrap">
+                    <thead>
+                    <tr>
+                        <th class="w-1">Тип</th>
+                        <th>Логин</th>
+                        <th>Пароль</th>
+                        <th class="w-1"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var item in Model.PossibleScrapers)
+                    {
+                        var matchingConfig = Model.ScraperConfigs.FirstOrDefault(v => v.ScraperName == item);
+
+                        <tr>
+                            <td>@item</td>
+                            @if (matchingConfig == null)
+                            {
+                                using (Html.BeginForm("AddScraper", "Settings", FormMethod.Post))
+                                {
+                                    <input type="hidden" id="name" name="name" value="@item"/>
+                                    <td><input type="text" id="login" name="login" placeholder="Логин" class="form-control form-control-sm"/></td>
+                                    <td><input type="text" id="password" name="password" placeholder="Пароль" class="form-control form-control-sm"/></td>
+                                    <td>
+                                        <input type="submit" class="form-control btn btn-secondary btn-sm" value="Включить"/>
+                                    </td>
+                                }
+                            }
+                            else
+                            {
+                                <td class="text-muted">@matchingConfig.Login</td>
+                                <td class="text-muted">
+                                    @if (matchingConfig.Password != null)
+                                    {
+                                        <text>********@matchingConfig.Password?.TakeLast(2).Select(v => v.ToString()).Aggregate((a, b) => a + b)</text>
+                                    }
+                                </td>
+                                <td>
+                                    <a href="javascript:void(0)">
+                                        <span class="fe fe-x-circle"></span>
+                                    </a>
+                                </td>
+                            }
+
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
