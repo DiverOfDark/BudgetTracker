@@ -37,6 +37,7 @@ RUN ln -fs /usr/local/bin/chromedriver /app/net/chromedriver
 RUN ln -fs /opt/google/chrome/chrome /usr/bin/chrome
 
 ADD run.sh .
+RUN chmod +x run.sh
 
 ARG IsProduction=false
 ARG CiCommitName=local
