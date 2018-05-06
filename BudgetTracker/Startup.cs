@@ -176,8 +176,6 @@ namespace BudgetTracker
             RecurringJob.AddOrUpdate<ScrapeService>(x=>x.Scrape(), interval);
             RecurringJob.AddOrUpdate<RepositoryCleanupService>(x=>x.Run(), interval);
             RecurringJob.AddOrUpdate<SmsRuleProcessor>(x=>x.Process(), Cron.MinuteInterval(5));
-            
-            RecurringJob.AddOrUpdate(()=>Environment.Exit(0), Cron.Daily(10, 0));
         }
     }
 
