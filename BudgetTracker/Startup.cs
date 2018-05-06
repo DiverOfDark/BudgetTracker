@@ -12,6 +12,7 @@ using Hangfire;
 using Hangfire.AspNetCore;
 using Hangfire.Dashboard;
 using Hangfire.MemoryStorage;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -43,6 +44,14 @@ namespace BudgetTracker
             IsProduction = Configuration["Properties:IsProduction"] == "true";
             CommmitHash = Configuration["Properties:CiCommitHash"];
             CommmitName = Configuration["Properties:CiCommitName"];
+
+            var instrumentationKey = Configuration["ApplicationInsights:InstrumentationKey"];
+
+            if (instrumentationKey != null)
+            {
+                TelemetryConfiguration.Active.InstrumentationKey = instrumentationKey;
+                TelemetryConfiguration.Active.DisableTelemetry = false;
+            }
         }
 
         public static string CommmitName { get; private set; }
