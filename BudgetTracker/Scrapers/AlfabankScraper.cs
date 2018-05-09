@@ -79,6 +79,8 @@ namespace BudgetTracker.Scrapers
             var link1 = (RemoteWebElement) driver.FindElementByLinkText("Счета");
             driver.Mouse.MouseMove(link1.Coordinates, 1, 1);
             
+            Thread.Sleep(500); 
+            
             existingLinks = driver.FindElementsByPartialLinkText("История операций").Except(existingLinks).ToList();
             existingLinks.Single().Click();
 
