@@ -53,14 +53,17 @@ namespace BudgetTracker.Services
 
                 var payments = _objectRepository.Set<PaymentModel>().Where(v => v.Category == null).ToList();
                 var categories = _objectRepository.Set<SpentCategoryModel>();
-                foreach (SpentCategoryModel category in categories)
+
+                var cats = categories.ToDictionary(v => v, v => new Regex(v.Pattern, regexOptions));
+                foreach (var p in payments.ToList())
                 {
-                    var reg = new Regex(category.Pattern, regexOptions);
-                    foreach (var p in payments)
+                    foreach (var category in cats)
                     {
-                        if (reg.IsMatch(p.What))
+                        if (category.Value.IsMatch(p.What))
                         {
-                            p.Category = category;
+                            p.Category = category.Key;
+                            payments.Remove(p);
+                            break;
                         }
                     }
                 }
