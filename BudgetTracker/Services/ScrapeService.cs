@@ -6,6 +6,7 @@ using BudgetTracker.Model;
 using BudgetTracker.Scrapers;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.Extensions;
 
 namespace BudgetTracker.Services
@@ -63,6 +64,48 @@ namespace BudgetTracker.Services
                     
                     logger.LogInformation($"Scraping {scraper.ProviderName}");
 
+                    if (scraper is IStatementScraper ss)
+                    {
+                        try
+                        {
+                            var lastPayment = _objectRepository.Set<PaymentModel>()
+                                .Where(v => v.Provider == scraper.ProviderName).OrderByDescending(v => v.When)
+                                .FirstOrDefault()?.When ?? DateTime.MinValue;
+
+                            if (lastPayment.AddHours(8) > DateTime.Now)
+                                continue; // Let's not scrape too often
+
+                            logger.LogInformation($"Scraping statement for {scraper.ProviderName} since {lastPayment}...");
+
+                            var statements = ss.ScrapeStatement(scraperConfig, _chrome, lastPayment).ToList();
+                            
+                            logger.LogInformation($"Got statement of {statements.Count} items...");
+                            
+                            foreach (var s in statements)
+                            {
+                                var existingItem = _objectRepository.Set<PaymentModel>().FirstOrDefault(v =>
+                                    v.When.Date == s.When.Date &&
+                                    Math.Abs(v.Amount - s.Amount) < 0.01 &&
+                                    v.Ccy == s.Ccy &&
+                                    v.StatementReference == null || v.StatementReference == s.StatementReference);
+                                
+                                if (existingItem == null)
+                                {
+                                    _objectRepository.Add(s);
+                                }
+                                else
+                                {
+                                    existingItem.Provider = s.Provider;
+                                    existingItem.Account = s.Account;
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.LogError($"Failed to get statement for {scraper.ProviderName}...", ex);
+                        }
+                    }
+
                     var accountCount = currentState.Where(s => s.Provider == scraper.ProviderName && s.When.Date == DateTime.UtcNow.Date.AddDays(-1))
                         .Select(s => s.AccountName).Distinct()
                         .ToList();
@@ -75,20 +118,17 @@ namespace BudgetTracker.Services
 
                     if (toScrape)
                     {
-                        logger.LogInformation("No cached items, scraping...");
-
-                        var driver = _chrome.Driver;
-
                         try
                         {
-                            var items = scraper.Scrape(scraperConfig, driver);
+                            logger.LogInformation("No cached items, scraping...");
+
+                            var items = scraper.Scrape(scraperConfig, _chrome.Driver);
 
                             logger.LogInformation($"Found {items.Count()} items, indexing...");
 
                             foreach (var item in items)
                             {
-                                logger.LogInformation(
-                                    $" - {item.Provider} / {item.AccountName}: {item.Amount} ({item.Ccy})");
+                                logger.LogInformation($" - {item.Provider} / {item.AccountName}: {item.Amount} ({item.Ccy})");
                                 if (!string.IsNullOrWhiteSpace(item.Provider))
                                 {
                                     if (item.Amount <= 0.001)
@@ -112,14 +152,6 @@ namespace BudgetTracker.Services
                         }
                         catch (Exception ex)
                         {
-                            if (!Startup.IsProduction)
-                            {
-                                driver.TakeScreenshot().SaveAsFile("/tmp/screenshots/err.png", ScreenshotImageFormat.Png);
-                                var body = driver.FindElement(By.TagName("body")).GetAttribute("innerHtml");
-                                File.WriteAllText("/tmp/screenshots/doc.html", body);
-                                File.WriteAllText("/tmp/screenshots/doc2.html", driver.PageSource);
-                            }
-
                             logger.LogError(ex, "There were an issue scraping");
                         }
                     }

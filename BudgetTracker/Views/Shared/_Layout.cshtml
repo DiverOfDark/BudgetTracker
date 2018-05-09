@@ -49,7 +49,7 @@ else
                     <div class="container">
                         <div class="d-flex">
                             <a asp-area="" asp-controller="Widget" asp-action="Index" class="navbar-brand">
-                                BudgetTracker
+                                BudgetTracker @(Startup.IsProduction ? "" : " [ReadOnly]")
                             </a>
                             <div class="ml-auto d-flex order-lg-2">
                                 <div class="nav-item">

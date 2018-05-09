@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using System.Threading;
@@ -64,6 +65,8 @@ namespace BudgetTracker
 
         public void ConfigureServices(IServiceCollection services)
         {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
             services.AddMvc();
             services.AddSingleton<Chrome>();
             services.AddSingleton<ScrapeService>();
