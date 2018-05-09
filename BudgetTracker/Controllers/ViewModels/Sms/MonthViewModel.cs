@@ -37,7 +37,7 @@ namespace BudgetTracker.Controllers.ViewModels.Sms
             When = Sms.Select(v => (DateTime?)v.When).FirstOrDefault() ?? paymentModels.Select(v => v.When).FirstOrDefault();
 
             var groups = paymentModels
-                .GroupBy(v => v.What.ToLower() + v.Ccy)
+                .GroupBy(v => v.What.ToLower() + v.Ccy + v.Kind)
                 .Where(v => v.Count() > 1)
                 .ToList();
 

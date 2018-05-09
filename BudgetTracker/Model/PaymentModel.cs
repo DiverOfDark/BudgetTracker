@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -9,9 +10,13 @@ namespace BudgetTracker.Model
 {
     public enum PaymentKind
     {
+        [DisplayName("Трата")]
         Expense = 0,
+        [DisplayName("Доход")]
         Income = 1,
+        [DisplayName("Перевод")]
         Transfer = 2,
+        [DisplayName("Неизвестно")]
         Unknown = -1
     }
     

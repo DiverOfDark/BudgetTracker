@@ -76,11 +76,11 @@ namespace BudgetTracker
                 AcceptInsecureCertificates = true
             };
 
-            if (!Debugger.IsAttached)
+            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SHOW_CHROME")))
             {
                 chromeOptions.AddArgument("--headless");
             }
-            
+
             chromeOptions.AddArgument("--no-sandbox");
             chromeOptions.AddArgument("--ignore-certificate-errors");
             chromeOptions.AddArgument("--useragent=\"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0\"");

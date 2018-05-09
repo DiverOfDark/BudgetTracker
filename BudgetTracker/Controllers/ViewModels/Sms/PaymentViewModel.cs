@@ -35,30 +35,21 @@ namespace BudgetTracker.Controllers.ViewModels.Sms
             }
         }
 
-        public PaymentViewModel(IList<PaymentModel> paymentGroup, bool requireSameWhat = true)
+        public PaymentViewModel(IList<PaymentModel> paymentGroup)
         {
             When = paymentGroup.Max(v => v.When);
             Amount = paymentGroup.Sum(v => v.Amount);
             Ccy = paymentGroup.Select(s => s.Ccy).Distinct().Single();
             Id = paymentGroup.First().Id;
-            if (requireSameWhat)
-            {
-                What = paymentGroup.Select(v => v.Category?.Category ?? v.What).Distinct(StringComparer.CurrentCultureIgnoreCase).Single();
-                Provider = paymentGroup.Select(v => v.Provider).Distinct(StringComparer.CurrentCultureIgnoreCase).Single();
-                Account = paymentGroup.Select(v => v.Account).Distinct(StringComparer.CurrentCultureIgnoreCase).Single();
-                Kind = paymentGroup.Select(v => v.Kind).Distinct().Single();
-            }
-            else
-            {
-                var list = paymentGroup.Select(v => v.Category?.Category ?? v.What).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
-                What = list.Count == 1 ? list[0] : "Остальное";
-                list = paymentGroup.Select(v => v.Provider).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
-                Provider = list.Count == 1 ? list[0] : "Остальное";
-                list = paymentGroup.Select(v => v.Account).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
-                Account = list.Count == 1 ? list[0] : "Остальное";
-                var list2 = paymentGroup.Select(v => v.Kind).Distinct().ToList();
-                Kind = list2.Count == 1 ? list2[0] : PaymentKind.Unknown;
-            }
+
+            var list = paymentGroup.Select(v => v.Category?.Category ?? v.What).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
+            What = list.Count == 1 ? list[0] : "Остальное";
+            list = paymentGroup.Select(v => v.Provider).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
+            Provider = list.Count == 1 ? list[0] : "Остальное";
+            list = paymentGroup.Select(v => v.Account).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
+            Account = list.Count == 1 ? list[0] : "Остальное";
+            var list2 = paymentGroup.Select(v => v.Kind).Distinct().ToList();
+            Kind = list2.Count == 1 ? list2[0] : PaymentKind.Unknown;
 
             Items = paymentGroup;
         }

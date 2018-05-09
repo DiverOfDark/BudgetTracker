@@ -76,13 +76,14 @@ namespace BudgetTracker.Controllers
         }
 
         [HttpPost]
-        public IActionResult EditPayment(Guid id, double amount, string ccy, string what)
+        public IActionResult EditPayment(Guid id, double amount, string ccy, string what, PaymentKind kind)
         {
             var payment = _objectRepository.Set<PaymentModel>().First(v => v.Id == id);
             payment.Amount = amount;
             payment.Ccy = ccy;
             payment.What = what;
             payment.Category = null;
+            payment.Kind = kind;
             return RedirectToAction("Payments");
         }
 
