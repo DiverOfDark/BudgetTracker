@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BudgetTracker.Model;
 
-namespace BudgetTracker.Controllers.ViewModels.Sms
+namespace BudgetTracker.Controllers.ViewModels.Payment
 {
     public class PaymentViewModel 
     {

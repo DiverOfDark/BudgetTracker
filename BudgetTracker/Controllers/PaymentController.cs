@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text.RegularExpressions;
-using BudgetTracker.Controllers.ViewModels.Sms;
+using BudgetTracker.Controllers.ViewModels.Payment;
 using BudgetTracker.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +18,7 @@ namespace BudgetTracker.Controllers
             _objectRepository = objectRepository;
         }
 
-        public ActionResult Index() => View(new SmsListViewModel(_objectRepository, false));
+        public ActionResult Index() => View(PaymentMonthViewModel.FromPayments(_objectRepository).OrderByDescending(v => v.When).ToList());
 
         public ActionResult SpentCategories() => View(_objectRepository.Set<SpentCategoryModel>().ToList());
 

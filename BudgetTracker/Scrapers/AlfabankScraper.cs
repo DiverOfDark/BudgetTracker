@@ -8,10 +8,8 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using BudgetTracker.Model;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Support.UI;
 
@@ -78,7 +76,7 @@ namespace BudgetTracker.Scrapers
 
             var existingLinks = driver.FindElementsByPartialLinkText("История операций").ToList();
 
-            var link1 = driver.FindElementByLinkText("Счета") as RemoteWebElement;
+            var link1 = (RemoteWebElement) driver.FindElementByLinkText("Счета");
             driver.Mouse.MouseMove(link1.Coordinates, 1, 1);
             
             existingLinks = driver.FindElementsByPartialLinkText("История операций").Except(existingLinks).ToList();

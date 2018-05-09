@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using BudgetTracker.Model;
-using OpenQA.Selenium.Chrome;
 
 namespace BudgetTracker.Scrapers
 {

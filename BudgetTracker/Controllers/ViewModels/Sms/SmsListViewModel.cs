@@ -10,10 +10,10 @@ namespace BudgetTracker.Controllers.ViewModels.Sms
         {
             ShowHidden = showHidden;
             
-            Months = MonthViewModel.FromSms(objectRepository, showHidden).OrderByDescending(v=>v.When).ToList();
+            Months = SmsMonthViewModel.FromSms(objectRepository, showHidden).OrderByDescending(v=>v.When).ToList();
         }
 
-        public List<MonthViewModel> Months { get; }
+        public List<SmsMonthViewModel> Months { get; }
 
         public bool ShowHidden { get; set; }
     }
