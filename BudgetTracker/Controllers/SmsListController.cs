@@ -44,7 +44,6 @@ namespace BudgetTracker.Controllers
             }
 
             _objectRepository.Add(new SpentCategoryModel(pattern, category));
-            _smsRuleProcessor.Process();
             return RedirectToAction(nameof(Payments));
         }
         
@@ -66,7 +65,6 @@ namespace BudgetTracker.Controllers
 
             var rule = new RuleModel(ruleType, regexSender, regexText);
             _objectRepository.Add(rule);
-            _smsRuleProcessor.Process();
             return RedirectToAction(nameof(Index));
         }
 

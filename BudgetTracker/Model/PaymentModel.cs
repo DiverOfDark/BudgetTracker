@@ -11,7 +11,8 @@ namespace BudgetTracker.Model
     {
         Expense = 0,
         Income = 1,
-        Transfer = 2
+        Transfer = 2,
+        Unknown = -1
     }
     
     public class PaymentModel : ModelBase
