@@ -22,26 +22,6 @@ namespace BudgetTracker.Controllers
 
         public ActionResult SmsRules() => View(_objectRepository.Set<RuleModel>().ToList());
 
-        public ActionResult Payments() => View(new SmsListViewModel(_objectRepository, false));
-
-        public ActionResult SpentCategories() => View(_objectRepository.Set<SpentCategoryModel>().ToList());
-
-        public IActionResult CreateCategory(string pattern, string category, PaymentKind kind)
-        {
-            try
-            {
-                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                Regex.Match("test", pattern);
-            }
-            catch
-            {
-                return RedirectToAction(nameof(SpentCategories));
-            }
-
-            _objectRepository.Add(new SpentCategoryModel(pattern, category, kind));
-            return RedirectToAction(nameof(SpentCategories));
-        }
-        
         public IActionResult CreateRule(RuleType ruleType, string regexSender, string regexText)
         {
             try
@@ -63,25 +43,6 @@ namespace BudgetTracker.Controllers
             return RedirectToAction(nameof(SmsRules));
         }
 
-        public IActionResult EditPayment(Guid id)
-        {
-            var payment = _objectRepository.Set<PaymentModel>().First(v => v.Id == id);
-            var vm = new PaymentViewModel(payment);
-            return View(vm);
-        }
-
-        [HttpPost]
-        public IActionResult EditPayment(Guid id, double amount, string ccy, string what, PaymentKind kind)
-        {
-            var payment = _objectRepository.Set<PaymentModel>().First(v => v.Id == id);
-            payment.Amount = amount;
-            payment.Ccy = ccy;
-            payment.What = what;
-            payment.Category = null;
-            payment.Kind = kind;
-            return RedirectToAction("Payments");
-        }
-
         public IActionResult DeleteSms(Guid id)
         {
             var sms = _objectRepository.Set<SmsModel>().First(v => v.Id == id);
@@ -95,18 +56,6 @@ namespace BudgetTracker.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult DeletePayment(Guid id)
-        {
-            var payment = _objectRepository.Set<PaymentModel>().First(v => v.Id == id);
-            if (payment.Sms != null)
-            {
-                payment.Sms.AppliedRule = null;
-            }
-
-            _objectRepository.Remove(payment);
-            return RedirectToAction(nameof(Payments));
-        }
-
         public IActionResult DeleteRule(Guid id)
         {
             var rule = _objectRepository.Set<RuleModel>().First(v => v.Id == id);
@@ -118,33 +67,6 @@ namespace BudgetTracker.Controllers
             
             _objectRepository.Remove(rule);
             return RedirectToAction(nameof(SmsRules));
-        }
-
-        public IActionResult DeleteCategory(Guid id)
-        {
-            var category = _objectRepository.Set<SpentCategoryModel>().First(x => x.Id == id);
-
-            foreach (var item in category.Payments)
-            {
-                item.Category = null;
-            }
-            
-            _objectRepository.Remove(category);
-            return RedirectToAction(nameof(SpentCategories));
-        }
-
-        public IActionResult EditCategory(Guid id) => View(_objectRepository.Set<SpentCategoryModel>().First(v => v.Id == id));
-
-        [HttpPost]
-        public IActionResult EditCategory(Guid id, string pattern, string category, PaymentKind kind)
-        {
-            var categoryObj = _objectRepository.Set<SpentCategoryModel>().First(v => v.Id == id);
-
-            categoryObj.Pattern = pattern;
-            categoryObj.Category = category;
-            categoryObj.Kind = kind;
-            
-            return RedirectToAction(nameof(SpentCategories));
         }
     }
 }
