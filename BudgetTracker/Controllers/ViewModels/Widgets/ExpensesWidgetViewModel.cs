@@ -11,8 +11,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         public ExpensesWidgetViewModel(WidgetModel model, ObjectRepository repository) : base(model, new ExpensesWidgetSettings(model.Properties.ToDictionary(v=>v.Key, v=>v.Value)))
         {
             ExpenseSettings = (ExpensesWidgetSettings) Settings;
-            var payments = repository.Set<PaymentModel>()
-                .Where(v => v.When.AddDays(30) > DateTime.UtcNow && v.Ccy == ExpenseSettings.Currency);
+            var payments = repository.Set<PaymentModel>().Where(v => v.When.AddDays(30) > DateTime.UtcNow && v.Ccy == ExpenseSettings.Currency && v.Kind == PaymentKind.Expense);
             var month = new MonthViewModel(Enumerable.Empty<SmsModel>(), payments);
             Payments = month.PaymentModels.ToList();
         }
