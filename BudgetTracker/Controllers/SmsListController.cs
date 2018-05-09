@@ -3,7 +3,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using BudgetTracker.Controllers.ViewModels.Sms;
 using BudgetTracker.Model;
-using BudgetTracker.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,23 +12,19 @@ namespace BudgetTracker.Controllers
     public class SmsListController : Controller
     {
         private readonly ObjectRepository _objectRepository;
-        private readonly SmsRuleProcessor _smsRuleProcessor;
 
-        public SmsListController(ObjectRepository objectRepository, SmsRuleProcessor smsRuleProcessor)
+        public SmsListController(ObjectRepository objectRepository)
         {
             _objectRepository = objectRepository;
-            _smsRuleProcessor = smsRuleProcessor;
         }
 
-        public ActionResult Index(bool showHidden = false)
-        {
-            return View(new SmsListViewModel(_objectRepository, showHidden));
-        }
+        public ActionResult Index(bool showHidden = false) => View(new SmsListViewModel(_objectRepository, showHidden));
 
-        public ActionResult Payments()
-        {
-            return View(new SmsListViewModel(_objectRepository, false));
-        }
+        public ActionResult SmsRules() => View(_objectRepository.Set<RuleModel>().ToList());
+
+        public ActionResult Payments() => View(new SmsListViewModel(_objectRepository, false));
+
+        public ActionResult SpentCategories() => View(_objectRepository.Set<SpentCategoryModel>().ToList());
 
         public IActionResult CreateCategory(string pattern, string category, PaymentKind kind)
         {
@@ -40,11 +35,11 @@ namespace BudgetTracker.Controllers
             }
             catch
             {
-                return RedirectToAction(nameof(Payments));
+                return RedirectToAction(nameof(SpentCategories));
             }
 
             _objectRepository.Add(new SpentCategoryModel(pattern, category, kind));
-            return RedirectToAction(nameof(Payments));
+            return RedirectToAction(nameof(SpentCategories));
         }
         
         public IActionResult CreateRule(RuleType ruleType, string regexSender, string regexText)
@@ -60,12 +55,12 @@ namespace BudgetTracker.Controllers
             }
             catch
             {
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(SmsRules));
             }
 
             var rule = new RuleModel(ruleType, regexSender, regexText);
             _objectRepository.Add(rule);
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(SmsRules));
         }
 
         public IActionResult EditPayment(Guid id)
@@ -122,7 +117,7 @@ namespace BudgetTracker.Controllers
             }
             
             _objectRepository.Remove(rule);
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(SmsRules));
         }
 
         public IActionResult DeleteCategory(Guid id)
@@ -135,7 +130,7 @@ namespace BudgetTracker.Controllers
             }
             
             _objectRepository.Remove(category);
-            return RedirectToAction(nameof(Payments));
+            return RedirectToAction(nameof(SpentCategories));
         }
     }
 }

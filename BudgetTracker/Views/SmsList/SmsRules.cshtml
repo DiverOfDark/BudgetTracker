@@ -1,0 +1,66 @@
+﻿@using Model
+@model IEnumerable<RuleModel>
+@{
+    ViewData["Title"] = "Правила обработки SMS";
+
+}
+<div class="container">
+    <div class="row row-cards row-deck">
+        <div class="col-12">
+            <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            Правила обработки SMS
+                        </h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table card-table table-sm table-hover table-striped">
+                            <thead>
+                            <tr>
+                                <th>Правило</th>
+                                <th>Шаблон отправителя</th>
+                                <th>Шаблон сообщения</th>
+                                <th>Удалить</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var rule in Model.OrderBy(v => v.RuleType).ThenBy(v => v.RegexSender).ThenBy(v => v.RegexText))
+                            {
+                                <tr>
+                                    <td>@rule.RuleType.GetDisplayName()</td>
+                                    <td>@rule.RegexSender</td>
+                                    <td>@rule.RegexText</td>
+                                    <td>
+                                        <a href="@Url.Action("DeleteRule", new {id = rule.Id})">
+                                            <span class="fe fe-x-circle"></span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+    
+                            <form action="@Url.Action("CreateRule")">
+                                <tr>
+                                    <td>
+                                        <select id="ruleType" name="ruleType" class="form-control form-control-sm">
+                                            <option value="Ignore">Скрывать</option>
+                                            <option value="Money">Считать как трату</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="text" id="regexSender" name="regexSender" class="form-control form-control-sm"/>
+                                    </td>
+                                    <td>
+                                        <input type="text" id="regexText" name="regexText" class="form-control form-control-sm"/>
+                                    </td>
+                                    <td>
+                                        <input type="submit" class="btn btn-sm btn-azure" value="Добавить"/>
+                                    </td>
+                                </tr>
+                            </form>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>

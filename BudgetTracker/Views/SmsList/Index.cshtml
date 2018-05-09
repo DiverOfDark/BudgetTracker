@@ -7,85 +7,15 @@
 <div class="container">
     <div class="row row-cards row-deck">
         <div class="col-12">
-            <div class="collapse" id="collapseRules">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            Правила обработки SMS
-                        </h3>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table card-table table-sm table-hover table-striped">
-                            <thead>
-                            <tr>
-                                <th>Правило</th>
-                                <th>Шаблон отправителя</th>
-                                <th>Шаблон сообщения</th>
-                                <th>Удалить</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach (var rule in Model.Rules.OrderBy(v => v.RuleType).ThenBy(v => v.RegexSender).ThenBy(v => v.RegexText))
-                            {
-                                <tr>
-                                    <td>
-                                        @switch (rule.RuleType)
-                                        {
-                                            case RuleType.Money:
-                                                <text>Траты</text>
-                                                break;
-                                            case RuleType.Ignore:
-                                                <text>Игнорировать</text>
-                                                break;
-                                        }
-                                    </td>
-                                    <td>@rule.RegexSender</td>
-                                    <td>@rule.RegexText</td>
-                                    <td>
-                                        <a href="@Url.Action("DeleteRule", new {id = rule.Id})">
-                                            <span class="fe fe-x-circle"></span>
-                                        </a>
-                                    </td>
-                                </tr>
-                            }
-    
-                            <form action="@Url.Action("CreateRule")">
-                                <tr>
-                                    <td>
-                                        <select id="ruleType" name="ruleType" class="form-control form-control-sm">
-                                            <option value="Ignore">Скрывать</option>
-                                            <option value="Money">Считать как трату</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input type="text" id="regexSender" name="regexSender" class="form-control form-control-sm"/>
-                                    </td>
-                                    <td>
-                                        <input type="text" id="regexText" name="regexText" class="form-control form-control-sm"/>
-                                    </td>
-                                    <td>
-                                        <input type="submit" class="btn btn-sm btn-azure" value="Добавить"/>
-                                    </td>
-                                </tr>
-                            </form>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row row-cards row-deck">
-        <div class="col-12">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">
                         SMS 
                     </h3>
                     <div class="card-options">
-                        <button class="btn btn-primary btn-sm" type="button" data-toggle="collapse" data-target="#collapseRules" aria-expanded="false" aria-controls="collapse">
+                        <a class="btn btn-primary btn-sm" href="@Url.Action("SmsRules")">
                             Правила обработки SMS
-                        </button>
+                        </a>
                         &nbsp;
                         <a class="btn btn-secondary btn-sm" href="?ShowHidden=@(!Model.ShowHidden)">
                             @if (Model.ShowHidden)
