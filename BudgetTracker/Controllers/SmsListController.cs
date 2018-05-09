@@ -132,5 +132,19 @@ namespace BudgetTracker.Controllers
             _objectRepository.Remove(category);
             return RedirectToAction(nameof(SpentCategories));
         }
+
+        public IActionResult EditCategory(Guid id) => View(_objectRepository.Set<SpentCategoryModel>().First(v => v.Id == id));
+
+        [HttpPost]
+        public IActionResult EditCategory(Guid id, string pattern, string category, PaymentKind kind)
+        {
+            var categoryObj = _objectRepository.Set<SpentCategoryModel>().First(v => v.Id == id);
+
+            categoryObj.Pattern = pattern;
+            categoryObj.Category = category;
+            categoryObj.Kind = kind;
+            
+            return RedirectToAction(nameof(SpentCategories));
+        }
     }
 }

@@ -31,6 +31,9 @@
                                     <td>@category.Kind.GetDisplayName()</td>
                                     <td>@category.Pattern</td>
                                     <td>
+                                        <a href="@Url.Action("EditCategory", new {id = category.Id})">
+                                            <span class="fe fe-edit"></span>
+                                        </a>
                                         <a href="@Url.Action("DeleteCategory", new {id = category.Id})">
                                             <span class="fe fe-x-circle"></span>
                                         </a>
