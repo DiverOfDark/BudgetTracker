@@ -121,7 +121,7 @@ namespace BudgetTracker.Services
                         }
                         catch (Exception ex)
                         {
-                            logger.LogError($"Failed to get statement for {scraper.ProviderName}...", ex);
+                            logger.LogError(ex, $"Failed to get statement for {scraper.ProviderName}...");
                         }
                     }
 
