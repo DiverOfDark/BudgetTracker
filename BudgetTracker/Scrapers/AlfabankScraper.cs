@@ -84,6 +84,8 @@ namespace BudgetTracker.Scrapers
             existingLinks = driver.FindElementsByPartialLinkText("История операций").Except(existingLinks).ToList();
             existingLinks.Single().Click();
 
+            Thread.Sleep(2000); 
+            
             var selectBtn = driver.FindElementById("pt1:soc1::button");
 
             var accountsChooser = driver.FindElementById("pt1:soc1::pop");
@@ -99,10 +101,19 @@ namespace BudgetTracker.Scrapers
                     continue;
 
                 selectBtn.Click();
+
+                Thread.Sleep(2000); 
+            
                 tds[0].Click();
+
+                Thread.Sleep(2000); 
+
 
                 var inputDate = driver.FindElementById("pt1:id1::fd");
                 inputDate.Click();
+
+                Thread.Sleep(2000); 
+            
                 driver.Keyboard.SendKeys(Enumerable.Repeat(Keys.Delete, 20).Join(""));
                 Thread.Sleep(500);
                 driver.Keyboard.SendKeys(Enumerable.Repeat(Keys.Backspace, 20).Join(""));
@@ -115,6 +126,8 @@ namespace BudgetTracker.Scrapers
 
                 var submit = driver.FindElementById("pt1:showButton::button");
                 submit.Click();
+
+                Thread.Sleep(2000); 
 
                 var csv = driver.FindElementById("pt1:downloadCSVLink");
                 csv.Click();
