@@ -58,7 +58,7 @@ namespace BudgetTracker.Model
                 Ccy = ccy,
                 Amount = amount,
                 What = what,
-                Kind = (int) (amount < 0 ? PaymentKind.Expense : PaymentKind.Income),
+                Kind = (int) (amount > 0 ? PaymentKind.Expense : PaymentKind.Income),
                 StatementReference = statementReference
             };
         }
