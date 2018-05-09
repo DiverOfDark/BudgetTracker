@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using BudgetTracker.Model;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -132,6 +133,9 @@ namespace BudgetTracker.Scrapers
                     var csvContent = File.ReadAllLines(csvFile.FullName, Encoding.GetEncoding(1251)).Skip(1).Select(v=>new AlphaStatement(v)).ToList();
                     var payments = csvContent.Select(v =>
                         Statement(v.Date, v.AccountName, v.What, v.Outcome - v.Income, v.Ccy, v.Reference)).ToList();
+
+                    var holdPayments = payments.Where(v => v.StatementReference == "HOLD").ToList();
+                    payments = payments.Except(holdPayments).ToList();
                     
                     result.AddRange(payments);
                     csvFile.Delete();
@@ -158,6 +162,12 @@ namespace BudgetTracker.Scrapers
                 What = fields[5];
                 Income = ConvertToDouble(fields[6]);
                 Outcome = ConvertToDouble(fields[7]);
+
+                var match = Regex.Match(What, @"\d{2}\.\d{2}\.\d{2} (?<when>\d{2}\.\d{2}\.\d{2})"); // Because CC operations in statement are shown in transaction posted date, not when transaction began. 
+                if (match.Success)
+                {
+                    Date = DateTime.ParseExact(match.Groups["when"].Value, "dd.MM.yy", CultureInfo.InvariantCulture);
+                }
             }
 
             private double ConvertToDouble(string p0) => double.Parse(p0.Replace(",", "."), new NumberFormatInfo() {NumberDecimalSeparator = "."});

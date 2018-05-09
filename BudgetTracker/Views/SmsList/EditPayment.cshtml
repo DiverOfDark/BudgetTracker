@@ -37,6 +37,20 @@
                                             <textarea rows="2" class="form-control" disabled="disabled">@(Model.Items.First().Sms?.Message.Replace("\n","") ?? "<не определена>")</textarea>
                                         </div>
                                     </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Провайдер/аккаунт:</label>
+                                        
+                                        <div control-labelstyle="padding-top: 7px;">
+                                            <textarea rows="2" class="form-control" disabled="disabled">@((Model.Items.First().Provider ?? "<не определена>") + "/" + (Model.Items.First().Account ?? "<не определена>"))</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Reference:</label>
+                                        
+                                        <div control-labelstyle="padding-top: 7px;">
+                                            <textarea rows="2" class="form-control" disabled="disabled">@(Model.Items.First().StatementReference ?? "<не определена>")</textarea>
+                                        </div>
+                                    </div>
 
                                     <div class="form-group">
                                         <label class="control-label">Количество</label>

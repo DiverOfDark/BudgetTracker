@@ -95,8 +95,20 @@ namespace BudgetTracker.Services
                                 }
                                 else
                                 {
-                                    existingItem.Provider = s.Provider;
-                                    existingItem.Account = s.Account;
+                                    if (existingItem.Provider == null)
+                                    {
+                                        existingItem.Provider = s.Provider;
+                                    }
+
+                                    if (existingItem.Account == null)
+                                    {
+                                        existingItem.Account = s.Account;
+                                    }
+
+                                    if (existingItem.StatementReference == null)
+                                    {
+                                        existingItem.StatementReference = s.StatementReference;
+                                    }
                                 }
                             }
                         }

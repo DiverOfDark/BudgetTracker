@@ -26,6 +26,11 @@ namespace BudgetTracker.Controllers
             return View(new SmsListViewModel(_objectRepository, showHidden));
         }
 
+        public ActionResult Payments()
+        {
+            return View(new SmsListViewModel(_objectRepository, false));
+        }
+
         public IActionResult CreateCategory(string pattern, string category)
         {
             try
@@ -35,12 +40,12 @@ namespace BudgetTracker.Controllers
             }
             catch
             {
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Payments));
             }
 
             _objectRepository.Add(new SpentCategoryModel(pattern, category));
             _smsRuleProcessor.Process();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Payments));
         }
         
         public IActionResult CreateRule(RuleType ruleType, string regexSender, string regexText)
@@ -80,7 +85,7 @@ namespace BudgetTracker.Controllers
             payment.Ccy = ccy;
             payment.What = what;
             payment.Category = null;
-            return RedirectToAction("Index");
+            return RedirectToAction("Payments");
         }
 
         public IActionResult DeleteSms(Guid id)
@@ -105,7 +110,7 @@ namespace BudgetTracker.Controllers
             }
 
             _objectRepository.Remove(payment);
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Payments));
         }
 
         public IActionResult DeleteRule(Guid id)
@@ -131,7 +136,7 @@ namespace BudgetTracker.Controllers
             }
             
             _objectRepository.Remove(category);
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Payments));
         }
     }
 }
