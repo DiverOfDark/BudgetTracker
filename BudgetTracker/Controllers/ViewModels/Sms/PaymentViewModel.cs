@@ -20,21 +20,6 @@ namespace BudgetTracker.Controllers.ViewModels.Sms
             Kind = paymentModel.Kind;
         }
 
-        public string ConvertKind(PaymentKind paymentModelKind)
-        {
-            switch (paymentModelKind)
-            {
-                case PaymentKind.Expense:
-                    return "Расход";
-                case PaymentKind.Income:
-                    return "Доход";
-                case PaymentKind.Transfer:
-                    return "Перевод";
-                default:
-                    return "Другое";
-            }
-        }
-
         public PaymentViewModel(IList<PaymentModel> paymentGroup)
         {
             When = paymentGroup.Max(v => v.When);

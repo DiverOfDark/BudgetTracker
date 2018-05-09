@@ -69,14 +69,17 @@ namespace BudgetTracker.Services
                         try
                         {
                             var lastPayment = _objectRepository.Set<PaymentModel>()
-                                .Where(v => v.Provider == scraper.ProviderName).OrderByDescending(v => v.When)
-                                .FirstOrDefault()?.When ?? DateTime.MinValue;
+                                                  .Where(v => v.Provider == scraper.ProviderName)
+                                                  .OrderByDescending(v => v.When)
+                                                  .FirstOrDefault()?.When ??
+                                              _objectRepository.Set<MoneyStateModel>().OrderBy(v => v.When)
+                                                  .FirstOrDefault()?.When ?? DateTime.MinValue;
 
-                            if (lastPayment.AddHours(8) > DateTime.Now)
-                                continue; // Let's not scrape too often
+                            if (lastPayment.AddHours(24) > DateTime.Now)
+                                continue; // Let's not scrape statements too often - it's hard
 
                             logger.LogInformation($"Scraping statement for {scraper.ProviderName} since {lastPayment}...");
-
+                            
                             var statements = ss.ScrapeStatement(scraperConfig, _chrome, lastPayment).ToList();
                             
                             logger.LogInformation($"Got statement of {statements.Count} items...");

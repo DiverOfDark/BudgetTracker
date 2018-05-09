@@ -31,7 +31,7 @@ namespace BudgetTracker.Controllers
             return View(new SmsListViewModel(_objectRepository, false));
         }
 
-        public IActionResult CreateCategory(string pattern, string category)
+        public IActionResult CreateCategory(string pattern, string category, PaymentKind kind)
         {
             try
             {
@@ -43,7 +43,7 @@ namespace BudgetTracker.Controllers
                 return RedirectToAction(nameof(Payments));
             }
 
-            _objectRepository.Add(new SpentCategoryModel(pattern, category));
+            _objectRepository.Add(new SpentCategoryModel(pattern, category, kind));
             return RedirectToAction(nameof(Payments));
         }
         

@@ -12,6 +12,7 @@ namespace BudgetTracker.Model
         public class SpendCategoryEntity : BaseEntity
         {
             public string Pattern { get; set; }
+            public int Kind { get; set; }
             public string Category { get; set; }
         }
         
@@ -21,7 +22,7 @@ namespace BudgetTracker.Model
             Id = Guid.Parse(_entity.RowKey);
         }
 
-        public SpentCategoryModel(string pattern, string category)
+        public SpentCategoryModel(string pattern, string category, PaymentKind kind)
         {
             Id = Guid.NewGuid();
             _entity = new SpendCategoryEntity
@@ -29,16 +30,32 @@ namespace BudgetTracker.Model
                 Pattern = pattern,
                 Category = category,
                 RowKey = Id.ToString(),
-                PartitionKey = nameof(SpendCategoryEntity)
+                PartitionKey = nameof(SpendCategoryEntity),
+                Kind = (int) kind
             };
         }
         
         public override Guid Id { get; }
         protected override Object Entity => _entity;
 
-        public string Pattern => _entity.Pattern;
-        public string Category => _entity.Category;
-        
+        public string Pattern
+        {
+            get => _entity.Pattern;
+            set => UpdateProperty(() => _entity.Pattern, value);
+        }
+
+        public string Category
+        {
+            get => _entity.Category;
+            set => UpdateProperty(() => _entity.Category, value);
+        }
+
+        public PaymentKind Kind
+        {
+            get => (PaymentKind) _entity.Kind;
+            set => UpdateProperty(() => _entity.Kind, (int) value);
+        }
+
         public IEnumerable<PaymentModel> Payments => Multiple<PaymentModel>(v => v.CategoryId);
     }
 }

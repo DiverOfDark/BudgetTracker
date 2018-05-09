@@ -51,23 +51,6 @@ namespace BudgetTracker.Services
                     }
                 }
 
-                var payments = _objectRepository.Set<PaymentModel>().Where(v => v.Category == null).ToList();
-                var categories = _objectRepository.Set<SpentCategoryModel>();
-
-                var cats = categories.ToDictionary(v => v, v => new Regex(v.Pattern, regexOptions));
-                foreach (var p in payments.ToList())
-                {
-                    foreach (var category in cats)
-                    {
-                        if (category.Value.IsMatch(p.What))
-                        {
-                            p.Category = category.Key;
-                            payments.Remove(p);
-                            break;
-                        }
-                    }
-                }
-
                 var oldSms = _objectRepository.Set<SmsModel>()
                     .Where(v => v.AppliedRule != null && v.When.AddDays(7) < DateTime.UtcNow).ToList();
 

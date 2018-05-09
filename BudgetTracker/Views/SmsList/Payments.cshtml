@@ -19,6 +19,7 @@
                             <thead>
                             <tr>
                                 <th>Категория</th>
+                                <th>Тип</th>
                                 <th>Шаблон</th>
                                 <th>Удалить</th>
                             </tr>
@@ -28,6 +29,7 @@
                             {
                                 <tr>
                                     <td>@category.Category</td>
+                                    <td>@category.Kind.GetDisplayName()</td>
                                     <td>@category.Pattern</td>
                                     <td>
                                         <a href="@Url.Action("DeleteCategory", new {id = category.Id})">
@@ -41,6 +43,9 @@
                                 <tr>
                                     <td>
                                         <input type="text" id="category" name="category" class="form-control form-control-sm"/>
+                                    </td>
+                                    <td>
+                                        @Html.DropDownList("kind", typeof(PaymentKind).GetSelectList(), new{ @class="form-control form-control-sm"})
                                     </td>
                                     <td>
                                         <input type="text" id="pattern" name="pattern" class="form-control form-control-sm"/>
@@ -88,7 +93,7 @@
                         @foreach (var month in Model.Months)
                         {
                             <tr>
-                                <th colspan="4">
+                                <th colspan="7">
                                     <span class="card-title">
                                         <a href="#" data-toggle="collapse" data-target=".collapse-@month.Key" aria-expanded="false" aria-controls="collapse">
                                             @month.When.ToString("MMMM yyyy")
@@ -108,7 +113,7 @@
                             {
                                 <tr class="collapse-@month.Key collapse show">
                                     <td class="text-nowrap">@payment.When</td>
-                                    <td class="text-nowrap">@payment.ConvertKind(payment.Kind)</td>
+                                    <td class="text-nowrap">@payment.Kind.GetDisplayName()</td>
                                     <td class="text-nowrap">@payment.Provider</td>
                                     <td class="text-nowrap">@payment.Account</td>
                                     <td>
