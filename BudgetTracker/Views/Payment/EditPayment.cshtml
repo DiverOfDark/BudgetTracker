@@ -28,7 +28,7 @@
                                     <div class="form-group">
                                         <label class="control-label">Провайдер/аккаунт:
                                             <span class="font-weight-bold font-italic">
-                                                @((Model.Items.First().Provider ?? "<не определен>") + "/" + (Model.Items.First().Account ?? "<не определен>"))
+                                                @((Model.Provider ?? "<не определен>") + "/" + (Model.Account ?? "<не определен>"))
                                             </span>
                                         </label>
                                     </div>
@@ -63,7 +63,7 @@
                                     <div class="form-group">
                                         <label class="control-label">На что потрачено</label>
                                         <div control-labelstyle="padding-top: 7px;">
-                                            @Html.EditorFor(model => model.What, new {htmlAttributes = new {@class = "form-control"}})
+                                            @Html.EditorFor(model => model.Items.First().What, new {htmlAttributes = new {@class = "form-control"}})
                                         </div>
                                     </div>
                                     <div class="form-group text-center">
