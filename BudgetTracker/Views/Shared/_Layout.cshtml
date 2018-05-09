@@ -49,7 +49,7 @@ else
                     <div class="container">
                         <div class="d-flex">
                             <a asp-area="" asp-controller="Widget" asp-action="Index" class="navbar-brand">
-                                BudgetTracker
+                                BudgetTracker @(Startup.IsProduction ? "" : " [ReadOnly]")
                             </a>
                             <div class="ml-auto d-flex order-lg-2">
                                 <div class="nav-item">
@@ -74,7 +74,8 @@ else
                                 <ul class="nav nav-tabs border-0 flex-column flex-lg-row">
                                     <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Widget" asp-action="Index">Отчёт</a></li>
                                     <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Table" asp-action="Index">История</a></li>
-                                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="SmsList" asp-action="Index">Траты&nbsp;и&nbsp;SMS</a></li>
+                                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="SmsList" asp-action="Index">SMS</a></li>
+                                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Payment" asp-action="Index">ДДС</a></li>
                                     <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Utility" asp-action="ScriptConsole">Консоль</a></li>
                                     <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Utility" asp-action="Screenshot">Скриншот&nbsp;браузера</a></li>
                                     <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Settings" asp-action="Index">Настройки</a></li>

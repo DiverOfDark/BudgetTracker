@@ -28,5 +28,8 @@ namespace BudgetTracker.Scrapers
             Ccy = ccy,
             Amount = amount
         };
+
+        protected PaymentModel Statement(DateTime when, string account, string what, double amount, string ccy, string statementReference) =>
+            new PaymentModel(ProviderName, account, when, what, amount, ccy, statementReference);
     }
 }

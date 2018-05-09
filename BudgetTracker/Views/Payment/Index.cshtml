@@ -1,0 +1,128 @@
+﻿@using Controllers.ViewModels.Payment
+@using Model
+@model IList<Controllers.ViewModels.Payment.PaymentMonthViewModel>
+@{
+    ViewData["Title"] = "Движение денежных средств";
+
+}
+<div class="container">
+    <div class="row row-cards row-deck">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        Движение денежных средств 
+                    </h3>
+                    <div class="card-options">
+                        &nbsp;
+                        <a class="btn btn-primary btn-sm" href="@Url.Action("SpentCategories")">
+                            Категории расходов
+                        </a>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table card-table table-sm table-hover table-striped">
+                        <thead>
+                        <tr>
+                            <th>Когда</th>
+                            <th>Категория</th>
+                            <th>Провайдер</th>
+                            <th>Счёт</th>
+                            <th>Сумма</th>
+                            <th>Сообщение</th>
+                            <th>Удалить</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var month in Model)
+                        {
+                            <tr>
+                                <th colspan="7">
+                                    <span class="card-title">
+                                        <a href="#" data-toggle="collapse" data-target=".collapse-@month.Key" aria-expanded="false" aria-controls="collapse">
+                                            @month.When.ToString("MMMM yyyy")
+                                        </a>
+                                    </span>
+                                    
+                                    @foreach (var item in month.Totals)
+                                    {
+                                        <span class="badge badge-primary">@item.Value @item.Key</span>
+                                    }
+                                    
+                                    <span class="badge badge-secondary">@month.PaymentModels.SelectMany(v=>v.Items).Count(v => v.Category == null) без категорий</span>
+                                </th>
+                            </tr>
+    
+                            foreach (var payment in month.PaymentModels.OrderByDescending(v=>v.Amount))
+                            {
+                                <tr class="collapse-@month.Key collapse show">
+                                    <td class="text-nowrap">@payment.When</td>
+                                    <td class="text-nowrap">@payment.Kind.GetDisplayName()</td>
+                                    <td class="text-nowrap">@payment.Provider</td>
+                                    <td class="text-nowrap">@payment.Account</td>
+                                    <td>
+                                        <b>@payment.Amount</b> 
+                                        <i>@payment.Ccy</i>
+                                    </td>
+                                    <td>
+                                        <b>@payment.What</b>
+                                        @if (payment.Count > 1)
+                                        {
+                                            <a href="#" data-toggle="collapse" data-target=".collapse-@payment.Id" aria-expanded="false" aria-controls="collapse">
+                                                (@payment.Count)
+                                            </a>
+                                            <div class="collapse collapse-@payment.Id">
+                                                @foreach (var item in payment.Items)
+                                                {
+                                                    <div>&mdash;
+                                                        <b>@item.Amount</b> 
+                                                        <i>@item.Ccy</i> 
+                                                        на 
+                                                        <b>@item.What</b>
+                                                        в
+                                                        <b>@item.When.ToString("f")</b>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (payment.Count > 1)
+                                        {
+                                            <a href="#" data-toggle="collapse" data-target=".collapse-@payment.Id" aria-expanded="false" aria-controls="collapse">
+                                                (@payment.Count)
+                                            </a>
+                                            <div class="collapse collapse-@payment.Id">
+                                                @foreach (var item in payment.Items)
+                                                {
+                                                    <div>
+                                                        <a href="@Url.Action("EditPayment", new {id = item.Id})">
+                                                            <span class="fe fe-edit-2"></span>
+                                                        </a>
+                                                        <a href="@Url.Action("DeletePayment", new {id = item.Id})">
+                                                            <span class="fe fe-x-circle"></span>
+                                                        </a>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <a href="@Url.Action("EditPayment", new {id = payment.Id})">
+                                                <span class="fe fe-edit-2"></span>
+                                            </a>
+                                            <a href="@Url.Action("DeletePayment", new {id = payment.Id})">
+                                                <span class="fe fe-x-circle"></span>
+                                            </a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

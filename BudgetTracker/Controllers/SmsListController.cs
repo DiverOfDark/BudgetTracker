@@ -3,7 +3,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using BudgetTracker.Controllers.ViewModels.Sms;
 using BudgetTracker.Model;
-using BudgetTracker.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,36 +12,16 @@ namespace BudgetTracker.Controllers
     public class SmsListController : Controller
     {
         private readonly ObjectRepository _objectRepository;
-        private readonly SmsRuleProcessor _smsRuleProcessor;
 
-        public SmsListController(ObjectRepository objectRepository, SmsRuleProcessor smsRuleProcessor)
+        public SmsListController(ObjectRepository objectRepository)
         {
             _objectRepository = objectRepository;
-            _smsRuleProcessor = smsRuleProcessor;
         }
 
-        public ActionResult Index(bool showHidden = false)
-        {
-            return View(new SmsListViewModel(_objectRepository, showHidden));
-        }
+        public ActionResult Index(bool showHidden = false) => View(new SmsListViewModel(_objectRepository, showHidden));
 
-        public IActionResult CreateCategory(string pattern, string category)
-        {
-            try
-            {
-                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                Regex.Match("test", pattern);
-            }
-            catch
-            {
-                return RedirectToAction(nameof(Index));
-            }
+        public ActionResult SmsRules() => View(_objectRepository.Set<RuleModel>().ToList());
 
-            _objectRepository.Add(new SpentCategoryModel(pattern, category));
-            _smsRuleProcessor.Process();
-            return RedirectToAction(nameof(Index));
-        }
-        
         public IActionResult CreateRule(RuleType ruleType, string regexSender, string regexText)
         {
             try
@@ -56,31 +35,12 @@ namespace BudgetTracker.Controllers
             }
             catch
             {
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(SmsRules));
             }
 
             var rule = new RuleModel(ruleType, regexSender, regexText);
             _objectRepository.Add(rule);
-            _smsRuleProcessor.Process();
-            return RedirectToAction(nameof(Index));
-        }
-
-        public IActionResult EditPayment(Guid id)
-        {
-            var payment = _objectRepository.Set<PaymentModel>().First(v => v.Id == id);
-            var vm = new PaymentViewModel(payment);
-            return View(vm);
-        }
-
-        [HttpPost]
-        public IActionResult EditPayment(Guid id, double amount, string ccy, string what)
-        {
-            var payment = _objectRepository.Set<PaymentModel>().First(v => v.Id == id);
-            payment.Amount = amount;
-            payment.Ccy = ccy;
-            payment.What = what;
-            payment.Category = null;
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(SmsRules));
         }
 
         public IActionResult DeleteSms(Guid id)
@@ -96,18 +56,6 @@ namespace BudgetTracker.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult DeletePayment(Guid id)
-        {
-            var payment = _objectRepository.Set<PaymentModel>().First(v => v.Id == id);
-            if (payment.Sms != null)
-            {
-                payment.Sms.AppliedRule = null;
-            }
-
-            _objectRepository.Remove(payment);
-            return RedirectToAction(nameof(Index));
-        }
-
         public IActionResult DeleteRule(Guid id)
         {
             var rule = _objectRepository.Set<RuleModel>().First(v => v.Id == id);
@@ -118,20 +66,7 @@ namespace BudgetTracker.Controllers
             }
             
             _objectRepository.Remove(rule);
-            return RedirectToAction(nameof(Index));
-        }
-
-        public IActionResult DeleteCategory(Guid id)
-        {
-            var category = _objectRepository.Set<SpentCategoryModel>().First(x => x.Id == id);
-
-            foreach (var item in category.Payments)
-            {
-                item.Category = null;
-            }
-            
-            _objectRepository.Remove(category);
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(SmsRules));
         }
     }
 }

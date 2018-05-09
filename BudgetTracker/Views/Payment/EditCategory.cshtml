@@ -1,0 +1,50 @@
+﻿@model Model.SpentCategoryModel
+@{
+    ViewData["Title"] = "Редактировать столбец";
+}
+
+
+<div class="container">
+    <div class="row row-cards row-deck">
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">
+                    Редактировать категорию
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            @using (Html.BeginForm("EditCategory", "Payment", FormMethod.Post))
+                            {
+                                @Html.HiddenFor(v => v.Id)
+                                <div class="form-horizontal">
+                                    <div class="form-group">
+                                        <label class="control-label">Тип</label>
+                                        <div control-labelstyle="padding-top: 7px;">
+                                            @Html.DropDownListFor(model => model.Kind, typeof(Model.PaymentKind).GetSelectList(Model.Kind), new {@class = "form-control"})
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Количество</label>
+                                        <div control-labelstyle="padding-top: 7px;">
+                                            @Html.EditorFor(model => model.Pattern, new {htmlAttributes = new {@class = "form-control"}})
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Категория</label>
+                                        <div control-labelstyle="padding-top: 7px;">
+                                            @Html.EditorFor(model => model.Category, new {htmlAttributes = new {@class = "form-control"}})
+                                        </div>
+                                    </div>
+                                    <div class="form-group text-center">
+                                        <input type="submit" value="Обновить" class="btn btn-default"/>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

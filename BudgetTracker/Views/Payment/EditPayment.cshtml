@@ -1,4 +1,5 @@
-﻿@model Controllers.ViewModels.Sms.PaymentViewModel
+﻿@using Controllers.ViewModels.Payment
+@model Controllers.ViewModels.Payment.PaymentViewModel
 @{
     ViewData["Title"] = "Редактировать столбец";
 }
@@ -14,30 +15,39 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-12">
-                            @using (Html.BeginForm("EditPayment", "SmsList", FormMethod.Post))
+                            @using (Html.BeginForm("EditPayment", "Payment", FormMethod.Post))
                             {
                                 @Html.HiddenFor(v => v.Id)
                                 <div class="form-horizontal">
                                     <div class="form-group">
-                                        <label class="control-label">Когда:</label>
-                                        <div control-labelstyle="padding-top: 7px;">
-                                            <input class="form-control" type="text" disabled="disabled" value="@Model.When.ToString("g")"/>
-                                        </div>
+                                        <label class="control-label">Когда: <span class="font-weight-bold font-italic">@Model.When.ToString("g")</span></label>
                                     </div>
                                     <div class="form-group">
-                                        <label class="control-label">Категория:</label>
-                                        <div control-labelstyle="padding-top: 7px;">
-                                            <input class="form-control" type="text" disabled="disabled" value="@(Model.Items.First().Category?.Category ?? "<не определена>")"/>
-                                        </div>
+                                        <label class="control-label">Категория: <span class="font-weight-bold font-italic">@(Model.Items.First().Category?.Category ?? "<не определена>")</span></label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Провайдер/аккаунт:
+                                            <span class="font-weight-bold font-italic">
+                                                @((Model.Provider ?? "<не определен>") + "/" + (Model.Account ?? "<не определен>"))
+                                            </span>
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Reference: <span class="font-weight-bold font-italic">@(Model.Items.First().StatementReference ?? "<не определен>")</span></label>
                                     </div>
                                     <div class="form-group">
                                         <label class="control-label">SMS:</label>
-                                        
                                         <div control-labelstyle="padding-top: 7px;">
                                             <textarea rows="2" class="form-control" disabled="disabled">@(Model.Items.First().Sms?.Message.Replace("\n","") ?? "<не определена>")</textarea>
                                         </div>
                                     </div>
 
+                                    <div class="form-group">
+                                        <label class="control-label">Тип</label>
+                                        <div control-labelstyle="padding-top: 7px;">
+                                            @Html.DropDownListFor(model => model.Kind, typeof(Model.PaymentKind).GetSelectList(Model.Kind), new {@class = "form-control"})
+                                        </div>
+                                    </div>
                                     <div class="form-group">
                                         <label class="control-label">Количество</label>
                                         <div control-labelstyle="padding-top: 7px;">
@@ -53,7 +63,7 @@
                                     <div class="form-group">
                                         <label class="control-label">На что потрачено</label>
                                         <div control-labelstyle="padding-top: 7px;">
-                                            @Html.EditorFor(model => model.What, new {htmlAttributes = new {@class = "form-control"}})
+                                            @Html.EditorFor(model => model.Items.First().What, new {htmlAttributes = new {@class = "form-control"}})
                                         </div>
                                     </div>
                                     <div class="form-group text-center">
