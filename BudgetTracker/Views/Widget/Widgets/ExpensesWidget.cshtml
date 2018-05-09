@@ -17,7 +17,12 @@
     }
     
     var values = data.Select(v => (int)v.Amount).ToList();
-    var names = data.Select(v => v.What).ToList();
+    var names = data.Select(v =>
+    {
+        if (v.What.Length > 32)
+            return v.What.Remove(31) + "...";
+        return v.What;
+    }).ToList();
 
     var columnsData = values.Select((v, i) => $"['col{i}', {v.ToString(CultureInfo.InvariantCulture)}]");
     var namesData = names.Select((v, i) => $"'col{i}': '{v.Replace("\'","\\'")}'");
