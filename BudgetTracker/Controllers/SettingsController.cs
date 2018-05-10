@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BudgetTracker.Model;
 using BudgetTracker.Scrapers;
@@ -40,6 +41,13 @@ namespace BudgetTracker.Controllers
             };
 
             _objectRepository.Add(scm);
+            
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult DeleteConfig(Guid id)
+        {
+            _objectRepository.Remove<ScraperConfigurationModel>(v=>v.Id == id);
             
             return RedirectToAction(nameof(Index));
         }

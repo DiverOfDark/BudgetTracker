@@ -124,6 +124,8 @@ namespace BudgetTracker.Services
                             logger.LogError(ex, $"Failed to get statement for {scraper.ProviderName}...");
                         }
                     }
+                    
+                    _chrome.Reset();
 
                     var accountCount = currentState.Where(s => s.Provider == scraper.ProviderName && s.When.Date == DateTime.UtcNow.Date.AddDays(-1))
                         .Select(s => s.AccountName).Distinct()
