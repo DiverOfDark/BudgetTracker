@@ -5,7 +5,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 {
     public abstract class WidgetViewModel
     {
-        protected const string MiddleDash = "-";
+        protected const string MiddleDash = "—";
         
         private readonly WidgetModel _model;
 

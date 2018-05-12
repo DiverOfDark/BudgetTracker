@@ -91,7 +91,7 @@ namespace BudgetTracker.Services
                             foreach (var s in statements)
                             {
                                 var existingItem = _objectRepository.Set<PaymentModel>().FirstOrDefault(v =>
-                                    v.When.Date == s.When.Date &&
+                                    Math.Abs((v.When.Date - s.When.Date).TotalDays) <= 4 && 
                                     Math.Abs(v.Amount - s.Amount) < 0.01 &&
                                     v.Ccy == s.Ccy &&
                                     v.StatementReference == null || v.StatementReference == s.StatementReference);

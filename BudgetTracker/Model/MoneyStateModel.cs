@@ -59,19 +59,7 @@ namespace BudgetTracker.Model
         public string Ccy
         {
             get => _entity.Ccy;
-            set => UpdateProperty(() => _entity.Ccy, NormalizeCcy(value));
-        }
-
-        private string NormalizeCcy(string value)
-        {
-            if (value.ToLower().Contains("р"))
-                return "RUB";
-            if (value.ToLower().Contains("$"))
-                return "USD";
-            if (value.ToLower().Contains("€"))
-                return "EUR";
-
-            return value;
+            set => UpdateProperty(() => _entity.Ccy, CurrencyExtensions.NormalizeCcy(value));
         }
 
         public DateTime When

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Threading;
 using BudgetTracker.Model;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -18,6 +20,19 @@ namespace BudgetTracker.Scrapers
             var wt = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
             var amountWait = wt.Until(d => d.FindElement(currencySpan));
             return amountWait;
+        }
+
+        protected IEnumerable<IWebElement> GetElements(ChromeDriver driver, By by)
+        {
+            ReadOnlyCollection<IWebElement> elements = null;
+
+            for (int count = 0; count < 20 && (elements?.Count ?? 0) == 0; count++)
+            {
+                Thread.Sleep(500);
+                elements = driver.FindElements(by);
+            }
+
+            return elements;
         }
 
         protected MoneyStateModel Money(string account, double amount, string ccy) => new MoneyStateModel

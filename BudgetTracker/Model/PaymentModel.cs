@@ -78,14 +78,15 @@ namespace BudgetTracker.Model
                 RowKey = Id.ToString(),
                 SmsId = sms.Id,
                 When = sms.When,
-                Amount = double.Parse(amount, new NumberFormatInfo
-                {
-                    NumberDecimalSeparator = "."
-                }),
-                What = matches.Groups.First(v => v.Name == "what").Value,
-                Ccy = matches.Groups.First(v => v.Name == "ccy").Value,
                 Kind = (int) PaymentKind.Expense
             };
+
+            Amount = double.Parse(amount, new NumberFormatInfo
+            {
+                NumberDecimalSeparator = "."
+            });
+            What = matches.Groups.First(v => v.Name == "what").Value;
+            Ccy = matches.Groups.First(v => v.Name == "ccy").Value;
         }
 
         public sealed override Guid Id { get; }
@@ -110,7 +111,7 @@ namespace BudgetTracker.Model
         public string Ccy
         {
             get => _entity.Ccy;
-            set => UpdateProperty(() => _entity.Ccy, value);
+            set => UpdateProperty(() => _entity.Ccy, CurrencyExtensions.NormalizeCcy(value));
         }
 
         public SmsModel Sms

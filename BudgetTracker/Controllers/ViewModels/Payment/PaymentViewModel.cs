@@ -7,6 +7,8 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
 {
     public class PaymentViewModel 
     {
+        protected const string MiddleDash = "—";
+
         public PaymentViewModel(PaymentModel paymentModel)
         {
             When = paymentModel.When;
@@ -30,9 +32,9 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
             var list = paymentGroup.Select(v => v.Category?.Category ?? v.What).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
             What = list.Count == 1 ? list[0] : "Остальное";
             list = paymentGroup.Select(v => v.Provider).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
-            Provider = list.Count == 1 ? list[0] : "Остальное";
+            Provider = list.Count == 1 ? list[0] : MiddleDash;
             list = paymentGroup.Select(v => v.Account).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
-            Account = list.Count == 1 ? list[0] : "Остальное";
+            Account = list.Count == 1 ? list[0] : MiddleDash;
             var list2 = paymentGroup.Select(v => v.Kind).Distinct().ToList();
             Kind = list2.Count == 1 ? list2[0] : PaymentKind.Unknown;
 
