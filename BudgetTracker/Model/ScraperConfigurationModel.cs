@@ -19,6 +19,9 @@ namespace BudgetTracker.Model
             public string Password { get; set; }
             
             public string Properties { get; set; }
+            
+            public DateTime LastSuccessfulBalanceScraping { get; set; }
+            public DateTime LastSuccessfulStatementScraping { get; set; }
         }
 
         public ScraperConfigurationModel(ScraperConfigurationEntity entity)
@@ -73,6 +76,18 @@ namespace BudgetTracker.Model
         {
             get => _entity.Password;
             set => UpdateProperty(() => _entity.Password, value);
+        }
+
+        public DateTime LastSuccessfulBalanceScraping
+        {
+            get => _entity.LastSuccessfulBalanceScraping;
+            set => UpdateProperty(()=>_entity.LastSuccessfulBalanceScraping, value);
+        }
+
+        public DateTime LastSuccessfulStatementScraping
+        {
+            get => _entity.LastSuccessfulStatementScraping;
+            set => UpdateProperty(()=>_entity.LastSuccessfulStatementScraping, value);
         }
     }
 }

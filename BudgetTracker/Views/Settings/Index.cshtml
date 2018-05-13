@@ -38,6 +38,7 @@
                         <th class="w-1">Тип</th>
                         <th>Логин</th>
                         <th>Пароль</th>
+                        <th>Последний успешный сбор данных</th>
                         <th class="w-1"></th>
                     </tr>
                     </thead>
@@ -55,6 +56,7 @@
                                     <input type="hidden" id="name" name="name" value="@item"/>
                                     <td><input type="text" id="login" name="login" placeholder="Логин" class="form-control form-control-sm"/></td>
                                     <td><input type="text" id="password" name="password" placeholder="Пароль" class="form-control form-control-sm"/></td>
+                                    <td>&mdash;</td>
                                     <td>
                                         <input type="submit" class="form-control btn btn-secondary btn-sm" value="Включить"/>
                                     </td>
@@ -68,6 +70,10 @@
                                     {
                                         <text>********@matchingConfig.Password?.TakeLast(2).Select(v => v.ToString()).Aggregate((a, b) => a + b)</text>
                                     }
+                                </td>
+                                <td>
+                                    Баланс: <b>@matchingConfig.LastSuccessfulBalanceScraping.ToString("g")</b><br/>
+                                    Выписка: <b>@matchingConfig.LastSuccessfulStatementScraping.ToString("g")</b>
                                 </td>
                                 <td>
                                     <a href="@Url.Action("DeleteConfig", new{id = matchingConfig.Id})">

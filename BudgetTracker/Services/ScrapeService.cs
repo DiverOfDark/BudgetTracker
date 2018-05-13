@@ -64,27 +64,13 @@ namespace BudgetTracker.Services
                     {
                         try
                         {
-                            var minDates = new[]
-                            {
-                                _objectRepository.Set<PaymentModel>()
-                                    .Where(v => v.Provider == scraper.ProviderName)
-                                    .OrderByDescending(v => v.When)
-                                    .FirstOrDefault()?.When,
-                                _objectRepository.Set<MoneyStateModel>().OrderBy(v => v.When)
-                                    .FirstOrDefault()?.When,
-                                _objectRepository.Set<PaymentModel>().OrderBy(v => v.When)
-                                    .FirstOrDefault()?.When
-                            };
-
-                            var lastPayment = minDates.Where(v => v != null).OrderBy(v => v).FirstOrDefault() ??
-                                              DateTime.MinValue;
-
+                            var lastPayment = scraperConfig.LastSuccessfulStatementScraping;
                             if (lastPayment.AddHours(24) > DateTime.Now)
                                 continue; // Let's not scrape statements too often - it's hard
 
-                            logger.LogInformation($"Scraping statement for {scraper.ProviderName} since {lastPayment}...");
+                            logger.LogInformation($"Scraping statement for {scraper.ProviderName} since {lastPayment.AddDays(-4)}...");
                             
-                            var statements = ss.ScrapeStatement(scraperConfig, _chrome, lastPayment).ToList();
+                            var statements = ss.ScrapeStatement(scraperConfig, _chrome, lastPayment.AddDays(-4)).ToList();
                             
                             logger.LogInformation($"Got statement of {statements.Count} items...");
                             
@@ -118,6 +104,8 @@ namespace BudgetTracker.Services
                                     }
                                 }
                             }
+                            
+                            scraperConfig.LastSuccessfulStatementScraping = DateTime.Now;
                         }
                         catch (Exception ex)
                         {
@@ -169,6 +157,7 @@ namespace BudgetTracker.Services
                                 }
                             }
 
+                            scraperConfig.LastSuccessfulBalanceScraping = DateTime.Now;
                             logger.LogInformation("Indexed...");
                         }
                         catch (Exception ex)
