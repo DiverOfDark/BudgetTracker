@@ -29,7 +29,7 @@ namespace BudgetTracker.Services
                 {
                     foreach (var category in cats)
                     {
-                        if (category.Value.IsMatch(p.What))
+                        if (string.Equals(category.Key.Category, p.What) || category.Value.IsMatch(p.What))
                         {
                             p.Category = category.Key;
                             p.Kind = category.Key.Kind;
