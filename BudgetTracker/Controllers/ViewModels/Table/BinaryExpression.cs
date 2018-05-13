@@ -44,7 +44,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                     break;
                 
                 case '*':
-                    Value = Left.Value / Right.Value;
+                    Value = Left.Value * Right.Value;
                     Ccy = Left.Ccy;
 
                     // TODO ccy?
