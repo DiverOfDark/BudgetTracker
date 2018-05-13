@@ -64,7 +64,24 @@ namespace BudgetTracker.Services
                     {
                         try
                         {
-                            var lastPayment = scraperConfig.LastSuccessfulStatementScraping;
+                            var minDates = new[]
+                            {
+                                _objectRepository.Set<PaymentModel>()
+                                    .Where(v => v.Provider == scraper.ProviderName)
+                                    .OrderByDescending(v => v.When)
+                                    .FirstOrDefault()?.When,
+                                _objectRepository.Set<MoneyStateModel>().OrderBy(v => v.When)
+                                    .FirstOrDefault()?.When,
+                                _objectRepository.Set<PaymentModel>().OrderBy(v => v.When)
+                                    .FirstOrDefault()?.When
+                            };
+
+                            var lastPayment = minDates.Where(v => v != null).OrderBy(v => v).FirstOrDefault() ??
+                                              DateTime.MinValue;
+
+                            if (scraperConfig.LastSuccessfulStatementScraping != default)
+                                lastPayment = scraperConfig.LastSuccessfulStatementScraping;
+
                             if (lastPayment.AddHours(24) > DateTime.Now)
                                 continue; // Let's not scrape statements too often - it's hard
 
