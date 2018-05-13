@@ -23,7 +23,7 @@ namespace BudgetTracker.Scrapers
             Login(configuration, driver);
 
             driver.Navigate().GoToUrl(@"https://online.raiffeisen.ru/#/accounts");
-
+            
             var accounts = GetElements(driver, By.TagName("account-widget"));
 
             var result = new List<MoneyStateModel>();
@@ -69,7 +69,7 @@ namespace BudgetTracker.Scrapers
                 return (id, name);
             }).Distinct().ToList();
 
-            var link = driver.FindElements(By.TagName("a")).First(v => v.GetAttribute("href")?.Contains("/transaction.csv?") == true);
+            var link = GetElements(driver, By.TagName("a")).First(v => v.GetAttribute("href")?.Contains("/transaction.csv?") == true);
             var linkText = link.GetAttribute("href");
             
             var build = new Uri(linkText);
@@ -129,6 +129,8 @@ namespace BudgetTracker.Scrapers
             pass.Click();
             driver.Keyboard.SendKeys(configuration.Password);
             driver.Keyboard.PressKey(Keys.Return);
+            
+            Thread.Sleep(5000);
         }
     }
 
