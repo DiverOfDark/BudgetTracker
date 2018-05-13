@@ -3,7 +3,6 @@
 @model LastValueWidgetViewModel
 
 @{
-    var pair = Model.Values.OrderByDescending(v => v.Key).First();
 	var chartId = Guid.NewGuid().ToString("N");
 	var colorSuffix = Model.IncompleteData ? "bg-gray-dark-darkest" : ""; 
 }
@@ -21,7 +20,9 @@
 }
 else if (Model.IsCompact)
 {
-    <div class="card-body p-3 text-center @colorSuffix">
+	var pair = Model.Values.OrderByDescending(v => v.Key).First();
+
+	<div class="card-body p-3 text-center @colorSuffix">
         <div class="h1 mt-5">
             @Model.FormatValue(pair.Value)
         </div>
@@ -36,6 +37,7 @@ else if (Model.IsCompact)
 }
 else
 {
+	var pair = Model.Values.OrderByDescending(v => v.Key).First();
 	var goodItems = Model.Values.OrderByDescending(v => v.Key).Where(v => v.Value.HasValue).ToList();
 	var chartItems = goodItems.Select(v=>v.Value.Value).ToList();
 	var datesItems = goodItems.Select(v => v.Key).ToList();
