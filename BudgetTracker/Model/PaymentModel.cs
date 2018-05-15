@@ -55,12 +55,12 @@ namespace BudgetTracker.Model
                 Provider = providerName,
                 Account = account,
                 When = when,
-                Ccy = ccy,
                 Amount = amount,
                 What = what,
                 Kind = (int) (amount > 0 ? PaymentKind.Expense : PaymentKind.Income),
                 StatementReference = statementReference
             };
+            Ccy = ccy;
         }
 
         public PaymentModel(SmsModel sms, RuleModel rule)
