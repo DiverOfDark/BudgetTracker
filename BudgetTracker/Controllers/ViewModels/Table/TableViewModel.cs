@@ -1,54 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BudgetTracker.Model;
-using OutCode.EscapeTeams.ObjectRepository;
 
 namespace BudgetTracker.Controllers.ViewModels.Table
 {
     public class TableViewModel
     {
-        private static TableViewModel _instance;
-        
-        public static TableViewModel GetCachedViewModel(bool showAll, bool showControls, bool showDelta, ObjectRepository repository)
-        {
-            if (_instance == null)
-            {
-                lock(typeof(TableViewModel))
-                {
-                    if (_instance == null)
-                    {
-                        void RepositoryOnModelChanged(ModelChangedEventArgs args)
-                        {
-                            if (args.Source is MoneyStateModel || args.Source is MoneyColumnMetadataModel)
-                            {
-                                _instance = null;
-                                repository.ModelChanged -= RepositoryOnModelChanged;
-                            }
-                        }
-
-                        repository.ModelChanged += RepositoryOnModelChanged;
-                        
-                        _instance = new TableViewModel(repository);
-                    }
-                }
-            }
-            
-            return new TableViewModel(_instance)
-            {
-                ShowAll = showAll,
-                ShowControls = showControls,
-                ShowDelta = showDelta
-            };
-        }
-
-        private TableViewModel(TableViewModel source)
+        public TableViewModel(TableViewModel source)
         {
             Headers = source.Headers;
             Values = source.Values;
         }
         
-        private TableViewModel(
-            ObjectRepository repository)
+        public TableViewModel(ObjectRepository repository)
         {
             Headers = repository.Set<MoneyColumnMetadataModel>().SortColumns().ToList();
 
@@ -101,9 +65,9 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             }
         }
 
-        public bool ShowAll { get; private set; }
-        public bool ShowControls { get; private set; }
-        public bool ShowDelta { get; private set; }
+        public bool ShowAll { get; set; }
+        public bool ShowControls { get; set; }
+        public bool ShowDelta { get; set; }
 
         public List<MoneyColumnMetadataModel> Headers { get; private set; }
         public List<TableRowViewModel> Values { get; private set; }

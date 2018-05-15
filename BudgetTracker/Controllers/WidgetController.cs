@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
 using BudgetTracker.Controllers.ViewModels;
+using BudgetTracker.Controllers.ViewModels.Table;
 using BudgetTracker.Controllers.ViewModels.Widgets;
 using BudgetTracker.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BudgetTracker.Controllers
 {
@@ -19,7 +21,7 @@ namespace BudgetTracker.Controllers
         {
             var showButtons2 = this.TryGetLastValue(showButtons, nameof(WidgetController) + nameof(showButtons)) ?? false;
             
-            return View(new DashboardViewModel(_objectRepository, showButtons2));
+            return View(new DashboardViewModel(_objectRepository, showButtons2, HttpContext.RequestServices.GetRequiredService<TableViewModel>()));
         }
 
         public IActionResult Error(int statusCode = 0) => View(statusCode);

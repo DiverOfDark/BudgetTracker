@@ -8,12 +8,15 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 {
     public class DeltaWidgetViewModel : WidgetViewModel
     {
-        public DeltaWidgetViewModel(WidgetModel model, ObjectRepository repository) : base(model,
+        public DeltaWidgetViewModel(WidgetModel model, ObjectRepository repository, TableViewModel vm) : base(model,
             new DeltaWidgetSettings(model.Properties.ToDictionary(v => v.Key, v => v.Value)))
         {
             DeltaWidgetSettings = (DeltaWidgetSettings) Settings;
 
-            var table = TableViewModel.GetCachedViewModel(true, false, false, repository);
+            var table = new TableViewModel(vm)
+            {
+                ShowAll = true
+            };
 
             var col = repository.Set<MoneyColumnMetadataModel>().First(v =>
                 v.Provider == DeltaWidgetSettings.ProviderName &&

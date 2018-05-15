@@ -8,11 +8,16 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 {
     public class ChartWidgetViewModel : WidgetViewModel
     {
-        public ChartWidgetViewModel(WidgetModel model, ObjectRepository repository) : base(model, new ChartWidgetSettings(model.Properties.ToDictionary(v=>v.Key, v=>v.Value)))
+        public ChartWidgetViewModel(WidgetModel model, ObjectRepository repository, TableViewModel vm) : base(model, new ChartWidgetSettings(model.Properties.ToDictionary(v=>v.Key, v=>v.Value)))
         {
             ChartWidgetSettings = (ChartWidgetSettings) Settings;
-            
-            var vm = TableViewModel.GetCachedViewModel(true, false, false, repository);
+
+            vm = new TableViewModel(vm)
+            {
+                ShowAll = true,
+                ShowControls = false,
+                ShowDelta = false
+            };
 
             var column = repository.Set<MoneyColumnMetadataModel>().First(v =>
                 v.Provider == ChartWidgetSettings.ProviderName &&

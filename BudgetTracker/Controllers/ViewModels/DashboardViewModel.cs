@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BudgetTracker.Controllers.ViewModels.Table;
 using BudgetTracker.Controllers.ViewModels.Widgets;
 using BudgetTracker.Model;
 
@@ -7,7 +8,7 @@ namespace BudgetTracker.Controllers.ViewModels
 {
     public class DashboardViewModel
     {
-        public DashboardViewModel(ObjectRepository objectRepository, bool showButtons)
+        public DashboardViewModel(ObjectRepository objectRepository, bool showButtons, TableViewModel vm)
         {
             ShowButtons = showButtons;
             Widgets = new List<WidgetViewModel>();
@@ -21,16 +22,16 @@ namespace BudgetTracker.Controllers.ViewModels
                         Widgets.Add(new UnconfiguredWidgetViewModel(wi));
                         break;
                     case var wi when w.Kind == WidgetKind.LastValue:
-                        Widgets.Add(new LastValueWidgetViewModel(wi, objectRepository));
+                        Widgets.Add(new LastValueWidgetViewModel(wi, objectRepository, vm));
                         break;
                     case var wi when w.Kind == WidgetKind.Expenses:
                         Widgets.Add(new ExpensesWidgetViewModel(wi, objectRepository));
                         break;
                     case var wi when w.Kind == WidgetKind.Chart:
-                        Widgets.Add(new ChartWidgetViewModel(wi, objectRepository));
+                        Widgets.Add(new ChartWidgetViewModel(wi, objectRepository, vm));
                         break;
                     case var wi when w.Kind == WidgetKind.Delta:
-                        Widgets.Add(new DeltaWidgetViewModel(wi, objectRepository));
+                        Widgets.Add(new DeltaWidgetViewModel(wi, objectRepository, vm));
                         break;
                     default:
                         Widgets.Add(new UnknownWidgetViewModel(w));

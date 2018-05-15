@@ -10,7 +10,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
     {
         private readonly LastValueWidgetSettings _settings;
 
-        public LastValueWidgetViewModel(WidgetModel model, ObjectRepository repo) : base(model, new LastValueWidgetSettings(model.Properties.ToDictionary(v=>v.Key,v=>v.Value)))
+        public LastValueWidgetViewModel(WidgetModel model, ObjectRepository repo, TableViewModel vm) : base(model, new LastValueWidgetSettings(model.Properties.ToDictionary(v=>v.Key,v=>v.Value)))
         {
             _settings = (LastValueWidgetSettings) Settings;
             try
@@ -19,8 +19,11 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                     v.Provider == _settings.ProviderName &&
                     (v.AccountName == _settings.AccountName || v.UserFriendlyName == _settings.AccountName));
 
-                var vm = TableViewModel.GetCachedViewModel(true, false, false, repo);
-
+                vm = new TableViewModel(vm)
+                {
+                    ShowAll = true
+                };
+                
                 Values = new Dictionary<DateTime, double?>();
                 bool first = true;
                 foreach (var row in vm.Values.OrderByDescending(v => v.When))

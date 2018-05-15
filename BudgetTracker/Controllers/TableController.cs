@@ -5,6 +5,7 @@ using BudgetTracker.Controllers.ViewModels.Table;
 using BudgetTracker.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BudgetTracker.Controllers
 {
@@ -21,8 +22,14 @@ namespace BudgetTracker.Controllers
             var showControls2 = this.TryGetLastValue(showControls, nameof(TableController) + nameof(showControls)) ?? false;
             var showDelta2 = this.TryGetLastValue(showDelta, nameof(TableController) + nameof(showDelta)) ?? false;
 
-            var vm = TableViewModel.GetCachedViewModel(showAll2, showControls2, showDelta2, _objectRepository);
-            return View(vm);
+            var table = HttpContext.RequestServices.GetRequiredService<TableViewModel>();
+
+            return View(new TableViewModel(table)
+            {
+                ShowAll = showAll2,
+                ShowDelta = showDelta2,
+                ShowControls = showControls2
+            });
         }
 
         public IActionResult DeleteMoney(Guid id)
