@@ -16,8 +16,7 @@
                         <a class="btn btn-primary btn-sm" href="@Url.Action("SmsRules")">
                             Правила обработки SMS
                         </a>
-                        &nbsp;
-                        <a class="btn btn-secondary btn-sm" href="?ShowHidden=@(!Model.ShowHidden)">
+                        <a class="btn btn-secondary btn-sm ml-2" href="?ShowHidden=@(!Model.ShowHidden)">
                             @if (Model.ShowHidden)
                             {
                                 <text>Скрыть обработанное</text>

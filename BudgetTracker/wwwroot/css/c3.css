@@ -238,3 +238,9 @@
   stroke-width:4px;
   font-weight: bold;
 }
+
+.collapsing {
+  -webkit-transition: none;
+  transition: none;
+  display: none;
+}

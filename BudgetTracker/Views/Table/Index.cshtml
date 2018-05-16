@@ -20,8 +20,8 @@
                         История
                     </h3>
                     <div class="card-options">
-                        <a class="btn btn-secondary btn-sm" href="@Url.Action("Index", "Metadata")"><span class="small fe fe-edit-2"></span></a>
-                        <a class="btn btn-secondary btn-sm" href="?ShowDelta=@(!Model.ShowDelta)">
+                        <a class="btn btn-secondary btn-sm ml-2" href="@Url.Action("Index", "Metadata")"><span class="small fe fe-edit-2"></span></a>
+                        <a class="btn btn-secondary btn-sm ml-2" href="?ShowDelta=@(!Model.ShowDelta)">
                             @if (!Model.ShowDelta)
                             {
                                 <text>&Delta;</text>
@@ -31,7 +31,7 @@
                                 <text>&Tau;</text>
                             }
                         </a>
-                        <a class="btn btn-secondary btn-sm" href="?ShowAll=@(!Model.ShowAll)">
+                        <a class="btn btn-secondary btn-sm ml-2" href="?ShowAll=@(!Model.ShowAll)">
                             @if (Model.ShowAll)
                             {
                                 <text>Только видимые</text>
@@ -41,7 +41,7 @@
                                 <text>Все столбцы</text>
                             }
                         </a>
-                        <a class="btn btn-secondary btn-sm" href="?ShowControls=@(!Model.ShowControls)">
+                        <a class="btn btn-secondary btn-sm ml-2" href="?ShowControls=@(!Model.ShowControls)">
                             @if (Model.ShowControls)
                             {
                                 <text>Скрыть кнопки</text>

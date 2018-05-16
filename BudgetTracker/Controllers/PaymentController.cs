@@ -18,7 +18,14 @@ namespace BudgetTracker.Controllers
             _objectRepository = objectRepository;
         }
 
-        public ActionResult Index() => View(PaymentMonthViewModel.FromPayments(_objectRepository).OrderByDescending(v => v.When).ToList());
+        public ActionResult Index(bool? groups)
+        {
+            var groups2 = this.TryGetLastValue(groups, nameof(PaymentController) + nameof(groups)) ?? true;
+
+            ViewBag.Groups = groups2;
+            
+            return View(PaymentMonthViewModel.FromPayments(_objectRepository, groups2).OrderByDescending(v => v.When).ToList());
+        }
 
         public ActionResult SpentCategories() => View(_objectRepository.Set<SpentCategoryModel>().ToList());
 

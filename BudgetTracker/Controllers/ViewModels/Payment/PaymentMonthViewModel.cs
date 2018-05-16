@@ -7,7 +7,7 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
 {
     public class PaymentMonthViewModel
     {
-        public static List<PaymentMonthViewModel> FromPayments(ObjectRepository objectRepository)
+        public static List<PaymentMonthViewModel> FromPayments(ObjectRepository objectRepository, bool enableGrouping = true)
         {
             var payments = objectRepository.Set<PaymentModel>().GroupBy(v => v.When.ToString(Discriminator)).ToDictionary(v => v.Key, v => v);
 
@@ -17,28 +17,31 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
             {
                 var p = payments.GetValueOrDefault(v) ?? Enumerable.Empty<PaymentModel>();
 
-                return new PaymentMonthViewModel(p);
+                return new PaymentMonthViewModel(p, enableGrouping);
             }).ToList();
         }
 
         private const string Discriminator = "yyyyMM";
 
-        public PaymentMonthViewModel(IEnumerable<PaymentModel> payments)
+        public PaymentMonthViewModel(IEnumerable<PaymentModel> payments, bool enableGrouping)
         {
             var paymentModels = payments.Select(v=>new PaymentViewModel(v)).ToList();
-            
-            var groups = paymentModels
-                .GroupBy(v => v.What.ToLower() + v.Ccy + v.Kind)
-                .Where(v => v.Count() > 1)
-                .ToList();
 
-            foreach (var item in groups)
+            if (enableGrouping)
             {
-                paymentModels.RemoveAll(item.Contains);
-                paymentModels.Add(new PaymentViewModel(item.SelectMany(v=>v.Items).ToList()));
+                var groups = paymentModels
+                    .GroupBy(v => v.What.ToLower() + v.Ccy + v.Kind)
+                    .Where(v => v.Count() > 1)
+                    .ToList();
+
+                foreach (var item in groups)
+                {
+                    paymentModels.RemoveAll(item.Contains);
+                    paymentModels.Add(new PaymentViewModel(item.SelectMany(v => v.Items).OrderByDescending(v=>v.When).ToList()));
+                }
             }
-            
-            PaymentModels = paymentModels;
+
+            PaymentModels = paymentModels.OrderByDescending(v=>v.When).ToList();
             When = paymentModels.Select(v => v.When).FirstOrDefault();
         }
 

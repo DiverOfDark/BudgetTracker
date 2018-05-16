@@ -12,7 +12,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         {
             ExpenseSettings = (ExpensesWidgetSettings) Settings;
             var payments = repository.Set<PaymentModel>().Where(v => v.When.AddDays(30) > DateTime.UtcNow && v.Ccy == ExpenseSettings.Currency && v.Kind == PaymentKind.Expense);
-            var month = new PaymentMonthViewModel(payments);
+            var month = new PaymentMonthViewModel(payments, true);
             Payments = month.PaymentModels.ToList();
         }
 
