@@ -82,47 +82,52 @@ namespace BudgetTracker.Services
                             if (scraperConfig.LastSuccessfulStatementScraping != default)
                                 lastPayment = scraperConfig.LastSuccessfulStatementScraping;
 
-                            if (lastPayment.AddHours(24) > DateTime.Now)
-                                continue; // Let's not scrape statements too often - it's hard
-
-                            logger.LogInformation($"Scraping statement for {scraper.ProviderName} since {lastPayment.AddDays(-4)}...");
-                            
-                            var statements = ss.ScrapeStatement(scraperConfig, _chrome, lastPayment.AddDays(-4)).ToList();
-                            
-                            logger.LogInformation($"Got statement of {statements.Count} items...");
-                            
-                            foreach (var s in statements)
+                            // Let's not scrape statements too often - it's hard
+                            if (lastPayment.AddHours(24) < DateTime.Now)
                             {
-                                var existingItem = _objectRepository.Set<PaymentModel>().OrderBy(v=>v.When).FirstOrDefault(v =>
-                                    Math.Abs((v.When.Date - s.When.Date).TotalDays) <= 4 && 
-                                    Math.Abs(v.Amount - s.Amount) < 0.01 &&
-                                    v.Ccy == s.Ccy &&
-                                    v.StatementReference == null || v.StatementReference == s.StatementReference);
-                                
-                                if (existingItem == null)
-                                {
-                                    _objectRepository.Add(s);
-                                }
-                                else
-                                {
-                                    if (existingItem.Provider == null)
-                                    {
-                                        existingItem.Provider = s.Provider;
-                                    }
+                                logger.LogInformation(
+                                    $"Scraping statement for {scraper.ProviderName} since {lastPayment.AddDays(-4)}...");
 
-                                    if (existingItem.Account == null)
-                                    {
-                                        existingItem.Account = s.Account;
-                                    }
+                                var statements = ss.ScrapeStatement(scraperConfig, _chrome, lastPayment.AddDays(-4))
+                                    .ToList();
 
-                                    if (existingItem.StatementReference == null)
+                                logger.LogInformation($"Got statement of {statements.Count} items...");
+
+                                foreach (var s in statements)
+                                {
+                                    var existingItem = _objectRepository.Set<PaymentModel>().OrderBy(v => v.When)
+                                        .FirstOrDefault(v =>
+                                            Math.Abs((v.When.Date - s.When.Date).TotalDays) <= 4 &&
+                                            Math.Abs(v.Amount - s.Amount) < 0.01 &&
+                                            v.Ccy == s.Ccy &&
+                                            v.StatementReference == null ||
+                                            v.StatementReference == s.StatementReference);
+
+                                    if (existingItem == null)
                                     {
-                                        existingItem.StatementReference = s.StatementReference;
+                                        _objectRepository.Add(s);
+                                    }
+                                    else
+                                    {
+                                        if (existingItem.Provider == null)
+                                        {
+                                            existingItem.Provider = s.Provider;
+                                        }
+
+                                        if (existingItem.Account == null)
+                                        {
+                                            existingItem.Account = s.Account;
+                                        }
+
+                                        if (existingItem.StatementReference == null)
+                                        {
+                                            existingItem.StatementReference = s.StatementReference;
+                                        }
                                     }
                                 }
+
+                                scraperConfig.LastSuccessfulStatementScraping = DateTime.Now;
                             }
-                            
-                            scraperConfig.LastSuccessfulStatementScraping = DateTime.Now;
                         }
                         catch (Exception ex)
                         {
