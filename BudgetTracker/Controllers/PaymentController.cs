@@ -88,9 +88,10 @@ namespace BudgetTracker.Controllers
                 {
                     item.Category = null;
                 }
+
+                _objectRepository.Remove(category);
             }
 
-            _objectRepository.Remove(category);
             return RedirectToAction(nameof(SpentCategories));
         }
 
