@@ -142,7 +142,7 @@ namespace BudgetTracker.Controllers
             try
             {
                 if (string.IsNullOrWhiteSpace(name) || 
-                    !double.TryParse(value.Replace(".", ",").Trim(), NumberStyles.Any, new NumberFormatInfo(){NumberDecimalSeparator = "."}, out var valueParsed) 
+                    !double.TryParse(value.Replace(".", ",").Trim(), NumberStyles.Any, new NumberFormatInfo(){NumberDecimalSeparator = ","}, out var valueParsed) 
                     || double.IsNaN(valueParsed) 
                     || double.IsInfinity(valueParsed))
                 {
