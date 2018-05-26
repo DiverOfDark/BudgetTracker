@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BudgetTracker.Controllers.ViewModels.Table;
 using BudgetTracker.Controllers.ViewModels.Widgets;
@@ -16,26 +17,33 @@ namespace BudgetTracker.Controllers.ViewModels
             var widgets = objectRepository.Set<WidgetModel>().OrderBy(v => v.Order).ToList();
             foreach (var w in widgets)
             {
-                switch (w)
+                try
                 {
-                    case var wi when w.Properties.Count(s=>!string.IsNullOrWhiteSpace(s.Value)) == 0:
-                        Widgets.Add(new UnconfiguredWidgetViewModel(wi));
-                        break;
-                    case var wi when w.Kind == WidgetKind.LastValue:
-                        Widgets.Add(new LastValueWidgetViewModel(wi, objectRepository, vm));
-                        break;
-                    case var wi when w.Kind == WidgetKind.Expenses:
-                        Widgets.Add(new ExpensesWidgetViewModel(wi, objectRepository));
-                        break;
-                    case var wi when w.Kind == WidgetKind.Chart:
-                        Widgets.Add(new ChartWidgetViewModel(wi, objectRepository, vm));
-                        break;
-                    case var wi when w.Kind == WidgetKind.Delta:
-                        Widgets.Add(new DeltaWidgetViewModel(wi, objectRepository, vm));
-                        break;
-                    default:
-                        Widgets.Add(new UnknownWidgetViewModel(w));
-                        break;
+                    switch (w)
+                    {
+                        case var wi when w.Properties.Count(s => !string.IsNullOrWhiteSpace(s.Value)) == 0:
+                            Widgets.Add(new UnconfiguredWidgetViewModel(wi));
+                            break;
+                        case var wi when w.Kind == WidgetKind.LastValue:
+                            Widgets.Add(new LastValueWidgetViewModel(wi, objectRepository, vm));
+                            break;
+                        case var wi when w.Kind == WidgetKind.Expenses:
+                            Widgets.Add(new ExpensesWidgetViewModel(wi, objectRepository));
+                            break;
+                        case var wi when w.Kind == WidgetKind.Chart:
+                            Widgets.Add(new ChartWidgetViewModel(wi, objectRepository, vm));
+                            break;
+                        case var wi when w.Kind == WidgetKind.Delta:
+                            Widgets.Add(new DeltaWidgetViewModel(wi, objectRepository, vm));
+                            break;
+                        default:
+                            Widgets.Add(new UnknownWidgetViewModel(w));
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Widgets.Add(new ExceptionWidgetViewModel(w, ex));
                 }
             }
         }

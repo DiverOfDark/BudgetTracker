@@ -13,50 +13,43 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         public LastValueWidgetViewModel(WidgetModel model, ObjectRepository repo, TableViewModel vm) : base(model, new LastValueWidgetSettings(model.Properties.ToDictionary(v=>v.Key,v=>v.Value)))
         {
             _settings = (LastValueWidgetSettings) Settings;
-            try
-            {
-                var column = repo.Set<MoneyColumnMetadataModel>().First(v =>
-                    v.Provider == _settings.ProviderName &&
-                    (v.AccountName == _settings.AccountName || v.UserFriendlyName == _settings.AccountName));
+            var column = repo.Set<MoneyColumnMetadataModel>().First(v =>
+                v.Provider == _settings.ProviderName &&
+                (v.AccountName == _settings.AccountName || v.UserFriendlyName == _settings.AccountName));
 
-                vm = new TableViewModel(vm)
-                {
-                    ShowAll = true
-                };
+            vm = new TableViewModel(vm)
+            {
+                ShowAll = true
+            };
+            
+            Values = new Dictionary<DateTime, double?>();
+            bool first = true;
+            foreach (var row in vm.Values.OrderByDescending(v => v.When))
+            {
+                var cell = row.Cells.FirstOrDefault(v => v.Column == column);
+                if (cell == null)
+                    continue;
                 
-                Values = new Dictionary<DateTime, double?>();
-                bool first = true;
-                foreach (var row in vm.Values.OrderByDescending(v => v.When))
+                Values[cell.Money?.When ?? row.When.Date] = cell.Value;
+                IncompleteData |= !cell.Value.HasValue || cell.FailedToResolve.Any();
+
+                if (first)
                 {
-                    var cell = row.Cells.FirstOrDefault(v => v.Column == column);
-                    if (cell == null)
-                        continue;
-                    
-                    Values[row.When] = cell.Value;
-                    IncompleteData |= !cell.Value.HasValue || cell.FailedToResolve.Any();
+                    first = false;
 
-                    if (first)
-                    {
-                        first = false;
-
-                        (Color, Delta) = SetDiffPercenage(cell.DiffPercentage);
-                    }
+                    (Color, Delta) = SetDiffPercenage(cell.DiffPercentage);
                 }
-
-                var minValue = Values.OrderBy(v => v.Key).First();
-                var maxValue = Values.OrderBy(v => v.Key).Last();
-
-                var dV = (maxValue.Value - minValue.Value) / minValue.Value;
-                var dt = (maxValue.Key - minValue.Key).TotalDays;
-
-                var yearDelta = dV / dt * 365.25;
-
-                (ColorYear, DeltaYear) = SetDiffPercenage(yearDelta);
             }
-            catch (Exception ex)
-            {
-                Exception = ex;
-            }
+
+            var minValue = Values.OrderBy(v => v.Key).First();
+            var maxValue = Values.OrderBy(v => v.Key).Last();
+
+            var dV = (maxValue.Value - minValue.Value) / minValue.Value;
+            var dt = (maxValue.Key - minValue.Key).TotalDays;
+
+            var yearDelta = dV / dt * 365.25;
+
+            (ColorYear, DeltaYear) = SetDiffPercenage(yearDelta);
         }
 
         private static (String color, String delta) SetDiffPercenage(double? cell)
@@ -111,7 +104,5 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 
         public string Color { get; set; }
         public string ColorYear { get; set; }
-
-        public Exception Exception { get; }
     }
 }

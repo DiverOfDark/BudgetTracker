@@ -24,8 +24,8 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                 (v.AccountName == ChartWidgetSettings.AccountName ||
                  v.UserFriendlyName == ChartWidgetSettings.AccountName));
 
-            var columnsToChart = new List<MoneyColumnMetadataModel>{column};
-            
+            var columnsToChart = new List<MoneyColumnMetadataModel> {column};
+
             if (column.IsComputed)
             {
                 columnsToChart = repository.Set<MoneyColumnMetadataModel>().Where(v =>
@@ -34,7 +34,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             }
 
             var chartItems = new List<ChartItem>();
-            
+
             foreach (var row in vm.Values)
             {
                 foreach (var header in columnsToChart)
@@ -42,7 +42,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                     var value = row.Cells.FirstOrDefault(v => v.Column == header);
                     if (value?.Value == null)
                         continue;
-    
+
                     chartItems.Add(new ChartItem
                     {
                         When = row.When,

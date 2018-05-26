@@ -1,0 +1,15 @@
+@using System.Globalization
+@using Controllers.ViewModels.Widgets
+@model ExceptionWidgetViewModel
+
+<div class="card-status bg-red"></div>
+<div class="card-body bg-red-lighter" style="height:168px">
+    @if (Model.Exception != null)
+    {
+        <div class="m-0" title="@Model.Exception.ToString()">
+            <b>Ошибка:</b>
+            <br/>
+            <i>@Model.Exception.Message</i>
+        </div>
+    }
+</div>

@@ -7,18 +7,7 @@
 	var colorSuffix = Model.IncompleteData ? "bg-gray-dark-darkest" : ""; 
 }
 
-@if (Model.Exception != null)
-{
-    <div class="card-body">
-        @if (Model.Exception != null)
-        {
-            <div class="m-0">
-                @Model.Exception.Message
-            </div>
-        }
-    </div>
-}
-else if (Model.IsCompact)
+@if (Model.IsCompact)
 {
 	var pair = Model.Values.OrderByDescending(v => v.Key).First();
 
