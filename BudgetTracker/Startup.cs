@@ -80,7 +80,7 @@ namespace BudgetTracker
             var scrapers = GetType().Assembly.GetTypes().Where(v => v.IsSubclassOf(typeof(GenericScraper))).ToList();
             foreach (var s in scrapers)
             {
-                services.AddTransient(typeof(GenericScraper), s);
+                services.AddSingleton(typeof(GenericScraper), s);
             }
             
             services.AddWebEncoders(o =>

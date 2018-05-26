@@ -137,12 +137,16 @@ namespace BudgetTracker.Controllers
         }
 
         [Route("post-data")]
-        public IActionResult PostData([Bind] string name, [Bind] double value, [Bind] string ccy)
+        public IActionResult PostData([Bind] string name, [Bind] string value, [Bind] string ccy)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(name) || double.IsNaN(value) || double.IsInfinity(value))
+                if (string.IsNullOrWhiteSpace(name) || 
+                    !double.TryParse(value.Replace(".", ",").Trim(), NumberStyles.Any, new NumberFormatInfo(){NumberDecimalSeparator = "."}, out var valueParsed) 
+                    || double.IsNaN(valueParsed) 
+                    || double.IsInfinity(valueParsed))
                 {
+                    _logger.LogError($"Failed to parse post-data: {name} / {value} / {ccy}");
                     return new ContentResult
                     {
                         Content = "Bad request",
@@ -155,9 +159,11 @@ namespace BudgetTracker.Controllers
                     AccountName = name,
                     Provider = "API",
                     Ccy = ccy,
-                    Amount = value,
+                    Amount = valueParsed,
                     When = DateTime.UtcNow
                 });
+                
+                _logger.LogInformation($"Parsed post-data: {name} / {value} / {ccy}");
                 return new ContentResult
                 {
                     Content = "OK",
@@ -166,6 +172,7 @@ namespace BudgetTracker.Controllers
             }
             catch
             {
+                _logger.LogError($"Failed to parse post-data: {name} / {value} / {ccy}");
                 return new ContentResult
                 {
                     Content = "ERROR",
