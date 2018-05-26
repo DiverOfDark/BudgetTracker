@@ -17,9 +17,8 @@ namespace BudgetTracker.Services
 
         public void Process()
         {
-            try
+            lock (typeof(SmsRuleProcessor))
             {
-                Monitor.Enter(this);
                 var smsList = _objectRepository.Set<SmsModel>().Where(v => v.AppliedRule == null).ToList();
                 var rules = _objectRepository.Set<RuleModel>();
 
@@ -61,10 +60,6 @@ namespace BudgetTracker.Services
                 }
 
                 _objectRepository.RemoveRange(oldSms);
-            }
-            finally
-            {
-                Monitor.Exit(this);
             }
         }
     }

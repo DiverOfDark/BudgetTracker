@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
 using BudgetTracker.Model;
 
 namespace BudgetTracker.Services
@@ -16,10 +15,8 @@ namespace BudgetTracker.Services
 
         public void Process()
         {
-            try
+            lock (typeof(SpentCategoryProcessor))
             {
-                Monitor.Enter(this);
-                
                 var payments = _objectRepository.Set<PaymentModel>().Where(v => v.Category == null).ToList();
                 var categories = _objectRepository.Set<SpentCategoryModel>();
 
@@ -37,10 +34,6 @@ namespace BudgetTracker.Services
                         }
                     }
                 }
-            }
-            finally
-            {
-                Monitor.Exit(this);
             }
         }
     }

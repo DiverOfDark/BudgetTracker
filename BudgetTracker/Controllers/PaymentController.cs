@@ -3,8 +3,10 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using BudgetTracker.Controllers.ViewModels.Payment;
 using BudgetTracker.Model;
+using BudgetTracker.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace BudgetTracker.Controllers
 {
@@ -78,13 +80,16 @@ namespace BudgetTracker.Controllers
 
         public IActionResult DeleteCategory(Guid id)
         {
-            var category = _objectRepository.Set<SpentCategoryModel>().First(x => x.Id == id);
-
-            foreach (var item in category.Payments)
+            lock (typeof(SpentCategoryProcessor))
             {
-                item.Category = null;
+                var category = _objectRepository.Set<SpentCategoryModel>().First(x => x.Id == id);
+
+                foreach (var item in category.Payments)
+                {
+                    item.Category = null;
+                }
             }
-            
+
             _objectRepository.Remove(category);
             return RedirectToAction(nameof(SpentCategories));
         }

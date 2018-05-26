@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using BudgetTracker.Controllers.ViewModels.Sms;
 using BudgetTracker.Model;
+using BudgetTracker.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -60,12 +61,16 @@ namespace BudgetTracker.Controllers
         {
             var rule = _objectRepository.Set<RuleModel>().First(v => v.Id == id);
 
-            foreach (var s in rule.Smses)
+            lock (typeof(SmsRuleProcessor))
             {
-                s.AppliedRule = null;
+                foreach (var s in rule.Smses)
+                {
+                    s.AppliedRule = null;
+                }
+
+                _objectRepository.Remove(rule);
             }
-            
-            _objectRepository.Remove(rule);
+
             return RedirectToAction(nameof(SmsRules));
         }
     }
