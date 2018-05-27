@@ -32,7 +32,9 @@ namespace BudgetTracker.Scrapers
             var sign = HashHmac(password, param).ToUpper();
             var uri = "https://api.livecoin.net/payment/balances";
 
+            _client.DefaultRequestHeaders.Remove("Api-Key");            
             _client.DefaultRequestHeaders.Add("Api-Key", apiKey);
+            _client.DefaultRequestHeaders.Remove("Sign");
             _client.DefaultRequestHeaders.Add("Sign", sign);
             var response = _client.GetAsync(uri).GetAwaiter().GetResult();
             var responseText = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
