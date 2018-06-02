@@ -85,29 +85,13 @@ namespace BudgetTracker.Services
                 {
                     var delta = b.Amount - a.Amount;
 
-                    var appliedPayments = payments.Where(v =>
-                        v.Column.AccountName == column.AccountName && v.When >= a.When && v.When <= b.When).ToList();
-
-                    foreach (var item in appliedPayments)
-                    {
-                        switch (item.Kind)
-                        {
-                            case PaymentKind.Expense:
-                                delta -= Math.Abs(item.Amount);
-                                break;
-                            case PaymentKind.Income:
-                                delta += Math.Abs(item.Amount);
-                                break;
-                            case PaymentKind.Transfer:
-                                delta += item.Amount;
-                                break;
-                        }
-                    }
+                    delta += payments.Where(v => v.Column.AccountName == column.AccountName && v.When >= a.When && v.When <= b.When).Sum(v => v.SignedAmount);
 
                     if (Math.Abs(delta) >= 0.01)
                     {
                         var when = a.When + (b.When - a.When) / 2;
-                        _objectRepository.Add(new PaymentModel(when, "Коррекция баланса " + column.Provider + " " + column.AccountName, -delta, a.Ccy, "N/A-" + DateTime.Now.Ticks, column));
+                        var kind = delta > 0 ? PaymentKind.Income : PaymentKind.Expense;
+                        _objectRepository.Add(new PaymentModel(when, "Коррекция баланса " + column.Provider + " " + column.AccountName, delta, kind, a.Ccy, "N/A-" + DateTime.Now.Ticks, column));
                     }
 
                     return b;

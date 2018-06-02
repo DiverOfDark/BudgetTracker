@@ -12,7 +12,7 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
         public PaymentViewModel(PaymentModel paymentModel)
         {
             When = paymentModel.When;
-            Amount = paymentModel.Amount;
+            Amount = paymentModel.SignedAmount;
             Ccy = paymentModel.Ccy;
             What = paymentModel.What;
             Id = paymentModel.Id;
@@ -29,7 +29,7 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
         public PaymentViewModel(IList<PaymentModel> paymentGroup)
         {
             When = paymentGroup.Max(v => v.When);
-            Amount = paymentGroup.Sum(v => v.Amount);
+            Amount = paymentGroup.Sum(v => v.SignedAmount);
             Ccy = paymentGroup.Select(s => s.Ccy).Distinct().Single();
             Id = paymentGroup.First().Id;
 

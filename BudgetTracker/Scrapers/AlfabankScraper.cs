@@ -149,7 +149,7 @@ namespace BudgetTracker.Scrapers
                     var csvFile = files.First();
                     var csvContent = File.ReadAllLines(csvFile.FullName, Encoding.GetEncoding(1251)).Skip(1).Select(v=>new AlphaStatement(v)).ToList();
                     var payments = csvContent.Select(v =>
-                        Statement(v.Date, v.AccountName, v.What, v.Outcome - v.Income, v.Ccy, v.Reference)).ToList();
+                        Statement(v.Date, v.AccountName, v.What, Math.Abs(v.Outcome - v.Income), v.Kind, v.Ccy, v.Reference)).ToList();
 
                     var holdPayments = payments.Where(v => v.StatementReference == "HOLD").ToList();
                     payments = payments.Except(holdPayments).ToList();
@@ -197,6 +197,8 @@ namespace BudgetTracker.Scrapers
             public string What { get; set; }
             public double Income { get; set; }
             public double Outcome { get; set; }
+
+            public PaymentKind Kind => Outcome - Income > 0 ? PaymentKind.Income : PaymentKind.Expense;
         }
 
         private void Login(ScraperConfigurationModel configuration, ChromeDriver driver)

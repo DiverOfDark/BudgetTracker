@@ -57,7 +57,7 @@ namespace BudgetTracker.Scrapers
             Amount = amount
         };
 
-        protected PaymentModel Statement(DateTime when, string account, string what, double amount, string ccy,
+        protected PaymentModel Statement(DateTime when, string account, string what, double amount, PaymentKind kind, string ccy,
             string statementReference)
         {
             var column = Repository.Set<MoneyColumnMetadataModel>().FirstOrDefault(v => v.Provider == ProviderName && v.AccountName == account);
@@ -72,7 +72,7 @@ namespace BudgetTracker.Scrapers
                 Repository.Add(column);
             }
 
-            return new PaymentModel(when, what, amount, ccy, statementReference, column);
+            return new PaymentModel(when, what, amount, kind, ccy, statementReference, column);
         }
     }
 }

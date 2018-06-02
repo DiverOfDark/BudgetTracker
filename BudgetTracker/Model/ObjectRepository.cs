@@ -24,6 +24,7 @@ namespace BudgetTracker.Model
 
 #pragma warning disable 612
             Migration1();
+            Migration2();
 #pragma warning restore 612
         }
 
@@ -46,6 +47,18 @@ namespace BudgetTracker.Model
                     item.Column = column;
                     item.OldProvider = null;
                     item.OldAccount = null;
+                }
+            }
+        }
+
+        [Obsolete]
+        private void Migration2()
+        {
+            foreach (PaymentModel model in Set<PaymentModel>())
+            {
+                if (model.Amount < 0)
+                {
+                    model.Amount = Math.Abs(model.Amount);
                 }
             }
         }
