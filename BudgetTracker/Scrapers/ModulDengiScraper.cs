@@ -10,6 +10,10 @@ namespace BudgetTracker.Scrapers
 {
     internal class ModulDengiScraper : GenericScraper
     {
+        public ModulDengiScraper(ObjectRepository repository) : base(repository)
+        {
+        }
+
         public override string ProviderName => "МодульДеньги";
 
         public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, ChromeDriver driver)

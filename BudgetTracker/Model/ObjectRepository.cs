@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System;
+using System.Linq;
+using Microsoft.Extensions.Logging;
 using OutCode.EscapeTeams.ObjectRepository;
 using OutCode.EscapeTeams.ObjectRepository.AzureTableStorage;
 
@@ -19,8 +21,33 @@ namespace BudgetTracker.Model
             AddType((ScraperConfigurationModel.ScraperConfigurationEntity x) => new ScraperConfigurationModel(x));
             AddType((SettingsModel.SettingsEntity x) => new SettingsModel(x));
             Initialize();
+
+            Migration1();
         }
-        
+
+        [Obsolete]
+        private void Migration1()
+        {
+            foreach (PaymentModel item in Set<PaymentModel>().Where(v => v.Column == null))
+            {
+                if (!string.IsNullOrWhiteSpace(item.OldProvider) && !string.IsNullOrWhiteSpace(item.OldAccount))
+                {
+                    var column = Set<MoneyColumnMetadataModel>().FirstOrDefault(v =>
+                        v.Provider == item.OldProvider && v.AccountName == item.OldAccount);
+
+                    if (column == null)
+                    {
+                        column = new MoneyColumnMetadataModel(item.OldProvider, item.OldAccount);
+                        Add(column);
+                    }
+
+                    item.Column = column;
+                    item.OldProvider = null;
+                    item.OldAccount = null;
+                }
+            }
+        }
+
         public string ExportDiff() => ((AzureTableContext)Storage).ExportStream();
     }
 }

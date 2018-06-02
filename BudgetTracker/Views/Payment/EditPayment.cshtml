@@ -1,7 +1,23 @@
 ﻿@using Controllers.ViewModels.Payment
+@using Microsoft.EntityFrameworkCore.Internal
+@using Model
+@inject ObjectRepository Repository
 @model Controllers.ViewModels.Payment.PaymentViewModel
 @{
     ViewData["Title"] = "Редактировать столбец";
+    var categoriesSelectList = Repository.Set<SpentCategoryModel>().ToList().Select(v => new SelectListItem()
+    {
+        Text = v.Category,
+        Value = v.Id.ToString(),
+        Selected = v == Model.Items.First().Category
+    }).Distinct((a, b) => a.Text == b.Text).OrderBy(v => v.Text).ToList();
+
+    var providerAccountsSelectList = Repository.Set<MoneyColumnMetadataModel>().Where(v => !v.IsComputed).Select(v => new SelectListItem()
+    {
+        Text = v.Provider + "/" + v.AccountName,
+        Value = v.Id.ToString(),
+        Selected = v.Id == Model.ColumnId
+    }).OrderBy(v => v.Text).ToList();
 }
 
 
@@ -23,14 +39,16 @@
                                         <label class="control-label">Когда: <span class="font-weight-bold font-italic">@Model.When.ToString("g")</span></label>
                                     </div>
                                     <div class="form-group">
-                                        <label class="control-label">Категория: <span class="font-weight-bold font-italic">@(Model.Items.First().Category?.Category ?? "<не определена>")</span></label>
+                                        <label class="control-label">Категория:</label>
+                                        <div control-labelstyle="padding-top: 7px;">
+                                            @Html.DropDownListFor(model => model.CategoryId, categoriesSelectList, new {@class = "form-control"})
+                                        </div>
                                     </div>
                                     <div class="form-group">
-                                        <label class="control-label">Провайдер/аккаунт:
-                                            <span class="font-weight-bold font-italic">
-                                                @((Model.Provider ?? "<не определен>") + "/" + (Model.Account ?? "<не определен>"))
-                                            </span>
-                                        </label>
+                                        <label class="control-label">Провайдер/аккаунт</label>
+                                        <div control-labelstyle="padding-top: 7px;">
+                                            @Html.DropDownListFor(model => model.ColumnId, providerAccountsSelectList, new {@class = "form-control"})
+                                        </div>
                                     </div>
                                     <div class="form-group">
                                         <label class="control-label">Reference: <span class="font-weight-bold font-italic">@(Model.Items.First().StatementReference ?? "<не определен>")</span></label>

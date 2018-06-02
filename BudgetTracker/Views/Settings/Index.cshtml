@@ -74,6 +74,7 @@
                                 <td>
                                     Баланс: <b>@(matchingConfig.LastSuccessfulBalanceScraping == default ? "-" : matchingConfig.LastSuccessfulBalanceScraping.ToString("g"))</b><br/>
                                     Выписка: <b>@(matchingConfig.LastSuccessfulStatementScraping == default ? "-" : matchingConfig.LastSuccessfulStatementScraping.ToString("g"))</b>
+                                    <a href="@Url.Action("ClearLastSuccessful", new { id=matchingConfig.Id })"><span class="fe fe-delete"></span></a>
                                 </td>
                                 <td>
                                     <a href="@Url.Action("DeleteConfig", new{id = matchingConfig.Id})">

@@ -52,6 +52,15 @@ namespace BudgetTracker.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        public IActionResult ClearLastSuccessful(Guid id)
+        {
+            var model = _objectRepository.Set<ScraperConfigurationModel>().First(v => v.Id == id);
+            model.LastSuccessfulBalanceScraping = default;
+            model.LastSuccessfulStatementScraping = default;
+
+            return RedirectToAction(nameof(Index));
+        }
+
         public class IndexViewModel
         {
             public IndexViewModel(IEnumerable<GenericScraper> scrapers, ObjectRepository repository)

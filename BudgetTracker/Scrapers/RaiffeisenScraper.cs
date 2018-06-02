@@ -11,13 +11,16 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OutCode.EscapeTeams.ObjectRepository;
 
-
-
 namespace BudgetTracker.Scrapers
 {
     internal class RaiffeisenScraper : GenericScraper, IStatementScraper
     {
+        public RaiffeisenScraper(ObjectRepository repository) : base(repository)
+        {
+        }
+
         public override string ProviderName => "Райффайзен";
+
         public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, ChromeDriver driver)
         {
             Login(configuration, driver);

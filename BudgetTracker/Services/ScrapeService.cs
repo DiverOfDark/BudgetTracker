@@ -67,7 +67,7 @@ namespace BudgetTracker.Services
                             var minDates = new[]
                             {
                                 _objectRepository.Set<PaymentModel>()
-                                    .Where(v => v.Provider == scraper.ProviderName)
+                                    .Where(v => v.Column?.Provider == scraper.ProviderName)
                                     .OrderByDescending(v => v.When)
                                     .FirstOrDefault()?.When,
                                 _objectRepository.Set<MoneyStateModel>().OrderBy(v => v.When)
@@ -109,14 +109,9 @@ namespace BudgetTracker.Services
                                     }
                                     else
                                     {
-                                        if (existingItem.Provider == null)
+                                        if (existingItem.Column == null)
                                         {
-                                            existingItem.Provider = s.Provider;
-                                        }
-
-                                        if (existingItem.Account == null)
-                                        {
-                                            existingItem.Account = s.Account;
+                                            existingItem.Column = s.Column;
                                         }
 
                                         if (existingItem.StatementReference == null)

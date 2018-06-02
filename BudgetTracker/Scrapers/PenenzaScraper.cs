@@ -10,6 +10,10 @@ namespace BudgetTracker.Scrapers
 {
     internal class PenenzaScraper : GenericScraper
     {
+        public PenenzaScraper(ObjectRepository repository) : base(repository)
+        {
+        }
+
         public override string ProviderName => "Penenza";
 
         public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, ChromeDriver driver)

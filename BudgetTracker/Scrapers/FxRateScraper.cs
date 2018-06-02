@@ -8,7 +8,12 @@ namespace BudgetTracker.Scrapers
 {
     internal class FxRateScraper : GenericScraper
     {
+        public FxRateScraper(ObjectRepository repository) : base(repository)
+        {
+        }
+
         public override string ProviderName => "FX";
+
         public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, ChromeDriver driver)
         {
             var result = new List<MoneyStateModel>();

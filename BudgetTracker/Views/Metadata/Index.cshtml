@@ -1,6 +1,6 @@
 ﻿@using Model
-@model IEnumerable<Model.MoneyColumnMetadataModel>
-@inject ObjectRepository repo
+@model IEnumerable<MoneyColumnMetadataModel>
+@inject ObjectRepository Repo
 @{
     ViewData["Title"] = "Столбцы";
 }
@@ -67,7 +67,8 @@
                                     <a href="@Url.Action("MetadataEdit", new {id = meta.Id})">
                                         <span class="fe fe-edit-2"></span>
                                     </a>
-                                    @if (meta.IsComputed || repo.Set<MoneyStateModel>().All(s=>s.AccountName != meta.AccountName))
+                                    @if (meta.IsComputed || Repo.Set<MoneyStateModel>().All(s=>s.AccountName != meta.AccountName && s.Provider != meta.Provider)
+                                         && Repo.Set<PaymentModel>().All(s=>s.Column != meta))
                                     {
                                         <a href="@Url.Action("MetadataDelete", new {id = meta.Id})">
                                             <span class="fe fe-x-circle"></span>

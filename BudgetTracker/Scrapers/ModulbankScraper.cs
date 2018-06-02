@@ -11,11 +11,8 @@ namespace BudgetTracker.Scrapers
 {
     internal class ModulbankScraper : GenericScraper
     {
-        private readonly ObjectRepository _repository;
-
-        public ModulbankScraper(ObjectRepository repository)
+        public ModulbankScraper(ObjectRepository repository) : base(repository)
         {
-            _repository = repository;
         }
 
         public override string ProviderName => "МодульБанк";
@@ -41,7 +38,7 @@ namespace BudgetTracker.Scrapers
             bool success = false;
             while (DateTime.UtcNow - now < TimeSpan.FromMinutes(15))
             {
-                var lastSms = _repository.Set<SmsModel>().Where(v=>v.When > now.AddMinutes(-3)).OrderByDescending(v => v.When).FirstOrDefault();
+                var lastSms = Repository.Set<SmsModel>().Where(v=>v.When > now.AddMinutes(-3)).OrderByDescending(v => v.When).FirstOrDefault();
                 if (lastSms?.Message.Contains("Код подтверждения") == true)
                 {
                     var code = new string(lastSms.Message.Where(char.IsDigit).ToArray());

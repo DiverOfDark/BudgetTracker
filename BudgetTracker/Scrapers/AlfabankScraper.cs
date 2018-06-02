@@ -17,6 +17,10 @@ namespace BudgetTracker.Scrapers
 {
     internal class AlfabankScraper : GenericScraper, IStatementScraper
     {
+        public AlfabankScraper(ObjectRepository repository) : base(repository)
+        {
+        }
+
         public override string ProviderName => "Альфа-Банк";
 
         public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, ChromeDriver driver)

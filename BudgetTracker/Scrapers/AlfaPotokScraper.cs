@@ -10,7 +10,12 @@ namespace BudgetTracker.Scrapers
 {
     internal class AlfaPotokScraper : GenericScraper
     {
+        public AlfaPotokScraper(ObjectRepository repository) : base(repository)
+        {
+        }
+
         public override string ProviderName => "Альфа-Поток";
+
         public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, ChromeDriver driver)
         {
             driver.Navigate().GoToUrl(@"https://potok.digital/potok");

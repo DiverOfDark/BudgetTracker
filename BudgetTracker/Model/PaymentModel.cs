@@ -31,8 +31,12 @@ namespace BudgetTracker.Model
             public Guid? SmsId { get; set; }
             public Guid? CategoryId { get; set; }
             
+            [Obsolete]
             public string Provider { get; set; }
+            [Obsolete]
             public string Account { get; set; }
+            
+            public Guid? ColumnId { get; set; }
             public int Kind { get; set; }
             public string StatementReference { get; set; }
         }
@@ -45,20 +49,20 @@ namespace BudgetTracker.Model
             Id = Guid.Parse(_entity.RowKey);
         }
 
-        public PaymentModel(string providerName, string account, DateTime when, string what, double amount, string ccy, string statementReference)
+        public PaymentModel(DateTime when, string what, double amount, string ccy, string statementReference,
+            MoneyColumnMetadataModel column)
         {
             Id = Guid.NewGuid();
             _entity = new PaymentEntity
             {
                 PartitionKey = nameof(MoneyStateModel),
                 RowKey = Id.ToString(),
-                Provider = providerName,
-                Account = account,
                 When = when,
                 Amount = amount,
                 What = what,
                 Kind = (int) (amount > 0 ? PaymentKind.Expense : PaymentKind.Income),
-                StatementReference = statementReference
+                StatementReference = statementReference,
+                ColumnId = column?.Id
             };
             Ccy = ccy;
         }
@@ -92,9 +96,24 @@ namespace BudgetTracker.Model
         public sealed override Guid Id { get; }
         protected override object Entity => _entity;
 
+        public Guid? ColumnId => _entity.ColumnId;
         public Guid? CategoryId => _entity.CategoryId;
         public Guid? SmsId => _entity.SmsId;
         public DateTime When => _entity.When;
+
+        [Obsolete]
+        public string OldProvider
+        {
+            get => _entity.Provider;
+            set => UpdateProperty(() => _entity.Provider, value);
+        }
+
+        [Obsolete]
+        public string OldAccount
+        {
+            get => _entity.Account;
+            set => UpdateProperty(() => _entity.Account, value);
+        }
 
         public string What
         {
@@ -126,16 +145,10 @@ namespace BudgetTracker.Model
             set => UpdateProperty(() => _entity.CategoryId, value?.Id);
         }
 
-        public string Provider
+        public MoneyColumnMetadataModel Column
         {
-            get => _entity.Provider;
-            set => UpdateProperty(() => _entity.Provider, value);
-        }
-
-        public string Account
-        {
-            get => _entity.Account;
-            set => UpdateProperty(() => _entity.Account, value);
+            get => Single<MoneyColumnMetadataModel>(_entity.ColumnId);
+            set => UpdateProperty(() => _entity.ColumnId, value?.Id);
         }
 
         public PaymentKind Kind

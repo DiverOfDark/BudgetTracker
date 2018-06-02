@@ -15,7 +15,7 @@ namespace BudgetTracker.Scrapers
         private readonly ILogger _logger;
         private HttpClient _client;
 
-        public LivecoinScraper(ILoggerFactory logger)
+        public LivecoinScraper(ObjectRepository repo, ILoggerFactory logger) : base(repo)
         {
             _logger = logger.CreateLogger(typeof(LivecoinScraper));
             _client = new HttpClient();

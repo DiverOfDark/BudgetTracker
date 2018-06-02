@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using BudgetTracker.Model;
 using OpenQA.Selenium;
@@ -11,8 +12,15 @@ namespace BudgetTracker.Scrapers
 {
     public abstract class GenericScraper
     {
+        public GenericScraper(ObjectRepository repository)
+        {
+            Repository = repository;
+        }
+        
         public abstract string ProviderName { get; }
 
+        public ObjectRepository Repository { get; }
+        
         public abstract IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, ChromeDriver driver);
         
         protected IWebElement GetElement(ChromeDriver driver, By currencySpan)
@@ -44,7 +52,22 @@ namespace BudgetTracker.Scrapers
             Amount = amount
         };
 
-        protected PaymentModel Statement(DateTime when, string account, string what, double amount, string ccy, string statementReference) =>
-            new PaymentModel(ProviderName, account, when, what, amount, ccy, statementReference);
+        protected PaymentModel Statement(DateTime when, string account, string what, double amount, string ccy,
+            string statementReference)
+        {
+            var column = Repository.Set<MoneyColumnMetadataModel>().FirstOrDefault(v => v.Provider == ProviderName && v.AccountName == account);
+
+            if (column == null)
+            {
+                column = new MoneyColumnMetadataModel(ProviderName, account)
+                {
+                    UserFriendlyName = account,
+                    IsVisible = true
+                };
+                Repository.Add(column);
+            }
+
+            return new PaymentModel(when, what, amount, ccy, statementReference, column);
+        }
     }
 }
