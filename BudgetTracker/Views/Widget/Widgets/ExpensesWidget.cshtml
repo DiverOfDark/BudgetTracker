@@ -19,6 +19,8 @@
     var values = data.Select(v => (int)v.Amount).ToList();
     var names = data.Select(v =>
     {
+        if (!string.IsNullOrWhiteSpace(v.Category))
+            return v.Category;
         if (v.What.Length > 32)
             return v.What.Remove(31) + "...";
         return v.What;

@@ -14,7 +14,7 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
             When = paymentModel.When;
             Amount = paymentModel.Amount;
             Ccy = paymentModel.Ccy;
-            What = paymentModel.Category?.Category ?? paymentModel.What;
+            What = paymentModel.What;
             Id = paymentModel.Id;
             Provider = paymentModel.Column?.Provider;
             Account = paymentModel.Column?.AccountName;
@@ -22,6 +22,7 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
             Kind = paymentModel.Kind;
 
             CategoryId = paymentModel.CategoryId;
+            Category = paymentModel.Category?.Category;
             ColumnId = paymentModel.Column?.Id;
         }
 
@@ -32,29 +33,31 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
             Ccy = paymentGroup.Select(s => s.Ccy).Distinct().Single();
             Id = paymentGroup.First().Id;
 
-            var list = paymentGroup.Select(v => v.Category?.Category ?? v.What).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
-            What = list.Count == 1 ? list[0] : "Остальное";
+            var list = paymentGroup.Select(v => v.What).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
+            What = list.Count == 1 ? list[0] : MiddleDash;
             list = paymentGroup.Select(v => v.Column?.Provider).Where(v=>v!=null).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
             Provider = list.Count == 1 ? list[0] : MiddleDash;
             list = paymentGroup.Select(v => v.Column?.AccountName).Where(v=>v!=null).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
             Account = list.Count == 1 ? list[0] : MiddleDash;
+            list = paymentGroup.Select(v => v.Category?.Category).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
+            Category = list.Count == 1 ? list[0] : MiddleDash;
             var list2 = paymentGroup.Select(v => v.Kind).Distinct().ToList();
             Kind = list2.Count == 1 ? list2[0] : PaymentKind.Unknown;
 
             Items = paymentGroup;
         }
 
-        public string What { get; set; }
+        public string What { get; }
 
-        public string Ccy { get; set; }
+        public string Ccy { get; }
 
         public Guid Id { get; } 
 
-        public double Amount { get; set; }
+        public double Amount { get; }
 
-        public DateTime When { get; set; }
+        public DateTime When { get; }
         
-        public PaymentKind Kind { get; set; }
+        public PaymentKind Kind { get; }
         public string Provider { get; }
         public string Account { get; }
 
@@ -63,5 +66,6 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
 
         public Guid? CategoryId { get; set; }
         public Guid? ColumnId { get; set; }
+        public string Category { get; }
     }
 }

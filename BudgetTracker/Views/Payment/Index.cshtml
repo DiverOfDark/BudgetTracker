@@ -36,6 +36,7 @@
                         <thead>
                         <tr>
                             <th>Когда</th>
+                            <th>Тип</th>
                             <th>Категория</th>
                             <th>Провайдер</th>
                             <th>Счёт</th>
@@ -55,9 +56,9 @@
                                         </a>
                                     </span>
                                     
-                                    @foreach (var item in month.Totals)
+                                    @foreach (var item in month.Totals.OrderBy(v=>v.Key))
                                     {
-                                        <span class="badge badge-primary">@item.Value @item.Key</span>
+                                        <span class="badge badge-primary">@item.Value.ToString("N2") @item.Key</span>
                                     }
                                     
                                     <span class="badge badge-secondary">@month.PaymentModels.SelectMany(v=>v.Items).Count(v => v.Category == null) без категорий</span>
@@ -69,6 +70,7 @@
                                 <tr class="collapse-@month.Key collapse show">
                                     <td class="text-nowrap">@payment.When</td>
                                     <td class="text-nowrap">@payment.Kind.GetDisplayName()</td>
+                                    <td class="text-nowrap">@payment.Category</td>
                                     <td class="text-nowrap">@payment.Provider</td>
                                     <td class="text-nowrap">@payment.Account</td>
                                     <td>
@@ -110,6 +112,7 @@
                                         <tr class="table-info collapse-@month.Key collapse-@payment.Id collapse">
                                             <td class="text-nowrap">@item.When</td>
                                             <td class="text-nowrap">@item.Kind.GetDisplayName()</td>
+                                            <td class="text-nowrap">@payment.Category</td>
                                             <td class="text-nowrap">@item.Column?.Provider</td>
                                             <td class="text-nowrap">@item.Column?.AccountName</td>
                                             <td>
