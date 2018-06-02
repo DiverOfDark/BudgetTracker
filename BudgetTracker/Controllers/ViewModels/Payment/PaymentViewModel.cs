@@ -42,7 +42,7 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
             list = paymentGroup.Select(v => v.Category?.Category).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
             Category = list.Count == 1 ? list[0] : MiddleDash;
             var list2 = paymentGroup.Select(v => v.Kind).Distinct().ToList();
-            Kind = list2.Count == 1 ? list2[0] : PaymentKind.Unknown;
+            Kind = list2.Count == 1 ? list2[0] : (Amount > 0 ? PaymentKind.Income : PaymentKind.Expense);
 
             Items = paymentGroup;
         }

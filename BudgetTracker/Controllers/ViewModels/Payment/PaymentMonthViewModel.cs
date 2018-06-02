@@ -30,7 +30,7 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
             if (enableGrouping)
             {
                 var groups = paymentModels
-                    .GroupBy(v => (v.Category ?? v.What).ToLower() + v.Ccy + v.Kind)
+                    .GroupBy(v => (v.Category ?? v.What).ToLower() + v.Ccy + GetKindGrouping(v.Kind))
                     .Where(v => v.Count() > 1)
                     .ToList();
 
@@ -43,6 +43,18 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
 
             PaymentModels = paymentModels.OrderByDescending(v=>v.When).ToList();
             When = paymentModels.Select(v => v.When).FirstOrDefault();
+        }
+
+        private int GetKindGrouping(PaymentKind argKind)
+        {
+            switch (argKind)
+            {
+                case PaymentKind.Expense:
+                case PaymentKind.Income:
+                    return -1;
+                default:
+                    return (int) argKind;
+            }
         }
 
         public IEnumerable<PaymentViewModel> PaymentModels { get; }

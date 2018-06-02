@@ -87,10 +87,13 @@ namespace BudgetTracker.Services
 
                     delta += payments.Where(v => v.Column.AccountName == column.AccountName && v.When >= a.When && v.When <= b.When).Sum(v => v.SignedAmount);
 
+                    delta = Math.Round(delta * 100, MidpointRounding.AwayFromZero) / 100;
+                    
                     if (Math.Abs(delta) >= 0.01)
                     {
                         var when = a.When + (b.When - a.When) / 2;
                         var kind = delta > 0 ? PaymentKind.Income : PaymentKind.Expense;
+                        delta = Math.Abs(delta);
                         _objectRepository.Add(new PaymentModel(when, "Коррекция баланса " + column.Provider + " " + column.AccountName, delta, kind, a.Ccy, "N/A-" + DateTime.Now.Ticks, column));
                     }
 
