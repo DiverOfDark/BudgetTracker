@@ -49,7 +49,7 @@ namespace BudgetTracker.Model
             Id = Guid.Parse(_entity.RowKey);
         }
 
-        public PaymentModel(DateTime when, string what, double amount, string ccy, string statementReference,
+        public PaymentModel(DateTime when, string what, double amount, PaymentKind kind, string ccy, string statementReference,
             MoneyColumnMetadataModel column)
         {
             Id = Guid.NewGuid();
@@ -60,7 +60,7 @@ namespace BudgetTracker.Model
                 When = when,
                 Amount = amount,
                 What = what,
-                Kind = (int) (amount > 0 ? PaymentKind.Expense : PaymentKind.Income),
+                Kind = (int) kind,
                 StatementReference = statementReference,
                 ColumnId = column?.Id
             };
@@ -161,6 +161,27 @@ namespace BudgetTracker.Model
         {
             get => _entity.StatementReference;
             set => UpdateProperty(() => _entity.StatementReference, value);
+        }
+
+        public double SignedAmount
+        {
+            get
+            {
+                switch (Kind)
+                {
+                    case PaymentKind.Expense:
+                        return -Amount;
+
+                    case PaymentKind.Income:
+                        return Amount;
+
+                    case PaymentKind.Transfer:
+                        return Amount;
+
+                    default:
+                        return Amount;
+                }
+            }
         }
     }
 }

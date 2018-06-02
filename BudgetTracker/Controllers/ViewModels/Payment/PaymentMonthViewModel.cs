@@ -30,7 +30,7 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
             if (enableGrouping)
             {
                 var groups = paymentModels
-                    .GroupBy(v => (v.Category ?? v.What).ToLower() + v.Ccy + v.Kind)
+                    .GroupBy(v => (v.Category ?? v.What).ToLower() + v.Ccy + GetKindGrouping(v.Kind))
                     .Where(v => v.Count() > 1)
                     .ToList();
 
@@ -45,29 +45,24 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
             When = paymentModels.Select(v => v.When).FirstOrDefault();
         }
 
+        private int GetKindGrouping(PaymentKind argKind)
+        {
+            switch (argKind)
+            {
+                case PaymentKind.Expense:
+                case PaymentKind.Income:
+                    return -1;
+                default:
+                    return (int) argKind;
+            }
+        }
+
         public IEnumerable<PaymentViewModel> PaymentModels { get; }
 
         public DateTime When { get; }
 
         public Dictionary<string, double> Totals => PaymentModels.GroupBy(v => v.Ccy)
-            .ToDictionary(v => v.Key, v => v.SelectMany(s=>s.Items).Sum(s =>
-            {
-                switch (s.Kind)
-                {
-                    case PaymentKind.Expense:
-                        return 0 - Math.Abs(s.Amount);
-                    
-                    case PaymentKind.Income:
-                        return Math.Abs(s.Amount);
-                    
-                    case PaymentKind.Transfer:
-                        return 0;
-                    
-                    case PaymentKind.Unknown:
-                    default:
-                        return s.Amount;
-                }
-            }));
+            .ToDictionary(v => v.Key, v => v.SelectMany(s=>s.Items).Sum(s => s.SignedAmount));
         
         public string Key => When.ToString(Discriminator);
     }

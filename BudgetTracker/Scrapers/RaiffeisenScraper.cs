@@ -13,7 +13,7 @@ using OutCode.EscapeTeams.ObjectRepository;
 
 namespace BudgetTracker.Scrapers
 {
-    internal class RaiffeisenScraper : GenericScraper, IStatementScraper
+    internal class RaiffeisenScraper : GenericScraper
     {
         public RaiffeisenScraper(ObjectRepository repository) : base(repository)
         {
@@ -55,7 +55,7 @@ namespace BudgetTracker.Scrapers
             return result;
         }
 
-        public IEnumerable<PaymentModel> ScrapeStatement(ScraperConfigurationModel configuration, Chrome chrome, DateTime startFrom)
+        public override IList<PaymentModel> ScrapeStatement(ScraperConfigurationModel configuration, Chrome chrome, DateTime startFrom)
         {
             var driver = chrome.Driver;
             Login(configuration, driver);
@@ -109,7 +109,7 @@ namespace BudgetTracker.Scrapers
                     var csvFile = files.First();
                     var csvContent = File.ReadAllLines(csvFile.FullName, Encoding.GetEncoding(1251)).Skip(1).Select(v=>new RaiffeisenStatement(v)).ToList();
                     var payments = csvContent.Select(v =>
-                        Statement(v.When, accountName, v.What, -v.Amount, v.Ccy, v.Reference)).ToList();
+                        Statement(v.When, accountName, v.What, Math.Abs(v.Amount), v.Kind, v.Ccy, v.Reference)).ToList();
 
                     var holdPayments = payments.Where(v => v.StatementReference == "HOLD").ToList();
                     payments = payments.Except(holdPayments).ToList();
@@ -155,5 +155,6 @@ namespace BudgetTracker.Scrapers
         public double Amount { get; }
 
         public string Reference => (When.Ticks + What + Ccy + Amount).ToMD5();
+        public PaymentKind Kind => Amount < 0 ? PaymentKind.Expense : PaymentKind.Income;
     }
 }

@@ -6,7 +6,7 @@
 @{
     var id = Guid.NewGuid().ToString("N");
 
-    var data = Model.Payments.OrderByDescending(v => v.Amount).ToList();
+    var data = Model.Payments.OrderByDescending(v => -v.Amount).ToList();
 
     var toRemove = data.Skip(11).ToList();
     data = data.Take(11).ToList();
@@ -16,9 +16,12 @@
         data.Add(new PaymentViewModel(toRemove.SelectMany(s=>s.Items).ToList()));
     }
     
-    var values = data.Select(v => (int)v.Amount).ToList();
+    var values = data.Select(v => (int)-v.Amount).ToList();
     var names = data.Select(v =>
     {
+        if (v == data.Last())
+            return "Остальное";
+        
         if (!string.IsNullOrWhiteSpace(v.Category))
             return v.Category;
         if (v.What.Length > 32)

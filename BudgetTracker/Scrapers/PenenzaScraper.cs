@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -15,7 +16,7 @@ namespace BudgetTracker.Scrapers
         }
 
         public override string ProviderName => "Penenza";
-
+        
         public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, ChromeDriver driver)
         {
             driver.Navigate().GoToUrl(@"https://my.penenza.ru/main/sso/Login.aspx");

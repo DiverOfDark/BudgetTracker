@@ -12,7 +12,7 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
         public PaymentViewModel(PaymentModel paymentModel)
         {
             When = paymentModel.When;
-            Amount = paymentModel.Amount;
+            Amount = paymentModel.SignedAmount;
             Ccy = paymentModel.Ccy;
             What = paymentModel.What;
             Id = paymentModel.Id;
@@ -29,7 +29,7 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
         public PaymentViewModel(IList<PaymentModel> paymentGroup)
         {
             When = paymentGroup.Max(v => v.When);
-            Amount = paymentGroup.Sum(v => v.Amount);
+            Amount = paymentGroup.Sum(v => v.SignedAmount);
             Ccy = paymentGroup.Select(s => s.Ccy).Distinct().Single();
             Id = paymentGroup.First().Id;
 
@@ -42,7 +42,7 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
             list = paymentGroup.Select(v => v.Category?.Category).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
             Category = list.Count == 1 ? list[0] : MiddleDash;
             var list2 = paymentGroup.Select(v => v.Kind).Distinct().ToList();
-            Kind = list2.Count == 1 ? list2[0] : PaymentKind.Unknown;
+            Kind = list2.Count == 1 ? list2[0] : (Amount > 0 ? PaymentKind.Income : PaymentKind.Expense);
 
             Items = paymentGroup;
         }

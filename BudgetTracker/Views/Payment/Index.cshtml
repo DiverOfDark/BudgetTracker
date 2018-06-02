@@ -65,7 +65,7 @@
                                 </th>
                             </tr>
     
-                            foreach (var payment in month.PaymentModels.OrderByDescending(v=>v.Amount))
+                            foreach (var payment in month.PaymentModels.OrderBy(v=>v.Kind).ThenByDescending(v=>v.Amount))
                             {
                                 <tr class="collapse-@month.Key collapse show">
                                     <td class="text-nowrap">@payment.When</td>
@@ -116,7 +116,7 @@
                                             <td class="text-nowrap">@item.Column?.Provider</td>
                                             <td class="text-nowrap">@item.Column?.AccountName</td>
                                             <td>
-                                                <b>@item.Amount</b> 
+                                                <b>@item.SignedAmount</b> 
                                                 <i>@item.Ccy</i>
                                             </td>
                                             <td>
