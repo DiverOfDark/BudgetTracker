@@ -22,7 +22,9 @@ namespace BudgetTracker.Model
             AddType((SettingsModel.SettingsEntity x) => new SettingsModel(x));
             Initialize();
 
+#pragma warning disable 612
             Migration1();
+#pragma warning restore 612
         }
 
         [Obsolete]

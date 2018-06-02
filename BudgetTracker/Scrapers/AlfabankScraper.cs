@@ -15,7 +15,7 @@ using OpenQA.Selenium.Support.UI;
 
 namespace BudgetTracker.Scrapers
 {
-    internal class AlfabankScraper : GenericScraper, IStatementScraper
+    internal class AlfabankScraper : GenericScraper
     {
         public AlfabankScraper(ObjectRepository repository) : base(repository)
         {

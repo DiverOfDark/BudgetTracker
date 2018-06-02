@@ -57,5 +57,11 @@ namespace BudgetTracker.Scrapers
 
             return result;
         }
+
+        public override IList<PaymentModel> ScrapeStatement(ScraperConfigurationModel configuration, Chrome driver, DateTime startFrom)
+        {
+            // Will be handled by AlfaBankScraper as AlfaPotok uses AlfaBank infrastructure for statements.
+            return new List<PaymentModel>();
+        }
     }
 }

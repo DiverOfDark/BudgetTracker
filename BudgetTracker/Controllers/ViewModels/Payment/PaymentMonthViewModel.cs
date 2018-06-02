@@ -63,7 +63,6 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
                     case PaymentKind.Transfer:
                         return 0;
                     
-                    case PaymentKind.Unknown:
                     default:
                         return s.Amount;
                 }

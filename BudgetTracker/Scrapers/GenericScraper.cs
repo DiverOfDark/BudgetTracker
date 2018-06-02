@@ -23,6 +23,8 @@ namespace BudgetTracker.Scrapers
         
         public abstract IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, ChromeDriver driver);
         
+        public abstract IList<PaymentModel> ScrapeStatement(ScraperConfigurationModel configuration, Chrome driver, DateTime startFrom);
+        
         protected IWebElement GetElement(ChromeDriver driver, By currencySpan)
         {
             var wt = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
