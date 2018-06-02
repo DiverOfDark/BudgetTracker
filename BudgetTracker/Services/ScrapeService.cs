@@ -70,7 +70,50 @@ namespace BudgetTracker.Services
                     }
                 }
             }
-            
+
+            // default strategy - generated money statements from diff between states.
+            foreach (var column in _objectRepository.Set<MoneyColumnMetadataModel>().Where(v => v.AutogenerateStatements))
+            {
+                var payments = _objectRepository.Set<PaymentModel>()
+                    .Where(v => v.Column == column)
+                    .ToList();
+
+                _objectRepository.Set<MoneyStateModel>()
+                    .Where(v => v.Provider == column.Provider && v.AccountName == column.AccountName)
+                    .OrderBy(v => v.When)
+                    .Aggregate((a, b) =>
+                {
+                    var delta = b.Amount - a.Amount;
+
+                    var appliedPayments = payments.Where(v =>
+                        v.Column.AccountName == column.AccountName && v.When >= a.When && v.When <= b.When).ToList();
+
+                    foreach (var item in appliedPayments)
+                    {
+                        switch (item.Kind)
+                        {
+                            case PaymentKind.Expense:
+                                delta -= Math.Abs(item.Amount);
+                                break;
+                            case PaymentKind.Income:
+                                delta += Math.Abs(item.Amount);
+                                break;
+                            case PaymentKind.Transfer:
+                                delta += item.Amount;
+                                break;
+                        }
+                    }
+
+                    if (Math.Abs(delta) >= 0.01)
+                    {
+                        var when = a.When + (b.When - a.When) / 2;
+                        _objectRepository.Add(new PaymentModel(when, "Коррекция баланса " + column.Provider + " " + column.AccountName, delta, a.Ccy, "N/A-" + DateTime.Now.Ticks, column));
+                    }
+
+                    return b;
+                });
+            }
+
             foreach(var item in _objectRepository.Set<MoneyStateModel>().GroupBy(v => v.Provider, v => v.AccountName))
             foreach (var sub in item.Distinct())
             {

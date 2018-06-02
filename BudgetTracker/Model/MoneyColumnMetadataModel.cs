@@ -25,6 +25,7 @@ namespace BudgetTracker.Model
 
             public string UserFriendlyName { get; set; }
             public bool IsVisible { get; set; }
+            public bool AutogenerateStatements { get; set; }
 
             public int Order { get; set; }
 
@@ -68,6 +69,12 @@ namespace BudgetTracker.Model
         {
             get => _entity.IsVisible;
             set => UpdateProperty(() => _entity.IsVisible, value);
+        }
+
+        public bool AutogenerateStatements
+        {
+            get => _entity.AutogenerateStatements;
+            set => UpdateProperty(() => _entity.AutogenerateStatements, value);
         }
 
         public int Order

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using BudgetTracker.Model;
 using OpenQA.Selenium;
@@ -37,12 +36,6 @@ namespace BudgetTracker.Scrapers
                 new NumberFormatInfo() {NumberDecimalSeparator = ",", NumberGroupSeparator = "."}), "EUR/RUB"));
 
             return result;
-        }
-
-        public override IList<PaymentModel> ScrapeStatement(ScraperConfigurationModel configuration, Chrome driver, DateTime startFrom)
-        {
-            // No meaning for FX rates scraper
-            return new List<PaymentModel>();
         }
     }
 }
