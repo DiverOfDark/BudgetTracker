@@ -107,7 +107,7 @@ namespace BudgetTracker.Services
                     if (Math.Abs(delta) >= 0.01)
                     {
                         var when = a.When + (b.When - a.When) / 2;
-                        _objectRepository.Add(new PaymentModel(when, "Коррекция баланса " + column.Provider + " " + column.AccountName, delta, a.Ccy, "N/A-" + DateTime.Now.Ticks, column));
+                        _objectRepository.Add(new PaymentModel(when, "Коррекция баланса " + column.Provider + " " + column.AccountName, -delta, a.Ccy, "N/A-" + DateTime.Now.Ticks, column));
                     }
 
                     return b;
