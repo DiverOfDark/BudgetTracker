@@ -198,7 +198,7 @@ namespace BudgetTracker.Scrapers
             public double Income { get; set; }
             public double Outcome { get; set; }
 
-            public PaymentKind Kind => Outcome - Income > 0 ? PaymentKind.Income : PaymentKind.Expense;
+            public PaymentKind Kind => Outcome - Income > 0 ? PaymentKind.Expense : PaymentKind.Income;
         }
 
         private void Login(ScraperConfigurationModel configuration, ChromeDriver driver)

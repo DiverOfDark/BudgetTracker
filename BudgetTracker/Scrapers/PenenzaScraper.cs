@@ -17,8 +17,6 @@ namespace BudgetTracker.Scrapers
 
         public override string ProviderName => "Penenza";
         
-        public override IList<PaymentModel> ScrapeStatement(ScraperConfigurationModel configuration, Chrome driver, DateTime startFrom) => new List<PaymentModel>();
-
         public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, ChromeDriver driver)
         {
             driver.Navigate().GoToUrl(@"https://my.penenza.ru/main/sso/Login.aspx");

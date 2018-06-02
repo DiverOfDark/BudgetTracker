@@ -85,7 +85,7 @@ namespace BudgetTracker.Services
                 {
                     var delta = b.Amount - a.Amount;
 
-                    delta += payments.Where(v => v.Column.AccountName == column.AccountName && v.When >= a.When && v.When <= b.When).Sum(v => v.SignedAmount);
+                    delta -= payments.Where(v => v.Column.AccountName == column.AccountName && v.When >= a.When && v.When <= b.When).Sum(v => v.SignedAmount);
 
                     delta = Math.Round(delta * 100, MidpointRounding.AwayFromZero) / 100;
                     
