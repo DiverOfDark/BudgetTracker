@@ -13,7 +13,7 @@ using OutCode.EscapeTeams.ObjectRepository;
 
 namespace BudgetTracker.Scrapers
 {
-    internal class RaiffeisenScraper : GenericScraper, IStatementScraper
+    internal class RaiffeisenScraper : GenericScraper
     {
         public RaiffeisenScraper(ObjectRepository repository) : base(repository)
         {
@@ -55,7 +55,7 @@ namespace BudgetTracker.Scrapers
             return result;
         }
 
-        public IEnumerable<PaymentModel> ScrapeStatement(ScraperConfigurationModel configuration, Chrome chrome, DateTime startFrom)
+        public override IList<PaymentModel> ScrapeStatement(ScraperConfigurationModel configuration, Chrome chrome, DateTime startFrom)
         {
             var driver = chrome.Driver;
             Login(configuration, driver);

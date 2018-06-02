@@ -66,7 +66,7 @@ namespace BudgetTracker.Scrapers
             return result;
         }
 
-        public IEnumerable<PaymentModel> ScrapeStatement(ScraperConfigurationModel configuration, Chrome chromeDriver,
+        public override IList<PaymentModel> ScrapeStatement(ScraperConfigurationModel configuration, Chrome chromeDriver,
             DateTime startFrom)
         {
             if (startFrom < DateTime.Now.AddYears(-2).AddDays(1))

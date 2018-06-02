@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -15,6 +16,8 @@ namespace BudgetTracker.Scrapers
         }
 
         public override string ProviderName => "Penenza";
+        
+        public override IList<PaymentModel> ScrapeStatement(ScraperConfigurationModel configuration, Chrome driver, DateTime startFrom) => new List<PaymentModel>();
 
         public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, ChromeDriver driver)
         {

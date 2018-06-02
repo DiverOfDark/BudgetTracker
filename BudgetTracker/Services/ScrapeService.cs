@@ -21,21 +21,6 @@ namespace BudgetTracker.Services
             _chrome = chrome;
 
             _scrapers = scrapers.ToList();
-            
-            /*
-             *  new GenericScraper[]
-            {
-                new AlfabankScraper("***REMOVED***", "***REMOVED***"),
-                new AlfaPotokScraper("***REMOVED***", "***REMOVED***"),
-                new ModulDengiScraper("***REMOVED***", "***REMOVED***"), 
-                new RaiffeisenScraper("***REMOVED***", "***REMOVED***"),
-                new LivecoinScraper("***REMOVED***", "***REMOVED***", logger),
-                new PenenzaScraper("***REMOVED***", "***REMOVED***"),
-                new FxRateScraper(),
-                new AlfaCapitalScraper("***REMOVED***", "***REMOVED***", _objectRepository), 
-                new ModulbankScraper("***REMOVED***", "***REMOVED***", _objectRepository), 
-            }
-             */
         }
 
         public void Scrape()
