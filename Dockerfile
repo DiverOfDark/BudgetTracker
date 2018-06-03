@@ -1,4 +1,4 @@
-FROM microsoft/aspnetcore-build:2.0.6-2.1.101 as net-builder
+FROM microsoft/dotnet:2.1-sdk as net-builder
 WORKDIR /build
 ADD BudgetTracker.sln .
 ADD BudgetTracker/BudgetTracker.csproj BudgetTracker/
@@ -8,7 +8,7 @@ RUN dotnet restore
 ADD BudgetTracker BudgetTracker
 RUN dotnet publish --output ../out/ --configuration Release BudgetTracker
 
-FROM microsoft/aspnetcore:2.0.6
+FROM microsoft/dotnet:2.1-aspnetcore-runtime
 
 # Install Chrome WebDriver
 RUN apt-get -yqq update && \
