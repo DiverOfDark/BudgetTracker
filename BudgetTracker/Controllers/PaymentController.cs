@@ -157,9 +157,12 @@ namespace BudgetTracker.Controllers
             {
                 var category = _objectRepository.Set<SpentCategoryModel>().First(x => x.Id == id);
 
+                var substituteCategory = _objectRepository.Set<SpentCategoryModel>()
+                    .FirstOrDefault(v => v != category && v.Category == category.Category);
+                
                 foreach (var item in category.Payments)
                 {
-                    item.Category = null;
+                    item.Category = substituteCategory;
                 }
 
                 _objectRepository.Remove(category);
@@ -178,11 +181,6 @@ namespace BudgetTracker.Controllers
             categoryObj.Pattern = pattern;
             categoryObj.Category = category;
             categoryObj.Kind = kind;
-            
-            foreach (var p in categoryObj.Payments)
-            {
-                p.Category = null;
-            }
             
             return RedirectToAction(nameof(SpentCategories));
         }
