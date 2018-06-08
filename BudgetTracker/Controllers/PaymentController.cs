@@ -6,6 +6,7 @@ using BudgetTracker.Model;
 using BudgetTracker.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SQLitePCL;
 
 namespace BudgetTracker.Controllers
 {
@@ -44,6 +45,56 @@ namespace BudgetTracker.Controllers
 
             _objectRepository.Add(new SpentCategoryModel(pattern, category, kind));
             return RedirectToAction(nameof(SpentCategories));
+        }
+
+        public IActionResult SplitPayment(Guid id)
+        {
+            var payment = _objectRepository.Set<PaymentModel>().First(v => v.Id == id);
+            var vm = new PaymentViewModel(payment);
+            return View(vm);
+        }
+
+        [HttpPost]
+        public IActionResult SplitPayment(Guid id, double amount)
+        {
+            var payment = _objectRepository.Set<PaymentModel>().First(v => v.Id == id);
+
+            var newKind = amount < 0 ? PaymentKind.Expense : PaymentKind.Income;
+
+            if (payment.Kind != PaymentKind.Expense && payment.Kind != PaymentKind.Income)
+            {
+                newKind = payment.Kind;
+
+                payment.Amount -= amount;
+            }
+            else
+            {
+                amount = Math.Abs(amount);
+
+                if (payment.Kind == newKind.GetOpposite())
+                {
+                    amount = -amount;
+                }
+                
+                payment.Amount -= amount;
+
+                amount = Math.Abs(amount);
+            }
+
+            if (Math.Abs(amount) > 0.01)
+            {
+                if (payment.Amount < 0 && payment.Kind != payment.Kind.GetOpposite())
+                {
+                    payment.Kind = payment.Kind.GetOpposite();
+                    payment.Amount = Math.Abs(payment.Amount);
+                }
+
+                var newPayment = new PaymentModel(payment.When, payment.What, amount, newKind, payment.Ccy,
+                    payment.StatementReference, payment.Column);
+                _objectRepository.Add(newPayment);
+            }
+            
+            return RedirectToAction(nameof(Index));
         }
 
         public IActionResult EditPayment(Guid id)

@@ -95,6 +95,9 @@
                                         }
                                         else
                                         {
+                                            <a href="@Url.Action("SplitPayment", new {id = payment.Id})">
+                                                <span class="fe fe-git-branch"></span>
+                                            </a>
                                             <a href="@Url.Action("EditPayment", new {id = payment.Id})">
                                                 <span class="fe fe-edit-2"></span>
                                             </a>
@@ -122,6 +125,9 @@
                                             <td>
                                             <b>@item.What</b></td>
                                             <td>
+                                                <a href="@Url.Action("SplitPayment", new {id = item.Id})">
+                                                    <span class="fe fe-git-branch"></span>
+                                                </a>
                                                 <a href="@Url.Action("EditPayment", new {id = item.Id})">
                                                     <span class="fe fe-edit-2"></span>
                                                 </a>

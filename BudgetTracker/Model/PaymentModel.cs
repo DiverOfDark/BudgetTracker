@@ -8,6 +8,22 @@ using OutCode.EscapeTeams.ObjectRepository.AzureTableStorage;
 
 namespace BudgetTracker.Model
 {
+    public static class PaymentKindExtensions
+    {
+        public static PaymentKind GetOpposite(this PaymentKind kind)
+        {
+            switch (kind)
+            {
+                case PaymentKind.Expense:
+                    return PaymentKind.Income;
+                case PaymentKind.Income:
+                    return PaymentKind.Expense;
+                default:
+                    return kind;
+            }
+        }
+    }
+    
     public enum PaymentKind
     {
         [DisplayName("Трата")]
