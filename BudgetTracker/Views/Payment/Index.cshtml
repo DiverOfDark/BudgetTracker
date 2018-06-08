@@ -25,9 +25,9 @@
                             Категории расходов
                         </a>
 
-                        @if (ViewBag.Groups != null)
+                        @if (ViewBag.Groups != null && ViewBag.FilterCategorized != null)
                         {
-                            <a class="btn btn-secondary btn-sm ml-2" href="?Groups=@(!ViewBag.Groups)">
+                            <a class="btn btn-secondary btn-sm ml-2" href="?Groups=@(!ViewBag.Groups)&FilterCategorized=@(ViewBag.FilterCategorized)">
                                 @if (ViewBag.Groups)
                                 {
                                     <text>Разгруппировать</text>
@@ -35,6 +35,16 @@
                                 else
                                 {
                                     <text>Сгруппировать</text>
+                                }
+                            </a>
+                            <a class="btn btn-secondary btn-sm ml-2" href="?Groups=@(ViewBag.Groups)&FilterCategorized=@(!ViewBag.FilterCategorized)">
+                                @if (ViewBag.FilterCategorized)
+                                {
+                                    <text>Показать все</text>
+                                }
+                                else
+                                {
+                                    <text>Скрыть с категориями</text>
                                 }
                             </a>
                         }
@@ -73,8 +83,10 @@
                                     <span class="badge badge-secondary">@month.PaymentModels.SelectMany(v=>v.Items).Count(v => v.Category == null) без категорий</span>
                                 </th>
                             </tr>
-    
-                            foreach (var payment in month.PaymentModels.OrderBy(v=>v.Kind).ThenByDescending(v=>v.Amount))
+
+                            var source = ViewBag.Groups == null ? month.PaymentModels.OrderBy(v => v.When) : month.PaymentModels.OrderBy(v => v.Kind).ThenByDescending(v => v.Amount).ThenBy(v => v.When);
+
+                            foreach (var payment in source)
                             {
                                 <tr class="collapse-@month.Key collapse show">
                                     <td class="text-nowrap">@payment.When</td>

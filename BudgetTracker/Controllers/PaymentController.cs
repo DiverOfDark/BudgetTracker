@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using BudgetTracker.Controllers.ViewModels.Payment;
@@ -20,13 +21,20 @@ namespace BudgetTracker.Controllers
             _objectRepository = objectRepository;
         }
 
-        public ActionResult Index(bool? groups)
+        public ActionResult Index(bool? groups, bool? filterCategorized)
         {
             var groups2 = this.TryGetLastValue(groups, nameof(PaymentController) + nameof(groups)) ?? true;
+            var fc = this.TryGetLastValue(filterCategorized, nameof(PaymentController) + nameof(filterCategorized)) ?? false;
 
             ViewBag.Groups = groups2;
-            
-            return View(PaymentMonthViewModel.FromPayments(_objectRepository.Set<PaymentModel>(), groups2).OrderByDescending(v => v.When).ToList());
+            ViewBag.FilterCategorized = fc;
+
+            IEnumerable<PaymentModel> source = _objectRepository.Set<PaymentModel>();
+            if (fc == true)
+            {
+                source = source.Where(v => v.Category == null);
+            }
+            return View(PaymentMonthViewModel.FromPayments(source, groups2).OrderByDescending(v => v.When).ToList());
         }
 
         public ActionResult PaymentList(Guid? id)

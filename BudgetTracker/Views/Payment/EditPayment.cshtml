@@ -12,12 +12,16 @@
         Selected = v == Model.Items.First().Category
     }).Distinct((a, b) => a.Text == b.Text).OrderBy(v => v.Text).ToList();
 
+    categoriesSelectList.Insert(0, new SelectListItem());
+    
     var providerAccountsSelectList = Repository.Set<MoneyColumnMetadataModel>().Where(v => !v.IsComputed).Select(v => new SelectListItem()
     {
         Text = v.Provider + "/" + v.AccountName,
         Value = v.Id.ToString(),
         Selected = v.Id == Model.ColumnId
     }).OrderBy(v => v.Text).ToList();
+
+    providerAccountsSelectList.Insert(0, new SelectListItem());
 }
 
 
