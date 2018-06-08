@@ -26,7 +26,19 @@ namespace BudgetTracker.Controllers
 
             ViewBag.Groups = groups2;
             
-            return View(PaymentMonthViewModel.FromPayments(_objectRepository, groups2).OrderByDescending(v => v.When).ToList());
+            return View(PaymentMonthViewModel.FromPayments(_objectRepository.Set<PaymentModel>(), groups2).OrderByDescending(v => v.When).ToList());
+        }
+
+        public ActionResult PaymentList(Guid? id)
+        {
+            var payments = PaymentMonthViewModel.FromPayments(_objectRepository.Set<PaymentModel>()).OrderByDescending(v => v.When);
+
+            var group = payments.SelectMany(v => v.PaymentModels).FirstOrDefault(v => v.Items.Any(s => s.Id == id));
+
+            if (group == null)
+                return RedirectToAction(nameof(Index));
+
+            return View(nameof(Index), PaymentMonthViewModel.FromPayments(group.Items, false));
         }
 
         public ActionResult SpentCategories() => View(_objectRepository.Set<SpentCategoryModel>().ToList());

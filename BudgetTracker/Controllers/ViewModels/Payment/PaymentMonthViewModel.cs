@@ -7,9 +7,9 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
 {
     public class PaymentMonthViewModel
     {
-        public static List<PaymentMonthViewModel> FromPayments(ObjectRepository objectRepository, bool enableGrouping = true)
+        public static List<PaymentMonthViewModel> FromPayments(IEnumerable<PaymentModel> paymentsSource, bool enableGrouping = true)
         {
-            var payments = objectRepository.Set<PaymentModel>().GroupBy(v => v.When.ToString(Discriminator)).ToDictionary(v => v.Key, v => v);
+            var payments = paymentsSource.GroupBy(v => v.When.ToString(Discriminator)).ToDictionary(v => v.Key, v => v);
 
             var keys = payments.Select(v => v.Key).Distinct().ToList();
 

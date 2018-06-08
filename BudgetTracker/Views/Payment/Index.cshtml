@@ -1,6 +1,8 @@
-﻿@using Controllers.ViewModels.Payment
+﻿@using System.Collections.Generic
+@using System.Linq
+@using Controllers.ViewModels.Payment
 @using Model
-@model IList<Controllers.ViewModels.Payment.PaymentMonthViewModel>
+@model System.Collections.Generic.IList<Controllers.ViewModels.Payment.PaymentMonthViewModel>
 @{
     ViewData["Title"] = "Движение денежных средств";
 
@@ -12,23 +14,30 @@
                 <div class="card-header">
                     <h3 class="card-title">
                         Движение денежных средств 
-                    </h3>
+                        @if (ViewBag.Groups == null)
+                        {
+                            <span class="badge badge-primary">@Model.First().PaymentModels.First().Category</span>                            
+                        }
+                     </h3>
                     <div class="card-options">
                         &nbsp;
                         <a class="btn btn-primary btn-sm" href="@Url.Action("SpentCategories")">
                             Категории расходов
                         </a>
 
-                        <a class="btn btn-secondary btn-sm ml-2" href="?Groups=@(!ViewBag.Groups)">
-                            @if (ViewBag.Groups)
-                            {
-                                <text>Разгруппировать</text>
-                            }
-                            else
-                            {
-                                <text>Сгруппировать</text>
-                            }
-                        </a>
+                        @if (ViewBag.Groups != null)
+                        {
+                            <a class="btn btn-secondary btn-sm ml-2" href="?Groups=@(!ViewBag.Groups)">
+                                @if (ViewBag.Groups)
+                                {
+                                    <text>Разгруппировать</text>
+                                }
+                                else
+                                {
+                                    <text>Сгруппировать</text>
+                                }
+                            </a>
+                        }
                     </div>
                 </div>
                 <div class="table-responsive">
@@ -81,7 +90,7 @@
                                         <b>@payment.What</b>
                                         @if (payment.Count > 1)
                                         {
-                                            <a href="#" data-toggle="collapse" data-target=".collapse-@payment.Id" aria-expanded="false" aria-controls="collapse">
+                                            <a href="@Url.Action("PaymentList", new { id=payment.Id })" target="_blank">
                                                 (@payment.Count)
                                             </a>
                                         }
@@ -89,7 +98,7 @@
                                     <td>
                                         @if (payment.Count > 1)
                                         {
-                                            <a href="#" data-toggle="collapse" data-target=".collapse-@payment.Id" aria-expanded="false" aria-controls="collapse">
+                                            <a href="@Url.Action("PaymentList", new { id=payment.Id })" target="_blank">
                                                 (@payment.Count)
                                             </a>
                                         }
@@ -107,37 +116,6 @@
                                         }
                                     </td>
                                 </tr>
-
-                                if (payment.Count > 1)
-                                {
-                                    foreach (var item in payment.Items)
-                                    {
-                                        <tr class="table-info collapse-@month.Key collapse-@payment.Id collapse">
-                                            <td class="text-nowrap">@item.When</td>
-                                            <td class="text-nowrap">@item.Kind.GetDisplayName()</td>
-                                            <td class="text-nowrap">@payment.Category</td>
-                                            <td class="text-nowrap">@item.Column?.Provider</td>
-                                            <td class="text-nowrap">@item.Column?.AccountName</td>
-                                            <td>
-                                                <b>@item.SignedAmount</b> 
-                                                <i>@item.Ccy</i>
-                                            </td>
-                                            <td>
-                                            <b>@item.What</b></td>
-                                            <td>
-                                                <a href="@Url.Action("SplitPayment", new {id = item.Id})">
-                                                    <span class="fe fe-git-branch"></span>
-                                                </a>
-                                                <a href="@Url.Action("EditPayment", new {id = item.Id})">
-                                                    <span class="fe fe-edit-2"></span>
-                                                </a>
-                                                <a href="@Url.Action("DeletePayment", new {id = item.Id})">
-                                                    <span class="fe fe-x-circle"></span>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    }
-                                }
                             }
                         }
                         </tbody>
