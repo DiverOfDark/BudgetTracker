@@ -50,6 +50,8 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             var yearDelta = dV / dt * 365.25;
 
             (ColorYear, DeltaYear) = SetDiffPercenage(yearDelta);
+
+            IncompleteData |= _settings.NotifyStaleData && Values.Select(v => v.Key).Max() < DateTime.Now.AddDays(-1);
         }
 
         private static (String color, String delta) SetDiffPercenage(double? cell)

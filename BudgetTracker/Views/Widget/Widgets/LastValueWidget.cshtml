@@ -11,7 +11,7 @@
 {
 	var pair = Model.Values.OrderByDescending(v => v.Key).First();
 
-	<div class="card-body p-3 text-center @colorSuffix">
+	<div class="card-body p-3 text-center @colorSuffix" style="height:100%">
         <div class="h1 mt-5">
             @Model.FormatValue(pair.Value)
         </div>

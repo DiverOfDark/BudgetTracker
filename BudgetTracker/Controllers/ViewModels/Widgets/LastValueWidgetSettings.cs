@@ -12,7 +12,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         [DisplayName("Накопительный от нуля")]
         CumulativeFromBeginning
     }
-
+    
     public class LastValueWidgetSettings : WidgetSettings
     {
         public string ProviderName
@@ -28,6 +28,16 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         }
 
         public bool Compact
+        {
+            get
+            {
+                var value = GetPropertyFromModel()?.ToLower();
+                return value == "on" || value == "true";
+            }
+            set => SetPropertyFromModel(value.ToString());
+        }
+        
+        public bool NotifyStaleData
         {
             get
             {
