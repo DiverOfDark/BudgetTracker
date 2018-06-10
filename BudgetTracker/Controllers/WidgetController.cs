@@ -21,7 +21,7 @@ namespace BudgetTracker.Controllers
         {
             var showButtons2 = this.TryGetLastValue(showButtons, nameof(WidgetController) + nameof(showButtons)) ?? false;
             
-            return View(new DashboardViewModel(_objectRepository, showButtons2, HttpContext.RequestServices.GetRequiredService<TableViewModel>()));
+            return View(new DashboardViewModel(_objectRepository, showButtons2, HttpContext.RequestServices.GetRequiredService<TableViewModelFactory>()));
         }
 
         public IActionResult Error(int statusCode = 0) => View(statusCode);

@@ -16,20 +16,20 @@ namespace BudgetTracker.Controllers
 
         public TableController(ObjectRepository objectRepository) => _objectRepository = objectRepository;
 
-        public IActionResult Index(bool? showAll, bool? showControls, bool? showDelta)
+        public IActionResult Index(bool? showAll, bool? showControls, bool? showDelta, bool? exemptTransfers)
         {
             var showAll2 = this.TryGetLastValue(showAll, nameof(TableController) + nameof(showAll)) ?? false;
             var showControls2 = this.TryGetLastValue(showControls, nameof(TableController) + nameof(showControls)) ?? false;
             var showDelta2 = this.TryGetLastValue(showDelta, nameof(TableController) + nameof(showDelta)) ?? false;
+            var exemptTransfers2 = this.TryGetLastValue(exemptTransfers, nameof(TableController) + nameof(exemptTransfers)) ?? false;
+            var table = HttpContext.RequestServices.GetRequiredService<TableViewModelFactory>();
 
-            var table = HttpContext.RequestServices.GetRequiredService<TableViewModel>();
-
-            return View(new TableViewModel(table)
-            {
-                ShowAll = showAll2,
-                ShowDelta = showDelta2,
-                ShowControls = showControls2
-            });
+            var vm = table.GetVM(exemptTransfers2);
+            vm.ShowAll = showAll2;
+            vm.ShowDelta = showDelta2;
+            vm.ShowControls = showControls2;
+            vm.ExemptTransfers = exemptTransfers2;
+            return View(vm);
         }
 
         public IActionResult DeleteMoney(Guid id)

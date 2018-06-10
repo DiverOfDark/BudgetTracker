@@ -51,6 +51,16 @@
                                 <text>Показать кнопки</text>
                             }
                         </a>
+                        <a class="btn btn-secondary btn-sm ml-2" href="?ExemptTransfers=@(!Model.ExemptTransfers)">
+                            @if (Model.ExemptTransfers)
+                            {
+                                @:Показать переводы
+                            }
+                            else
+                            {
+                                @:Скрыть переводы
+                            }
+                        </a>
                     </div>
                 </div>
                 <div class="table-responsive">

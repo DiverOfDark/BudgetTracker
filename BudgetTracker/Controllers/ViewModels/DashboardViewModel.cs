@@ -9,7 +9,7 @@ namespace BudgetTracker.Controllers.ViewModels
 {
     public class DashboardViewModel
     {
-        public DashboardViewModel(ObjectRepository objectRepository, bool showButtons, TableViewModel vm)
+        public DashboardViewModel(ObjectRepository objectRepository, bool showButtons, TableViewModelFactory vm)
         {
             ShowButtons = showButtons;
             Widgets = new List<WidgetViewModel>();
@@ -31,10 +31,10 @@ namespace BudgetTracker.Controllers.ViewModels
                             Widgets.Add(new ExpensesWidgetViewModel(wi, objectRepository));
                             break;
                         case var wi when w.Kind == WidgetKind.Chart:
-                            Widgets.Add(new ChartWidgetViewModel(wi, objectRepository, vm));
+                            Widgets.Add(new ChartWidgetViewModel(wi, objectRepository, vm.GetVM(false)));
                             break;
                         case var wi when w.Kind == WidgetKind.Delta:
-                            Widgets.Add(new DeltaWidgetViewModel(wi, objectRepository, vm));
+                            Widgets.Add(new DeltaWidgetViewModel(wi, objectRepository, vm.GetVM(false)));
                             break;
                         default:
                             Widgets.Add(new UnknownWidgetViewModel(w));

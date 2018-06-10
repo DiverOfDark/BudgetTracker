@@ -83,6 +83,13 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
+                                            <label class="control-label">Исключать из графика переводы</label>
+                                            <div control-labelstyle="padding-top: 7px;">
+                                                <input type="checkbox" id="Properties[ExemptTransfers]" name="Properties[ExemptTransfers]" 
+                                                       @Html.Raw(s.ExemptTransfers ? "checked=\"checked\" value=\"on\"": "") />
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
                                             <label class="control-label">Компактный вид</label>
                                             <div control-labelstyle="padding-top: 7px;">
                                                 <input type="checkbox" id="Properties[Compact]" name="Properties[Compact]" 

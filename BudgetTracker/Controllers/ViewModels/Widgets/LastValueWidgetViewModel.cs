@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BudgetTracker.Controllers.ViewModels.Table;
 using BudgetTracker.Model;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BudgetTracker.Controllers.ViewModels.Widgets
 {
@@ -10,17 +11,15 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
     {
         private readonly LastValueWidgetSettings _settings;
 
-        public LastValueWidgetViewModel(WidgetModel model, ObjectRepository repo, TableViewModel vm) : base(model, new LastValueWidgetSettings(model.Properties.ToDictionary(v=>v.Key,v=>v.Value)))
+        public LastValueWidgetViewModel(WidgetModel model, ObjectRepository repo, TableViewModelFactory vmf) : base(model, new LastValueWidgetSettings(model.Properties.ToDictionary(v=>v.Key,v=>v.Value)))
         {
             _settings = (LastValueWidgetSettings) Settings;
             var column = repo.Set<MoneyColumnMetadataModel>().First(v =>
                 v.Provider == _settings.ProviderName &&
                 (v.AccountName == _settings.AccountName || v.UserFriendlyName == _settings.AccountName));
 
-            vm = new TableViewModel(vm)
-            {
-                ShowAll = true
-            };
+            var vm = vmf.GetVM(_settings.ExemptTransfers);
+            vm.ShowAll = true;
             
             Values = new Dictionary<DateTime, double?>();
             bool first = true;
@@ -29,7 +28,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                 var cell = row.Cells.FirstOrDefault(v => v.Column == column);
                 if (cell == null)
                     continue;
-                
+
                 Values[cell.Money?.When ?? row.When.Date] = cell.Value;
                 IncompleteData |= !cell.Value.HasValue || cell.FailedToResolve.Any();
 

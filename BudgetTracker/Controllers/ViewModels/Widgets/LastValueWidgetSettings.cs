@@ -46,6 +46,16 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             }
             set => SetPropertyFromModel(value.ToString());
         }
+        
+        public bool ExemptTransfers
+        {
+            get
+            {
+                var value = GetPropertyFromModel()?.ToLower();
+                return value == "on" || value == "true";
+            }
+            set => SetPropertyFromModel(value.ToString());
+        }
 
         public GraphKind GraphKind
         {

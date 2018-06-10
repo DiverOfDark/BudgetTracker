@@ -92,7 +92,7 @@ namespace BudgetTracker
             services.AddSingleton(_ => cloudStorageAccount);
             services.AddSingleton(_ => _.GetRequiredService<CloudStorageAccount>().CreateCloudBlobClient());
             services.AddSingleton(_ => _.GetRequiredService<CloudStorageAccount>().CreateCloudTableClient());
-            services.AddTransient(x => new TableViewModel(x.GetRequiredService<ObjectRepository>()));
+            services.AddTransient(x => new TableViewModelFactory(x.GetRequiredService<ObjectRepository>()));
             services.AddSingleton<IStorage, AzureTableContext>();
             services.AddSingleton<ObjectRepository>();
             services.AddSingleton<ScriptService>();

@@ -13,13 +13,13 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             _expression = Parse(columns, h.Function)
         };
 
-        public static CalculatedResult FromMoney(MoneyColumnMetadataModel h, MoneyStateModel money) => new CalculatedResult
+        public static CalculatedResult FromMoney(MoneyColumnMetadataModel h, MoneyStateModel money, double adjustment) => new CalculatedResult
         {
             Ccy = money.Ccy,
             Column = h,
             Money = money,
-            Value = money.Amount,
-            Tooltip = money.Amount.ToString(CultureInfo.CurrentCulture)
+            Value = money.Amount + adjustment,
+            Tooltip = (money.Amount + adjustment).ToString(CultureInfo.CurrentCulture)
         };
 
         public static CalculatedResult Empty(MoneyColumnMetadataModel item) => new CalculatedResult
