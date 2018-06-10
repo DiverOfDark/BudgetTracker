@@ -19,7 +19,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             Column = h,
             Money = money,
             Value = money.Amount + adjustment,
-            Tooltip = (money.Amount + adjustment).ToString(CultureInfo.CurrentCulture)
+            Tooltip = $"{(money.Amount + adjustment).ToString(CultureInfo.CurrentCulture)}({money.Amount.ToString(CultureInfo.CurrentCulture)} + {adjustment.ToString(CultureInfo.CurrentCulture)})"
         };
 
         public static CalculatedResult Empty(MoneyColumnMetadataModel item) => new CalculatedResult
