@@ -29,7 +29,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                         {
                             foreach (var payment in paymentsToExempt[h])
                             {
-                                if (When >= payment.When)
+                                if (money.When >= payment.When)
                                 {
                                     adj -= payment.Amount;
                                 }
