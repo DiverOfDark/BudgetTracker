@@ -169,7 +169,7 @@ namespace BudgetTracker.Services
 
                 var excessiveStatements = _objectRepository.Set<PaymentModel>()
                     .Where(v =>
-                        v.When > lastPayment.AddDays(-4)
+                        v.When > lastPayment.AddDays(-21)
                         && v.Column?.Provider == scraper.ProviderName
                         && !string.IsNullOrEmpty(v.StatementReference))
                     .ToDictionary(v=>v.StatementReference, v=>v);
