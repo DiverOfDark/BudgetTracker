@@ -160,13 +160,20 @@ namespace BudgetTracker.Services
             if (lastPayment.AddHours(24) < DateTime.Now)
             {
                 logger.LogInformation(
-                    $"Scraping statement for {scraper.ProviderName} since {lastPayment.AddDays(-4)}...");
+                    $"Scraping statement for {scraper.ProviderName} since {lastPayment.AddDays(-21)}...");
 
-                var statements = scraper.ScrapeStatement(scraperConfig, _chrome, lastPayment.AddDays(-4))
+                var statements = scraper.ScrapeStatement(scraperConfig, _chrome, lastPayment.AddDays(-21))
                     .ToList();
 
                 logger.LogInformation($"Got statement of {statements.Count} items...");
 
+                var excessiveStatements = _objectRepository.Set<PaymentModel>()
+                    .Where(v =>
+                        v.When > lastPayment.AddDays(-4)
+                        && v.Column?.Provider == scraper.ProviderName
+                        && !string.IsNullOrEmpty(v.StatementReference))
+                    .ToDictionary(v=>v.StatementReference, v=>v);
+                
                 foreach (var s in statements)
                 {
                     var existingItem = _objectRepository.Set<PaymentModel>().OrderBy(v => v.When)
@@ -177,6 +184,8 @@ namespace BudgetTracker.Services
                             v.StatementReference == null ||
                             v.StatementReference == s.StatementReference);
 
+                    excessiveStatements.Remove(s.StatementReference);
+                    
                     if (existingItem == null)
                     {
                         _objectRepository.Add(s);
@@ -194,6 +203,7 @@ namespace BudgetTracker.Services
                         }
                     }
                 }
+                _objectRepository.RemoveRange(excessiveStatements.Values);
 
                 scraperConfig.LastSuccessfulStatementScraping = DateTime.Now;
             }
