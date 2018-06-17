@@ -53,18 +53,12 @@
                     @if (Model.ShowButtons)
                     {
                         <div class="card-footer mb-5">
-                            @if (widget != column.Rows.First())
-                            {
-                                <a class="float-left btn btn-sm btn-secondary" href="@Url.Action("MoveWidgetLeft", new {widget.Id})">
-                                    <span class="fe fe-arrow-left"></span>
-                                </a>
-                            }
-                            @if (widget != column.Rows.Last())
-                            {
-                                <a class="float-right btn btn-sm btn-secondary" href="@Url.Action("MoveWidgetRight", new {widget.Id})">
-                                    <span class="fe fe-arrow-right"></span>
-                                </a>
-                            }
+                            <a class="float-left btn btn-sm btn-secondary" href="@Url.Action("MoveWidgetLeft", new {widget.Id})">
+                                <span class="fe fe-arrow-left"></span>
+                            </a>
+                            <a class="float-right btn btn-sm btn-secondary" href="@Url.Action("MoveWidgetRight", new {widget.Id})">
+                                <span class="fe fe-arrow-right"></span>
+                            </a>
                         </div>
                     }
                 </div>
