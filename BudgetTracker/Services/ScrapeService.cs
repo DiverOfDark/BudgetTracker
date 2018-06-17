@@ -172,29 +172,32 @@ namespace BudgetTracker.Services
                         v.When > lastPayment.AddDays(-21)
                         && v.Column?.Provider == scraper.ProviderName
                         && !string.IsNullOrEmpty(v.StatementReference))
-                    .ToDictionary(v=>v.StatementReference, v=>v);
+                    .ToList();
                 
                 foreach (var s in statements)
                 {
-                    var existingItem = _objectRepository.Set<PaymentModel>().OrderBy(v => v.When)
+                    var existingItem = 
+                        excessiveStatements.FirstOrDefault(v => v.StatementReference == s.StatementReference)
+                        ?? _objectRepository.Set<PaymentModel>().OrderBy(v => v.When)
                         .FirstOrDefault(v =>
                             Math.Abs((v.When.Date - s.When.Date).TotalDays) <= 4 &&
                             Math.Abs(v.Amount - s.Amount) < 0.01 &&
                             v.Ccy == s.Ccy &&
-                            v.StatementReference == null ||
-                            v.StatementReference == s.StatementReference);
+                            v.StatementReference == null);
+                        
 
-                    excessiveStatements.Remove(s.StatementReference);
-                    
                     if (existingItem == null)
                     {
                         _objectRepository.Add(s);
                     }
                     else
                     {
+                        excessiveStatements.Remove(existingItem);
+                        
                         if (existingItem.Column == null)
                         {
-                            existingItem.Column = s.Column;
+                            existingItem.Column = _objectRepository.Set<MoneyColumnMetadataModel>()
+                                .FirstOrDefault(v => v.Id == s.ColumnId);
                         }
 
                         if (existingItem.StatementReference == null)
@@ -203,7 +206,8 @@ namespace BudgetTracker.Services
                         }
                     }
                 }
-                _objectRepository.RemoveRange(excessiveStatements.Values);
+
+                _objectRepository.RemoveRange(excessiveStatements);
 
                 scraperConfig.LastSuccessfulStatementScraping = DateTime.Now;
             }
