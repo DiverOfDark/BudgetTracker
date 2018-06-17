@@ -9,12 +9,73 @@ namespace BudgetTracker.Controllers.ViewModels
 {
     public class DashboardViewModel
     {
+        private readonly ObjectRepository _objectRepository;
+        private readonly TableViewModelFactory _vm;
+
         public DashboardViewModel(ObjectRepository objectRepository, bool showButtons, TableViewModelFactory vm)
         {
+            _objectRepository = objectRepository;
+            _vm = vm;
             ShowButtons = showButtons;
-            Widgets = new List<WidgetViewModel>();
             
-            var widgets = objectRepository.Set<WidgetModel>().OrderBy(v => v.Order).ToList();
+            var widgetViewModels = CreateWidgetViewModels();
+
+            Widgets = GroupRows(widgetViewModels);
+        }
+
+        private List<BootstrapColumnViewModel> GroupRows(List<WidgetViewModel> widgetViewModels)
+        {
+            var result = new List<BootstrapColumnViewModel>();
+
+            int columnCount = 0;
+            int rowCount = 0;
+            int finishedCells = 0;
+            
+            var source = new Queue<WidgetViewModel>(widgetViewModels);
+            
+            while(source.TryPeek(out var widget))
+            {
+                if (columnCount + widget.Columns <= 12)
+                {
+                    var cell = new List<WidgetViewModel> {widget};
+
+                    result.Add(new BootstrapColumnViewModel
+                    {
+                        Columns = widget.Columns,
+                        Rows = cell
+                    });
+
+                    columnCount += widget.Columns;
+                    rowCount = Math.Max(rowCount, widget.Rows);
+
+                    source.Dequeue();
+                }
+                else
+                {
+                    var existingColumnToAdd = result.Skip(finishedCells).FirstOrDefault(v =>
+                        v.Columns == widget.Columns && v.Rows.Sum(s => s.Rows) + widget.Rows <= rowCount);
+
+                    if (existingColumnToAdd == null)
+                    {
+                        columnCount = 0;
+                        rowCount = 0;
+                        finishedCells = result.Count;
+                    }
+                    else
+                    {
+                        existingColumnToAdd.Rows.Add(widget);
+                        source.Dequeue();
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private List<WidgetViewModel> CreateWidgetViewModels()
+        {
+            var widgetViewModels = new List<WidgetViewModel>();
+            var widgets = _objectRepository.Set<WidgetModel>().OrderBy(v => v.Order).ToList();
             foreach (var w in widgets)
             {
                 try
@@ -22,33 +83,42 @@ namespace BudgetTracker.Controllers.ViewModels
                     switch (w)
                     {
                         case var wi when w.Properties.Count(s => !string.IsNullOrWhiteSpace(s.Value)) == 0:
-                            Widgets.Add(new UnconfiguredWidgetViewModel(wi));
+                            widgetViewModels.Add(new UnconfiguredWidgetViewModel(wi));
                             break;
                         case var wi when w.Kind == WidgetKind.LastValue:
-                            Widgets.Add(new LastValueWidgetViewModel(wi, objectRepository, vm));
+                            widgetViewModels.Add(new LastValueWidgetViewModel(wi, _objectRepository, _vm));
                             break;
                         case var wi when w.Kind == WidgetKind.Expenses:
-                            Widgets.Add(new ExpensesWidgetViewModel(wi, objectRepository));
+                            widgetViewModels.Add(new ExpensesWidgetViewModel(wi, _objectRepository));
                             break;
                         case var wi when w.Kind == WidgetKind.Chart:
-                            Widgets.Add(new ChartWidgetViewModel(wi, objectRepository, vm.GetVM(false)));
+                            widgetViewModels.Add(new ChartWidgetViewModel(wi, _objectRepository, _vm.GetVM(false)));
                             break;
                         case var wi when w.Kind == WidgetKind.Delta:
-                            Widgets.Add(new DeltaWidgetViewModel(wi, objectRepository, vm.GetVM(false)));
+                            widgetViewModels.Add(new DeltaWidgetViewModel(wi, _objectRepository, _vm.GetVM(false)));
                             break;
                         default:
-                            Widgets.Add(new UnknownWidgetViewModel(w));
+                            widgetViewModels.Add(new UnknownWidgetViewModel(w));
                             break;
                     }
                 }
                 catch (Exception ex)
                 {
-                    Widgets.Add(new ExceptionWidgetViewModel(w, ex));
+                    widgetViewModels.Add(new ExceptionWidgetViewModel(w, ex));
                 }
             }
+
+            return widgetViewModels;
         }
 
-        public List<WidgetViewModel> Widgets { get; }
+        public List<BootstrapColumnViewModel> Widgets { get; }
         public bool ShowButtons { get; set; }
+    }
+
+    public class BootstrapColumnViewModel
+    {
+        public int Columns { get; set; }
+        
+        public List<WidgetViewModel> Rows { get; set; }
     }
 }

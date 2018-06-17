@@ -18,53 +18,57 @@
     </div>    
     <div class="row card-columns">
 
-    @foreach (var widget in Model.Widgets)
+    @foreach (var column in Model.Widgets)
     {
-        var mdSize = Math.Min(@widget.Columns * 2, 12);
+        var mdSize = Math.Min(@column.Columns * 2, 12);
         
         @* TODO: Add rows support *@
-        <div class="col-lg-@widget.Columns col-md-@mdSize col-sm-12">
-            <div class="card">
-                @if (Model.ShowButtons)
-                {
-                    <div class="card-header">
-                        @widget.Title
+        <div class="col-lg-@column.Columns col-md-@mdSize col-sm-12">
+            
+            @foreach (var widget in column.Rows)
+            {
+                <div class="card">
+                    @if (Model.ShowButtons)
+                    {
+                        <div class="card-header">
+                            @widget.Title
 
-                        <div class="card-options">
-                            <a class="btn btn-sm btn-secondary ml-1" href="@Url.Action("EditWidget", new {id = widget.Id})">
-                                <span class="fe fe-edit">
-                                </span>
-                            </a>
-                            <a class="btn btn-sm btn-secondary ml-1" href="@Url.Action("DeleteWidget", new {id = widget.Id})">
-                                <span class="fe fe-x-circle">
-                                </span>
-                            </a>
+                            <div class="card-options">
+                                <a class="btn btn-sm btn-secondary ml-1" href="@Url.Action("EditWidget", new {id = widget.Id})">
+                                    <span class="fe fe-edit">
+                                    </span>
+                                </a>
+                                <a class="btn btn-sm btn-secondary ml-1" href="@Url.Action("DeleteWidget", new {id = widget.Id})">
+                                    <span class="fe fe-x-circle">
+                                    </span>
+                                </a>
+                            </div>
                         </div>
+                    }
+
+                    <div style="height: @(widget.Rows * 12 * 14 + (widget.Rows - 1) * 12 * 2)px">
+                        @{ await Html.RenderPartialAsync(widget.TemplateName, widget); }
                     </div>
-                }
-                
-                <div style="height: @(widget.Rows*12*14 + (widget.Rows-1) * 12*2)px">
-                    @{ await Html.RenderPartialAsync(widget.TemplateName, widget); }
+
+                    @if (Model.ShowButtons)
+                    {
+                        <div class="card-footer mb-5">
+                            @if (widget != column.Rows.First())
+                            {
+                                <a class="float-left btn btn-sm btn-secondary" href="@Url.Action("MoveWidgetLeft", new {widget.Id})">
+                                    <span class="fe fe-arrow-left"></span>
+                                </a>
+                            }
+                            @if (widget != column.Rows.Last())
+                            {
+                                <a class="float-right btn btn-sm btn-secondary" href="@Url.Action("MoveWidgetRight", new {widget.Id})">
+                                    <span class="fe fe-arrow-right"></span>
+                                </a>
+                            }
+                        </div>
+                    }
                 </div>
-                
-                @if (Model.ShowButtons)
-                {
-                    <div class="card-footer mb-5">
-                        @if (widget != Model.Widgets.First())
-                        {
-                            <a class="float-left btn btn-sm btn-secondary" href="@Url.Action("MoveWidgetLeft", new {widget.Id})">
-                                <span class="fe fe-arrow-left"></span>
-                            </a>
-                        }
-                        @if (widget != Model.Widgets.Last())
-                        {
-                            <a class="float-right btn btn-sm btn-secondary" href="@Url.Action("MoveWidgetRight", new {widget.Id})">
-                                <span class="fe fe-arrow-right"></span>
-                            </a>
-                        }
-                    </div>
-                }
-            </div>
+            }
         </div>
     }
     </div>
