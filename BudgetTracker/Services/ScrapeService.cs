@@ -87,7 +87,7 @@ namespace BudgetTracker.Services
 
                     var matchingPayments = payments.Where(v => v.Column == column && v.When >= a.When && v.When <= b.When).ToList();
 
-                    delta -= matchingPayments.Sum(v => v.SignedAmount);
+                    delta -= matchingPayments.Sum(v => v.Amount);
 
                     delta = Math.Round(delta * 100, MidpointRounding.AwayFromZero) / 100;
                     

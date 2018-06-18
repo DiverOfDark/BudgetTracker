@@ -180,27 +180,6 @@ namespace BudgetTracker.Model
             set => UpdateProperty(() => _entity.StatementReference, value);
         }
 
-        public double SignedAmount
-        {
-            get
-            {
-                switch (Kind)
-                {
-                    case PaymentKind.Expense:
-                        return -Amount;
-
-                    case PaymentKind.Income:
-                        return Amount;
-
-                    case PaymentKind.Transfer:
-                        return Amount;
-
-                    default:
-                        return Amount;
-                }
-            }
-        }
-
         /// <summary>
         /// Generated automatically from diff of current account value. (supposedly by changed asset value)
         /// </summary>

@@ -109,7 +109,7 @@ namespace BudgetTracker.Scrapers
                     var csvFile = files.First();
                     var csvContent = File.ReadAllLines(csvFile.FullName, Encoding.GetEncoding(1251)).Skip(1).Select(v=>new RaiffeisenStatement(v)).ToList();
                     var payments = csvContent.Select(v =>
-                        Statement(v.When, accountName, v.What, Math.Abs(v.Amount), v.Kind, v.Ccy, v.Reference)).ToList();
+                        Statement(v.When, accountName, v.What, v.Amount, v.Kind, v.Ccy, v.Reference)).ToList();
 
                     var holdPayments = payments.Where(v => v.StatementReference == "HOLD").ToList();
                     payments = payments.Except(holdPayments).ToList();

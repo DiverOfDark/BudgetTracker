@@ -62,7 +62,7 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
         public DateTime When { get; }
 
         public Dictionary<string, double> Totals => PaymentModels.Where(v=>v.Kind != PaymentKind.Transfer).GroupBy(v => v.Ccy)
-            .ToDictionary(v => v.Key, v => v.SelectMany(s=>s.Items).Sum(s => s.SignedAmount));
+            .ToDictionary(v => v.Key, v => v.SelectMany(s=>s.Items).Sum(s => s.Amount));
         
         public string Key => When.ToString(Discriminator);
     }

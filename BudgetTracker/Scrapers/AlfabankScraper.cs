@@ -148,8 +148,7 @@ namespace BudgetTracker.Scrapers
                 {
                     var csvFile = files.First();
                     var csvContent = File.ReadAllLines(csvFile.FullName, Encoding.GetEncoding(1251)).Skip(1).Select(v=>new AlphaStatement(v)).ToList();
-                    var payments = csvContent.Select(v =>
-                        Statement(v.Date, v.AccountName, v.What, Math.Abs(v.Outcome - v.Income), v.Kind, v.Ccy, v.Reference)).ToList();
+                    var payments = csvContent.Select(v => Statement(v.Date, v.AccountName, v.What, v.Income - v.Outcome, v.Kind, v.Ccy, v.Reference)).ToList();
 
                     var holdPayments = payments.Where(v => v.StatementReference == "HOLD").ToList();
                     payments = payments.Except(holdPayments).ToList();
