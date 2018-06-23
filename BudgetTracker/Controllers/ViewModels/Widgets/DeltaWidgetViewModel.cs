@@ -26,7 +26,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             AddDelta(col, table, 1, "24ч");
             AddDelta(col, table, 2, "48ч");
             AddDelta(col, table, 7, "1н");
-            AddDelta(col, table, 24, "1м");
+            AddDelta(col, table, 30, "1м");
         }
 
         private void AddDelta(MoneyColumnMetadataModel col, TableViewModel table, int daysDiff, string name)
