@@ -59,6 +59,11 @@ namespace BudgetTracker.Scrapers
 
             var investmentsSection = GetElement(driver, By.ClassName("investments"));
 
+            while (investmentsSection.Text.ToLower().Contains("загрузка"))
+            {
+                WaitForPageLoad(driver,5);
+            }
+
             var blockMenu = investmentsSection.FindElement(By.ClassName("block-menu"));
 
             var links = blockMenu.FindElements(By.TagName("a"));
