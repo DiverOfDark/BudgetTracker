@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -49,17 +50,41 @@ namespace BudgetTracker.Scrapers
                 var label = cell.FindElement(By.ClassName("property")).Text;
                 var value = cell.FindElement(By.ClassName("value")).Text;
 
-                var cleanValueString = new string(value.Where(v => char.IsDigit(v) || v == '.').ToArray());
-
-                var cleanValue = double.Parse(cleanValueString, new NumberFormatInfo
-                {
-                    NumberDecimalSeparator = "."
-                });
+                var cleanValue = ParseDouble(value);
 
                 result.Add(Money(label, cleanValue, "RUB"));
             }
 
+            var investmentsSection = GetElement(driver, By.ClassName("investments"));
+
+            var blockMenu = investmentsSection.FindElement(By.ClassName("block-menu"));
+
+            var links = blockMenu.FindElements(By.TagName("a"));
+
+            var badOnesButton = links.First(v => v.Text.ToLower() == "просроченные");
+            badOnesButton.Click();
+
+            var badProjects = investmentsSection.FindElements(By.ClassName("project-item-wrapper"));
+            var titles = badProjects.Select(v => v.FindElement(By.ClassName("project-title"))).ToList();
+            var spans = titles.Select(v => v.FindElement(By.TagName("span"))).ToList();
+            var innerTexts = spans.Select(v => v.Text).ToList();
+
+            var innerValues = innerTexts.Select(ParseDouble).ToList();
+            
+            result.Add(Money("Просрочки", innerValues.Sum(), "RUB"));
+
             return result;
+        }
+
+        private static double ParseDouble(string value)
+        {
+            var cleanValueString = new string(value.Where(v => char.IsDigit(v) || v == '.').ToArray());
+
+            var cleanValue = double.Parse(cleanValueString, new NumberFormatInfo
+            {
+                NumberDecimalSeparator = "."
+            });
+            return cleanValue;
         }
     }
 }
