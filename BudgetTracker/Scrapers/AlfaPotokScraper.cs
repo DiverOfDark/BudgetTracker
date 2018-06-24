@@ -6,6 +6,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using BudgetTracker.Model;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
@@ -14,8 +15,11 @@ namespace BudgetTracker.Scrapers
 {
     internal class AlfaPotokScraper : GenericScraper
     {
-        public AlfaPotokScraper(ObjectRepository repository) : base(repository)
+        private readonly ILogger<AlfaPotokScraper> _logger;
+
+        public AlfaPotokScraper(ObjectRepository repository, ILoggerFactory factory) : base(repository)
         {
+            _logger = factory.CreateLogger<AlfaPotokScraper>();
         }
 
         public override string ProviderName => "Альфа-Поток";
@@ -79,7 +83,7 @@ namespace BudgetTracker.Scrapers
             {
                 if (index % 10 == 0)
                 {
-                    Console.WriteLine($"Parsing expiring status for AlfaPotok: {((double)index / rows.Count):P2}%");
+                    _logger.LogInformation($"Parsing expiring status for AlfaPotok: {((double)index / rows.Count):P2}%");
                 }
                 
                 var v = rows[index];
