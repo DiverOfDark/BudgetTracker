@@ -39,6 +39,8 @@ namespace BudgetTracker.Scrapers
             driver.Keyboard.SendKeys(configuration.Password);
             driver.Keyboard.PressKey(Keys.Return);
 
+            Thread.Sleep(1000); // let's wait for a page load
+            
             var row = GetElement(driver, By.ClassName("balances-row"));
 
             var cells = row.FindElements(By.ClassName("balances-item"));
@@ -64,6 +66,8 @@ namespace BudgetTracker.Scrapers
             var badOnesButton = links.First(v => v.Text.ToLower() == "просроченные");
             badOnesButton.Click();
 
+            Thread.Sleep(1000); // let's wait for a page load
+            
             var badProjects = investmentsSection.FindElements(By.ClassName("project-item-wrapper"));
             var titles = badProjects.Select(v => v.FindElement(By.ClassName("project-title"))).ToList();
             var spans = titles.Select(v => v.FindElement(By.TagName("span"))).ToList();
