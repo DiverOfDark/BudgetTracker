@@ -22,9 +22,7 @@
     {
         var mdSize = Math.Min(@column.Columns * 2, 12);
         
-        @* TODO: Add rows support *@
         <div class="col-lg-@column.Columns col-md-@mdSize col-sm-12">
-            
             @foreach (var widget in column.Rows)
             {
                 <div class="card">
