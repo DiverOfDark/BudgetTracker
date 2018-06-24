@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using BudgetTracker.Model;
+using Newtonsoft.Json.Linq;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 
@@ -52,8 +53,8 @@ namespace BudgetTracker.Scrapers
                     }
 
                     var acc = td.Text;
-                    var valueText = new string(value.Text.Where(v => char.IsDigit(v) || v == ',').ToArray());
-                    var doubleValue = double.Parse(valueText, new NumberFormatInfo() {NumberDecimalSeparator = ","});
+                    var text = value.Text;
+                    var doubleValue = ParseDouble(text);
                     var mm = Money(acc, doubleValue, "RUB");
                     result.Add(mm);
                 }
@@ -62,7 +63,28 @@ namespace BudgetTracker.Scrapers
                 }
             }
 
+            var formattedUrl = string.Format("https://my.penenza.ru/main/tradefinancemvc/Credit/GetTotalCreditSum?clientName=&clientInn=&tradeId=&creditStateIds=1%2C2%2C4%2C6&lawTypes=&creditOrganizationIds=&planingPaymentDateFrom=&planingPaymentDateTo=&issueDateFrom=&issueDateTo=&planingReturnDateFrom=&planingReturnDateTo={0}&actualReturnDateFrom=&actualReturnDateTo=&isBorrower=false&IsExpertVisibility=false&creditSumFrom=&creditSumTo=&serviceTypeIds=", DateTime.Now.ToString("dd.MM.yyyy"));
+            
+            driver.Navigate().GoToUrl(formattedUrl);
+            
+            WaitForPageLoad(driver);
+
+            var response = GetElement(driver, By.TagName("body")).Text;
+
+            var debtValueString = JObject.Parse(response)["totalCreditSum"].Value<string>();
+
+            var debtValue = ParseDouble(debtValueString);
+            
+            result.Add(Money("Просрочка", debtValue, "RUB"));
+            
             return result;
+        }
+
+        private static double ParseDouble(string text)
+        {
+            var valueText = new string(text.Where(v => char.IsDigit(v) || v == ',').ToArray());
+            var doubleValue = double.Parse(valueText, new NumberFormatInfo() {NumberDecimalSeparator = ","});
+            return doubleValue;
         }
     }
 }
