@@ -83,12 +83,12 @@ namespace BudgetTracker.Scrapers
             var link1 = (RemoteWebElement) driver.FindElementByLinkText("Счета");
             driver.Mouse.MouseMove(link1.Coordinates, 1, 1);
             
-            Thread.Sleep(500); 
+            WaitForPageLoad(driver); 
             
             existingLinks = driver.FindElementsByPartialLinkText("История операций").Except(existingLinks).ToList();
             existingLinks.Single().Click();
 
-            Thread.Sleep(2000); 
+            WaitForPageLoad(driver, 2); 
             
             var selectBtn = driver.FindElementById("pt1:soc1::button");
 
@@ -106,32 +106,32 @@ namespace BudgetTracker.Scrapers
 
                 selectBtn.Click();
 
-                Thread.Sleep(2000); 
+                WaitForPageLoad(driver, 2); 
             
                 tds[0].Click();
 
-                Thread.Sleep(2000); 
+                WaitForPageLoad(driver, 2); 
 
 
                 var inputDate = driver.FindElementById("pt1:id1::fd");
                 inputDate.Click();
 
-                Thread.Sleep(2000); 
+                WaitForPageLoad(driver, 2); 
             
                 driver.Keyboard.SendKeys(Enumerable.Repeat(Keys.Delete, 20).Join(""));
-                Thread.Sleep(500);
+                WaitForPageLoad(driver);
                 driver.Keyboard.SendKeys(Enumerable.Repeat(Keys.Backspace, 20).Join(""));
-                Thread.Sleep(500);
+                WaitForPageLoad(driver);
                 driver.Keyboard.SendKeys(Enumerable.Repeat(Keys.Delete, 20).Join(""));
-                Thread.Sleep(500);
+                WaitForPageLoad(driver);
                 driver.Keyboard.SendKeys(Enumerable.Repeat(Keys.Backspace, 20).Join(""));
-                Thread.Sleep(500);
+                WaitForPageLoad(driver);
                 driver.Keyboard.SendKeys(startFrom.ToString("ddMMyyyy"));
 
                 var submit = driver.FindElementById("pt1:showButton::button");
                 submit.Click();
 
-                Thread.Sleep(2000); 
+                WaitForPageLoad(driver, 2); 
 
                 var csv = driver.FindElementById("pt1:downloadCSVLink");
                 csv.Click();
@@ -139,7 +139,7 @@ namespace BudgetTracker.Scrapers
                 int waited = 0;
                 while (chromeDriver.GetDownloads().Count < 1 && waited < 300)
                 {
-                    Thread.Sleep(1000);
+                    WaitForPageLoad(driver);
                     waited++;
                 }
 

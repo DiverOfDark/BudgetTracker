@@ -25,7 +25,7 @@ namespace BudgetTracker.Scrapers
             foreach (var k in configuration.Login) 
             {
                 driver.Keyboard.SendKeys(k.ToString());
-                Thread.Sleep(100);
+                WaitForPageLoad(driver);
             }
             pass.Click();
             driver.Keyboard.SendKeys(configuration.Password);
@@ -46,13 +46,13 @@ namespace BudgetTracker.Scrapers
                     success = true;
                     break;
                 }
-                Thread.Sleep(100);
+                WaitForPageLoad(driver);
             }
 
             if (!success)
                 throw new Exception();
 
-            Thread.Sleep(15000); // this should be enough for all data to load...
+            WaitForPageLoad(driver, 15);
 
             var accounts = driver.FindElementsByClassName("bank_account");
 

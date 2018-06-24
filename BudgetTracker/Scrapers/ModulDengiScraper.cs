@@ -27,11 +27,11 @@ namespace BudgetTracker.Scrapers
             foreach (var ch in configuration.Login)
             {
                 driver.Keyboard.SendKeys(ch.ToString());
-                Thread.Sleep(100);
+                WaitForPageLoad(driver);
             }
 
             driver.Keyboard.PressKey(Keys.Enter);
-            Thread.Sleep(1000);
+            WaitForPageLoad(driver, 5);
 
             var inputs = auth.FindElements(By.TagName("input"));
             var pass = inputs.First(v => v.GetAttribute("id") != phone.GetAttribute("id"));
@@ -39,7 +39,7 @@ namespace BudgetTracker.Scrapers
             driver.Keyboard.SendKeys(configuration.Password);
             driver.Keyboard.PressKey(Keys.Return);
 
-            Thread.Sleep(1000); // let's wait for a page load
+            WaitForPageLoad(driver);
             
             var row = GetElement(driver, By.ClassName("balances-row"));
 
@@ -66,7 +66,7 @@ namespace BudgetTracker.Scrapers
             var badOnesButton = links.First(v => v.Text.ToLower() == "просроченные");
             badOnesButton.Click();
 
-            Thread.Sleep(1000); // let's wait for a page load
+            WaitForPageLoad(driver);
             
             var badProjects = investmentsSection.FindElements(By.ClassName("project-item-wrapper"));
             var titles = badProjects.Select(v => v.FindElement(By.ClassName("project-title"))).ToList();

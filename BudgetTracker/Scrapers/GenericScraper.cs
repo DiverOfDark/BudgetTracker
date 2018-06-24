@@ -6,6 +6,8 @@ using System.Threading;
 using BudgetTracker.Model;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Internal;
+using OpenQA.Selenium.Support.Extensions;
 using OpenQA.Selenium.Support.UI;
 
 namespace BudgetTracker.Scrapers
@@ -27,6 +29,13 @@ namespace BudgetTracker.Scrapers
         {
             return new List<PaymentModel>();
         }
+
+        protected void WaitForPageLoad(ChromeDriver driver, int times = 1)
+        {
+            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(0.5));
+            wait.Until(wd => wd.ExecuteJavaScript<string>("return document.readyState") == "complete");
+            Thread.Sleep(times * 1000);
+        }
         
         protected IWebElement GetElement(ChromeDriver driver, By currencySpan)
         {
@@ -41,7 +50,7 @@ namespace BudgetTracker.Scrapers
 
             for (int count = 0; count < 20 && (elements?.Count ?? 0) == 0; count++)
             {
-                Thread.Sleep(500);
+                WaitForPageLoad(driver);
                 elements = driver.FindElements(by);
             }
 

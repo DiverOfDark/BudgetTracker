@@ -44,13 +44,13 @@ namespace BudgetTracker.Scrapers
                     success = true;
                     break;
                 }
-                Thread.Sleep(100);
+                WaitForPageLoad(driver);
             }
 
             if (!success)
                 throw new Exception();
 
-            Thread.Sleep(5000); // this should be enough for all data to load...
+            WaitForPageLoad(driver, 5);
 
             var result = new List<MoneyStateModel>();
 

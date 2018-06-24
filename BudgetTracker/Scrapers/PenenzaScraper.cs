@@ -31,7 +31,7 @@ namespace BudgetTracker.Scrapers
             var firstPortlet = GetElement(driver, By.ClassName("investor-dashboard__portlet-wrapper"));
 
             var rows = firstPortlet.FindElements(By.TagName("tr"));
-            Thread.Sleep(10000);
+            WaitForPageLoad(driver, 10);
             var result = new List<MoneyStateModel>();
 
             foreach (var row in rows)

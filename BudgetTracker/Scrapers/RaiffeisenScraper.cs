@@ -99,7 +99,7 @@ namespace BudgetTracker.Scrapers
                 int waited = 0;
                 while (chrome.GetDownloads().Count < 1 && waited < 300)
                 {
-                    Thread.Sleep(1000);
+                    WaitForPageLoad(driver);
                     waited++;
                 }
 
@@ -133,7 +133,7 @@ namespace BudgetTracker.Scrapers
             driver.Keyboard.SendKeys(configuration.Password);
             driver.Keyboard.PressKey(Keys.Return);
             
-            Thread.Sleep(5000);
+            WaitForPageLoad(driver, 5);
         }
     }
 

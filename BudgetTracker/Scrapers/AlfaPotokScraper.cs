@@ -2,9 +2,13 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading;
 using BudgetTracker.Model;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Support.UI;
 
 namespace BudgetTracker.Scrapers
 {
@@ -48,14 +52,76 @@ namespace BudgetTracker.Scrapers
 
                 key = key.Trim();
 
-                value = new string(value.Where(v => char.IsDigit(v) || v == ',').ToArray());
-
-                var doubleValue = double.Parse(value, new NumberFormatInfo() {NumberDecimalSeparator = ","});
+                var doubleValue = ParseDouble(value);
 
                 result.Add(Money(key, doubleValue, "RUB"));
             }
 
+            var btn = GetElement(driver, By.PartialLinkText("Мои инвестиции"));
+            btn.Click();
+            
+            WaitForPageLoad(driver);
+
+            var select = GetElement(driver, By.TagName("select"));
+            var sel = new SelectElement(select);
+            sel.SelectByText("Текущие");
+            
+            WaitForPageLoad(driver);
+            
+            var table = GetElement(driver, By.ClassName("table--investment"));
+            var tbody = table.FindElement(By.TagName("tbody"));
+
+            var rows = tbody.FindElements(By.TagName("tr"));
+
+            var risked = 0.0;
+
+            for (var index = 0; index < rows.Count; index++)
+            {
+                if (index % 10 == 0)
+                {
+                    Console.WriteLine($"Parsing expiring status for AlfaPotok: {((double)index / rows.Count):P2}%");
+                }
+                
+                var v = rows[index];
+                var cells = v.FindElements(By.TagName("td"));
+
+                var status = cells[11].Text;
+                if (status.ToLower() == "выплачено")
+                    continue;
+
+                var when = cells[1].Text;
+                var duration = cells[10].Text;
+
+                var whenDate = DateTime.ParseExact(when, "dd.MM.yyyy", CultureInfo.CurrentCulture);
+                var durationDays = ParseDouble(duration);
+
+                var expirationDate = whenDate.AddDays(durationDays);
+
+                if (expirationDate > DateTime.Now)
+                    continue;
+
+                var invested = cells[3].Text;
+                var returned = cells[4].Text;
+
+                var investedDouble = ParseDouble(invested);
+                var returnedDouble = ParseDouble(returned);
+
+                var delta = investedDouble - returnedDouble;
+                if (delta > 0)
+                    risked += delta;
+            }
+
+            result.Add(Money("Просрочка", risked, "RUB"));            
+            
             return result;
+        }
+
+        private static double ParseDouble(string value)
+        {
+            value = new string(value.Where(v => char.IsDigit(v) || v == ',').ToArray());
+
+            var doubleValue = double.Parse(value, new NumberFormatInfo() {NumberDecimalSeparator = ","});
+            return doubleValue;
         }
     }
 }
