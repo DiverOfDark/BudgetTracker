@@ -47,11 +47,6 @@ namespace BudgetTracker.Model
             public Guid? SmsId { get; set; }
             public Guid? CategoryId { get; set; }
             
-            [Obsolete]
-            public string Provider { get; set; }
-            [Obsolete]
-            public string Account { get; set; }
-            
             public Guid? ColumnId { get; set; }
             public int Kind { get; set; }
             public string StatementReference { get; set; }
@@ -117,20 +112,6 @@ namespace BudgetTracker.Model
         public Guid? CategoryId => _entity.CategoryId;
         public Guid? SmsId => _entity.SmsId;
         public DateTime When => _entity.When;
-
-        [Obsolete]
-        public string OldProvider
-        {
-            get => _entity.Provider;
-            set => UpdateProperty(() => _entity.Provider, value);
-        }
-
-        [Obsolete]
-        public string OldAccount
-        {
-            get => _entity.Account;
-            set => UpdateProperty(() => _entity.Account, value);
-        }
 
         public string What
         {

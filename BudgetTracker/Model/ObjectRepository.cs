@@ -21,46 +21,6 @@ namespace BudgetTracker.Model
             AddType((ScraperConfigurationModel.ScraperConfigurationEntity x) => new ScraperConfigurationModel(x));
             AddType((SettingsModel.SettingsEntity x) => new SettingsModel(x));
             Initialize();
-
-#pragma warning disable 612
-            Migration1();
-            Migration2();
-#pragma warning restore 612
-        }
-
-        [Obsolete]
-        private void Migration1()
-        {
-            foreach (PaymentModel item in Set<PaymentModel>().Where(v => v.Column == null))
-            {
-                if (!string.IsNullOrWhiteSpace(item.OldProvider) && !string.IsNullOrWhiteSpace(item.OldAccount))
-                {
-                    var column = Set<MoneyColumnMetadataModel>().FirstOrDefault(v =>
-                        v.Provider == item.OldProvider && v.AccountName == item.OldAccount);
-
-                    if (column == null)
-                    {
-                        column = new MoneyColumnMetadataModel(item.OldProvider, item.OldAccount);
-                        Add(column);
-                    }
-
-                    item.Column = column;
-                    item.OldProvider = null;
-                    item.OldAccount = null;
-                }
-            }
-        }
-
-        [Obsolete]
-        private void Migration2()
-        {
-            foreach (PaymentModel model in Set<PaymentModel>())
-            {
-                if (model.Amount < 0)
-                {
-                    model.Amount = Math.Abs(model.Amount);
-                }
-            }
         }
 
         public string ExportDiff() => ((AzureTableContext)Storage).ExportStream();

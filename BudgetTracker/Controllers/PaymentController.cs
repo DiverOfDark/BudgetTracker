@@ -7,10 +7,33 @@ using BudgetTracker.Model;
 using BudgetTracker.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OpenQA.Selenium;
 using SQLitePCL;
 
 namespace BudgetTracker.Controllers
 {
+    public enum Sorting
+    {
+        Date,
+        Amount
+    }
+
+    public static class PaymentSortingExtensions
+    {
+        public static IEnumerable<PaymentViewModel> OrderBySorting(this IEnumerable<PaymentViewModel> vms, Sorting sortingMode)
+        {
+            switch (sortingMode)
+            {
+                case Sorting.Date:
+                    return vms.OrderBy(v => v.Kind).ThenBy(v => v.What);
+                case Sorting.Amount:
+                    return vms.OrderBy(v => v.Kind).ThenByDescending(v => v.Amount).ThenBy(v => v.When);
+                default:
+                    return vms;
+            }
+        }
+    }
+    
     [Authorize]
     public class PaymentController : Controller
     {
@@ -21,14 +44,15 @@ namespace BudgetTracker.Controllers
             _objectRepository = objectRepository;
         }
 
-        public ActionResult Index(bool? groups, bool? filterCategorized)
+        public ActionResult Index(bool? groups, bool? filterCategorized, Sorting sorting = Sorting.Date)
         {
             var groups2 = this.TryGetLastValue(groups, nameof(PaymentController) + nameof(groups)) ?? true;
             var fc = this.TryGetLastValue(filterCategorized, nameof(PaymentController) + nameof(filterCategorized)) ?? false;
 
             ViewBag.Groups = groups2;
             ViewBag.FilterCategorized = fc;
-
+            ViewBag.Sorting = sorting;
+            
             IEnumerable<PaymentModel> source = _objectRepository.Set<PaymentModel>();
             if (fc == true)
             {
@@ -37,8 +61,10 @@ namespace BudgetTracker.Controllers
             return View(PaymentMonthViewModel.FromPayments(source, groups2).OrderByDescending(v => v.When).ToList());
         }
 
-        public ActionResult PaymentList(Guid? id)
+        public ActionResult PaymentList(Guid? id, Sorting sorting = Sorting.Date)
         {
+            ViewBag.Sorting = sorting;
+            
             var payments = PaymentMonthViewModel.FromPayments(_objectRepository.Set<PaymentModel>()).OrderByDescending(v => v.When);
 
             var group = payments.SelectMany(v => v.PaymentModels).FirstOrDefault(v => v.Items.Any(s => s.Id == id));

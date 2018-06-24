@@ -1,11 +1,13 @@
 ﻿@using System.Collections.Generic
 @using System.Linq
+@using Controllers
 @using Controllers.ViewModels.Payment
+@using Microsoft.AspNetCore.Http.Extensions
 @using Model
 @model System.Collections.Generic.IList<Controllers.ViewModels.Payment.PaymentMonthViewModel>
 @{
     ViewData["Title"] = "Движение денежных средств";
-
+    var sorting = (Sorting) ViewBag.Sorting;
 }
 <div class="container">
     <div class="row row-cards row-deck">
@@ -54,12 +56,20 @@
                     <table class="table card-table table-sm table-hover table-striped">
                         <thead>
                         <tr>
-                            <th>Когда</th>
+                            <th>
+                                <a href="@Context.Request.GetEncodedUrl().ReplaceParameter("sorting", Sorting.Date)">
+                                    Когда
+                                </a>
+                            </th>
                             <th>Тип</th>
                             <th>Категория</th>
                             <th>Провайдер</th>
                             <th>Счёт</th>
-                            <th>Сумма</th>
+                            <th>
+                                <a href="@Context.Request.GetEncodedUrl().ReplaceParameter("sorting", Sorting.Amount)">
+                                    Сумма
+                                </a>
+                            </th>
                             <th>Сообщение</th>
                             <th>Удалить</th>
                         </tr>
@@ -84,7 +94,7 @@
                                 </th>
                             </tr>
 
-                            var source = ViewBag.Groups == null ? month.PaymentModels.OrderBy(v => v.When) : month.PaymentModels.OrderBy(v => v.Kind).ThenByDescending(v => v.Amount).ThenBy(v => v.When);
+                            var source = month.PaymentModels.OrderBySorting(sorting);
 
                             foreach (var payment in source)
                             {
