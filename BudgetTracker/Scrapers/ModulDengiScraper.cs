@@ -39,7 +39,7 @@ namespace BudgetTracker.Scrapers
             driver.Keyboard.SendKeys(configuration.Password);
             driver.Keyboard.PressKey(Keys.Return);
 
-            WaitForPageLoad(driver);
+            WaitForPageLoad(driver, 5);
             
             var row = GetElement(driver, By.ClassName("balances-row"));
 
