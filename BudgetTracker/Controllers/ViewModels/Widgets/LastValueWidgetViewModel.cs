@@ -20,6 +20,12 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 
             var vm = vmf.GetVM(_settings.ExemptTransfers);
             vm.ShowAll = true;
+
+            var tableRowViewModel = vmf.GetVM(false).Values.OrderByDescending(v => v.When).First(v=>v.Cells.Any(s=>s.Column == column));
+
+            var matchedCell = tableRowViewModel.Cells.FirstOrDefault(v => v.Column == column);
+            CurrentValue = matchedCell?.Value;
+            CurrentDate = matchedCell?.Money?.When ?? tableRowViewModel.When.Date;
             
             Values = new Dictionary<DateTime, double?>();
             bool first = true;
@@ -52,6 +58,10 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 
             IncompleteData |= _settings.NotifyStaleData && Values.Select(v => v.Key).Max() < DateTime.Now.AddHours(-36);
         }
+
+        public DateTime CurrentDate { get; set; }
+
+        public double? CurrentValue { get; set; }
 
         private static (String color, String delta) SetDiffPercenage(double? cell)
         {

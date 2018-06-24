@@ -9,24 +9,21 @@
 
 @if (Model.IsCompact)
 {
-	var pair = Model.Values.OrderByDescending(v => v.Key).First();
-
 	<div class="card-body p-3 text-center @colorSuffix" style="height:100%">
-        <div class="h1 mt-5">
-            @Model.FormatValue(pair.Value)
-        </div>
+		<div class="h1 mt-5">
+			@Model.FormatValue(Model.CurrentValue)
+		</div>
         <div class="text-muted">
             @Model.Title
             <br/>
             <small>
-                @Model.FormatDate(pair.Key)
+                @Model.FormatDate(Model.CurrentDate.ToLocalTime().Date)
             </small>
         </div>
     </div>
 }
 else
 {
-	var pair = Model.Values.OrderByDescending(v => v.Key).First();
 	var goodItems = Model.Values.OrderByDescending(v => v.Key).Where(v => v.Value.HasValue).ToList();
 	var chartItems = goodItems.Select(v=>v.Value.Value).ToList();
 	var datesItems = goodItems.Select(v => v.Key).ToList();
@@ -81,14 +78,14 @@ else
 	        </div>
         </div>
         <h3 class="mb-1 text-nowrap">
-            @Model.FormatValue(pair.Value)
+            @Model.FormatValue(Model.CurrentValue)
         </h3>
         <div class="text-muted">
             @Model.Title
         </div>
         <h4 class="m-0">
             <small class="text-muted">
-                @Model.FormatDate(pair.Key.ToLocalTime().Date)
+                @Model.FormatDate(Model.CurrentDate.ToLocalTime().Date)
             </small>
         </h4>
     </div>
