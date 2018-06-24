@@ -29,7 +29,12 @@ namespace BudgetTracker.Services
                         if (string.Equals(category.Key.Category, p.What) || category.Value.IsMatch(p.What))
                         {
                             p.Category = category.Key;
-                            p.Kind = category.Key.Kind;
+
+                            if (category.Key.Kind != PaymentKind.Unknown)
+                            {
+                                p.Kind = category.Key.Kind;
+                            }
+
                             break;
                         }
                     }
