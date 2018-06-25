@@ -70,7 +70,7 @@ namespace BudgetTracker.Scrapers
             var sel = new SelectElement(select);
             sel.SelectByText("Текущие");
             
-            WaitForPageLoad(driver);
+            WaitForPageLoad(driver, 10);
             
             var table = GetElement(driver, By.ClassName("table--investment"));
             var tbody = table.FindElement(By.TagName("tbody"));
