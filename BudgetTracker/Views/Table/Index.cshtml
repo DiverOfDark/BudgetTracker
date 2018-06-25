@@ -97,7 +97,7 @@
                                 {
                                     var p = item.Cells.FirstOrDefault(v => v.Column == h);
 
-                                    <td class="@(p?.FailedToResolve.Any() == true ? "table-dark" : "")">
+                                    <td class="@(p == null || p?.FailedToResolve.Any() == true ? "table-dark" : "")">
                                         @{
                                             if (p?.Value != null)
                                             {

@@ -65,6 +65,20 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                     .Select(v => v.Column).ToList();
             }
 
+            var columnsToCheck = Values.SelectMany(v => v.Cells).Select(v => v.Column).Distinct()
+                .Where(v => !v.IsComputed).ToList();
+            for (int i = Values.Count - 1; i >= 0; i--)
+            {
+                var row = Values[i];
+
+                columnsToCheck = columnsToCheck.Except(row.Cells.Select(v => v.Column)).ToList();
+                
+                foreach(var item in columnsToCheck)
+                {
+                    row.Cells.Add(CalculatedResult.Empty(item));
+                }
+            }
+            
             foreach (var rowViewModel in Values)
             {
                 rowViewModel.CalculateItems();
