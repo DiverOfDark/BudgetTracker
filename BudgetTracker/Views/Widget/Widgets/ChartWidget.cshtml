@@ -7,13 +7,16 @@
 	string dates;
 	var chartNames = string.Join(",\n ", Model.Values.Select((v, i) => $"'data{i}': '{v.Key}'"));
 	var chartGroups = string.Join(", ", Model.Values.Select((v, i) => $"'data{i}'"));
+	
+	var height = 300;
 
 	string sum = "";
 	string chartClass = "";
 	string type;
 	string showLegend = "true";
+	bool showAxis = false;
 	
-	if (Model.ChartWidgetSettings.ChartKind == ChartKind.Donut)
+	if (Model.ChartKind == ChartKind.Donut)
 	{
 		/*
 		 *         columns: [
@@ -29,7 +32,7 @@
 		sum = Model.Values.Sum(v => v.Value.OrderByDescending(s => s.When).First().Value).ToString(CultureInfo.InvariantCulture);
 		dates = Model.Dates.OrderByDescending(v=>v).Select(v => $"'{v:yyyy-MM-dd}'").First();
 	}	
-	else if (Model.ChartWidgetSettings.ChartKind == ChartKind.Linear)
+	else if (Model.ChartKind == ChartKind.Linear)
 	{
 		type = "area";
 		chartItems = string.Join(",\n ", Model.Values.Select((v, i) => $"['data{i}', " + string.Join(", ", v.Value.Select(s => s == null ? "null" : s.Value.ToString("0.00", CultureInfo.InvariantCulture))) + "]"));
@@ -41,6 +44,12 @@
 	}
 	var chartId = Guid.NewGuid().ToString("N");
 
+	if (ViewBag.FullScreen == true)
+	{
+		height = 700;
+		showAxis = true;
+	}
+	
 	<div class="card-body">
 		<div class="h4 text-muted-dark text-center">
 			@Model.Title
@@ -73,7 +82,7 @@
 				                x: 'x',
 				                names: names
                   			},
-@if (Model.ChartWidgetSettings.ChartKind == ChartKind.Linear)
+@if (Model.ChartKind == ChartKind.Linear)
 {
                         <text>
                             point: {
@@ -81,11 +90,11 @@
                             },
 	                        axis: {
 		                        y: {
-			                        show: false
+			                        show: @showAxis.ToString().ToLower()
 		                        },
 		                        x: {
 			                        type: 'timeseries',
-			                        show: false
+			                        show: @showAxis.ToString().ToLower()
 		                        }
 	                        },
                         </text>
@@ -103,12 +112,10 @@ else
 			                },</text>
 }
                            size: {
-                               height: 300
+                               height: @height
                            },
                            padding: {
-                               bottom: -10,
-                               left: -1,
-                               right: -1
+                               bottom: -10
                            },
                   			legend: {
                   				position: 'inset',

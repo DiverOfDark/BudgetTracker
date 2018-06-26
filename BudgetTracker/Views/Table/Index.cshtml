@@ -1,7 +1,7 @@
 ﻿@model Controllers.ViewModels.Table.TableViewModel
 @{
     ViewData["Title"] = "Таблица";
-
+    var rootClass = Model.Headers.Count > 8 ? "container-fluid" : "container";
 }
 
 <style>
@@ -11,7 +11,7 @@
     }
 </style>
 
-<div class="container">
+<div class="@rootClass">
     <div class="row row-cards row-deck">
         <div class="col-12">
             <div class="card">
@@ -79,6 +79,10 @@
                             {
                                 <th title="@p.AccountName">
                                     @p.UserFriendlyName
+                                    
+                                    <a href="@Url.Action("Chart", new {provider = p.Provider, account = p.AccountName ?? p.UserFriendlyName})">
+                                        <span class="fe fe-trending-up"></span>
+                                    </a>
 
                                     @if (Model.ShowControls)
                                     {

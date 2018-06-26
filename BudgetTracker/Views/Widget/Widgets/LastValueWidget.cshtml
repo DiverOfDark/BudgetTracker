@@ -5,6 +5,29 @@
 @{
 	var chartId = Guid.NewGuid().ToString("N");
 	var colorSuffix = Model.IncompleteData ? "bg-gray-dark-darkest" : ""; 
+
+	var hexColor = "#000000";
+
+	var trend = "fe-trending-up";
+	
+	switch (Model.Color)
+	{
+		case "red":
+			hexColor = "#e74c3c";
+			trend = "fe-trending-down";
+			break;
+		case "green":
+			hexColor = "#5eba00";
+			break;
+		case "yellow":
+			hexColor = "#f1c40f";
+			trend = "fe-activity";
+			break;
+		case "blue":
+			hexColor = "#467fcf";
+			trend = "fe-trending-down";
+			break;
+	}
 }
 
 @if (Model.IsCompact)
@@ -15,6 +38,9 @@
 		</div>
         <div class="text-muted">
             @Model.Title
+	        <a href="@Url.Action("Chart", "Table", new {provider = Model.Provider, account = Model.Account })">
+		        <span class="fe @trend"></span>
+	        </a>
             <br/>
             <small>
                 @Model.FormatDate(Model.CurrentDate.ToLocalTime().Date)
@@ -48,25 +74,6 @@ else
 	var values = string.Join(", ", chartItems.Select(v => Math.Round(v, 4).ToString(CultureInfo.InvariantCulture)));
 	var dates = string.Join(", ", datesItems.Select(v => $"'{v:yyyy-MM-dd}'"));
 
-	var hexColor = "#000000";
-
-	switch (Model.Color)
-	{
-		case "red":
-			hexColor = "#e74c3c";
-			break;
-		case "green":
-			hexColor = "#5eba00";
-			break;
-		case "yellow":
-			hexColor = "#f1c40f";
-			break;
-		case "blue":
-			hexColor = "#467fcf";
-			break;
-	}
-
-	
 	<div class="card-status bg-@Model.Color"></div>
     <div class="card-body @colorSuffix">
         <div class="float-right">
@@ -82,6 +89,9 @@ else
         </h3>
         <div class="text-muted">
             @Model.Title
+	        <a href="@Url.Action("Chart", "Table", new {provider = Model.Provider, account = Model.Account })">
+		        <span class="fe @trend"></span>
+	        </a>
         </div>
         <h4 class="m-0">
             <small class="text-muted">

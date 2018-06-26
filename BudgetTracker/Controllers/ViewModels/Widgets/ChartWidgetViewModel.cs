@@ -8,25 +8,38 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 {
     public class ChartWidgetViewModel : WidgetViewModel
     {
+        public ChartWidgetViewModel(string providerName, string accountName, 
+            ChartKind kind,
+            ObjectRepository repository,
+            TableViewModel vm) : base(null, null)
+        {
+            ChartKind = kind;
+            Title = accountName;
+            LoadData(repository, vm, providerName, accountName);
+        }
+        
         public ChartWidgetViewModel(WidgetModel model, ObjectRepository repository, TableViewModel vm) : base(model, new ChartWidgetSettings(model.Properties.ToDictionary(v=>v.Key, v=>v.Value)))
         {
-            ChartWidgetSettings = (ChartWidgetSettings) Settings;
+            var chartWidgetSettings = (ChartWidgetSettings) Settings;
 
-            vm = new TableViewModel(vm)
-            {
-                ShowAll = true,
-                ShowControls = false,
-                ShowDelta = false
-            };
+            ChartKind = chartWidgetSettings.ChartKind;
+            Title = Title ?? chartWidgetSettings.AccountName;
+            
+            LoadData(repository, vm, chartWidgetSettings.ProviderName, chartWidgetSettings.AccountName);
+        }
 
+        public ChartKind ChartKind { get; set; }
+
+        private void LoadData(ObjectRepository repository, TableViewModel vm, string providerName, string accountName)
+        {
             var column = repository.Set<MoneyColumnMetadataModel>().First(v =>
-                v.Provider == ChartWidgetSettings.ProviderName &&
-                (v.AccountName == ChartWidgetSettings.AccountName ||
-                 v.UserFriendlyName == ChartWidgetSettings.AccountName));
+                v.Provider == providerName &&
+                (v.AccountName == accountName ||
+                 v.UserFriendlyName == accountName));
 
             var columnsToChart = new List<MoneyColumnMetadataModel> {column};
 
-            if (column.IsComputed)
+            if (column.IsComputed && column.ChartList.Any())
             {
                 columnsToChart = repository.Set<MoneyColumnMetadataModel>().Where(v =>
                     column.ChartList.Contains(v.Provider + "/" + v.AccountName) ||
@@ -65,8 +78,6 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 
         public List<DateTime> Dates { get; set; }
         public Dictionary<string, List<ChartItem>> Values { get; set; }
-
-        public ChartWidgetSettings ChartWidgetSettings { get; }
 
         public override string TemplateName => WidgetExtensions.AsPath("~/Views/Widget/Widgets/ChartWidget.cshtml");
         public override int Columns => 4;

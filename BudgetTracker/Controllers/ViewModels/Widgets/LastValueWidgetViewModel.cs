@@ -68,11 +68,11 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             string color, delta;
             if (cell != null)
             {
-                cell = Math.Round(cell.Value, 2);
+                cell = Math.Round(cell.Value, 3);
                 
                 color = cell > 0 ? "green" : "red";
 
-                if (Math.Abs(cell.Value) <= 0.01)
+                if (Math.Abs(cell.Value) <= 0.001)
                 {
                     color = "yellow";
                 }
@@ -115,5 +115,8 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 
         public string Color { get; set; }
         public string ColorYear { get; set; }
+
+        public string Provider => _settings.ProviderName;
+        public string Account => _settings.AccountName;
     }
 }

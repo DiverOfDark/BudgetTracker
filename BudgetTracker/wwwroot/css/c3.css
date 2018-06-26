@@ -230,6 +230,10 @@
   pointer-events: none;
 }
 
+.c3-legend-background {
+  pointer-events: none;
+}
+
 .c3-chart-arc text, .c3-chart-arcs-title {
   fill: white;
   paint-order: stroke;

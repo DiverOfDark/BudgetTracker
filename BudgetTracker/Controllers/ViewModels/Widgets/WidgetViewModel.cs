@@ -13,17 +13,17 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         {
             Settings = settings;
             _model = model;
+            Title = _model?.Title;
+            Id = _model?.Id;
         }
         
         protected WidgetSettings Settings { get; }
 
         public abstract string TemplateName { get; }
 
-        public string Title => _model.Title;
-        public Guid Id => _model.Id;
+        public string Title { get; protected set; }
+        public Guid? Id {get; protected set; }
         public abstract int Columns {get;}
         public virtual int Rows => 1;
-        
-        public int Order => _model.Order;
     }
 }

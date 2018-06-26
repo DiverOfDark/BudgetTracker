@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using BudgetTracker.Controllers.ViewModels.Table;
+using BudgetTracker.Controllers.ViewModels.Widgets;
 using BudgetTracker.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,6 +30,14 @@ namespace BudgetTracker.Controllers
             vm.ShowDelta = showDelta2;
             vm.ShowControls = showControls2;
             vm.ExemptTransfers = exemptTransfers2;
+            return View(vm);
+        }
+
+        public IActionResult Chart(string provider, string account, bool exemptTransfers = false)
+        {
+            var table = HttpContext.RequestServices.GetRequiredService<TableViewModelFactory>();
+            var vm = new ChartWidgetViewModel(provider, account, ChartKind.Linear, _objectRepository, table.GetVM(exemptTransfers));
+
             return View(vm);
         }
 
