@@ -30,7 +30,7 @@ namespace BudgetTracker.Scrapers
             return new List<PaymentModel>();
         }
 
-        protected void WaitForPageLoad(ChromeDriver driver, int times = 1)
+        protected void WaitForPageLoad(ChromeDriver driver, int times = 5)
         {
             var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(0.5));
             wait.Until(wd => wd.ExecuteJavaScript<string>("return document.readyState") == "complete");
