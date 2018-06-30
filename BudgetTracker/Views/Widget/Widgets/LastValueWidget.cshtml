@@ -104,7 +104,13 @@ else
 	</div>
 	<script>
 		(function() {
-			c3.generate({
+
+			var columns = [
+				['data1', @Html.Raw(values)],
+				['x', @Html.Raw(dates)]
+			];
+			
+			var chart = c3.generate({
 				bindto: '#chart-@chartId',
 				padding: {
 					bottom: -10,
@@ -119,10 +125,7 @@ else
 					names: {
 						'data1': '@Model.Title'
 					},
-					columns: [
-						['data1', @Html.Raw(values)],
-						['x', @Html.Raw(dates)]
-					],
+					columns: columns,
 					type: 'area-spline'
 				},
 				legend: {
@@ -167,6 +170,12 @@ else
 					pattern: ['@hexColor']
 				}
 			});
+			
+			window.onfocus = function() {
+				chart.load({
+					columns: columns
+				});
+			};
 		})();
 	</script>
 }

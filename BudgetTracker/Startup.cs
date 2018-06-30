@@ -13,12 +13,14 @@ using BudgetTracker.Services;
 using Hangfire;
 using Hangfire.AspNetCore;
 using Hangfire.Dashboard;
+using Hangfire.Dashboard.Resources;
 using Hangfire.MemoryStorage;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -128,23 +130,16 @@ namespace BudgetTracker
             
             app.ApplicationServices.GetService<IStorage>().OnError += OnError;
 
-            var objectRepository = app.ApplicationServices.GetService<ObjectRepository>();
-            objectRepository.OnException += OnError;
-
-            while (objectRepository.IsLoading)
+            app.Use(async (a, b) =>
             {
-                Thread.Sleep(50);
-            }
+                if (GlobalSettings == null)
+                {
+                    await a.Response.WriteAsync("Site is loading...");
+                    return;
+                }
 
-            var settingsModel = objectRepository.Set<SettingsModel>().FirstOrDefault();
-            if (settingsModel == null)
-            {
-                settingsModel = new SettingsModel();
-                objectRepository.Add(settingsModel);
-            }
-
-            GlobalSettings = settingsModel;
-            
+                await b();
+            });
             app.UseStatusCodePagesWithReExecute("/Error", "?statusCode={0}");
             app.UseExceptionHandler("/Error");
             app.UseStaticFiles();
@@ -153,10 +148,11 @@ namespace BudgetTracker
             
             GlobalConfiguration.Configuration.UseMemoryStorage();
             GlobalConfiguration.Configuration.UseActivator(new AspNetCoreJobActivator(new MyFactory(app.ApplicationServices)));
-            
+
             app.UseHangfireDashboard(options: new DashboardOptions
             {
-                Authorization = new[]{new HttpContextAuth()}
+                Authorization = new[]{new HttpContextAuth()},
+                AppPath = null
             });
             app.UseHangfireServer();
 
@@ -172,6 +168,28 @@ namespace BudgetTracker
                     }));
 
             RegisterJobs();
+            
+            
+            new Thread(()=>
+            {
+                var objectRepository = app.ApplicationServices.GetService<ObjectRepository>();
+                objectRepository.OnException += OnError;
+
+                while (objectRepository.IsLoading)
+                {
+                    Thread.Sleep(50);
+                }
+
+                var settingsModel = objectRepository.Set<SettingsModel>().FirstOrDefault();
+                if (settingsModel == null)
+                {
+                    settingsModel = new SettingsModel();
+                    objectRepository.Add(settingsModel);
+                }
+
+                GlobalSettings = settingsModel;
+
+            }).Start();
         }
 
         private void RegisterJobs()

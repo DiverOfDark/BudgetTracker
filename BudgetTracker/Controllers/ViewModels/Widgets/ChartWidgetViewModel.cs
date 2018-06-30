@@ -59,7 +59,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                     chartItems.Add(new ChartItem
                     {
                         When = row.When,
-                        Name = header.UserFriendlyName ?? header.AccountName,
+                        Name = header.Provider + "/" + (header.UserFriendlyName ?? header.AccountName),
                         Value = value.Value.Value,
                         Ccy = value.Ccy
                     });

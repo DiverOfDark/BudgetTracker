@@ -64,14 +64,16 @@
 			var names = {
 				@Html.Raw(chartNames)
 			};
+
+			var columns = [
+				@Html.Raw(chartItems),
+				['x', @Html.Raw(dates)]
+			];
 			
-			c3.generate({
+			var chart = c3.generate({
                   			bindto: '#chart-@chartId',
                   			data: {
-				                columns: [
-					                @Html.Raw(chartItems),
-                                   ['x', @Html.Raw(dates)]
-				                ],
+				                columns: columns,
                   				type: '@(type)', // default type of chart
                   				groups: [
                   					[ @Html.Raw(chartGroups) ]
@@ -136,6 +138,12 @@ else
 				                  }
                   			}
                   		});
+
+			window.onfocus = function() {
+				chart.load({
+					columns: columns
+				});
+			};
 		})();
 	</script>
 }

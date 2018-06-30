@@ -67,5 +67,6 @@ namespace BudgetTracker.Controllers
             return View();
         }
 
+        public IActionResult Tasks() => View();
     }
 }

@@ -242,16 +242,6 @@ namespace BudgetTracker.Services
                         $" - {item.Provider} / {item.AccountName}: {item.Amount} ({item.Ccy})");
                     if (!string.IsNullOrWhiteSpace(item.Provider))
                     {
-                        if (item.Amount <= 0.001)
-                        {
-                            if (!_objectRepository.Set<MoneyStateModel>().Any(s =>
-                                s.Provider == item.Provider
-                                && s.AccountName == item.AccountName
-                                && s.Amount > 0
-                            ))
-                                continue;
-                        }
-
                         if (todayState.Contains(item.AccountName))
                             continue;
 

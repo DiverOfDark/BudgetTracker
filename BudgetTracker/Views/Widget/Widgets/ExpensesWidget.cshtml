@@ -42,12 +42,15 @@
 
 <script>
     $(document).ready(function() {
-        c3.generate({
+
+        var columns = [
+            @Html.Raw(string.Join(",", columnsData))
+        ];
+        
+        var chart = c3.generate({
             bindto: '#chart-@id',
             data: {
-                columns: [
-                    @Html.Raw(string.Join(",", columnsData))
-                ],
+                columns: columns,
                 type: 'donut',
                 order: null,
                 names: {
@@ -83,5 +86,11 @@
                 top: 0
             }
         });
+        
+        window.onfocus = function() {
+            chart.load({
+                columns: columns
+            });
+        };
     });
 </script>
