@@ -135,8 +135,7 @@ namespace BudgetTracker.Controllers
                     payment.Amount = Math.Abs(payment.Amount);
                 }
 
-                var newPayment = new PaymentModel(payment.When, payment.What, amount, newKind, payment.Ccy,
-                    payment.StatementReference, payment.Column);
+                var newPayment = new PaymentModel(payment.When, payment.What, amount, newKind, payment.Ccy, null, payment.Column);
                 _objectRepository.Add(newPayment);
             }
             
