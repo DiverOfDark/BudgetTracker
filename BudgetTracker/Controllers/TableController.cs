@@ -36,7 +36,7 @@ namespace BudgetTracker.Controllers
                 sb.AppendLine("sep=,");
             }
             
-            var headers = string.Join(",", vm.Headers.Select(v => v.IsComputed ? "" : (v.Provider + "/") + v.UserFriendlyName));
+            var headers = string.Join(",", vm.Headers.Select(v => (v.IsComputed ? "" : v.Provider + "/") + v.UserFriendlyName));
 
             headers = "Когда," + headers;
             
@@ -54,7 +54,7 @@ namespace BudgetTracker.Controllers
                     {
                         if (!double.IsNaN(p.Value.Value))
                         {
-                            return p.Value.Value.ToString("#,0.00", CultureInfo.InvariantCulture);
+                            return p.Value.Value.ToString("0.00###", CultureInfo.InvariantCulture);
                         }
                     }
 
