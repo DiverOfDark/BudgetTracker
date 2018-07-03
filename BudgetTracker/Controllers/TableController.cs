@@ -54,7 +54,7 @@ namespace BudgetTracker.Controllers
                     {
                         if (!double.IsNaN(p.Value.Value))
                         {
-                            return p.Value.Value.ToString("0.00###", CultureInfo.InvariantCulture);
+                            return "\"" + p.Value.Value.ToString("0.00###", new NumberFormatInfo {NumberDecimalSeparator = ","}) + "\"";
                         }
                     }
 
