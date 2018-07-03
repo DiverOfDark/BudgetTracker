@@ -170,7 +170,8 @@ namespace BudgetTracker.Services
                     .Where(v =>
                         v.When > lastPayment.AddDays(-21)
                         && v.Column?.Provider == scraper.ProviderName
-                        && !string.IsNullOrEmpty(v.StatementReference))
+                        && !string.IsNullOrEmpty(v.StatementReference)
+                        && !v.UserEdited)
                     .ToList();
                 
                 foreach (var s in statements)

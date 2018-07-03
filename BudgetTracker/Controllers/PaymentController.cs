@@ -137,6 +137,7 @@ namespace BudgetTracker.Controllers
 
                 var newPayment = new PaymentModel(payment.When, payment.What, amount, newKind, payment.Ccy, null, payment.Column);
                 _objectRepository.Add(newPayment);
+                newPayment.UserEdited = true;
             }
             
             return RedirectToAction(nameof(Index));
@@ -161,6 +162,7 @@ namespace BudgetTracker.Controllers
             payment.Kind = kind;
             payment.Category = _objectRepository.Set<SpentCategoryModel>().FirstOrDefault(v => v.Id == categoryId);
             payment.Column = _objectRepository.Set<MoneyColumnMetadataModel>().FirstOrDefault(v => v.Id == columnId);
+            payment.UserEdited = true;
             return RedirectToAction(nameof(Index));
         }
         
