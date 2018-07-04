@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Threading;
 using BudgetTracker.Model;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -74,13 +72,32 @@ namespace BudgetTracker.Scrapers
             WaitForPageLoad(driver);
             
             var badProjects = investmentsSection.FindElements(By.ClassName("project-item-wrapper"));
-            var titles = badProjects.Select(v => v.FindElement(By.ClassName("project-details"))).ToList();
-            var spans = titles.Select(v => v.FindElement(By.TagName("span"))).ToList();
-            var innerTexts = spans.Select(v => v.Text).ToList();
+            var titles = badProjects.Select(v => v.FindElement(By.ClassName("project-table"))).ToList();
+            var spans = titles.Select(v =>
+            {
+                var rows = v.FindElements(By.TagName("tr")).Select(s=>s.FindElements(By.TagName("td")).ToList()).ToList();
 
-            var innerValues = innerTexts.Select(ParseDouble).ToList();
-            
-            result.Add(Money("Просрочки", innerValues.Sum(), "RUB"));
+                var parsed = rows.Select(s =>
+                {
+                    var key = s[0].Text;
+                    var value = s[1];
+
+                    var spanValue = ParseDouble(value.FindElement(By.TagName("span")).Text);
+
+                    return new
+                    {
+                        key,
+                        spanValue
+                    };
+                }).ToList();
+
+                var inv = parsed.First(s => s.key.ToLower().Contains("инвестиция")).spanValue;
+                var ok  = parsed.First(s => s.key.ToLower().Contains("погашено")).spanValue;
+                
+                return inv - ok;
+            }).ToList();
+
+            result.Add(Money("Просрочки", spans.Sum(), "RUB"));
 
             return result;
         }
