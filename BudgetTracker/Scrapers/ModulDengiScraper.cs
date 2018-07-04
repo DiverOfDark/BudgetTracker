@@ -74,7 +74,7 @@ namespace BudgetTracker.Scrapers
             WaitForPageLoad(driver);
             
             var badProjects = investmentsSection.FindElements(By.ClassName("project-item-wrapper"));
-            var titles = badProjects.Select(v => v.FindElement(By.ClassName("project-title"))).ToList();
+            var titles = badProjects.Select(v => v.FindElement(By.ClassName("project-details"))).ToList();
             var spans = titles.Select(v => v.FindElement(By.TagName("span"))).ToList();
             var innerTexts = spans.Select(v => v.Text).ToList();
 
