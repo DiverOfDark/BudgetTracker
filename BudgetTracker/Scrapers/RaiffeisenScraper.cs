@@ -64,14 +64,6 @@ namespace BudgetTracker.Scrapers
 
             var accounts = GetElements(driver, By.TagName("c-select-option-account"));
 
-            var accountDetails = accounts.Select(v =>
-            {
-                var id = v.FindElement(By.TagName("div")).GetAttribute("data-account-id");
-                var textElement = v.FindElement(By.TagName("account-logo")).FindElement(By.XPath(".."));
-                var name = textElement.GetAttribute("textContent").Trim();
-                return (id, name);
-            }).Distinct().ToList();
-
             var link = GetElements(driver, By.TagName("a")).First(v => v.GetAttribute("href")?.Contains("/transaction.csv?") == true);
             var linkText = link.GetAttribute("href");
             
@@ -85,6 +77,14 @@ namespace BudgetTracker.Scrapers
 
             var accessToken = originalQuery["access_token"].First();
             
+            var accountDetails = accounts.Select(v =>
+            {
+                var id = v.FindElement(By.TagName("div")).GetAttribute("data-account-id");
+                var textElement = v.FindElement(By.TagName("account-logo")).FindElement(By.XPath(".."));
+                var name = textElement.GetAttribute("textContent").Trim();
+                return (id, name);
+            }).Distinct().ToList();
+
             foreach (var account in accountDetails)
             {
                 var accountId = account.id;
