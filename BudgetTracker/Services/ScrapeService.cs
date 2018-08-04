@@ -172,19 +172,16 @@ namespace BudgetTracker.Services
                     .Where(v =>
                         v.When > scrapingSince
                         && v.Column?.Provider == scraper.ProviderName
-                        && !string.IsNullOrEmpty(v.StatementReference)
-                        && !v.UserEdited)
+                        && !string.IsNullOrEmpty(v.StatementReference))
                     .ToList();
 
-                foreach (var item in excessiveStatements)
+                var gotStatementReferences = statements.Select(v => v.StatementReference).Where(v => v != null)
+                    .Distinct().ToHashSet();
+                
+                // Need to reimport changes done to this item from bank statement. i.e., if user edited statement which was HOLD - now there can be another statement about the same transaction with other reference
+                foreach (var item in excessiveStatements.Where(v=>v.UserEdited && !gotStatementReferences.Contains(v.StatementReference)))
                 {
-                    if (statements.Any(s => s.StatementReference == item.StatementReference))
-                        continue;
-
-                    if (item.UserEdited)
-                    {
-                        item.StatementReference = null; // Need to reimport changes done to this item from bank statement. i.e., if user edited statement which was HOLD - now there can be another statement about the same transaction with other reference
-                    }
+                    item.StatementReference = null; 
                 }
                 
                 foreach (var s in statements)
