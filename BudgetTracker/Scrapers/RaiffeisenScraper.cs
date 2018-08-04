@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using BudgetTracker.Model;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OutCode.EscapeTeams.ObjectRepository;
@@ -15,8 +16,11 @@ namespace BudgetTracker.Scrapers
 {
     internal class RaiffeisenScraper : GenericScraper
     {
-        public RaiffeisenScraper(ObjectRepository repository) : base(repository)
+        private readonly ILogger<RaiffeisenScraper> _logger;
+
+        public RaiffeisenScraper(ObjectRepository repository, ILogger<RaiffeisenScraper> logger) : base(repository)
         {
+            _logger = logger;
         }
 
         public override string ProviderName => "Райффайзен";
@@ -85,6 +89,8 @@ namespace BudgetTracker.Scrapers
                 return (id, name);
             }).Distinct().ToList();
 
+            _logger.LogInformation($"Found {accountDetails.Count} Raiffeisen accounts");
+            
             foreach (var account in accountDetails)
             {
                 var accountId = account.id;
@@ -96,12 +102,16 @@ namespace BudgetTracker.Scrapers
                 
                 driver.Navigate().GoToUrl(url);
                 
+                _logger.LogInformation($"Getting statement for {account.name} at {url}");
+
                 int waited = 0;
                 while (chrome.GetDownloads().Count < 1 && waited < 300)
                 {
                     WaitForPageLoad(driver);
                     waited++;
                 }
+                
+                Thread.Sleep(10000);
 
                 var files = chrome.GetDownloads();
                 if (files.Count == 1)
@@ -111,9 +121,17 @@ namespace BudgetTracker.Scrapers
                     var payments = csvContent.Select(v =>
                         Statement(v.When, accountName, v.What, v.Amount, v.Kind, v.Ccy, v.Reference)).ToList();
 
-                    var holdPayments = payments.Where(v => v.StatementReference == "HOLD").ToList();
-                    payments = payments.Except(holdPayments).ToList();
+                    foreach (var group in payments.GroupBy(v => v.StatementReference).Where(v => v.Count() > 1))
+                    {
+                        var list = group.ToList();
+                        for (var index  = 0; index < list.Count; index++)
+                        {
+                            list[index].StatementReference += "." + index;
+                        }
+                    }                    
                     
+                    _logger.LogInformation($"Got {payments.Count} payments from {url}");
+
                     result.AddRange(payments);
                     csvFile.Delete();
                 }
