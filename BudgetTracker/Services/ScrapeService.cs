@@ -148,9 +148,11 @@ namespace BudgetTracker.Services
                 _objectRepository.Set<PaymentModel>().OrderBy(v => v.When)
                     .FirstOrDefault()?.When
             };
-
+            
             var lastPayment = minDates.Where(v => v != null).OrderBy(v => v).FirstOrDefault() ??
                               DateTime.MinValue;
+
+            var scrapingSince = lastPayment.AddDays(-21);
 
             if (scraperConfig.LastSuccessfulStatementScraping != default)
                 lastPayment = scraperConfig.LastSuccessfulStatementScraping;
@@ -159,20 +161,31 @@ namespace BudgetTracker.Services
             if (lastPayment.AddHours(24) < DateTime.Now)
             {
                 logger.LogInformation(
-                    $"Scraping statement for {scraper.ProviderName} since {lastPayment.AddDays(-21)}...");
+                    $"Scraping statement for {scraper.ProviderName} since {scrapingSince}...");
 
-                var statements = scraper.ScrapeStatement(scraperConfig, _chrome, lastPayment.AddDays(-21))
+                var statements = scraper.ScrapeStatement(scraperConfig, _chrome, scrapingSince)
                     .ToList();
 
                 logger.LogInformation($"Got statement of {statements.Count} items...");
 
                 var excessiveStatements = _objectRepository.Set<PaymentModel>()
                     .Where(v =>
-                        v.When > lastPayment.AddDays(-21)
+                        v.When > scrapingSince
                         && v.Column?.Provider == scraper.ProviderName
                         && !string.IsNullOrEmpty(v.StatementReference)
                         && !v.UserEdited)
                     .ToList();
+
+                foreach (var item in excessiveStatements)
+                {
+                    if (statements.Any(s => s.StatementReference == item.StatementReference))
+                        continue;
+
+                    if (item.UserEdited)
+                    {
+                        item.StatementReference = null; // Need to reimport changes done to this item from bank statement. i.e., if user edited statement which was HOLD - now there can be another statement about the same transaction with other reference
+                    }
+                }
                 
                 foreach (var s in statements)
                 {
