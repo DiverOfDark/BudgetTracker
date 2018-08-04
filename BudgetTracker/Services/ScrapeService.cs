@@ -219,7 +219,10 @@ namespace BudgetTracker.Services
 
                 _objectRepository.RemoveRange(excessiveStatements);
 
-                scraperConfig.LastSuccessfulStatementScraping = DateTime.Now;
+                if (statements.Any())
+                {
+                    scraperConfig.LastSuccessfulStatementScraping = DateTime.Now;
+                }
             }
         }
 
