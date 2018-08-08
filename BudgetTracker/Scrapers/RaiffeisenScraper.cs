@@ -64,7 +64,7 @@ namespace BudgetTracker.Scrapers
             var driver = chrome.Driver;
             Login(configuration, driver);
 
-            driver.Navigate().GoToUrl(@"https://online.raiffeisen.ru/#/statement");
+            driver.Navigate().GoToUrl(@"https://online.raiffeisen.ru/#/history/statement");
 
             var accounts = GetElements(driver, By.TagName("c-select-option-account"));
 
