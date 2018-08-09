@@ -54,20 +54,22 @@ namespace BudgetTracker.Scrapers
 
             var result = new List<MoneyStateModel>();
 
-            var fund = GetElement(driver, By.ClassName("fund-table-component"));
-            var tds = fund.FindElements(By.TagName("td")).ToList();
-            var title = tds[0].Text;
-            var value = tds[1].Text;
-            var valueAmount = double.Parse(new string(value.Where(v=>char.IsDigit(v) || v == ',').ToArray()), new NumberFormatInfo{NumberDecimalSeparator = ","});
-            result.Add(Money(title, valueAmount, "RUB"));
+            var assetClasses = new[] {"fund-table-component", "am-table-component"};
 
-            var iis = GetElement(driver, By.ClassName("am-table-component"));
-            tds = iis.FindElements(By.TagName("td")).ToList();
-            title = tds[0].Text;
-            value = tds[1].Text;
-            valueAmount = double.Parse(new string(value.Where(v => char.IsDigit(v) || v == ',').ToArray()), new NumberFormatInfo { NumberDecimalSeparator = "," });
-            result.Add(Money(title, valueAmount, "RUB"));
+            foreach (var assetClass in assetClasses)
+            {
+                var fund = GetElement(driver, By.ClassName(assetClass));
 
+                foreach (var tr in fund.FindElements(By.TagName("tr")).ToList())
+                {
+                    var tds = tr.FindElements(By.TagName("td")).ToList();
+                    var title = tds[0].Text;
+                    var value = tds[1].Text;
+                    var valueAmount = double.Parse(new string(value.Where(v=>char.IsDigit(v) || v == ',').ToArray()), new NumberFormatInfo{NumberDecimalSeparator = ","});
+                    result.Add(Money(title, valueAmount, "RUB"));
+                }
+            }
+            
             return result;
         }
     }
