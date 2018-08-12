@@ -78,10 +78,25 @@ namespace BudgetTracker.Services
                     .Where(v => v.Column == column)
                     .ToList();
 
-                _objectRepository.Set<MoneyStateModel>()
+                var models = _objectRepository.Set<MoneyStateModel>()
                     .Where(v => v.Provider == column.Provider && v.AccountName == column.AccountName)
                     .OrderBy(v => v.When)
-                    .Aggregate((a, b) =>
+                    .ToList();
+
+                if (models.Any())
+                {
+                    var emptyModel = new MoneyStateModel
+                    {
+                        Amount = 0,
+                        Ccy = models.First().Ccy,
+                        AccountName = models.First().AccountName,
+                        Provider = models.First().Provider,
+                        When = models.First().When.AddDays(-1)
+                    };
+                    models.Insert(0, emptyModel);
+                }
+
+                models.Aggregate((a, b) =>
                 {
                     var delta = b.Amount - a.Amount;
 
