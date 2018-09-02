@@ -33,7 +33,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             foreach (var row in vm.Values.OrderByDescending(v => v.When).Where(v=> IsApplicable(v.When, period)))
             {
                 var cell = row.Cells.FirstOrDefault(v => v.Column == column);
-                if (cell == null)
+                if (cell == null || cell.Value == null || double.IsNaN(cell.Value.Value))
                     continue;
 
                 Values[cell.Money?.When ?? row.When.Date] = cell.Value;
