@@ -95,6 +95,14 @@ namespace BudgetTracker.Controllers
             return View(vm);
         }
 
+        public IActionResult Burst(string provider, string account, bool exemptTransfers = false)
+        {
+            var table = HttpContext.RequestServices.GetRequiredService<TableViewModelFactory>();
+            var vm = new BurstWidgetViewModel(provider, account, _objectRepository, table.GetVM(exemptTransfers));
+
+            return View(vm);
+        }
+
         public IActionResult DeleteMoney(Guid id)
         {
             _objectRepository.Remove<MoneyStateModel>(x => x.Id == id);
