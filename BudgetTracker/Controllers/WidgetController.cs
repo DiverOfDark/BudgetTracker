@@ -17,11 +17,12 @@ namespace BudgetTracker.Controllers
 
         public WidgetController(ObjectRepository objectRepository) => _objectRepository = objectRepository;
 
-        public IActionResult Index(bool? showButtons)
+        public IActionResult Index(bool? showButtons, int? period = 0)
         {
             var showButtons2 = this.TryGetLastValue(showButtons, nameof(WidgetController) + nameof(showButtons)) ?? false;
+            var period2 = this.TryGetLastValue(period, nameof(WidgetController) + nameof(period)) ?? 1;
             
-            return View(new DashboardViewModel(_objectRepository, showButtons2, HttpContext.RequestServices.GetRequiredService<TableViewModelFactory>()));
+            return View(new DashboardViewModel(_objectRepository, showButtons2, period2, HttpContext.RequestServices.GetRequiredService<TableViewModelFactory>()));
         }
 
         public IActionResult Error(int statusCode = 0) => View(statusCode);

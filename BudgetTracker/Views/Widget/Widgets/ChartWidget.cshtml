@@ -30,7 +30,7 @@
 		showLegend = "false";
 		chartItems = string.Join(",\n ", Model.Values.Select((v, i) => $"['data{i}', " + v.Value.OrderByDescending(s=>s.When).First().Value.ToString("0.00", CultureInfo.InvariantCulture) + "]"));
 		sum = Model.Values.Sum(v => v.Value.OrderByDescending(s => s.When).First().Value).ToString(CultureInfo.InvariantCulture);
-		dates = Model.Dates.OrderByDescending(v=>v).Select(v => $"'{v:yyyy-MM-dd}'").First();
+		dates = Model.Dates.OrderByDescending(v=>v).Select(v => $"'{v:yyyy-MM-dd}'").FirstOrDefault();
 	}	
 	else if (Model.ChartKind == ChartKind.Linear)
 	{

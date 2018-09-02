@@ -12,11 +12,13 @@ namespace BudgetTracker.Controllers.ViewModels
         private readonly ObjectRepository _objectRepository;
         private readonly TableViewModelFactory _vm;
 
-        public DashboardViewModel(ObjectRepository objectRepository, bool showButtons, TableViewModelFactory vm)
+        public DashboardViewModel(ObjectRepository objectRepository, bool showButtons, int? period,
+            TableViewModelFactory vm)
         {
             _objectRepository = objectRepository;
             _vm = vm;
             ShowButtons = showButtons;
+            Period = period;
             
             var widgetViewModels = CreateWidgetViewModels();
 
@@ -86,13 +88,13 @@ namespace BudgetTracker.Controllers.ViewModels
                             widgetViewModels.Add(new UnconfiguredWidgetViewModel(wi));
                             break;
                         case var wi when w.Kind == WidgetKind.LastValue:
-                            widgetViewModels.Add(new LastValueWidgetViewModel(wi, _objectRepository, _vm));
+                            widgetViewModels.Add(new LastValueWidgetViewModel(wi, _objectRepository, _vm, Period));
                             break;
                         case var wi when w.Kind == WidgetKind.Expenses:
-                            widgetViewModels.Add(new ExpensesWidgetViewModel(wi, _objectRepository));
+                            widgetViewModels.Add(new ExpensesWidgetViewModel(wi, _objectRepository, Period));
                             break;
                         case var wi when w.Kind == WidgetKind.Chart:
-                            widgetViewModels.Add(new ChartWidgetViewModel(wi, _objectRepository, _vm.GetVM(false)));
+                            widgetViewModels.Add(new ChartWidgetViewModel(wi, _objectRepository, Period, _vm.GetVM(false)));
                             break;
                         case var wi when w.Kind == WidgetKind.Delta:
                             widgetViewModels.Add(new DeltaWidgetViewModel(wi, _objectRepository, _vm.GetVM(false)));
@@ -113,6 +115,26 @@ namespace BudgetTracker.Controllers.ViewModels
 
         public List<BootstrapColumnViewModel> Widgets { get; }
         public bool ShowButtons { get; set; }
+        public int? Period { get; set; }
+
+        public string PeriodFriendly
+        {
+            get
+            {
+                if (Period == 0 || Period == null)
+                    return "всё время";
+
+                if (Period == 1)
+                    return "1 месяц";
+                
+                if (Period == 3)
+                    return "3 месяца";
+                if (Period == 6)
+                    return "6 месяцев";
+
+                return Period + " месяца(ев)";
+            }
+        }
     }
 
     public class BootstrapColumnViewModel

@@ -8,7 +8,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 {
     public class ChartWidgetViewModel : WidgetViewModel
     {
-        public ChartWidgetViewModel(string providerName, string accountName, 
+        public ChartWidgetViewModel(string providerName, string accountName,
             ChartKind kind,
             ObjectRepository repository,
             TableViewModel vm) : base(null, null)
@@ -17,16 +17,20 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             Title = accountName;
             LoadData(repository, vm, providerName, accountName);
         }
-        
-        public ChartWidgetViewModel(WidgetModel model, ObjectRepository repository, TableViewModel vm) : base(model, new ChartWidgetSettings(model.Properties.ToDictionary(v=>v.Key, v=>v.Value)))
+
+        public ChartWidgetViewModel(WidgetModel model, ObjectRepository repository, int? period, TableViewModel vm) :
+            base(model, new ChartWidgetSettings(model.Properties.ToDictionary(v => v.Key, v => v.Value)))
         {
             var chartWidgetSettings = (ChartWidgetSettings) Settings;
 
             ChartKind = chartWidgetSettings.ChartKind;
             Title = Title ?? chartWidgetSettings.AccountName;
-            
+            Period = period;
+
             LoadData(repository, vm, chartWidgetSettings.ProviderName, chartWidgetSettings.AccountName);
         }
+
+        public int? Period { get; set; }
 
         public ChartKind ChartKind { get; set; }
 
@@ -48,7 +52,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 
             var chartItems = new List<ChartItem>();
 
-            foreach (var row in vm.Values)
+            foreach (var row in vm.Values.Where(v => IsApplicable(v.When, Period)))
             {
                 foreach (var header in columnsToChart)
                 {
@@ -59,7 +63,8 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                     chartItems.Add(new ChartItem
                     {
                         When = row.When,
-                        Name = (header.IsComputed ? "" : (header.Provider + "/")) + (header.UserFriendlyName ?? header.AccountName),
+                        Name = (header.IsComputed ? "" : (header.Provider + "/")) +
+                               (header.UserFriendlyName ?? header.AccountName),
                         Value = value.Value.Value,
                         Ccy = value.Ccy
                     });

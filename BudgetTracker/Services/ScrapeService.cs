@@ -183,6 +183,12 @@ namespace BudgetTracker.Services
 
                 logger.LogInformation($"Got statement of {statements.Count} items...");
 
+                if (statements.Count == 0)
+                {
+                    logger.LogWarning("Suspicious statement count. For the sake of not deleting existing statements - not doing anything for now...");
+                    return;
+                }
+                
                 var excessiveStatements = _objectRepository.Set<PaymentModel>()
                     .Where(v =>
                         v.When > scrapingSince

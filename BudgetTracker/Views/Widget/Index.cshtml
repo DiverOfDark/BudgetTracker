@@ -7,14 +7,28 @@
 <div class="container">
     <div class="page-header">
         <h1 class="page-title">
-            Отчёт
+            Отчёт за @Model.PeriodFriendly
         </h1>
-        <a class="btn btn-sm btn-secondary ml-1" href="?ShowButtons=@(!Model.ShowButtons)">
-            <span class="fe @(Model.ShowButtons ? "fe-eye-off" : "fe-eye")"></span>
-        </a>
-        <a class="btn btn-sm btn-secondary ml-1" href="@Url.Action("AddWidget")">
-            <span class="fe fe-plus"></span>
-        </a>
+        <div class="page-options d-flex">
+            <a class="btn btn-sm btn-secondary ml-1" href="?ShowButtons=@(!Model.ShowButtons)">
+                <span class="fe @(Model.ShowButtons ? "fe-eye-off" : "fe-eye")"></span>
+            </a>
+            <a class="btn btn-sm btn-secondary ml-1" href="@Url.Action("AddWidget")">
+                <span class="fe fe-plus"></span>
+            </a>
+            <a class="btn btn-sm btn-secondary ml-1" href="?period=1">
+                <span class="fe fe-calendar">1M</span>
+            </a>
+            <a class="btn btn-sm btn-secondary ml-1" href="?period=3">
+                <span class="fe fe-calendar">3M</span>
+            </a>
+            <a class="btn btn-sm btn-secondary ml-1" href="?period=6">
+                <span class="fe fe-calendar">6M</span>
+            </a>
+            <a class="btn btn-sm btn-secondary ml-1" href="?period=0">
+                <span class="fe fe-calendar">Всё</span>
+            </a>
+        </div>
     </div>    
     <div class="row card-columns">
 

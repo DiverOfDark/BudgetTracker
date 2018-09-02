@@ -11,7 +11,8 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
     {
         private readonly LastValueWidgetSettings _settings;
 
-        public LastValueWidgetViewModel(WidgetModel model, ObjectRepository repo, TableViewModelFactory vmf) : base(model, new LastValueWidgetSettings(model.Properties.ToDictionary(v=>v.Key,v=>v.Value)))
+        public LastValueWidgetViewModel(WidgetModel model, ObjectRepository repo, TableViewModelFactory vmf,
+            int? period) : base(model, new LastValueWidgetSettings(model.Properties.ToDictionary(v=>v.Key,v=>v.Value)))
         {
             _settings = (LastValueWidgetSettings) Settings;
             var column = repo.Set<MoneyColumnMetadataModel>().First(v =>
@@ -29,7 +30,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             
             Values = new Dictionary<DateTime, double?>();
             bool first = true;
-            foreach (var row in vm.Values.OrderByDescending(v => v.When))
+            foreach (var row in vm.Values.OrderByDescending(v => v.When).Where(v=> IsApplicable(v.When, period)))
             {
                 var cell = row.Cells.FirstOrDefault(v => v.Column == column);
                 if (cell == null)

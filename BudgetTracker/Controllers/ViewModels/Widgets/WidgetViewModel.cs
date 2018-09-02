@@ -17,6 +17,14 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             Id = _model?.Id;
         }
         
+        protected bool IsApplicable(DateTime argWhen, int? period)
+        {
+            if (period == null || period == 0)
+                return true;
+
+            return argWhen.AddMonths(period.Value) > DateTime.Now;
+        }
+
         protected WidgetSettings Settings { get; }
 
         public abstract string TemplateName { get; }
