@@ -29,7 +29,9 @@ namespace BudgetTracker.Scrapers
             driver.Keyboard.SendKeys(configuration.Password);
             driver.Keyboard.PressKey(Keys.Return);
 
-            var firstPortlet = GetElement(driver, By.ClassName("investor-dashboard__portlet-wrapper"));
+            var portlets = GetElements(driver, By.ClassName("investor-dashboard__portlet-wrapper"));
+
+            var firstPortlet = portlets.First();
 
             var rows = firstPortlet.FindElements(By.TagName("tr"));
             WaitForPageLoad(driver, 10);
@@ -63,18 +65,41 @@ namespace BudgetTracker.Scrapers
                 }
             }
 
-            var formattedUrl = string.Format("https://my.penenza.ru/main/tradefinancemvc/Credit/GetTotalCreditSum?clientName=&clientInn=&tradeId=&creditStateIds=1%2C2%2C4%2C6&lawTypes=&creditOrganizationIds=&planingPaymentDateFrom=&planingPaymentDateTo=&issueDateFrom=&issueDateTo=&planingReturnDateFrom=&planingReturnDateTo={0}&actualReturnDateFrom=&actualReturnDateTo=&isBorrower=false&IsExpertVisibility=false&creditSumFrom=&creditSumTo=&serviceTypeIds=", DateTime.Now.ToString("dd.MM.yyyy"));
+            var lastPortlet = portlets.Last();
             
-            driver.Navigate().GoToUrl(formattedUrl);
+            rows = lastPortlet.FindElements(By.TagName("tr"));
+
+            double debtValue = 0;
             
-            WaitForPageLoad(driver);
+            foreach (var row in rows)
+            {
+                try
+                {
+                    var td = row.FindElement(By.ClassName("investor-dashboard__table-title-col"));
+                    var value = row.FindElement(By.ClassName("investor-dashboard__table-value-col"));
 
-            var response = GetElement(driver, By.TagName("body")).Text;
+                    try
+                    {
+                        var subTd = td.FindElement(By.TagName("a"));
+                        if (subTd != null)
+                            td = subTd;
+                    }
+                    catch
+                    {
+                    }
 
-            var debtValueString = JObject.Parse(response)["totalCreditSum"].Value<string>();
+                    var text = value.Text;
 
-            var debtValue = ParseDouble(debtValueString);
-            
+                    if (text.ToLower().Contains("просрочено"))
+                    {
+                        debtValue += ParseDouble(text);
+                    }
+                }
+                catch
+                {
+                }
+            }
+
             result.Add(Money("Просрочка", debtValue, "RUB"));
             
             return result;
