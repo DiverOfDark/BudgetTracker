@@ -88,9 +88,10 @@ namespace BudgetTracker.Scrapers
                     {
                     }
 
+                    var acc = td.Text;
                     var text = value.Text;
 
-                    if (text.ToLower().Contains("просрочено"))
+                    if (acc.ToLower().Contains("просрочено"))
                     {
                         debtValue += ParseDouble(text);
                     }
