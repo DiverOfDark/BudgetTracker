@@ -41,6 +41,9 @@
 	        <a href="@Url.Action("Chart", "Table", new {provider = Model.Provider, account = Model.Account })">
 		        <span class="fe @trend"></span>
 	        </a>
+	        <a href="@Url.Action("Burst", "Table", new {provider = Model.Provider, account = Model.Account })">
+		        <span class="fe fe-zoom-in"></span>
+	        </a>
             <br/>
             <small>
                 @Model.FormatDate(Model.CurrentDate.ToLocalTime().Date)
@@ -91,6 +94,9 @@ else
             @Model.Title
 	        <a href="@Url.Action("Chart", "Table", new {provider = Model.Provider, account = Model.Account })">
 		        <span class="fe @trend"></span>
+	        </a>
+	        <a href="@Url.Action("Burst", "Table", new {provider = Model.Provider, account = Model.Account })">
+		        <span class="fe fe-zoom-in"></span>
 	        </a>
         </div>
         <h4 class="m-0">

@@ -28,7 +28,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         protected WidgetSettings Settings { get; }
 
         public abstract string TemplateName { get; }
-
+        
         public string Title { get; protected set; }
         public Guid? Id {get; protected set; }
         public abstract int Columns {get;}

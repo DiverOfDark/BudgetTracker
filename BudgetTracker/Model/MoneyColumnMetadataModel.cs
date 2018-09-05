@@ -95,7 +95,7 @@ namespace BudgetTracker.Model
         {
             get
             {
-                if (!IsComputed || !Function.Contains('+'))
+                if (!IsComputed)
                     return Enumerable.Empty<string>();
 
                 var result = new List<string>();
