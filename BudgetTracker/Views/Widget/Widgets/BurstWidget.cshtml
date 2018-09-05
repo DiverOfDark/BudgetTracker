@@ -18,66 +18,59 @@
 
         .text text {
             pointer-events: none;
-            stroke: #aaa;
-            stroke-width: 1px;
             font-weight: 800;
-            fill: black;
             paint-order: stroke;
             stroke-linecap: butt;
             stroke-linejoin: miter;
         }    
     </style>
-    <div class="card-body">
+    <div class="card-body" style="padding: 0; height: 100%;">
         <div class="h4 text-muted-dark text-center">
             @Model.Title
         </div>
-    </div>
-    <div class="card-chart-bg" style="height: 100%; text-align: center;">
-        <svg id="burst-@chartId" width="960" height="800"></svg>
+        <svg id="burst-@chartId"></svg>
     </div>
     <script type="text/javascript">
         (function() {
-            var rootNode = @Json.Serialize(Model.RootNode);
+            function scale(value) {
+                return Math.max(3, Math.log(Math.abs(value))/2);
+            }
+
             var chartId = 'burst-@chartId';
+            var boundingClientRect = $("#" + chartId).parent()[0].getBoundingClientRect();
+            $("#" + chartId).attr("width", boundingClientRect.width);
+            $("#" + chartId).attr("height", boundingClientRect.height);
+
+            var rootNode = @Json.Serialize(Model.RootNode);
 
             var svg = d3.select("#" + chartId),
-                width = +svg.attr("width"),
-                height = +svg.attr("height");
-            
+                width = +svg.node().getBoundingClientRect().width,
+                height = +svg.node().getBoundingClientRect().height;
+
+            var color = d3.scaleOrdinal(d3.schemeCategory10);
+
             var g = svg.append("g");
             
             var simulation = d3.forceSimulation()
-                .force("link", d3.forceLink().id(function(d) { return d.node; }).distance(0))
-                .force("charge", d3.forceManyBody().strength(-200).distanceMax(2000).distanceMin(1))
+                .force("link", d3.forceLink().id(function(d) { return d.id; }).strength(function(d) {
+                    return 5/scale(d.source.node.amount);
+                }))
+                .force("charge", d3.forceManyBody().strength(-500).distanceMax(2000).distanceMin(1))
                 .force("center", d3.forceCenter(width / 2, height / 2));
 
             var nodeArr = [];
             var linksArr = [];
 
-            var colors = [];
-            
-            for (var color in window.tabler.colors) {
-                colors.push(window.tabler.colors[color]);
-            }
-            
-            function shuffleArray(array) {
-                for (var i = array.length - 1; i > 0; i--) {
-                    var j = Math.floor(Math.random() * (i + 1));
-                    var temp = array[i];
-                    array[i] = array[j];
-                    array[j] = temp;
-                }
-            }
-
-            shuffleArray(colors);
             var radius = 20;
+            var id = 0;
+            var nodeId = 0;
 
             var nodeFunc = function(node) {
-                var item = { 
-                    x: width/2,
-                    y: height/2,
+                var item = {
+                    x: width / 2,
+                    y: height / 2,
                     node: node,
-                    color: colors.pop()
+                    color: color(nodeId++)
                 };
                 nodeArr.push(item);
 
@@ -87,7 +80,8 @@
 
                     linksArr.push({
                         source: item,
-                        target: to
+                        target: to,
+                        id: id++
                     });
                 }
                 
@@ -96,12 +90,14 @@
 
             nodeFunc(rootNode);
 
+            
+            
             var link = g.append("g")
                 .attr("class", "links")
                 .selectAll("line")
                 .data(linksArr)
                 .enter().append("line")
-                .attr("stroke-width", function(d) { return Math.log(d.target.node.amount); })
+                .attr("stroke-width", function(d) { return scale(d.target.node.amount); })
                 .attr("stroke", function(d) { return d.source.color; });
             
             var nodeObj = g.append("g")
@@ -109,7 +105,7 @@
                 .selectAll("circle")
                 .data(nodeArr)
                 .enter().append("circle")
-                .attr("r", function(d) { return Math.log(d.node.amount)})
+                .attr("r", function(d) { return 2*scale(d.node.amount); })
                 .attr('fill', function(d) { return d.color; })
                 .call(d3.drag()
                     .on("start", function(d) {
@@ -139,6 +135,7 @@
                 .attr('dx', 20)
                 .attr('dy', -5)
                 .attr('font-weight', 'bold')
+                .attr('fill', function(d) { return d.color; })
                 .text(function(d) { return d.node.title; });
             
             var textElements2  = g.append('g')
@@ -150,7 +147,8 @@
                 .attr('font-size', 15)
                 .attr('dx', 20)
                 .attr('dy', 15)
-                .text(function(d) { return d.node.amount; });
+                .attr('fill', function(d) { return d.color; })
+                .text(function(d) { return d.node.amountFormatted; });
 
             simulation
                 .nodes(nodeArr)
@@ -174,9 +172,9 @@
                 });
 
             simulation.force("link")
-                .links(link);
+                .links(linksArr);
 
-            
+            simulation.alpha(1).alphaTarget(0).restart();
         })();
     </script>
 }

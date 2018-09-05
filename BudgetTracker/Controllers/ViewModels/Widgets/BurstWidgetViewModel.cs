@@ -35,12 +35,9 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         private Node LoadData(MoneyColumnMetadataModel column, ObjectRepository repository, TableViewModel vm)
         {
             var cell = vm.Values.FirstOrDefault()?.Cells?.FirstOrDefault(v => v.Column == column);
-            if (cell == null)
+            if (cell?.Value == null || double.IsNaN(cell.Value.Value))
             {
-                return new Node
-                {
-                    Title = "Нет данных"
-                };
+                return null;
             }
             
             if (column.IsComputed && column.ChartList.Any())
@@ -49,32 +46,34 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                     column.ChartList.Contains(v.Provider + "/" + v.AccountName) ||
                     column.ChartList.Contains(v.UserFriendlyName)).ToList();
 
-                var children = columnsToChart.Select(v => LoadData(v, repository, vm)).ToList();
+                var children = columnsToChart.Select(v => LoadData(v, repository, vm)).Where(v => v != null).ToList();
 
                 return new Node
                 {
                     Title = cell.Column.UserFriendlyName,
                     Amount = cell.Value,
+                    AmountFormatted = cell.Value?.ToString("N2") + " " + cell.Ccy,
                     Children = children
                 };
             }
-            else
+
+            return new Node
             {
-                return new Node
-                {
-                    Title = cell.Column.UserFriendlyName,
-                    Amount = cell.Value
-                };
-            }
+                Title = cell.Column.Provider + "/" + cell.Column.UserFriendlyName,
+                Amount = cell.Value,
+                AmountFormatted = cell.Value?.ToString("N2") + " " + cell.Ccy
+            };
         }
 
         public override string TemplateName => WidgetExtensions.AsPath("~/Views/Widget/Widgets/BurstWidget.cshtml");
         public override int Columns => 12;
+        public override int Rows => 4;
 
         public class Node
         {
             public string Title { get; set; }
             public double? Amount { get; set; }
+            public string AmountFormatted { get; set; }
             public List<Node> Children { get; set; }
         }
     }
