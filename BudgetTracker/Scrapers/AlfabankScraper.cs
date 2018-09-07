@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using BudgetTracker.Model;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -15,6 +16,7 @@ using OpenQA.Selenium.Support.UI;
 
 namespace BudgetTracker.Scrapers
 {
+    [UsedImplicitly]
     internal class AlfabankScraper : GenericScraper
     {
         public AlfabankScraper(ObjectRepository repository) : base(repository)
@@ -23,9 +25,10 @@ namespace BudgetTracker.Scrapers
 
         public override string ProviderName => "Альфа-Банк";
 
-        public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, ChromeDriver driver)
+        public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, Chrome chrome)
         {
-            Login(configuration, driver);
+            var driver = chrome.Driver;
+            Login(configuration, chrome);
 
             var link = GetElement(driver, By.PartialLinkText("Все счета"));
             link.Click();
@@ -76,12 +79,12 @@ namespace BudgetTracker.Scrapers
 
             var driver = chromeDriver.Driver;
             
-            Login(configuration, driver);
+            Login(configuration, chromeDriver);
 
             var existingLinks = driver.FindElementsByPartialLinkText("История операций").ToList();
 
             var link1 = (RemoteWebElement) driver.FindElementByLinkText("Счета");
-            driver.Mouse.MouseMove(link1.Coordinates, 1, 1);
+            chromeDriver.MoveToElement(link1, 1, 1);
             
             WaitForPageLoad(driver); 
             
@@ -118,15 +121,15 @@ namespace BudgetTracker.Scrapers
 
                 WaitForPageLoad(driver, 2); 
             
-                driver.Keyboard.SendKeys(Enumerable.Repeat(Keys.Delete, 20).Join(""));
+                chromeDriver.SendKeys(Enumerable.Repeat(Keys.Delete, 20).Join(""));
                 WaitForPageLoad(driver);
-                driver.Keyboard.SendKeys(Enumerable.Repeat(Keys.Backspace, 20).Join(""));
+                chromeDriver.SendKeys(Enumerable.Repeat(Keys.Backspace, 20).Join(""));
                 WaitForPageLoad(driver);
-                driver.Keyboard.SendKeys(Enumerable.Repeat(Keys.Delete, 20).Join(""));
+                chromeDriver.SendKeys(Enumerable.Repeat(Keys.Delete, 20).Join(""));
                 WaitForPageLoad(driver);
-                driver.Keyboard.SendKeys(Enumerable.Repeat(Keys.Backspace, 20).Join(""));
+                chromeDriver.SendKeys(Enumerable.Repeat(Keys.Backspace, 20).Join(""));
                 WaitForPageLoad(driver);
-                driver.Keyboard.SendKeys(startFrom.ToString("ddMMyyyy"));
+                chromeDriver.SendKeys(startFrom.ToString("ddMMyyyy"));
 
                 var submit = driver.FindElementById("pt1:showButton::button");
                 submit.Click();
@@ -200,16 +203,17 @@ namespace BudgetTracker.Scrapers
             public PaymentKind Kind => Outcome - Income > 0 ? PaymentKind.Expense : PaymentKind.Income;
         }
 
-        private void Login(ScraperConfigurationModel configuration, ChromeDriver driver)
+        private void Login(ScraperConfigurationModel configuration, Chrome chrome)
         {
+            var driver = chrome.Driver;
             driver.Navigate().GoToUrl(@"https://click.alfabank.ru/");
             var name = GetElement(driver, By.Name("username"));
             var pass = GetElement(driver, By.Name("password"));
             name.Click();
-            driver.Keyboard.SendKeys(configuration.Login);
+            chrome.SendKeys(configuration.Login);
             pass.Click();
-            driver.Keyboard.SendKeys(configuration.Password);
-            driver.Keyboard.PressKey(Keys.Return);
+            chrome.SendKeys(configuration.Password);
+            chrome.SendKeys(Keys.Return);
         }
     }
 }

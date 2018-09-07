@@ -2,11 +2,13 @@
 using System.Globalization;
 using System.Linq;
 using BudgetTracker.Model;
+using JetBrains.Annotations;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 
 namespace BudgetTracker.Scrapers
 {
+    [UsedImplicitly]
     internal class ModulDengiScraper : GenericScraper
     {
         public ModulDengiScraper(ObjectRepository repository) : base(repository)
@@ -15,8 +17,9 @@ namespace BudgetTracker.Scrapers
 
         public override string ProviderName => "МодульДеньги";
 
-        public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, ChromeDriver driver)
+        public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, Chrome chrome)
         {
+            var driver = chrome.Driver;
             driver.Navigate().GoToUrl("https://cabinet.moduldengi.ru/#/");
 
             var auth = GetElement(driver, By.ClassName("auth"));
@@ -24,18 +27,18 @@ namespace BudgetTracker.Scrapers
             phone.Click();
             foreach (var ch in configuration.Login)
             {
-                driver.Keyboard.SendKeys(ch.ToString());
+                chrome.SendKeys(ch.ToString());
                 WaitForPageLoad(driver);
             }
 
-            driver.Keyboard.PressKey(Keys.Enter);
+            chrome.SendKeys(Keys.Enter);
             WaitForPageLoad(driver, 5);
 
             var inputs = auth.FindElements(By.TagName("input"));
             var pass = inputs.First(v => v.GetAttribute("id") != phone.GetAttribute("id"));
             pass.Click();
-            driver.Keyboard.SendKeys(configuration.Password);
-            driver.Keyboard.PressKey(Keys.Return);
+            chrome.SendKeys(configuration.Password);
+            chrome.SendKeys(Keys.Return);
 
             WaitForPageLoad(driver, 5);
             
@@ -59,7 +62,7 @@ namespace BudgetTracker.Scrapers
 
             while (investmentsSection.Text.ToLower().Contains("загрузка"))
             {
-                WaitForPageLoad(driver,5);
+                WaitForPageLoad(driver);
             }
 
             var blockMenu = investmentsSection.FindElement(By.ClassName("block-menu"));

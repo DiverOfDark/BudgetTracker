@@ -267,7 +267,7 @@ namespace BudgetTracker.Services
             {
                 logger.LogInformation("No cached items, scraping...");
 
-                var items = scraper.Scrape(scraperConfig, _chrome.Driver);
+                var items = scraper.Scrape(scraperConfig, _chrome);
 
                 logger.LogInformation($"Found {items.Count()} items, indexing...");
 

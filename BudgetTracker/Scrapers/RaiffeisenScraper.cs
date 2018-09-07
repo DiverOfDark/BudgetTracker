@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using BudgetTracker.Model;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
@@ -14,6 +15,7 @@ using OutCode.EscapeTeams.ObjectRepository;
 
 namespace BudgetTracker.Scrapers
 {
+    [UsedImplicitly]
     internal class RaiffeisenScraper : GenericScraper
     {
         private readonly ILogger<RaiffeisenScraper> _logger;
@@ -25,9 +27,10 @@ namespace BudgetTracker.Scrapers
 
         public override string ProviderName => "Райффайзен";
 
-        public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, ChromeDriver driver)
+        public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, Chrome chrome)
         {
-            Login(configuration, driver);
+            var driver = chrome.Driver;
+            Login(configuration, chrome);
 
             driver.Navigate().GoToUrl(@"https://online.raiffeisen.ru/#/accounts");
             
@@ -62,7 +65,7 @@ namespace BudgetTracker.Scrapers
         public override IList<PaymentModel> ScrapeStatement(ScraperConfigurationModel configuration, Chrome chrome, DateTime startFrom)
         {
             var driver = chrome.Driver;
-            Login(configuration, driver);
+            Login(configuration, chrome);
 
             driver.Navigate().GoToUrl(@"https://online.raiffeisen.ru/#/history/statement");
 
@@ -140,17 +143,18 @@ namespace BudgetTracker.Scrapers
             return result;
         }
 
-        private void Login(ScraperConfigurationModel configuration, ChromeDriver driver)
+        private void Login(ScraperConfigurationModel configuration, Chrome chrome)
         {
+            var driver = chrome.Driver;
             driver.Navigate().GoToUrl(@"https://online.raiffeisen.ru/");
 
             var name = GetElement(driver, By.ClassName("login-form__username-wrap")).FindElement(By.TagName("input"));
             var pass = GetElement(driver, By.ClassName("login-form__password-wrap")).FindElement(By.TagName("input"));
             name.Click();
-            driver.Keyboard.SendKeys(configuration.Login);
+            chrome.SendKeys(configuration.Login);
             pass.Click();
-            driver.Keyboard.SendKeys(configuration.Password);
-            driver.Keyboard.PressKey(Keys.Return);
+            chrome.SendKeys(configuration.Password);
+            chrome.SendKeys(Keys.Return);
             
             WaitForPageLoad(driver, 5);
         }

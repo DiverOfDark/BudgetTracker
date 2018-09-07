@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using BudgetTracker.Model;
+using JetBrains.Annotations;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
@@ -13,6 +14,7 @@ using OpenQA.Selenium.Support.UI;
 
 namespace BudgetTracker.Scrapers
 {
+    [UsedImplicitly]
     internal class AlfaPotokScraper : GenericScraper
     {
         private readonly ILogger<AlfaPotokScraper> _logger;
@@ -24,17 +26,18 @@ namespace BudgetTracker.Scrapers
 
         public override string ProviderName => "Альфа-Поток";
 
-        public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, ChromeDriver driver)
+        public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, Chrome chrome)
         {
+            var driver = chrome.Driver;
             driver.Navigate().GoToUrl(@"https://potok.digital/potok");
             
             var name = GetElement(driver, By.Name("username"));
             var pass = GetElement(driver, By.Name("password"));
             name.Click();
-            driver.Keyboard.SendKeys(configuration.Login);
+            chrome.SendKeys(configuration.Login);
             pass.Click();
-            driver.Keyboard.SendKeys(configuration.Password);
-            driver.Keyboard.PressKey(Keys.Return);
+            chrome.SendKeys(configuration.Password);
+            chrome.SendKeys(Keys.Return);
 
             var result = new List<MoneyStateModel>();
 

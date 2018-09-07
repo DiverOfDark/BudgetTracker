@@ -23,7 +23,7 @@ namespace BudgetTracker.Scrapers
 
         public ObjectRepository Repository { get; }
         
-        public abstract IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, ChromeDriver driver);
+        public abstract IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, Chrome driver);
 
         public virtual IList<PaymentModel> ScrapeStatement(ScraperConfigurationModel configuration, Chrome driver, DateTime startFrom)
         {
