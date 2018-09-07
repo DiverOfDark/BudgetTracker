@@ -23,7 +23,7 @@ namespace BudgetTracker.Scrapers
 
         public override string ProviderName => "LiveCoin";
 
-        public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, ChromeDriver driver)
+        public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, Chrome driver)
         {
             var apiKey = configuration.Login;
             var password = configuration.Password;

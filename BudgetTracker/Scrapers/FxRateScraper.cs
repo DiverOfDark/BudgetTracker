@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using BudgetTracker.Model;
+using JetBrains.Annotations;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 
 namespace BudgetTracker.Scrapers
 {
+    [UsedImplicitly]
     internal class FxRateScraper : GenericScraper
     {
         public FxRateScraper(ObjectRepository repository) : base(repository)
@@ -14,8 +16,10 @@ namespace BudgetTracker.Scrapers
 
         public override string ProviderName => "FX";
 
-        public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, ChromeDriver driver)
+        public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, Chrome chrome)
         {
+            var driver = chrome.Driver;
+            
             var result = new List<MoneyStateModel>();
             driver.Navigate().GoToUrl("https://ru.investing.com/indices/us-spx-500");
             var sps = GetElement(driver, By.Id("last_last")).Text;

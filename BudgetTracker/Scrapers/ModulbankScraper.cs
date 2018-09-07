@@ -4,11 +4,13 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using BudgetTracker.Model;
+using JetBrains.Annotations;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 
 namespace BudgetTracker.Scrapers
 {
+    [UsedImplicitly]
     internal class ModulbankScraper : GenericScraper
     {
         public ModulbankScraper(ObjectRepository repository) : base(repository)
@@ -16,22 +18,23 @@ namespace BudgetTracker.Scrapers
         }
 
         public override string ProviderName => "МодульБанк";
-        public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, ChromeDriver driver)
+        public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, Chrome chrome)
         {
+            var driver = chrome.Driver;
             driver.Navigate().GoToUrl(@"https://my.modulbank.ru/");
             var name = GetElement(driver, By.Name("tel"));
             var pass = GetElement(driver, By.Name("password"));
             name.Click();
             foreach (var k in configuration.Login) 
             {
-                driver.Keyboard.SendKeys(k.ToString());
+                chrome.SendKeys(k.ToString());
                 WaitForPageLoad(driver);
             }
             pass.Click();
-            driver.Keyboard.SendKeys(configuration.Password);
+            chrome.SendKeys(configuration.Password);
 
             var now = DateTime.UtcNow;
-            driver.Keyboard.PressKey(Keys.Return);
+            chrome.SendKeys(Keys.Return);
             
             GetElement(driver, By.Name("smsCode")).Click();
 
@@ -42,7 +45,7 @@ namespace BudgetTracker.Scrapers
                 if (lastSms?.Message.Contains("Код подтверждения") == true)
                 {
                     var code = new string(lastSms.Message.Where(char.IsDigit).ToArray());
-                    driver.Keyboard.SendKeys(code);
+                    chrome.SendKeys(code);
                     success = true;
                     break;
                 }

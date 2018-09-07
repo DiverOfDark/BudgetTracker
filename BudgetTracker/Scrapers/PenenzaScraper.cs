@@ -4,12 +4,14 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using BudgetTracker.Model;
+using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 
 namespace BudgetTracker.Scrapers
 {
+    [UsedImplicitly]
     internal class PenenzaScraper : GenericScraper
     {
         public PenenzaScraper(ObjectRepository repository) : base(repository)
@@ -18,16 +20,17 @@ namespace BudgetTracker.Scrapers
 
         public override string ProviderName => "Penenza";
         
-        public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, ChromeDriver driver)
+        public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, Chrome chrome)
         {
+            var driver = chrome.Driver;
             driver.Navigate().GoToUrl(@"https://my.penenza.ru/main/sso/Login.aspx");
             var name = GetElement(driver, By.Id("MainContent_txtUserName"));
             var pass = GetElement(driver, By.Id("MainContent_txtUserPassword"));
             name.Click();
-            driver.Keyboard.SendKeys(configuration.Login);
+            chrome.SendKeys(configuration.Login);
             pass.Click();
-            driver.Keyboard.SendKeys(configuration.Password);
-            driver.Keyboard.PressKey(Keys.Return);
+            chrome.SendKeys(configuration.Password);
+            chrome.SendKeys(Keys.Return);
 
             var firstPortlet = GetElement(driver, By.ClassName("investor-dashboard__portlet-wrapper"));
 

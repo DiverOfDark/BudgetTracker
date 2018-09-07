@@ -8,6 +8,8 @@ using System.Text;
 using Newtonsoft.Json;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Interactions;
+using OpenQA.Selenium.Remote;
 
 namespace BudgetTracker
 {
@@ -40,6 +42,10 @@ namespace BudgetTracker
                 return _driver;
             }
         }
+
+        public void SendKeys(string strToSend) => new Actions(Driver).SendKeys(strToSend).Build().Perform();
+
+        public void MoveToElement(RemoteWebElement element, int x, int y) => new Actions(Driver).MoveToElement(element, x, y).Build().Perform();
 
         public IList<FileInfo> GetDownloads() => Directory.GetFiles(_downloadDir).Select(v => new FileInfo(v)).ToList();
 
