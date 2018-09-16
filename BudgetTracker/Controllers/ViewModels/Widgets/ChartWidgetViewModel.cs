@@ -47,7 +47,12 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             {
                 columnsToChart = repository.Set<MoneyColumnMetadataModel>().Where(v =>
                     column.ChartList.Contains(v.Provider + "/" + v.AccountName) ||
-                    column.ChartList.Contains(v.UserFriendlyName)).Concat(new[]{column}).ToList();
+                    column.ChartList.Contains(v.UserFriendlyName)).ToList();
+
+                if (ChartKind == ChartKind.Linear)
+                {
+                    columnsToChart.Add(column);
+                }
             }
 
             var chartItems = new List<ChartItem>();
