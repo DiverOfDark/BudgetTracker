@@ -36,7 +36,7 @@
 		<div class="h1 mt-5">
 			@Model.FormatValue(Model.CurrentValue)
 		</div>
-        <div class="text-muted text-nowrap">
+        <div class="text-muted">
             @Model.Title
 	        <a href="@Url.Action("Chart", "Table", new {provider = Model.Provider, account = Model.Account })">
 		        <span class="fe @trend"></span>
