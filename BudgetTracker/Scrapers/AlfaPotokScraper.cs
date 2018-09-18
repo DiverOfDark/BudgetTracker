@@ -99,6 +99,8 @@ namespace BudgetTracker.Scrapers
                 var when = cells[1].Text;
                 var duration = cells[10].Text;
 
+                when = new String(when.Where(s => char.IsDigit(s) || s == '.').ToArray());
+                
                 var whenDate = DateTime.ParseExact(when, "dd.MM.yyyy", CultureInfo.CurrentCulture);
                 var durationDays = ParseDouble(duration);
 
