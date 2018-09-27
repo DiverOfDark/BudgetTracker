@@ -43,7 +43,7 @@ namespace BudgetTracker.Scrapers
                 var titleElement = acc.FindElement(By.ClassName("product-header-title__name-text"));
                 var text = titleElement.Text;
                 
-                var amountWait = acc.FindElement(By.ClassName("rc-currency"));
+                var amountWait = acc.FindElement(By.ClassName("c-amount"));
             
                 var amount = amountWait.Text;
                 var amountClear = new string(amount.Where(v=>char.IsDigit(v) || v == ',').ToArray());
@@ -53,7 +53,7 @@ namespace BudgetTracker.Scrapers
                     NumberDecimalSeparator = ","
                 });
 
-                var ccySign = acc.FindElement(By.ClassName("rc-currency__sign"));
+                var ccySign = acc.FindElement(By.ClassName("c-amount__sign"));
                 var ccyText = ccySign.Text;
                 
                 result.Add(Money(text, amountNumber, ccyText));
