@@ -48,20 +48,29 @@ namespace BudgetTracker.Scrapers
             var items = trs.Select(v => v.Text).Where(v => v.Any(char.IsDigit)).ToList();
             foreach (var item in items)
             {
-                var splitPlace = item.IndexOfAny("0123456789".ToCharArray());
-                var key = item.Remove(splitPlace);
-                var value = item.Substring(splitPlace);
-
-                if (key.Contains("("))
+                try
                 {
-                    key = key.Remove(key.IndexOf("(", StringComparison.Ordinal), key.IndexOf(")", StringComparison.Ordinal) - key.IndexOf("(", StringComparison.Ordinal) + 1);
+                    var splitPlace = item.IndexOfAny("0123456789".ToCharArray());
+                    var key = item.Remove(splitPlace);
+                    var value = item.Substring(splitPlace);
+
+                    if (key.Contains("("))
+                    {
+                        key = key.Remove(key.IndexOf("(", StringComparison.Ordinal),
+                            key.IndexOf(")", StringComparison.Ordinal) - key.IndexOf("(", StringComparison.Ordinal) +
+                            1);
+                    }
+
+                    key = key.Trim();
+
+                    var doubleValue = ParseDouble(value);
+
+                    result.Add(Money(key, doubleValue, "RUB"));
                 }
-
-                key = key.Trim();
-
-                var doubleValue = ParseDouble(value);
-
-                result.Add(Money(key, doubleValue, "RUB"));
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to parse");
+                }
             }
 
             var btn = GetElement(driver, By.PartialLinkText("Мои инвестиции"));
