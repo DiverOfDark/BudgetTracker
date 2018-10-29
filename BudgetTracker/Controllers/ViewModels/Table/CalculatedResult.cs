@@ -70,6 +70,24 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                         
                         currentExpression = currentExpression.TryApply(new ReferenceExpression(matchingColumn));
                     }
+                    else if (function[0] == '(')
+                    {
+                        var counter = 1;
+                        int i;
+                        for (i = 1; i < function.Length && counter > 0; i++)
+                        {
+                            if (function[i] == '(')
+                                counter++;
+                            if (function[i] == ')')
+                                counter--;
+                        }
+
+                        var sub = function.Substring(0, i);
+                        var subExp = Parse(columns, sub.TrimStart('(').TrimEnd(')'));
+                        currentExpression = currentExpression.TryApply(new ParenthesisExpression(subExp));
+                        
+                        function = function.Substring(i);
+                    }
                     else if (BinaryExpression.Symbols.Contains(function[0]))
                     {
                         currentExpression = new BinaryExpression(function[0]).TryApply(currentExpression);
