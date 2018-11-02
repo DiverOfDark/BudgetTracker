@@ -43,7 +43,12 @@ namespace BudgetTracker.Scrapers
 
             var accountTab = GetElement(driver, By.Id("account-tab"));
 
-            var trs = accountTab.FindElements(By.TagName("tr"));
+            var detailsLink = GetElement(driver, By.PartialLinkText("Детали"));
+            detailsLink.Click();
+
+            var statsTable = accountTab.FindElement(By.Id("collapseStatsTable"));
+            
+            var trs = statsTable.FindElements(By.TagName("tr"));
 
             var items = trs.Select(v => v.Text).Where(v => v.Any(char.IsDigit)).ToList();
             foreach (var item in items)
@@ -76,12 +81,6 @@ namespace BudgetTracker.Scrapers
             var btn = GetElement(driver, By.PartialLinkText("Мои инвестиции"));
             btn.Click();
             
-            WaitForPageLoad(driver);
-
-            var select = GetElement(driver, By.TagName("select"));
-            var sel = new SelectElement(select);
-            sel.SelectByText("Текущие");
-            
             WaitForPageLoad(driver, 10);
             
             var table = GetElement(driver, By.ClassName("table--investment"));
@@ -90,12 +89,13 @@ namespace BudgetTracker.Scrapers
             var rows = tbody.FindElements(By.TagName("tr"));
 
             var risked = 0.0;
+            var totalInvested = 0.0;
 
             for (var index = 0; index < rows.Count; index++)
             {
                 if (index % 10 == 0)
                 {
-                    _logger.LogInformation($"Parsing expiring status for AlfaPotok: {((double)index / rows.Count):P2}%");
+                    _logger.LogInformation($"Parsing status for AlfaPotok: {((double)index / rows.Count):P2}%");
                 }
                 
                 var v = rows[index];
@@ -108,15 +108,12 @@ namespace BudgetTracker.Scrapers
                 var when = cells[1].Text;
                 var duration = cells[10].Text;
 
-                when = new String(when.Where(s => char.IsDigit(s) || s == '.').ToArray());
+                when = new String(when.TakeWhile(s => s != '\n').Where(s => char.IsDigit(s) || s == '.').ToArray());
                 
                 var whenDate = DateTime.ParseExact(when, "dd.MM.yyyy", CultureInfo.CurrentCulture);
                 var durationDays = ParseDouble(duration);
 
                 var expirationDate = whenDate.AddDays(durationDays);
-
-                if (expirationDate > DateTime.Now)
-                    continue;
 
                 var invested = cells[3].Text;
                 var returned = cells[4].Text;
@@ -125,11 +122,19 @@ namespace BudgetTracker.Scrapers
                 var returnedDouble = ParseDouble(returned);
 
                 var delta = investedDouble - returnedDouble;
+
                 if (delta > 0)
-                    risked += delta;
+                {
+                    totalInvested += delta;
+                    if (expirationDate < DateTime.Now)
+                    {
+                        risked += delta;
+                    }
+                }
             }
 
             result.Add(Money("Просрочка", risked, "RUB"));            
+            result.Add(Money("Инвестировано", totalInvested, "RUB"));            
             
             return result;
         }
