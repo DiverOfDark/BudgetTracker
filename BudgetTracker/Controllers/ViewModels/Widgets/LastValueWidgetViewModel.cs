@@ -33,11 +33,11 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             foreach (var row in vm.Values.OrderByDescending(v => v.When).Where(v=> IsApplicable(v.When, period)))
             {
                 var cell = row.Cells.FirstOrDefault(v => v.Column == column);
-                if (cell == null || cell.Value == null || double.IsNaN(cell.Value.Value))
+                if (cell?.Value == null || double.IsNaN(cell.Value.Value))
                     continue;
 
                 Values[cell.Money?.When ?? row.When.Date] = cell.Value;
-                IncompleteData |= !cell.Value.HasValue || cell.FailedToResolve.Any();
+                IncompleteData |= cell.FailedToResolve.Any();
 
                 if (first)
                 {
@@ -47,15 +47,25 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                 }
             }
 
+            var adj = CurrentValue;
+            
             var minValue = Values.OrderBy(v => v.Key).First();
             var maxValue = Values.OrderBy(v => v.Key).Last();
 
-            var dV = (maxValue.Value - minValue.Value) / minValue.Value;
+            adj = adj - maxValue.Value;
+            
+            var maximum = maxValue.Value + adj;
+            var minimum = minValue.Value + adj;
+
+            var dV = (maximum - minimum);
             var dt = (maxValue.Key - minValue.Key).TotalDays;
 
-            var yearDelta = dV / dt * 365.25;
+            var expPer = Math.Pow(maximum.GetValueOrDefault() / minimum.GetValueOrDefault(), 365/dt) - 1;
+
+            var yearDelta = dV * 365.25 / minimum / dt;
 
             (ColorYear, DeltaYear) = SetDiffPercenage(yearDelta);
+            Description = $"В начале: {FormatValue(minimum)}\nУчтено переводов: {FormatValue(adj)}\nВ конце: {FormatValue(maximum)}\nРазница: {FormatValue(dV)}\nСрок (дней): {dt}\nГодовых (простой процент): {yearDelta?.ToString("P2")}\nГодовых (с капитализацией): {expPer.ToString("P2")}";
 
             IncompleteData |= _settings.NotifyStaleData && Values.Select(v => v.Key).Max() < DateTime.Now.AddHours(-36);
         }
@@ -69,7 +79,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             string color, delta;
             if (cell != null)
             {
-                cell = Math.Round(cell.Value, 3);
+                cell = Math.Round(cell.Value, 4);
                 
                 color = cell > 0 ? "green" : "red";
 
@@ -113,6 +123,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         
         public string Delta { get; set; }
         public string DeltaYear { get; set; }
+        public string Description { get; set; }
 
         public string Color { get; set; }
         public string ColorYear { get; set; }

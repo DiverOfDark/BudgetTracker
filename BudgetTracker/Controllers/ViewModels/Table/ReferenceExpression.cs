@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BudgetTracker.Model;
 
@@ -34,17 +35,26 @@ namespace BudgetTracker.Controllers.ViewModels.Table
 
                     if (matchedDependency.Value != null)
                     {
-                        var value = matchedDependency.Value;
-                        var failedToResolve = matchedDependency.FailedToResolve;
-                        if (value != null && double.IsNaN(value.Value))
+                        if (double.IsNaN(matchedDependency.Value.Value))
                         {
-                            value = 0;
-                            failedToResolve = Enumerable.Empty<string>();
+                            Value = Double.NaN;
+                            Ccy = matchedDependency.Ccy;
+                            FailedToParse = matchedDependency.FailedToResolve;
                         }
+                        else
+                        {
+                            var value = matchedDependency.Value;
+                            var failedToResolve = matchedDependency.FailedToResolve;
+                            if (value != null && double.IsNaN(value.Value))
+                            {
+                                value = 0;
+                                failedToResolve = Enumerable.Empty<string>();
+                            }
 
-                        Value = value;
-                        FailedToParse = failedToResolve;
-                        Ccy = matchedDependency.Ccy;
+                            Value = value;
+                            FailedToParse = failedToResolve;
+                            Ccy = matchedDependency.Ccy;
+                        }
                     }
                     else
                     {

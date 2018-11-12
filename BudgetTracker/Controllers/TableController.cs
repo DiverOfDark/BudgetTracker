@@ -111,7 +111,7 @@ namespace BudgetTracker.Controllers
 
         public IActionResult CopyFromPrevious(Guid headerid, string date)
         {
-            var realDate = DateTime.ParseExact(date, "dd.MM.yyyy", CultureInfo.CurrentCulture);
+            var realDate = DateTime.ParseExact(date, "dd.MM.yyyy", CultureInfo.CurrentCulture).ToUniversalTime();
 
             var column = _objectRepository.Set<MoneyColumnMetadataModel>().First(v => v.Id == headerid);
 
@@ -133,7 +133,7 @@ namespace BudgetTracker.Controllers
 
         public IActionResult MarkAsOk(Guid headerid, string date)
         {
-            var realDate = DateTime.ParseExact(date, "dd.MM.yyyy", CultureInfo.CurrentCulture);
+            var realDate = DateTime.ParseExact(date, "dd.MM.yyyy", CultureInfo.CurrentCulture).ToUniversalTime();
 
             var column = _objectRepository.Set<MoneyColumnMetadataModel>().First(v => v.Id == headerid);
 

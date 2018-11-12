@@ -30,27 +30,43 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             Left.Evaluate(dependencies);
             Right.Evaluate(dependencies);
 
+            var leftValue = Left.Value;
+            var rightValue = Right.Value;
+
+            bool leftIsNan = leftValue != null && double.IsNaN(leftValue.Value);
+            bool rightIsNan = rightValue != null && double.IsNaN(rightValue.Value);
+
+            if (leftIsNan && !rightIsNan)
+            {
+                leftValue = 0;
+            }
+
+            if (rightIsNan && !leftIsNan)
+            {
+                rightValue = 0;
+            }
+            
             FailedToParse = Left.FailedToParse.Concat(Right.FailedToParse).ToList();
 
             switch (_symbol)
             {
                 case '+':
-                    Value = Left.Value + Right.Value;
+                    Value = leftValue + rightValue;
                     Ccy = SelectCcy(Left.Ccy, Right.Ccy);
                     break;
                 case '-':
-                    Value = Left.Value - Right.Value;
+                    Value = leftValue - rightValue;
                     Ccy = SelectCcy(Left.Ccy, Right.Ccy);
                     break;
                 
                 case '*':
-                    Value = Left.Value * Right.Value;
+                    Value = leftValue * rightValue;
                     Ccy = Left.Ccy;
 
                     // TODO ccy?
                     break;
                 case '/':
-                    Value = Left.Value / Right.Value;
+                    Value = leftValue / rightValue;
 
                     // TODO ccy?
                     break;

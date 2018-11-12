@@ -5571,12 +5571,14 @@ button.close {
 }
 
 .tooltip-inner {
-  max-width: 200px;
+  max-width: 300px;
   padding: 0.25rem 0.5rem;
   color: #fff;
   text-align: center;
   background-color: #000;
   border-radius: 3px;
+  white-space: pre-wrap;
+  text-wrap: none;
 }
 
 .popover {
