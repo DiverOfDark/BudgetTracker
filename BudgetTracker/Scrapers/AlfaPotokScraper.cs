@@ -31,7 +31,7 @@ namespace BudgetTracker.Scrapers
             var driver = chrome.Driver;
             driver.Navigate().GoToUrl(@"https://potok.digital/potok");
             
-            var name = GetElement(driver, By.Name("username"));
+            var name = GetElement(driver, By.Id("username"));
             var pass = GetElement(driver, By.Name("password"));
             name.Click();
             chrome.SendKeys(configuration.Login);
