@@ -16,7 +16,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             {
                 if (h.IsComputed)
                 {
-                    Cells.Add(CalculatedResult.FromComputed(headersCached, h));
+                    Cells.Add(CalculateExpression.FromComputed(headersCached, h));
                 }
                 else
                 {
@@ -51,7 +51,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         {
             foreach (var item in Cells)
             {
-                item.EvalExpression(Cells);
+                (item as CalculateExpression.ComputedCalculatedResult)?.EvalExpression(Cells);
 
                 item.Tooltip += "\r\n => " + item.Value;
                 if (item.FailedToResolve.Any())

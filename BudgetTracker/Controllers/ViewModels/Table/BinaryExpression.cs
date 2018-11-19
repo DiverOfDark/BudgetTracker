@@ -21,8 +21,8 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         {
             if (Left == null || Right == null)
             {
-                Value = null;
-                FailedToParse = new[] {_symbol};
+                Value = CalculatedResult.Empty(null);
+                Value.FailedToResolve = new[] {_symbol};
                 
                 return;
             }
@@ -30,12 +30,14 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             Left.Evaluate(dependencies);
             Right.Evaluate(dependencies);
 
-            var leftValue = Left.Value;
-            var rightValue = Right.Value;
+            var leftValue = Left.Value.Value;
+            var rightValue = Right.Value.Value;
 
             bool leftIsNan = leftValue != null && double.IsNaN(leftValue.Value);
             bool rightIsNan = rightValue != null && double.IsNaN(rightValue.Value);
 
+            var result = CalculatedResult.Empty(null);
+            
             if (leftIsNan && !rightIsNan)
             {
                 leftValue = 0;
@@ -46,41 +48,43 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                 rightValue = 0;
             }
             
-            FailedToParse = Left.FailedToParse.Concat(Right.FailedToParse).ToList();
+            result.FailedToResolve = Left.Value.FailedToResolve.Concat(Right.Value.FailedToResolve).ToList();
 
             switch (_symbol)
             {
                 case "??":
-                    Value = leftIsNan ? rightValue : leftValue;
-                    Ccy = SelectCcy(Left.Ccy, Right.Ccy);
-                    FailedToParse = leftIsNan ? Right.FailedToParse : Left.FailedToParse;
+                    result.Value = leftIsNan ? rightValue : leftValue;
+                    result.Ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
+                    result.FailedToResolve = leftIsNan ? Right.Value.FailedToResolve : Left.Value.FailedToResolve;
                     break;
                 case "+":
-                    Value = leftValue + rightValue;
-                    Ccy = SelectCcy(Left.Ccy, Right.Ccy);
+                    result.Value = leftValue + rightValue;
+                    result.Ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
                     break;
                 case "-":
-                    Value = leftValue - rightValue;
-                    Ccy = SelectCcy(Left.Ccy, Right.Ccy);
+                    result.Value = leftValue - rightValue;
+                    result.Ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
                     break;
                 
                 case "*":
-                    Value = leftValue * rightValue;
-                    Ccy = Left.Ccy;
+                    result.Value = leftValue * rightValue;
+                    result.Ccy = Left.Value.Ccy;
 
                     // TODO ccy?
                     break;
                 case "/":
-                    Value = leftValue / rightValue;
+                    result.Value = leftValue / rightValue;
 
                     // TODO ccy?
                     break;
 
                 default:
-                    Value = null;
-                    FailedToParse = new[] {_symbol};
+                    result.Value = null;
+                    result.FailedToResolve = new[] {_symbol};
                     break;
             }
+
+            Value = result;
         }
 
         private string SelectCcy(string first, string second)

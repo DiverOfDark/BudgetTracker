@@ -26,41 +26,21 @@ namespace BudgetTracker.Controllers.ViewModels.Table
 
                 if (matchedDependency == null)
                 {
-                    Value = 0;
-                    FailedToParse = new[] {_column.Provider + "/" + _column.AccountName};
+                    Value = CalculatedResult.Empty(_column);
+                    Value.FailedToResolve = new[] {_column.Provider + "/" + _column.AccountName};
                 }
                 else 
                 {
-                    matchedDependency.EvalExpression(dependencies);
+                    (matchedDependency as ComputedCalculatedResult)?.EvalExpression(dependencies);
 
                     if (matchedDependency.Value != null)
                     {
-                        if (double.IsNaN(matchedDependency.Value.Value))
-                        {
-                            Value = Double.NaN;
-                            Ccy = matchedDependency.Ccy;
-                            FailedToParse = matchedDependency.FailedToResolve;
-                        }
-                        else
-                        {
-                            var value = matchedDependency.Value;
-                            var failedToResolve = matchedDependency.FailedToResolve;
-                            if (value != null && double.IsNaN(value.Value))
-                            {
-                                value = 0;
-                                failedToResolve = Enumerable.Empty<string>();
-                            }
-
-                            Value = value;
-                            FailedToParse = failedToResolve;
-                            Ccy = matchedDependency.Ccy;
-                        }
+                        Value = matchedDependency;
                     }
                     else
                     {
-                        Value = 0;
-                        FailedToParse = new[] {_column.Provider + "/" + _column.AccountName};
-                        Ccy = matchedDependency.Ccy;
+                        Value = CalculatedResult.Empty(_column);
+                        Value.FailedToResolve = new[] {_column.Provider + "/" + _column.AccountName};
                     }
                 }
             }
@@ -68,6 +48,6 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         
         public override CalculateExpression TryApply(CalculateExpression otherExpression) => throw new System.NotImplementedException();
 
-        public override string ToString() => $"[{_column.Provider}/{_column.UserFriendlyName ?? _column.AccountName}]({Value?.ToString("F2")})";
+        public override string ToString() => $"[{_column.Provider}/{_column.UserFriendlyName ?? _column.AccountName}]({Value})";
     }
 }

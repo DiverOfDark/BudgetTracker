@@ -9,7 +9,8 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         public FailedToParseExpression(string function)
         {
             _function = function;
-            FailedToParse = new[] {function};
+            Value = CalculatedResult.Empty(null);
+            Value.FailedToResolve = new[] {function};
         }
 
         public override void Evaluate(IList<CalculatedResult> dependencies)

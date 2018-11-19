@@ -7,7 +7,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
     {
         public EmptyExpression()
         {
-            FailedToParse = Enumerable.Empty<string>();
+            Value = CalculatedResult.Empty(null);
         }
         
         public override void Evaluate(IList<CalculatedResult> dependencies)
