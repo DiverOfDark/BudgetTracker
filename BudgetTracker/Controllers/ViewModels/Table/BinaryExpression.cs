@@ -6,10 +6,10 @@ namespace BudgetTracker.Controllers.ViewModels.Table
 {
     public class BinaryExpression : CalculateExpression
     {
-        private readonly char _symbol;
-        public static string Symbols = "/*+-";
+        private readonly string _symbol;
+        public static readonly string[] Symbols = { "/", "*", "+", "-", "??" }; 
 
-        public BinaryExpression(char symbol)
+        public BinaryExpression(string symbol)
         {
             _symbol = symbol;
         }
@@ -22,7 +22,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             if (Left == null || Right == null)
             {
                 Value = null;
-                FailedToParse = new[] {_symbol.ToString()};
+                FailedToParse = new[] {_symbol};
                 
                 return;
             }
@@ -50,22 +50,27 @@ namespace BudgetTracker.Controllers.ViewModels.Table
 
             switch (_symbol)
             {
-                case '+':
+                case "??":
+                    Value = leftIsNan ? rightValue : leftValue;
+                    Ccy = SelectCcy(Left.Ccy, Right.Ccy);
+                    FailedToParse = leftIsNan ? Right.FailedToParse : Left.FailedToParse;
+                    break;
+                case "+":
                     Value = leftValue + rightValue;
                     Ccy = SelectCcy(Left.Ccy, Right.Ccy);
                     break;
-                case '-':
+                case "-":
                     Value = leftValue - rightValue;
                     Ccy = SelectCcy(Left.Ccy, Right.Ccy);
                     break;
                 
-                case '*':
+                case "*":
                     Value = leftValue * rightValue;
                     Ccy = Left.Ccy;
 
                     // TODO ccy?
                     break;
-                case '/':
+                case "/":
                     Value = leftValue / rightValue;
 
                     // TODO ccy?
@@ -73,7 +78,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
 
                 default:
                     Value = null;
-                    FailedToParse = new[] {_symbol.ToString()};
+                    FailedToParse = new[] {_symbol};
                     break;
             }
         }

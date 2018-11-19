@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using BudgetTracker.Model;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace BudgetTracker.Controllers.ViewModels.Table
 {
@@ -88,14 +89,18 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                         
                         function = function.Substring(i);
                     }
-                    else if (BinaryExpression.Symbols.Contains(function[0]))
+                    else 
                     {
-                        currentExpression = new BinaryExpression(function[0]).TryApply(currentExpression);
-                        function = function.Substring(1);
-                    }
-                    else
-                    {
-                        return new FailedToParseExpression(function);
+                        var symbol = BinaryExpression.Symbols.FirstOrDefault(function.StartsWith);
+                        if (symbol != null)
+                        {
+                            currentExpression = new BinaryExpression(symbol).TryApply(currentExpression);
+                            function = function.Substring(symbol.Length);
+                        }
+                        else
+                        {
+                            return new FailedToParseExpression(function);
+                        }
                     }
                 }
             }
