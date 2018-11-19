@@ -31,7 +31,7 @@ namespace BudgetTracker.Scrapers
             var driver = chrome.Driver;
             driver.Navigate().GoToUrl(@"https://potok.digital/potok");
             
-            var name = GetElement(driver, By.Id("username"));
+            var name = GetElement(driver, By.Name("username"));
             var pass = GetElement(driver, By.Name("password"));
             name.Click();
             chrome.SendKeys(configuration.Login);
@@ -43,22 +43,21 @@ namespace BudgetTracker.Scrapers
 
             var accountTab = GetElement(driver, By.Id("account-tab"));
 
-            var detailsLink = GetElement(driver, By.PartialLinkText("Детали"));
-            detailsLink.Click();
+            var trs = accountTab.FindElements(By.ClassName("row"));
 
-            var statsTable = accountTab.FindElement(By.Id("collapseStatsTable"));
-            
-            var trs = statsTable.FindElements(By.TagName("tr"));
-
-            var items = trs.Select(v => v.Text).Where(v => v.Any(char.IsDigit)).ToList();
-            foreach (var item in items)
+            foreach (var item in trs)
             {
                 try
                 {
-                    var splitPlace = item.IndexOfAny("0123456789".ToCharArray());
-                    var key = item.Remove(splitPlace);
-                    var value = item.Substring(splitPlace);
+                    var keyObj = item.FindElement(By.ClassName("col-sm-9"));
+                    var valueObj = item.FindElement(By.ClassName("col-sm-3"));
 
+                    keyObj = keyObj.FindElement(By.ClassName("font-bigger"));
+                    valueObj = valueObj.FindElement(By.ClassName("font-bigger"));
+
+                    var key = keyObj.Text;
+                    var value = valueObj.Text;
+                    
                     if (key.Contains("("))
                     {
                         key = key.Remove(key.IndexOf("(", StringComparison.Ordinal),
