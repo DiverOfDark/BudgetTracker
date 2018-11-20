@@ -11,10 +11,13 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             _baseExpression = baseExpression;
         }
 
-        public override void Evaluate(IList<CalculatedResult> dependencies)
+        public override void Evaluate(IEnumerable<CalculatedResult> dependencies)
         {
-            _baseExpression.Evaluate(dependencies);
-            Value = _baseExpression.Value;
+            if (Value == null)
+            {
+                _baseExpression.Evaluate(dependencies);
+                Value = _baseExpression.Value;
+            }
         }
 
         public override CalculateExpression TryApply(CalculateExpression otherExpression) => _baseExpression.TryApply(otherExpression);

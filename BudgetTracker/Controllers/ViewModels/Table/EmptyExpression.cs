@@ -1,16 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels.Table
 {
     public class EmptyExpression : CalculateExpression
     {
-        public EmptyExpression()
+        public EmptyExpression(MoneyColumnMetadataModel model)
         {
-            Value = CalculatedResult.Empty(null);
+            Value = CalculatedResult.Empty(model);
         }
         
-        public override void Evaluate(IList<CalculatedResult> dependencies)
+        public override void Evaluate(IEnumerable<CalculatedResult> dependencies)
         {
         }
 

@@ -1,28 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels.Table
 {
     public class BinaryExpression : CalculateExpression
     {
+        private readonly MoneyColumnMetadataModel _model;
         private readonly string _symbol;
         public static readonly string[] Symbols = { "/", "*", "+", "-", "??" }; 
 
-        public BinaryExpression(string symbol)
+        public BinaryExpression(MoneyColumnMetadataModel model, string symbol)
         {
+            _model = model;
             _symbol = symbol;
         }
 
         public CalculateExpression Left { get; set; }
         public CalculateExpression Right { get; set; }
 
-        public override void Evaluate(IList<CalculatedResult> dependencies)
+        public override void Evaluate(IEnumerable<CalculatedResult> dependencies)
         {
             if (Left == null || Right == null)
             {
-                Value = CalculatedResult.Empty(null);
-                Value.FailedToResolve = new[] {_symbol};
+                Value = CalculatedResult.ResolutionFail(_model, _symbol);
                 
                 return;
             }
@@ -36,8 +38,6 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             bool leftIsNan = leftValue != null && double.IsNaN(leftValue.Value);
             bool rightIsNan = rightValue != null && double.IsNaN(rightValue.Value);
 
-            var result = CalculatedResult.Empty(null);
-            
             if (leftIsNan && !rightIsNan)
             {
                 leftValue = 0;
@@ -48,43 +48,44 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                 rightValue = 0;
             }
             
-            result.FailedToResolve = Left.Value.FailedToResolve.Concat(Right.Value.FailedToResolve).ToList();
-
+            IEnumerable<string> failedToResolve = Left.Value.FailedToResolve.Concat(Right.Value.FailedToResolve).ToList();
+            double? value = null;
+            string ccy = null;
+            
             switch (_symbol)
             {
                 case "??":
-                    result.Value = leftIsNan ? rightValue : leftValue;
-                    result.Ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
-                    result.FailedToResolve = leftIsNan ? Right.Value.FailedToResolve : Left.Value.FailedToResolve;
+                    value = leftIsNan ? rightValue : leftValue;
+                    ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
+                    failedToResolve = leftIsNan ? Right.Value.FailedToResolve : Left.Value.FailedToResolve;
                     break;
                 case "+":
-                    result.Value = leftValue + rightValue;
-                    result.Ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
+                    value = leftValue + rightValue;
+                    ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
                     break;
                 case "-":
-                    result.Value = leftValue - rightValue;
-                    result.Ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
+                    value = leftValue - rightValue;
+                    ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
                     break;
                 
                 case "*":
-                    result.Value = leftValue * rightValue;
-                    result.Ccy = Left.Value.Ccy;
+                    value = leftValue * rightValue;
+                    ccy = Left.Value.Ccy;
 
                     // TODO ccy?
                     break;
                 case "/":
-                    result.Value = leftValue / rightValue;
+                    value = leftValue / rightValue;
 
                     // TODO ccy?
                     break;
 
                 default:
-                    result.Value = null;
-                    result.FailedToResolve = new[] {_symbol};
+                    failedToResolve = new[] {_symbol};
                     break;
             }
 
-            Value = result;
+            Value = CalculatedResult.FromComputed(_model, value, ccy, failedToResolve, ToString());
         }
 
         private string SelectCcy(string first, string second)

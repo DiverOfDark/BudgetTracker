@@ -16,7 +16,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             {
                 if (h.IsComputed)
                 {
-                    Cells.Add(CalculateExpression.FromComputed(headersCached, h));
+                    Cells.Add(CalculatedResult.FromComputed(headersCached, h, Cells));
                 }
                 else
                 {
@@ -46,19 +46,5 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         
         public List<CalculatedResult> Cells { get; }
         public TableRowViewModel Previous { get; set; }
-
-        public void CalculateItems()
-        {
-            foreach (var item in Cells)
-            {
-                (item as CalculateExpression.ComputedCalculatedResult)?.EvalExpression(Cells);
-
-                item.Tooltip += "\r\n => " + item.Value;
-                if (item.FailedToResolve.Any())
-                {
-                    item.Tooltip += "\r\n\r\nНет данных по: " + String.Join(",\r\n", item.FailedToResolve);
-                } 
-            }
-        }
     }
 }

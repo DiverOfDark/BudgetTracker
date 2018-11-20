@@ -16,7 +16,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             _column = column;
         }
 
-        public override void Evaluate(IList<CalculatedResult> dependencies)
+        public override void Evaluate(IEnumerable<CalculatedResult> dependencies)
         {
             if (!_evaluated)
             {
@@ -24,25 +24,9 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                 
                 var matchedDependency = dependencies.FirstOrDefault(v => v.Column == _column);
 
-                if (matchedDependency == null)
-                {
-                    Value = CalculatedResult.Empty(_column);
-                    Value.FailedToResolve = new[] {_column.Provider + "/" + _column.AccountName};
-                }
-                else 
-                {
-                    (matchedDependency as ComputedCalculatedResult)?.EvalExpression(dependencies);
-
-                    if (matchedDependency.Value != null)
-                    {
-                        Value = matchedDependency;
-                    }
-                    else
-                    {
-                        Value = CalculatedResult.Empty(_column);
-                        Value.FailedToResolve = new[] {_column.Provider + "/" + _column.AccountName};
-                    }
-                }
+                Value = matchedDependency?.Value == null
+                        ? CalculatedResult.ResolutionFail(_column, _column.Provider + "/" + _column.AccountName)
+                        : matchedDependency;
             }
         }
         

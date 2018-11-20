@@ -8,35 +8,63 @@ namespace BudgetTracker.Controllers.ViewModels.Table
 {
     public class CalculatedResult
     {
-        public static CalculatedResult FromMoney(MoneyColumnMetadataModel h, MoneyStateModel money, double adjustment) => new CalculatedResult
+        private double? _value;
+        private string _tooltip;
+        private string _ccy;
+        private IEnumerable<string> _failedToResolve;
+
+        public static CalculatedResult FromComputed(Dictionary<string, MoneyColumnMetadataModel> columns, MoneyColumnMetadataModel h, IEnumerable<CalculatedResult> deps)
         {
-            Ccy = money.Ccy,
-            Column = h,
+            return new ExpressionCalculatedResult(columns, h, deps);
+        }
+
+        public static CalculatedResult FromMoney(MoneyColumnMetadataModel h, MoneyStateModel money, double adjustment) => new CalculatedResult(h)
+        {
+            _ccy = money.Ccy,
             Money = money,
-            Value = money.Amount + adjustment,
-            Tooltip = $"{(money.Amount + adjustment).ToString(CultureInfo.CurrentCulture)}({money.Amount.ToString(CultureInfo.CurrentCulture)} + {adjustment.ToString(CultureInfo.CurrentCulture)})"
+            _value = money.Amount + adjustment,
+            _tooltip = $"{(money.Amount + adjustment).ToString(CultureInfo.CurrentCulture)}({money.Amount.ToString(CultureInfo.CurrentCulture)} + {adjustment.ToString(CultureInfo.CurrentCulture)})"
         };
 
-        public static CalculatedResult Empty(MoneyColumnMetadataModel item) => new CalculatedResult
+        public static CalculatedResult Empty(MoneyColumnMetadataModel item) => new CalculatedResult(item)
         {
-            Ccy = null,
-            Column = item,
-            Value = double.NaN
+            _ccy = null,
+            _value = double.NaN
+        };
+
+        public static CalculatedResult ResolutionFail(MoneyColumnMetadataModel item, params string[] failedToResolve) => new CalculatedResult(item)
+        {
+            _ccy = null,
+            _value = double.NaN,
+            _failedToResolve = failedToResolve
+        };
+
+        public static CalculatedResult FromComputed(MoneyColumnMetadataModel item, double? value, string ccy,
+            IEnumerable<string> failedToResolve, string tooltip) => new CalculatedResult(item)
+        {
+            _value = value,
+            _ccy = ccy,
+            _failedToResolve = failedToResolve,
+            _tooltip = tooltip
         };
         
-        protected CalculatedResult() { }
+        protected CalculatedResult(MoneyColumnMetadataModel item)
+        {
+            Column = item;
+            _failedToResolve = Enumerable.Empty<string>();
+        }
 
-        public MoneyColumnMetadataModel Column { get; private set; }
+        public MoneyColumnMetadataModel Column { get; }
 
         public MoneyStateModel Money { get; private set;}
 
-        public double? Value { get; set; }
+        public virtual double? Value => _value;
 
-        public IEnumerable<string> FailedToResolve { get; set; } = Enumerable.Empty<string>();
+        public virtual IEnumerable<string> FailedToResolve => _failedToResolve;
 
-        public string Tooltip { get; set; }
+        public virtual string Tooltip => _tooltip;
 
-        public string Ccy { get; set; }
+        public virtual string Ccy => _ccy;
 
         public CalculatedResult PreviousValue { get; set; }
 
@@ -44,9 +72,6 @@ namespace BudgetTracker.Controllers.ViewModels.Table
 
         public double? DiffPercentage => DiffValue / PreviousValue?.Value;
         
-        public override string ToString()
-        {
-            return $"[{Column.Provider}/{Column.AccountName}]({Value})";
-        }
+        public override string ToString() => $"[{Column.Provider}/{Column.AccountName}]({Value})";
     }
 }

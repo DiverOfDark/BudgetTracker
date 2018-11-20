@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels.Table
 {
@@ -6,14 +7,13 @@ namespace BudgetTracker.Controllers.ViewModels.Table
     {
         private readonly string _function;
 
-        public FailedToParseExpression(string function)
+        public FailedToParseExpression(MoneyColumnMetadataModel model, string function)
         {
             _function = function;
-            Value = CalculatedResult.Empty(null);
-            Value.FailedToResolve = new[] {function};
+            Value = CalculatedResult.ResolutionFail(model, function);
         }
 
-        public override void Evaluate(IList<CalculatedResult> dependencies)
+        public override void Evaluate(IEnumerable<CalculatedResult> dependencies)
         {
         }
 

@@ -61,7 +61,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                     row.Cells.Add(CalculatedResult.Empty(item));
                 }
 
-                markedAsOkCells = row.Cells.Where(v => v.Value != null && double.IsNaN(v.Value.Value))
+                markedAsOkCells = row.Cells.Where(v => !(v is ExpressionCalculatedResult) && v.Value != null && double.IsNaN(v.Value.Value))
                     .Select(v => v.Column).ToList();
             }
 
@@ -77,11 +77,6 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                 {
                     row.Cells.Add(CalculatedResult.Empty(item));
                 }
-            }
-            
-            foreach (var rowViewModel in Values)
-            {
-                rowViewModel.CalculateItems();
             }
         }
 
