@@ -24,5 +24,7 @@ namespace BudgetTracker.Model
         }
 
         public string ExportDiff() => ((AzureTableContext)Storage).ExportStream();
+
+        public string Stats() => String.Join("\n", _sets.Select(v=>v.Key.Name + $" ({v.Value.Count()})"));
     }
 }

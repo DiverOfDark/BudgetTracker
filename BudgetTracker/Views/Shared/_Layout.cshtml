@@ -1,4 +1,6 @@
-﻿@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
+﻿@using BudgetTracker.Model
+@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
+@inject ObjectRepository obj
 <!DOCTYPE html>
 <html>
 <head>
@@ -92,7 +94,7 @@ else
             <footer class="footer">
                 <div class="container">
                     <div class="row align-items-center flex-row-reverse">
-                        <div class="col-auto ml-auto">
+                        <div class="col-auto ml-auto" data-toggle="top-tooltip" title="@Html.Raw(obj.Stats())">
                             <p>@Startup.CommmitName / @Startup.CommmitHash @@ @Startup.LaunchTime.ToLocalTime().ToString("G")</p>
                         </div>
                         <div class="col-12 col-lg-auto mt-3 mt-lg-0 text-center">

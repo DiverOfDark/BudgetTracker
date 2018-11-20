@@ -114,6 +114,7 @@ var hexToRgba = function (hex, opacity) {
 $(document).ready(function () {
     // Initialize tooltips
     $('[data-toggle="tooltip"]').tooltip({ placement: 'right', viewport: { selector: 'body', padding: 0 } });
+    $('[data-toggle="top-tooltip"]').tooltip({ placement: 'top', viewport: { selector: 'body', padding: 0 } });
 
     // Initialize popovers
     $('[data-toggle="popover"]').popover({
