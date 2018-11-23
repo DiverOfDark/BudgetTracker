@@ -96,10 +96,10 @@
 
                                     <td class="@(p == null || p?.FailedToResolve.Any() == true ? "table-dark" : "")">
                                         @{
-                                            if (p?.Value != null)
+                                            if (p?.AdjustedValue != null)
                                             {
                                                 <div alt="@p.Tooltip" title="@p.Tooltip" data-toggle="tooltip">
-                                                    @if (double.IsNaN(p.Value.Value))
+                                                    @if (double.IsNaN(p.AdjustedValue.Value))
                                                     {
                                                         <span class="fe fe-check"></span>
                                                     }
@@ -120,7 +120,7 @@
                                                         }
                                                         else
                                                         {
-                                                            <span>@p.Value.Value.ToString("#,0.00")</span>
+                                                            <span>@p.AdjustedValue.Value.ToString("#,0.00")</span>
                                                         }
                                                         if (!string.IsNullOrEmpty(p.Ccy))
                                                         {
@@ -162,7 +162,7 @@
                                                 if (Model.ShowControls)
                                                 {
                                                     var calculatedResult = item.Previous?.Cells.FirstOrDefault(s => s.Column == h);
-                                                    if (calculatedResult?.Value != null && !double.IsNaN(calculatedResult.Value.Value))
+                                                    if (calculatedResult?.AdjustedValue != null && !double.IsNaN(calculatedResult.AdjustedValue.Value))
                                                     {
                                                         <a href="@Url.Action("CopyFromPrevious", new {headerId = h.Id, date = item.When.ToString("dd.MM.yyyy")})">
                                                             <span class="fe fe-copy"></span>

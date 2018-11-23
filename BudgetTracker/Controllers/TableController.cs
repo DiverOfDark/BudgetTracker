@@ -50,11 +50,11 @@ namespace BudgetTracker.Controllers
                 {
                     var p = item.Cells.FirstOrDefault(v => v.Column == h);
 
-                    if (p?.Value != null)
+                    if (p?.AdjustedValue != null)
                     {
-                        if (!double.IsNaN(p.Value.Value))
+                        if (!double.IsNaN(p.AdjustedValue.Value))
                         {
-                            return "\"" + p.Value.Value.ToString("0.00###", new NumberFormatInfo {NumberDecimalSeparator = ","}) + "\"";
+                            return "\"" + p.AdjustedValue.Value.ToString("0.00###", new NumberFormatInfo {NumberDecimalSeparator = ","}) + "\"";
                         }
                     }
 

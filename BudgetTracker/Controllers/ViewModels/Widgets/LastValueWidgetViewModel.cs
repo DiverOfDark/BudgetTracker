@@ -25,7 +25,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             var tableRowViewModel = vmf.GetVM(false).Values.OrderByDescending(v => v.When).First(v=>v.Cells.Any(s=>s.Column == column));
 
             var matchedCell = tableRowViewModel.Cells.FirstOrDefault(v => v.Column == column);
-            CurrentValue = matchedCell?.Value;
+            CurrentValue = matchedCell?.AdjustedValue;
             CurrentDate = matchedCell?.Money?.When ?? tableRowViewModel.When.Date;
             
             Values = new Dictionary<DateTime, double?>();
@@ -33,10 +33,10 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             foreach (var row in vm.Values.OrderByDescending(v => v.When).Where(v=> IsApplicable(v.When, period)))
             {
                 var cell = row.Cells.FirstOrDefault(v => v.Column == column);
-                if (cell?.Value == null || double.IsNaN(cell.Value.Value))
+                if (cell?.AdjustedValue == null || double.IsNaN(cell.AdjustedValue.Value))
                     continue;
 
-                Values[cell.Money?.When ?? row.When.Date] = cell.Value;
+                Values[cell.Money?.When ?? row.When.Date] = cell.AdjustedValue;
                 IncompleteData |= cell.FailedToResolve.Any();
 
                 if (first)

@@ -50,22 +50,39 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             
             IEnumerable<string> failedToResolve = Left.Value.FailedToResolve.Concat(Right.Value.FailedToResolve).ToList();
             double? value = null;
+            double adjustment = 0;
             string ccy = null;
             
+            var leftValueAdj = Left.Value;
+            var rightValueAdj = Right.Value;
+                    
+            while (leftValueAdj?.Value != null && double.IsNaN(leftValueAdj.Value.Value))
+            {
+                leftValueAdj = leftValueAdj.PreviousValue;
+            }
+            while (rightValueAdj?.Value != null && double.IsNaN(rightValueAdj.Value.Value))
+            {
+                rightValueAdj = rightValueAdj.PreviousValue;
+            }
+
             switch (_symbol)
             {
                 case "??":
                     value = leftIsNan ? rightValue : leftValue;
                     ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
                     failedToResolve = leftIsNan ? Right.Value.FailedToResolve : Left.Value.FailedToResolve;
+
+                    adjustment = (leftValueAdj?.Adjustment ?? 0) + rightValueAdj?.Adjustment ?? 0;
                     break;
                 case "+":
                     value = leftValue + rightValue;
                     ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
+                    adjustment = (leftValueAdj?.Adjustment ?? 0) + rightValueAdj?.Adjustment ?? 0;
                     break;
                 case "-":
                     value = leftValue - rightValue;
                     ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
+                    adjustment = (leftValueAdj?.Adjustment ?? 0) + rightValueAdj?.Adjustment ?? 0;
                     break;
                 
                 case "*":
@@ -85,7 +102,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                     break;
             }
 
-            Value = CalculatedResult.FromComputed(_model, value, ccy, failedToResolve, ToString());
+            Value = CalculatedResult.FromComputed(_model, value, ccy, failedToResolve, adjustment, ToString());
         }
 
         private string SelectCcy(string first, string second)

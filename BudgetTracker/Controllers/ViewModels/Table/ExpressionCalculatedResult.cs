@@ -12,6 +12,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         private bool _evaluated;
 
         private double? _value;
+        private double _adjustment;
         private string _ccy;
         private string _tooltip;
         private IEnumerable<string> _failedToResolve;
@@ -39,6 +40,15 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             {
                 EvalExpression();
                 return _value;
+            }
+        }
+
+        public override double Adjustment
+        {
+            get
+            {
+                EvalExpression();
+                return _adjustment;
             }
         }
 
@@ -130,6 +140,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                 _value = _expression.Value.Value;
                 _failedToResolve = _expression.Value.FailedToResolve;
                 _ccy = _expression.Value.Ccy;
+                _adjustment = _expression.Value.Adjustment;
                 
                 _tooltip += _expression + "\r\n => " + Value;
                 if (FailedToResolve.Any())

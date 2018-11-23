@@ -43,7 +43,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 
                 IncompleteData |= todayValue.FailedToResolve.Concat(baseSetValue.FailedToResolve).Any();
                 
-                var dT = todayValue.Value - baseSetValue.Value;
+                var dT = todayValue.AdjustedValue - baseSetValue.AdjustedValue;
 
                 if (dT != null && !double.IsNaN(dT.Value) && !double.IsInfinity(dT.Value))
                 {

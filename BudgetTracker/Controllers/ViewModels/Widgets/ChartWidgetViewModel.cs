@@ -62,7 +62,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                 foreach (var header in columnsToChart)
                 {
                     var value = row.Cells.FirstOrDefault(v => v.Column == header);
-                    if (value?.Value == null)
+                    if (value?.AdjustedValue == null)
                         continue;
 
                     chartItems.Add(new ChartItem
@@ -70,7 +70,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                         When = row.When,
                         Name = (header.IsComputed ? "" : (header.Provider + "/")) +
                                (header.UserFriendlyName ?? header.AccountName),
-                        Value = value.Value.Value,
+                        Value = value.AdjustedValue.Value,
                         Ccy = value.Ccy
                     });
                 }

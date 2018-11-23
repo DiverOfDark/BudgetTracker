@@ -51,8 +51,8 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                 return new Node
                 {
                     Title = cell.Column.UserFriendlyName,
-                    Amount = cell.Value,
-                    AmountFormatted = cell.Value?.ToString("N2") + " " + cell.Ccy,
+                    Amount = cell.AdjustedValue,
+                    AmountFormatted = cell.AdjustedValue?.ToString("N2") + " " + cell.Ccy,
                     Children = children
                 };
             }
@@ -60,8 +60,8 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             return new Node
             {
                 Title = cell.Column.Provider + "/" + cell.Column.UserFriendlyName,
-                Amount = cell.Value,
-                AmountFormatted = cell.Value?.ToString("N2") + " " + cell.Ccy
+                Amount = cell.AdjustedValue,
+                AmountFormatted = cell.AdjustedValue?.ToString("N2") + " " + cell.Ccy
             };
         }
 

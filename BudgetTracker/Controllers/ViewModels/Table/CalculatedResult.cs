@@ -12,6 +12,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         private string _tooltip;
         private string _ccy;
         private IEnumerable<string> _failedToResolve;
+        private double _adjustment;
 
         public static CalculatedResult FromComputed(Dictionary<string, MoneyColumnMetadataModel> columns, MoneyColumnMetadataModel h, IEnumerable<CalculatedResult> deps)
         {
@@ -20,9 +21,10 @@ namespace BudgetTracker.Controllers.ViewModels.Table
 
         public static CalculatedResult FromMoney(MoneyColumnMetadataModel h, MoneyStateModel money, double adjustment) => new CalculatedResult(h)
         {
-            _ccy = money.Ccy,
             Money = money,
-            _value = money.Amount + adjustment,
+            _ccy = money.Ccy,
+            _adjustment = adjustment,
+            _value = money.Amount,
             _tooltip = $"{(money.Amount + adjustment).ToString(CultureInfo.CurrentCulture)}({money.Amount.ToString(CultureInfo.CurrentCulture)} + {adjustment.ToString(CultureInfo.CurrentCulture)})"
         };
 
@@ -40,11 +42,12 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         };
 
         public static CalculatedResult FromComputed(MoneyColumnMetadataModel item, double? value, string ccy,
-            IEnumerable<string> failedToResolve, string tooltip) => new CalculatedResult(item)
+            IEnumerable<string> failedToResolve, double adjustment, string tooltip) => new CalculatedResult(item)
         {
             _value = value,
             _ccy = ccy,
             _failedToResolve = failedToResolve,
+            _adjustment = adjustment,
             _tooltip = tooltip
         };
         
@@ -58,7 +61,11 @@ namespace BudgetTracker.Controllers.ViewModels.Table
 
         public MoneyStateModel Money { get; private set;}
 
+        public virtual double Adjustment => _adjustment;
+        
         public virtual double? Value => _value;
+
+        public double? AdjustedValue => Value + Adjustment;
 
         public virtual IEnumerable<string> FailedToResolve => _failedToResolve;
 
@@ -68,10 +75,10 @@ namespace BudgetTracker.Controllers.ViewModels.Table
 
         public CalculatedResult PreviousValue { get; set; }
 
-        public double? DiffValue => Value - PreviousValue?.Value;
+        public double? DiffValue => AdjustedValue - PreviousValue?.AdjustedValue;
 
-        public double? DiffPercentage => DiffValue / PreviousValue?.Value;
+        public double? DiffPercentage => DiffValue / PreviousValue?.AdjustedValue;
         
-        public override string ToString() => $"[{Column.Provider}/{Column.AccountName}]({Value})";
+        public override string ToString() => $"[{Column.Provider}/{Column.AccountName}]({AdjustedValue})";
     }
 }
