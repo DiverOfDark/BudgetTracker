@@ -65,6 +65,8 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                 rightValueAdj = rightValueAdj.PreviousValue;
             }
 
+            adjustment = (leftValueAdj?.Adjustment ?? 0) + (rightValueAdj?.Adjustment ?? 0);
+
             switch (_symbol)
             {
                 case "??":
@@ -72,17 +74,14 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                     ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
                     failedToResolve = leftIsNan ? Right.Value.FailedToResolve : Left.Value.FailedToResolve;
 
-                    adjustment = (leftValueAdj?.Adjustment ?? 0) + rightValueAdj?.Adjustment ?? 0;
                     break;
                 case "+":
                     value = leftValue + rightValue;
                     ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
-                    adjustment = (leftValueAdj?.Adjustment ?? 0) + rightValueAdj?.Adjustment ?? 0;
                     break;
                 case "-":
                     value = leftValue - rightValue;
                     ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
-                    adjustment = (leftValueAdj?.Adjustment ?? 0) + rightValueAdj?.Adjustment ?? 0;
                     break;
                 
                 case "*":

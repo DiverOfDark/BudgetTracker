@@ -19,13 +19,13 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                 v.Provider == _settings.ProviderName &&
                 (v.AccountName == _settings.AccountName || v.UserFriendlyName == _settings.AccountName));
 
-            var vm = vmf.GetVM(_settings.ExemptTransfers);
+            var vm = vmf.GetVM();
             vm.ShowAll = true;
 
-            var tableRowViewModel = vmf.GetVM(false).Values.OrderByDescending(v => v.When).First(v=>v.Cells.Any(s=>s.Column == column));
+            var tableRowViewModel = vm.Values.OrderByDescending(v => v.When).First(v=>v.Cells.Any(s=>s.Column == column));
 
             var matchedCell = tableRowViewModel.Cells.FirstOrDefault(v => v.Column == column);
-            CurrentValue = matchedCell?.AdjustedValue;
+            CurrentValue = _settings.ExemptTransfers ? matchedCell?.AdjustedValue : matchedCell?.Value;
             CurrentDate = matchedCell?.Money?.When ?? tableRowViewModel.When.Date;
             
             Values = new Dictionary<DateTime, double?>();
@@ -33,10 +33,13 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             foreach (var row in vm.Values.OrderByDescending(v => v.When).Where(v=> IsApplicable(v.When, period)))
             {
                 var cell = row.Cells.FirstOrDefault(v => v.Column == column);
-                if (cell?.AdjustedValue == null || double.IsNaN(cell.AdjustedValue.Value))
+
+                var value = _settings.ExemptTransfers ? cell?.AdjustedValue : cell?.Value;
+                
+                if (value == null || double.IsNaN(value.Value))
                     continue;
 
-                Values[cell.Money?.When ?? row.When.Date] = cell.AdjustedValue;
+                Values[cell.Money?.When ?? row.When.Date] = value;
                 IncompleteData |= cell.FailedToResolve.Any();
 
                 if (first)

@@ -142,7 +142,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                 _ccy = _expression.Value.Ccy;
                 _adjustment = _expression.Value.Adjustment;
                 
-                _tooltip += _expression + "\r\n => " + Value;
+                _tooltip += _expression + "\r\n => " + Value + " + " + Adjustment + " => " + (Value + Adjustment);
                 if (FailedToResolve.Any())
                 {
                     _tooltip += "\r\n\r\nНет данных по: " + String.Join(",\r\n", FailedToResolve);

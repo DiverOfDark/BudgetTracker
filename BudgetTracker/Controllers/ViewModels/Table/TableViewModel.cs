@@ -12,7 +12,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             Values = source.Values;
         }
         
-        public TableViewModel(ObjectRepository repository, bool exemptTransfers)
+        public TableViewModel(ObjectRepository repository)
         {
             Headers = repository.Set<MoneyColumnMetadataModel>().SortColumns().ToList();
 
@@ -26,9 +26,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                 headersCached[h.Provider + "/" + h.AccountName] = h;
             }
 
-            var paymentsToExemptSource = exemptTransfers
-                ? repository.Set<PaymentModel>().Where(v => v.Kind == PaymentKind.Transfer).ToList()
-                : Enumerable.Empty<PaymentModel>();
+            var paymentsToExemptSource = repository.Set<PaymentModel>().Where(v => v.Kind == PaymentKind.Transfer).ToList();
 
             var paymentsToExempt = paymentsToExemptSource.GroupBy(v => v.Column).ToDictionary(v => v.Key, v => v.ToList());
             

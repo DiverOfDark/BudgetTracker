@@ -6,17 +6,15 @@ namespace BudgetTracker.Controllers.ViewModels.Table
     public class TableViewModelFactory
     {
         private readonly Lazy<TableViewModel> _vmWithTransfers;
-        private readonly Lazy<TableViewModel> _vmWithoutTransfers;
         
         public TableViewModelFactory(ObjectRepository repository)
         {
-            _vmWithTransfers = new Lazy<TableViewModel>(()=>new TableViewModel(repository, false));
-            _vmWithoutTransfers = new Lazy<TableViewModel>(()=>new TableViewModel(repository, true));
+            _vmWithTransfers = new Lazy<TableViewModel>(()=>new TableViewModel(repository));
         }
         
-        public TableViewModel GetVM(bool exemptTransfers)
+        public TableViewModel GetVM()
         {
-            var source = exemptTransfers ? _vmWithoutTransfers : _vmWithTransfers;
+            var source = _vmWithTransfers;
 
             return new TableViewModel(source.Value);
         }

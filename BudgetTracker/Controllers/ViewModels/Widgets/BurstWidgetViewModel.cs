@@ -7,8 +7,12 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 {
     public class BurstWidgetViewModel : WidgetViewModel
     {
-        public BurstWidgetViewModel(string providerName, string accountName, ObjectRepository repository, TableViewModel vm) : base(null, null)
+        public bool ExemptTransfers { get; }
+
+        public BurstWidgetViewModel(string providerName, string accountName, ObjectRepository repository,
+            TableViewModel vm, bool exemptTransfers) : base(null, null)
         {
+            ExemptTransfers = exemptTransfers;
             var column = repository.Set<MoneyColumnMetadataModel>().First(v =>
                 v.Provider == providerName &&
                 (v.AccountName == accountName ||
@@ -35,7 +39,8 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         private Node LoadData(MoneyColumnMetadataModel column, ObjectRepository repository, TableViewModel vm)
         {
             var cell = vm.Values.FirstOrDefault()?.Cells?.FirstOrDefault(v => v.Column == column);
-            if (cell?.Value == null || double.IsNaN(cell.Value.Value))
+            var cellValue = ExemptTransfers ? cell?.AdjustedValue : cell?.Value;
+            if (cellValue == null || double.IsNaN(cellValue.Value))
             {
                 return null;
             }
@@ -51,8 +56,8 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                 return new Node
                 {
                     Title = cell.Column.UserFriendlyName,
-                    Amount = cell.AdjustedValue,
-                    AmountFormatted = cell.AdjustedValue?.ToString("N2") + " " + cell.Ccy,
+                    Amount = cellValue,
+                    AmountFormatted = cellValue.Value.ToString("N2") + " " + cell.Ccy,
                     Children = children
                 };
             }
@@ -60,8 +65,8 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             return new Node
             {
                 Title = cell.Column.Provider + "/" + cell.Column.UserFriendlyName,
-                Amount = cell.AdjustedValue,
-                AmountFormatted = cell.AdjustedValue?.ToString("N2") + " " + cell.Ccy
+                Amount = cellValue,
+                AmountFormatted = cellValue.Value.ToString("N2") + " " + cell.Ccy
             };
         }
 

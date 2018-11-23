@@ -11,9 +11,10 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         public ChartWidgetViewModel(string providerName, string accountName,
             ChartKind kind,
             ObjectRepository repository,
-            TableViewModel vm) : base(null, null)
+            TableViewModel vm, bool exemptTransfers) : base(null, null)
         {
             ChartKind = kind;
+            ExemptTransfers = exemptTransfers;
             Title = accountName;
             LoadData(repository, vm, providerName, accountName);
         }
@@ -33,6 +34,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         public int? Period { get; set; }
 
         public ChartKind ChartKind { get; set; }
+        public bool ExemptTransfers { get; }
 
         private void LoadData(ObjectRepository repository, TableViewModel vm, string providerName, string accountName)
         {
@@ -61,8 +63,10 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             {
                 foreach (var header in columnsToChart)
                 {
-                    var value = row.Cells.FirstOrDefault(v => v.Column == header);
-                    if (value?.AdjustedValue == null)
+                    var item = row.Cells.FirstOrDefault(v => v.Column == header);
+
+                    var value = ExemptTransfers ? item?.AdjustedValue : item?.Value;
+                    if (value == null)
                         continue;
 
                     chartItems.Add(new ChartItem
@@ -70,8 +74,8 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                         When = row.When,
                         Name = (header.IsComputed ? "" : (header.Provider + "/")) +
                                (header.UserFriendlyName ?? header.AccountName),
-                        Value = value.AdjustedValue.Value,
-                        Ccy = value.Ccy
+                        Value = value.Value,
+                        Ccy = item.Ccy
                     });
                 }
             }
