@@ -25,7 +25,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             var tableRowViewModel = vm.Values.OrderByDescending(v => v.When).First(v=>v.Cells.ContainsKey(column));
 
             var matchedCell = tableRowViewModel.Cells.GetValueOrDefault(column);
-            CurrentValue = _settings.ExemptTransfers ? matchedCell?.AdjustedValue : matchedCell?.Value;
+            CurrentValue = matchedCell?.Value;
             CurrentDate = matchedCell?.Money?.When ?? tableRowViewModel.When.Date;
             
             Values = new Dictionary<DateTime, double?>();
@@ -50,7 +50,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                 }
             }
 
-            var adj = CurrentValue;
+            var adj = _settings.ExemptTransfers ? matchedCell?.AdjustedValue : matchedCell?.Value;
             
             var minValue = Values.OrderBy(v => v.Key).First();
             var maxValue = Values.OrderBy(v => v.Key).Last();
