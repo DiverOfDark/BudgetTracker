@@ -13,12 +13,12 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             Value = CalculatedResult.ResolutionFail(model, function);
         }
 
-        public override void Evaluate(IEnumerable<CalculatedResult> dependencies)
+        public override void Evaluate(Dictionary<MoneyColumnMetadataModel, CalculatedResult> dependencies)
         {
         }
 
         public override CalculateExpression TryApply(CalculateExpression otherExpression) => throw new System.NotImplementedException();
         
-        public override string ToString() => $"[<?>{_function}]";
+        protected override string ToStringImpl() => $"[<?>{_function}]";
     }
 }

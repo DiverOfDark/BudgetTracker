@@ -33,9 +33,9 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         {
             var today = table.Values.OrderByDescending(v => v.When).FirstOrDefault();
             var baseSet = table.Values.OrderByDescending(v => v.When).FirstOrDefault(v => v.When.Date.AddDays(daysDiff) <= DateTime.Now.Date);
-            
-            var todayValue = today?.Cells.FirstOrDefault(v => v.Column == col);
-            var baseSetValue = baseSet?.Cells.FirstOrDefault(v => v.Column == col);
+
+            var todayValue = today?.Cells.GetValueOrDefault(col);
+            var baseSetValue = baseSet?.Cells.GetValueOrDefault(col);
 
             if (todayValue != null && baseSetValue != null)
             {

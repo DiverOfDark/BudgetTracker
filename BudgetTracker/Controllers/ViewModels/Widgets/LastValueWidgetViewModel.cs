@@ -22,9 +22,9 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             var vm = vmf.GetVM();
             vm.ShowAll = true;
 
-            var tableRowViewModel = vm.Values.OrderByDescending(v => v.When).First(v=>v.Cells.Any(s=>s.Column == column));
+            var tableRowViewModel = vm.Values.OrderByDescending(v => v.When).First(v=>v.Cells.ContainsKey(column));
 
-            var matchedCell = tableRowViewModel.Cells.FirstOrDefault(v => v.Column == column);
+            var matchedCell = tableRowViewModel.Cells.GetValueOrDefault(column);
             CurrentValue = _settings.ExemptTransfers ? matchedCell?.AdjustedValue : matchedCell?.Value;
             CurrentDate = matchedCell?.Money?.When ?? tableRowViewModel.When.Date;
             
@@ -32,7 +32,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             bool first = true;
             foreach (var row in vm.Values.OrderByDescending(v => v.When).Where(v=> IsApplicable(v.When, period)))
             {
-                var cell = row.Cells.FirstOrDefault(v => v.Column == column);
+                var cell = row.Cells.GetValueOrDefault(column);
 
                 var value = _settings.ExemptTransfers ? cell?.AdjustedValue : cell?.Value;
                 

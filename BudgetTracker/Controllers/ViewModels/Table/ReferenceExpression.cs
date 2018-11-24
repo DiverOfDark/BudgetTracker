@@ -16,13 +16,13 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             _column = column;
         }
 
-        public override void Evaluate(IEnumerable<CalculatedResult> dependencies)
+        public override void Evaluate(Dictionary<MoneyColumnMetadataModel, CalculatedResult> dependencies)
         {
             if (!_evaluated)
             {
                 _evaluated = true;
-                
-                var matchedDependency = dependencies.FirstOrDefault(v => v.Column == _column);
+
+                dependencies.TryGetValue(_column, out var matchedDependency);
 
                 Value = matchedDependency?.Value == null
                         ? CalculatedResult.ResolutionFail(_column, _column.Provider + "/" + _column.AccountName)
@@ -32,6 +32,6 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         
         public override CalculateExpression TryApply(CalculateExpression otherExpression) => throw new System.NotImplementedException();
 
-        public override string ToString() => $"[{_column.Provider}/{_column.UserFriendlyName ?? _column.AccountName}]({Value})";
+        protected override string ToStringImpl() => $"[{_column.Provider}/{_column.UserFriendlyName ?? _column.AccountName}]({Value})";
     }
 }

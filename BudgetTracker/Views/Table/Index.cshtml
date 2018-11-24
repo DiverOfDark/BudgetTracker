@@ -92,7 +92,7 @@
                                 <th class="table-dark" scope="row">@item.When.ToString("dd.MM.yyyy")</th>
                                 @foreach (var h in Model.Headers.Where(v => v.IsVisible || Model.ShowAll))
                                 {
-                                    var p = item.Cells.FirstOrDefault(v => v.Column == h);
+                                    var p = item.Cells.GetValueOrDefault(h);
 
                                     <td class="@(p == null || p?.FailedToResolve.Any() == true ? "table-dark" : "")">
                                         @{
@@ -162,7 +162,7 @@
                                                 <text>&mdash;</text>
                                                 if (Model.ShowControls)
                                                 {
-                                                    var calculatedResult = item.Previous?.Cells.FirstOrDefault(s => s.Column == h);
+                                                    var calculatedResult = item.Previous?.Cells.GetValueOrDefault(h);
                                                     if (calculatedResult?.Value != null && !double.IsNaN(calculatedResult.Value.Value))
                                                     {
                                                         <a href="@Url.Action("CopyFromPrevious", new {headerId = h.Id, date = item.When.ToString("dd.MM.yyyy")})">

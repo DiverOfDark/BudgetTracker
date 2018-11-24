@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BudgetTracker.Model;
 
@@ -26,13 +27,40 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                 headersCached[h.Provider + "/" + h.AccountName] = h;
             }
 
-            var paymentsToExemptSource = repository.Set<PaymentModel>().Where(v => v.Kind == PaymentKind.Transfer).ToList();
+            var paymentsToExempt = repository.Set<PaymentModel>().Where(v => v.Kind == PaymentKind.Transfer).ToList().GroupBy(v => v.Column)
+                .ToDictionary(v => v.Key, v =>
+                {
+                    var d = new Dictionary<DateTime, double>();
+                    foreach (var item in v)
+                    {
+                        d[item.When.Date] = d.GetValueOrDefault(item.When.Date, 0) + item.Amount;
+                    }
+                    return d;
+                });
 
-            var paymentsToExempt = paymentsToExemptSource.GroupBy(v => v.Column).ToDictionary(v => v.Key, v => v.ToList());
-            
-            Values = repository.Set<MoneyStateModel>()
+            var rows = repository.Set<MoneyStateModel>()
                 .GroupBy(x => x.When.Date)
                 .OrderByDescending(v => v.Key)
+                .ToList();
+
+            var end = rows.Select(v => (DateTime?)v.Key).FirstOrDefault();
+
+            foreach (var col in paymentsToExempt)
+            {
+                var cumulative = 0.0;
+                DateTime start = col.Value.Keys.Min();
+                for(; start <= (end ?? start); start = start.AddDays(1))
+                {
+                    var curValue = col.Value.GetValueOrDefault(start, 0);
+                    if (Math.Abs(cumulative + curValue) >= 0.0001 )
+                    {
+                        col.Value[start] = -(curValue + cumulative);
+                        cumulative += curValue;
+                    }
+                }
+            }
+            
+            Values = rows
                 .Select(v => new TableRowViewModel(v.ToList(), Headers, headersCached, paymentsToExempt))
                 .ToList();
 
@@ -40,10 +68,10 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             {
                 var row = Values[i];
                 row.Previous = Values[i + 1];
-                foreach (var value in row.Cells)
+                foreach (var value in row.Cells.Values)
                 {
                     var previous = Values[i + 1];
-                    value.PreviousValue = previous.Cells.FirstOrDefault(v => v.Column == value.Column);
+                    value.PreviousValue = previous.Cells.GetValueOrDefault(value.Column);
                 }
             }
 
@@ -52,28 +80,28 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             {
                 var row = Values[i];
 
-                var toAddMissing = markedAsOkCells.Except(row.Cells.Select(v => v.Column)).ToList();
+                var toAddMissing = markedAsOkCells.Except(row.Cells.Keys).ToList();
                 
                 foreach(var item in toAddMissing)
                 {
-                    row.Cells.Add(CalculatedResult.Empty(item));
+                    row.Cells.Add(item, CalculatedResult.Empty(item));
                 }
 
-                markedAsOkCells = row.Cells.Where(v => !(v is ExpressionCalculatedResult) && v.Value != null && double.IsNaN(v.Value.Value))
+                markedAsOkCells = row.Cells.Values.Where(v => !(v is ExpressionCalculatedResult) && v.Value != null && double.IsNaN(v.Value.Value))
                     .Select(v => v.Column).ToList();
             }
 
-            var columnsToCheck = Values.SelectMany(v => v.Cells).Select(v => v.Column).Distinct()
+            var columnsToCheck = Values.SelectMany(v => v.Cells.Keys).Distinct()
                 .Where(v => !v.IsComputed).ToList();
             for (int i = Values.Count - 1; i >= 0; i--)
             {
                 var row = Values[i];
 
-                columnsToCheck = columnsToCheck.Except(row.Cells.Select(v => v.Column)).ToList();
+                columnsToCheck = columnsToCheck.Except(row.Cells.Keys).ToList();
                 
                 foreach(var item in columnsToCheck)
                 {
-                    row.Cells.Add(CalculatedResult.Empty(item));
+                    row.Cells.Add(item, CalculatedResult.Empty(item));
                 }
             }
         }

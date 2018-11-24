@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels.Table
 {
@@ -11,7 +12,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             _baseExpression = baseExpression;
         }
 
-        public override void Evaluate(IEnumerable<CalculatedResult> dependencies)
+        public override void Evaluate(Dictionary<MoneyColumnMetadataModel, CalculatedResult> dependencies)
         {
             if (Value == null)
             {
@@ -22,6 +23,6 @@ namespace BudgetTracker.Controllers.ViewModels.Table
 
         public override CalculateExpression TryApply(CalculateExpression otherExpression) => _baseExpression.TryApply(otherExpression);
 
-        public override string ToString() => $"({_baseExpression})";
+        protected override string ToStringImpl() => $"({_baseExpression})";
     }
 }

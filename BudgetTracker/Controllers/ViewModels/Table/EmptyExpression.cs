@@ -11,12 +11,12 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             Value = CalculatedResult.Empty(model);
         }
         
-        public override void Evaluate(IEnumerable<CalculatedResult> dependencies)
+        public override void Evaluate(Dictionary<MoneyColumnMetadataModel, CalculatedResult> dependencies)
         {
         }
 
         public override CalculateExpression TryApply(CalculateExpression otherExpression) => otherExpression;
         
-        public override string ToString() => $"---";
+        protected override string ToStringImpl() => "---";
     }
 }

@@ -20,7 +20,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         public CalculateExpression Left { get; set; }
         public CalculateExpression Right { get; set; }
 
-        public override void Evaluate(IEnumerable<CalculatedResult> dependencies)
+        public override void Evaluate(Dictionary<MoneyColumnMetadataModel, CalculatedResult> dependencies)
         {
             if (Left == null || Right == null)
             {
@@ -126,6 +126,6 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             return this;
         }
         
-        public override string ToString() => $"{Left} {_symbol} {Right}";
+        protected override string ToStringImpl() => $"{Left} {_symbol} {Right}";
     }
 }

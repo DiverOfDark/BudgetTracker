@@ -14,7 +14,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         private IEnumerable<string> _failedToResolve;
         private double _adjustment;
 
-        public static CalculatedResult FromComputed(Dictionary<string, MoneyColumnMetadataModel> columns, MoneyColumnMetadataModel h, IEnumerable<CalculatedResult> deps)
+        public static CalculatedResult FromComputed(Dictionary<string, MoneyColumnMetadataModel> columns, MoneyColumnMetadataModel h, Dictionary<MoneyColumnMetadataModel, CalculatedResult> deps)
         {
             return new ExpressionCalculatedResult(columns, h, deps);
         }

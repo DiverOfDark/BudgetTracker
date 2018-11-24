@@ -7,7 +7,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
 {
     public class ExpressionCalculatedResult : CalculatedResult
     {
-        private readonly IEnumerable<CalculatedResult> _deps;
+        private readonly Dictionary<MoneyColumnMetadataModel, CalculatedResult> _deps;
         private readonly CalculateExpression _expression;
         private bool _evaluated;
 
@@ -17,7 +17,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         private string _tooltip;
         private IEnumerable<string> _failedToResolve;
         
-        public ExpressionCalculatedResult(Dictionary<string, MoneyColumnMetadataModel> columns, MoneyColumnMetadataModel h, IEnumerable<CalculatedResult> deps) : base(h)
+        public ExpressionCalculatedResult(Dictionary<string, MoneyColumnMetadataModel> columns, MoneyColumnMetadataModel h, Dictionary<MoneyColumnMetadataModel, CalculatedResult> deps) : base(h)
         {
             _deps = deps;
             var expression = Parse(columns, h, h.Function);

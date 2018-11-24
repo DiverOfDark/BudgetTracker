@@ -48,7 +48,7 @@ namespace BudgetTracker.Controllers
 
                 rowString += string.Join(",", vm.Headers.Select(h =>
                 {
-                    var p = item.Cells.FirstOrDefault(v => v.Column == h);
+                    item.Cells.TryGetValue(h, out var p); 
 
                     var value = exemptTransfers ? p?.Value : p?.AdjustedValue;
                     if (value != null && !double.IsNaN(value.Value))

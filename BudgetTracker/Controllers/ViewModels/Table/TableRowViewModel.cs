@@ -7,36 +7,25 @@ namespace BudgetTracker.Controllers.ViewModels.Table
 {
     public class TableRowViewModel
     {
-        public TableRowViewModel(IList<MoneyStateModel> item, List<MoneyColumnMetadataModel> headers, Dictionary<string, MoneyColumnMetadataModel> headersCached, Dictionary<MoneyColumnMetadataModel, List<PaymentModel>> paymentsToExempt)
+        public TableRowViewModel(IList<MoneyStateModel> item, List<MoneyColumnMetadataModel> headers, Dictionary<string, MoneyColumnMetadataModel> headersCached, Dictionary<MoneyColumnMetadataModel, Dictionary<DateTime, double>> paymentsToExempt)
         {
-            When = item.OrderByDescending(v=>v.When).Select(v => v.When).FirstOrDefault();
-            Cells = new List<CalculatedResult>();
-
+            When = item.Select(v => v.When).Max();
+            Cells = new Dictionary<MoneyColumnMetadataModel, CalculatedResult>(); 
+            
             foreach (var h in headers)
             {
                 if (h.IsComputed)
                 {
-                    Cells.Add(CalculatedResult.FromComputed(headersCached, h, Cells));
+                    Cells[h] = CalculatedResult.FromComputed(headersCached, h, Cells);
                 }
                 else
                 {
                     var money = item.Where(v => v.Provider == h.Provider && v.AccountName == h.AccountName).OrderByDescending(v=>v.When).FirstOrDefault();
                     if (money != null)
                     {
-                        double adj = 0;
-                        
-                        if (paymentsToExempt.ContainsKey(h))
-                        {
-                            foreach (var payment in paymentsToExempt[h])
-                            {
-                                if (money.When >= payment.When)
-                                {
-                                    adj -= payment.Amount;
-                                }
-                            }
-                        }
+                        var adj = paymentsToExempt.GetValueOrDefault(h)?.GetValueOrDefault(money.When.Date.AddDays(-1)) ?? 0;
 
-                        Cells.Add(CalculatedResult.FromMoney(h, money, adj));
+                        Cells[h] = CalculatedResult.FromMoney(h, money, adj);
                     }
                 }
             }
@@ -44,7 +33,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         
         public DateTime When { get; }
         
-        public List<CalculatedResult> Cells { get; }
+        public Dictionary<MoneyColumnMetadataModel, CalculatedResult> Cells { get; }
         public TableRowViewModel Previous { get; set; }
     }
 }
