@@ -10,7 +10,7 @@
 
 	var trend = "fe-trending-up";
 	
-	switch (Model.Color)
+	switch (Model.ColorYear)
 	{
 		case "red":
 			hexColor = "#e74c3c";
@@ -77,14 +77,14 @@ else
 	var values = string.Join(", ", chartItems.Select(v => Math.Round(v, 4).ToString(CultureInfo.InvariantCulture)));
 	var dates = string.Join(", ", datesItems.Select(v => $"'{v:yyyy-MM-dd}'"));
 
-	<div class="card-status bg-@Model.Color"></div>
+	<div class="card-status bg-@Model.ColorYear"></div>
     <div class="card-body @colorSuffix">
         <div class="float-right" alt="@Model.Description" title="@Model.Description" data-toggle="tooltip">
-	        <div class="card-value text-@Model.Color">
-		        @Model.Delta
+	        <div class="card-value text-@Model.ColorYear">
+		        @Model.DeltaYear
 	        </div>
-	        <div class="h6 text-right text-@Model.ColorYear">
-		        @Model.DeltaYear <sub>/y</sub>
+	        <div class="h6 text-right text-@Model.Color">
+		        @Model.Delta <sub>/d</sub>
 	        </div>
         </div>
         <h3 class="mb-1 text-nowrap">
