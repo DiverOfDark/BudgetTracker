@@ -7,7 +7,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Hangfire.AspNetCore" Version="1.6.21" />
-    <PackageReference Include="Hangfire.MemoryStorage" Version="1.5.2" />
+    <PackageReference Include="Hangfire.MemoryStorage" Version="1.5.3" />
     <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.5.1" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.5" />
