@@ -68,9 +68,9 @@ namespace BudgetTracker.Scrapers
                     var tds = tr.FindElements(By.TagName("td")).ToList();
                     var title = tds[0].Text;
                     var value = tds[1].Text;
-                    if (title.Contains("\r"))
+                    if (title.Contains("\n"))
                     {
-                        title = title.Remove(title.IndexOf("\r"));
+                        title = title.Remove(title.IndexOf("\n")).Trim();
                     }
                     var valueAmount = double.Parse(new string(value.Where(v=>char.IsDigit(v) || v == ',').ToArray()), new NumberFormatInfo{NumberDecimalSeparator = ","});
                     result.Add(Money(title, valueAmount, "RUB"));
