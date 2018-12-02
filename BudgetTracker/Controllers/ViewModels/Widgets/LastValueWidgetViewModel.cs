@@ -50,7 +50,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                 }
             }
 
-            var adj = _settings.ExemptTransfers ? matchedCell?.AdjustedValue : matchedCell?.Value;
+            var adj = matchedCell?.Value;
             
             var minValue = Values.OrderBy(v => v.Key).First();
             var maxValue = Values.OrderBy(v => v.Key).Last();
