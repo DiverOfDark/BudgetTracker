@@ -9,6 +9,49 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 {
     public class LastValueWidgetViewModel : WidgetViewModel
     {
+        private class PercentageCalculator
+        {
+            private double? _lastAdj;
+
+            private readonly Stack<Stack<Tuple<DateTime, double, double>>> _history;
+            private Stack<Tuple<DateTime, double, double>> _currentStack;
+            
+            public PercentageCalculator()
+            {
+                _history = new Stack<Stack<Tuple<DateTime, double, double>>>();
+            }
+
+            public void PushValue(DateTime when, double value, double adj)
+            {
+                if (adj != _lastAdj)
+                {
+                    _currentStack = new Stack<Tuple<DateTime, double, double>>();
+                    _history.Push(_currentStack);
+                }
+
+                _currentStack.Push(Tuple.Create(when, value, adj));
+                _lastAdj = adj;
+            }
+
+            public void Finalize(LastValueWidgetViewModel widget)
+            {
+                var weights = _history.Select(s=>s.OrderBy(t=>t.Item1).ToList()).Select(v => new
+                {
+                    delta = (v.Last().Item2 - v.First().Item2) / v.First().Item2,
+                    count = (v.Last().Item1 - v.First().Item1).TotalDays,
+                }).ToList();
+                var totalCount = weights.Select(v => v.count).Sum();
+                var yearDelta = weights.Select(v => v.delta * v.count / totalCount).Sum() * (365.0 / totalCount);
+
+                var minimum = _history.First().First().Item2;
+                var maximum = _history.Last().Last().Item2;
+                
+                (widget.ColorYear, widget.DeltaYear) = SetDiffPercenage(yearDelta);
+                
+                widget.Description = $"В начале: {widget.FormatValue(minimum)}\nВ конце: {widget.FormatValue(maximum)}\nГодовых: {yearDelta:P2}";
+            }
+        }
+        
         private readonly LastValueWidgetSettings _settings;
 
         public LastValueWidgetViewModel(WidgetModel model, ObjectRepository repo, TableViewModelFactory vmf,
@@ -27,7 +70,8 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             var matchedCell = tableRowViewModel.Cells.GetValueOrDefault(column);
             CurrentValue = matchedCell?.Value;
             CurrentDate = matchedCell?.Money?.When ?? tableRowViewModel.When.Date;
-            
+
+            var p = new PercentageCalculator();
             Values = new Dictionary<DateTime, double?>();
             bool first = true;
             foreach (var row in vm.Values.OrderByDescending(v => v.When).Where(v=> IsApplicable(v.When, period)))
@@ -39,6 +83,8 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                 if (value == null || double.IsNaN(value.Value))
                     continue;
 
+                p.PushValue(row.When, cell.Value.Value, cell.Adjustment);
+                
                 Values[cell.Money?.When ?? row.When.Date] = value;
                 IncompleteData |= cell.FailedToResolve.Any();
 
@@ -50,29 +96,11 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                 }
             }
 
-            var adj = matchedCell?.Value;
-            
-            var minValue = Values.OrderBy(v => v.Key).First();
-            var maxValue = Values.OrderBy(v => v.Key).Last();
-
-            adj = adj - maxValue.Value;
-            
-            var maximum = maxValue.Value + adj;
-            var minimum = minValue.Value + adj;
-
-            var dV = (maximum - minimum);
-            var dt = (maxValue.Key - minValue.Key).TotalDays;
-
-            var expPer = Math.Pow(maximum.GetValueOrDefault() / minimum.GetValueOrDefault(), 365/dt) - 1;
-
-            var yearDelta = dV * 365.25 / minimum / dt;
-
-            (ColorYear, DeltaYear) = SetDiffPercenage(yearDelta);
-            Description = $"В начале: {FormatValue(minimum)}\nУчтено переводов: {FormatValue(adj)}\nВ конце: {FormatValue(maximum)}\nРазница: {FormatValue(dV)}\nСрок (дней): {dt}\nГодовых (простой процент): {yearDelta?.ToString("P2")}\nГодовых (с капитализацией): {expPer.ToString("P2")}";
+            p.Finalize(this);
 
             IncompleteData |= _settings.NotifyStaleData && Values.Select(v => v.Key).Max() < DateTime.Now.AddHours(-36);
         }
-
+        
         public DateTime CurrentDate { get; set; }
 
         public double? CurrentValue { get; set; }
