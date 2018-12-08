@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using BudgetTracker.Controllers.ViewModels.Table;
 using BudgetTracker.Model;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,39 +14,58 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         {
             private double? _lastAdj;
 
-            private readonly Stack<Stack<Tuple<DateTime, double, double>>> _history;
-            private Stack<Tuple<DateTime, double, double>> _currentStack;
+            private readonly Stack<Tuple<DateTime, double, double>> _history;
             
             public PercentageCalculator()
             {
-                _history = new Stack<Stack<Tuple<DateTime, double, double>>>();
+                _history = new Stack<Tuple<DateTime, double, double>>();
             }
 
             public void PushValue(DateTime when, double value, double adj)
             {
-                if (adj != _lastAdj)
-                {
-                    _currentStack = new Stack<Tuple<DateTime, double, double>>();
-                    _history.Push(_currentStack);
-                }
-
-                _currentStack.Push(Tuple.Create(when, value, adj));
-                _lastAdj = adj;
+                _history.Push(Tuple.Create(when, value, adj));
             }
 
             public void Finalize(LastValueWidgetViewModel widget)
             {
-                var weights = _history.Select(s=>s.OrderBy(t=>t.Item1).ToList()).Select(v => new
-                {
-                    delta = (v.Last().Item2 - v.First().Item2) / v.First().Item2,
-                    count = (v.Last().Item1 - v.First().Item1).TotalDays,
-                }).ToList();
-                var totalCount = weights.Select(v => v.count).Sum();
-                var yearDelta = weights.Select(v => v.delta * v.count / totalCount).Sum() * (365.0 / totalCount);
+                Tuple<DateTime, double, double> current = null;
 
-                var minimum = _history.First().First().Item2;
-                var maximum = _history.Last().Last().Item2;
+                var percentages = new Stack<double>();
+
+                double minimum = 0, maximum = 0;
                 
+                while (_history.TryPop(out var next))
+                {
+                    if (current != null)
+                    {
+                        var nextValue = next.Item2;
+                        var currentValue = current.Item2;
+
+                        currentValue -= next.Item3 - current.Item3;
+
+                        var percentage = nextValue / currentValue;
+                        percentages.Push(percentage);
+                        current = next;
+                        maximum = current.Item2;
+                    }
+                    else
+                    {
+                        current = next;
+                        minimum = current.Item2;
+                    }
+                }
+
+                double yearDelta = Double.NaN;
+
+                if (percentages.Any())
+                {
+                    var avg = Math.Pow(percentages.Aggregate((a, b) => a * b), 1.0 / percentages.Count) - 1;
+                    // var avg = percentages.Average() - 1;
+
+                    yearDelta = avg * 365.25;
+                }
+                
+
                 (widget.ColorYear, widget.DeltaYear) = SetDiffPercenage(yearDelta);
                 
                 widget.Description = $"В начале: {widget.FormatValue(minimum)}\nВ конце: {widget.FormatValue(maximum)}\nГодовых: {yearDelta:P2}";
