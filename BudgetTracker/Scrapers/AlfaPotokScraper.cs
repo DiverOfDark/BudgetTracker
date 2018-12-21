@@ -94,7 +94,7 @@ namespace BudgetTracker.Scrapers
             {
                 if (index % 10 == 0)
                 {
-                    _logger.LogInformation($"Parsing status for AlfaPotok: {((double)index / rows.Count):P2}%");
+                    _logger.LogInformation($"Parsing status for AlfaPotok: {((double)index / rows.Count):P2}");
                 }
                 
                 var v = rows[index];
@@ -114,21 +114,28 @@ namespace BudgetTracker.Scrapers
 
                 var expirationDate = whenDate.AddDays(durationDays);
 
+                var agreedPercentage = cells[2].Text;
+
                 var invested = cells[3].Text;
                 var returned = cells[4].Text;
+                var returnedBody = cells[5].Text;
 
+                var agreedPercentageDouble = ParseDouble(agreedPercentage);
+                
                 var investedDouble = ParseDouble(invested);
                 var returnedDouble = ParseDouble(returned);
-
+                var returnedBodyDouble = ParseDouble(returnedBody);
+                
                 var delta = investedDouble - returnedDouble;
-
+                var bodyDelta = investedDouble - returnedBodyDouble;
+                
                 if (delta > 0)
                 {
                     totalInvested += delta;
-                    if (expirationDate < DateTime.Now)
-                    {
-                        risked += delta;
-                    }
+                }
+                if (expirationDate < DateTime.Now && bodyDelta > 1) // Ignore all sums < 1 RUB.
+                {
+                    risked += bodyDelta * (1.0 + agreedPercentageDouble / 100.0);
                 }
             }
 
