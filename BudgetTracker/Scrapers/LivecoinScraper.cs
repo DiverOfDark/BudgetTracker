@@ -55,7 +55,7 @@ namespace BudgetTracker.Scrapers
                     }
                 }
 
-                var tickers = result.Select(v => v.Ccy).Distinct().Where(v => v != "USD").Select(v => v + "/USD")
+                var tickers = result.Select(v => v.Ccy).Distinct().Where(v => v != CurrencyExtensions.USD).Select(v => v + "/" + CurrencyExtensions.USD)
                     .ToList();
                 uri = "https://api.livecoin.net/exchange/ticker";
                 response = _client.GetAsync(uri).GetAwaiter().GetResult();

@@ -73,7 +73,7 @@ namespace BudgetTracker.Scrapers
                         title = title.Remove(title.IndexOf("\n")).Trim();
                     }
                     var valueAmount = double.Parse(new string(value.Where(v=>char.IsDigit(v) || v == ',').ToArray()), new NumberFormatInfo{NumberDecimalSeparator = ","});
-                    result.Add(Money(title, valueAmount, "RUB"));
+                    result.Add(Money(title, valueAmount, CurrencyExtensions.RUB));
                 }
             }
             

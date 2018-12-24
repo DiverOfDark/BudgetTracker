@@ -1,0 +1,81 @@
+﻿@using Controllers.ViewModels.Payment
+@using Microsoft.EntityFrameworkCore.Internal
+@using Model
+@inject ObjectRepository Repository
+@model DebtModel
+@{
+    var title = "Добавить долг";
+    var btnTitle = "Добавить";
+    if (Model?.Id != Guid.Empty)
+    {
+        title = "Редактировать долг";
+        btnTitle = "Редактировать";
+    }
+    ViewData["Title"] = title;
+}
+
+
+<div class="container">
+    <div class="row row-cards row-deck">
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">
+                    @title
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            @using (Html.BeginForm("EditDebt", "Debt", FormMethod.Post))
+                            {
+                                @Html.HiddenFor(v => v.Id)
+                                <div class="form-horizontal">
+                                    <div class="form-group">
+                                        <label class="control-label">Когда</label>
+                                        <div control-labelstyle="padding-top: 7px;">
+                                            @Html.TextBoxFor(model => model.When, new { @class = "form-control", placeholder = "ДД.ММ.ГГГГ" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Сколько</label>
+                                        <div control-labelstyle="padding-top: 7px;">
+                                            @Html.EditorFor(model => model.Amount, new {htmlAttributes = new {@class = "form-control", placeholder = "1000"}})
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Валюта</label>
+                                        <div control-labelstyle="padding-top: 7px;">
+                                            @Html.DropDownListFor(model => model.Ccy, 
+                                                CurrencyExtensions.KnownCurrencies.Select(v=>new SelectListItem {Value = v, Text = CurrencyExtensions.ToDisplayText(v), Selected = v == Model?.Ccy} ).ToList(),
+                                                new {@class = "form-control"})
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Процентная ставка (годовых)</label>
+                                        <div control-labelstyle="padding-top: 7px;">
+                                            @Html.EditorFor(model => model.Percentage, new {htmlAttributes = new {@class = "form-control", placeholder = "5.5"}})
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Срок (дней)</label>
+                                        <div control-labelstyle="padding-top: 7px;">
+                                            @Html.EditorFor(model => model.DaysCount, new {htmlAttributes = new {@class = "form-control", placeholder = "182"}})
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Описание</label>
+                                        <div control-labelstyle="padding-top: 7px;">
+                                            @Html.EditorFor(model => model.Description, new {htmlAttributes = new {@class = "form-control", placeholder = "Заемщик / номер договора"}})
+                                        </div>
+                                    </div>
+                                    <div class="form-group text-center">
+                                        <input type="submit" value="@btnTitle" class="btn btn-default"/>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -69,7 +69,7 @@ namespace BudgetTracker.Scrapers
 
                     var doubleValue = ParseDouble(value);
 
-                    result.Add(Money(key, doubleValue, "RUB"));
+                    result.Add(Money(key, doubleValue, CurrencyExtensions.RUB));
                 }
                 catch (Exception ex)
                 {
@@ -139,8 +139,8 @@ namespace BudgetTracker.Scrapers
                 }
             }
 
-            result.Add(Money("Просрочка", risked, "RUB"));            
-            result.Add(Money("Инвестировано", totalInvested, "RUB"));            
+            result.Add(Money("Просрочка", risked, CurrencyExtensions.RUB));            
+            result.Add(Money("Инвестировано", totalInvested, CurrencyExtensions.RUB));            
             
             return result;
         }

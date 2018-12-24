@@ -25,19 +25,19 @@ namespace BudgetTracker.Scrapers
             var sps = GetElement(driver, By.Id("last_last")).Text;
             result.Add(Money("SP500",
                 double.Parse(sps, new NumberFormatInfo() {NumberDecimalSeparator = ",", NumberGroupSeparator = "."}),
-                "USD"));
+                CurrencyExtensions.USD));
 
             driver.Navigate().GoToUrl("https://ru.investing.com/currencies/usd-rub");
             sps = GetElement(driver, By.Id("last_last")).Text;
-            result.Add(Money("USD/RUB",
-                double.Parse(sps, new NumberFormatInfo() { NumberDecimalSeparator = ",", NumberGroupSeparator = "." }),
-
-                "USD/RUB"));
+            var usdRub = CurrencyExtensions.USD + "/" + CurrencyExtensions.RUB;
+            result.Add(Money(usdRub,
+                double.Parse(sps, new NumberFormatInfo() { NumberDecimalSeparator = ",", NumberGroupSeparator = "." }),usdRub));
 
             driver.Navigate().GoToUrl("https://ru.investing.com/currencies/eur-rub");
             sps = GetElement(driver, By.Id("last_last")).Text;
-            result.Add(Money("EUR/RUB", double.Parse(sps,
-                new NumberFormatInfo() {NumberDecimalSeparator = ",", NumberGroupSeparator = "."}), "EUR/RUB"));
+            var eurRub = CurrencyExtensions.EUR + "/" + CurrencyExtensions.RUB;
+            result.Add(Money(eurRub, double.Parse(sps,
+                new NumberFormatInfo() {NumberDecimalSeparator = ",", NumberGroupSeparator = "."}), eurRub));
 
             return result;
         }

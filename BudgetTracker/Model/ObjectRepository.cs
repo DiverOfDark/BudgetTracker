@@ -20,6 +20,7 @@ namespace BudgetTracker.Model
             AddType((WidgetModel.WidgetEntity x) => new WidgetModel(x));
             AddType((ScraperConfigurationModel.ScraperConfigurationEntity x) => new ScraperConfigurationModel(x));
             AddType((SettingsModel.SettingsEntity x) => new SettingsModel(x));
+            AddType((DebtModel.DebtEntity x) => new DebtModel(x));
             Initialize();
         }
 

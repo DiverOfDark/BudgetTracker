@@ -71,7 +71,7 @@ namespace BudgetTracker.Scrapers
 
                 var doubleAmount = double.Parse(amount, new NumberFormatInfo() {NumberDecimalSeparator = ","});
 
-                result.Add(Money(title, doubleAmount, "RUB"));
+                result.Add(Money(title, doubleAmount, CurrencyExtensions.RUB));
             }
             return result;
         }

@@ -64,7 +64,7 @@ namespace BudgetTracker.Scrapers
                     var acc = td.Text;
                     var text = value.Text;
                     var doubleValue = ParseDouble(text);
-                    var mm = Money(acc, doubleValue, "RUB");
+                    var mm = Money(acc, doubleValue, CurrencyExtensions.RUB);
                     result.Add(mm);
                 }
                 catch
@@ -108,7 +108,7 @@ namespace BudgetTracker.Scrapers
                 }
             }
 
-            result.Add(Money("Просрочка", debtValue, "RUB"));
+            result.Add(Money("Просрочка", debtValue, CurrencyExtensions.RUB));
             
             return result;
         }

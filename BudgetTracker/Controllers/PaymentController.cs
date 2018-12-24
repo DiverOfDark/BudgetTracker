@@ -33,7 +33,7 @@ namespace BudgetTracker.Controllers
             }
         }
     }
-    
+
     [Authorize]
     public class PaymentController : Controller
     {

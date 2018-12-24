@@ -55,7 +55,7 @@ namespace BudgetTracker.Scrapers
 
                 var cleanValue = ParseDouble(value);
 
-                result.Add(Money(label, cleanValue, "RUB"));
+                result.Add(Money(label, cleanValue, CurrencyExtensions.RUB));
             }
 
             var investmentsSection = GetElement(driver, By.ClassName("investments"));
@@ -100,7 +100,7 @@ namespace BudgetTracker.Scrapers
                 return inv - ok;
             }).ToList();
 
-            result.Add(Money("Просрочки", spans.Sum(), "RUB"));
+            result.Add(Money("Просрочки", spans.Sum(), CurrencyExtensions.RUB));
 
             return result;
         }

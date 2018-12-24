@@ -1,0 +1,55 @@
+@model IEnumerable<BudgetTracker.Model.DebtModel>
+
+@{
+    ViewData["Title"] = "Долги и займы";
+}
+<div class="container">
+    <div class="row row-cards row-deck">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        Долги и займы
+                    </h3>
+                    <div class="card-options">
+                        &nbsp;
+                        <a class="btn btn-primary btn-sm" href="@Url.Action("AddDebt")">
+                            Добавить
+                        </a>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table card-table table-sm table-hover table-striped">
+                        <thead>
+                        <tr>
+                            <th>Когда выдан</th>
+                            <th>Сколько</th>
+                            <th>Срок (дней)</th>
+                            <th>Процентная ставка (годовых)</th>
+                            <th>Описание</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var debt in Model.OrderBy(v=>v.When))
+                        {
+                            <tr>
+                                <td>@debt.When.ToLongDateString()</td>
+                                <td>@debt.Amount @debt.Ccy</td>
+                                <td>@debt.DaysCount</td>
+                                <td>@debt.Percentage%</td>
+                                <td>@debt.Description</td>
+                                <td>
+                                    <a href="@Url.Action("EditDebt", new {id = debt.Id})">
+                                        <span class="fe fe-edit-2"></span>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

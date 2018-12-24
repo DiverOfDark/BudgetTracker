@@ -51,7 +51,7 @@ namespace BudgetTracker.Scrapers
                 var name = pairs[0].Trim().TrimEnd(':');
                 var value = Double.Parse(new string(pairs[1].Where(char.IsDigit).ToArray()), CultureInfo.InvariantCulture);
                 
-                result.Add(Money(name, value, "RUB"));
+                result.Add(Money(name, value, CurrencyExtensions.RUB));
             }
 
             var fundsReports = GetElements(driver, By.ClassName("funds_report"));
@@ -78,7 +78,7 @@ namespace BudgetTracker.Scrapers
                         var value = Double.Parse(new string(valueStr.Where(char.IsDigit).ToArray()),
                             CultureInfo.InvariantCulture);
 
-                        result.Add(Money(name, value, "RUB"));
+                        result.Add(Money(name, value, CurrencyExtensions.RUB));
                     }
                     catch (Exception ex)
                     {
