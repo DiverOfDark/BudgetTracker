@@ -36,9 +36,15 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label class="control-label">Сколько</label>
+                                        <label class="control-label">Отдано</label>
                                         <div control-labelstyle="padding-top: 7px;">
                                             @Html.EditorFor(model => model.Amount, new {htmlAttributes = new {@class = "form-control", placeholder = "1000"}})
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Возвращено</label>
+                                        <div control-labelstyle="padding-top: 7px;">
+                                            @Html.TextBoxFor(model => model.Returned, new { @class = "form-control", placeholder = "ДД.ММ.ГГГГ" })
                                         </div>
                                     </div>
                                     <div class="form-group">
