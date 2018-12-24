@@ -10,6 +10,8 @@ namespace BudgetTracker.Model
         {
             public double Amount { get; set; }
 
+            public double Returned { get; set; }
+
             public string Ccy { get; set; }
 
             public DateTime When { get; set; }
@@ -48,6 +50,12 @@ namespace BudgetTracker.Model
             set => UpdateProperty(() => _entity.Description, value);
         }
 
+        public double Returned
+        {
+            get => _entity.Returned;
+            set => UpdateProperty(() => _entity.Returned, value);
+        }
+        
         public double Amount
         {
             get => _entity.Amount;

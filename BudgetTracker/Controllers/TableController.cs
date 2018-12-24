@@ -69,12 +69,13 @@ namespace BudgetTracker.Controllers
             return Content(content, "text/csv", Encoding.UTF8);
         }
         
-        public IActionResult Index(bool? showAll, bool? showControls, bool? showDelta, bool? exemptTransfers)
+        public IActionResult Index(String provider, bool? showAll, bool? showControls, bool? showDelta, bool? exemptTransfers)
         {
             var showAll2 = this.TryGetLastValue(showAll, nameof(TableController) + nameof(showAll)) ?? false;
             var showControls2 = this.TryGetLastValue(showControls, nameof(TableController) + nameof(showControls)) ?? false;
             var showDelta2 = this.TryGetLastValue(showDelta, nameof(TableController) + nameof(showDelta)) ?? false;
             var exemptTransfers2 = this.TryGetLastValue(exemptTransfers, nameof(TableController) + nameof(exemptTransfers)) ?? false;
+            
             var table = HttpContext.RequestServices.GetRequiredService<TableViewModelFactory>();
 
             var vm = table.GetVM();
@@ -82,6 +83,11 @@ namespace BudgetTracker.Controllers
             vm.ShowDelta = showDelta2;
             vm.ShowControls = showControls2;
             vm.ExemptTransfers = exemptTransfers2;
+
+            var provider2 = this.TryGetLastValue(provider, nameof(TableController) + nameof(provider)) ?? vm.Headers.Select(s=>s.Provider).FirstOrDefault();
+
+            ViewData["Provider"] = provider2;
+
             return View(vm);
         }
 

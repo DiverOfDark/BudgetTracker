@@ -1,4 +1,4 @@
-@model IEnumerable<BudgetTracker.Model.DebtModel>
+@model List<BudgetTracker.Controllers.ViewModels.Debt.DebtViewModel>
 
 @{
     ViewData["Title"] = "Долги и займы";
@@ -23,21 +23,29 @@
                         <thead>
                         <tr>
                             <th>Когда выдан</th>
-                            <th>Сколько</th>
                             <th>Срок (дней)</th>
                             <th>Процентная ставка (годовых)</th>
+                            <th>Объём</th>
+                            <th>К возврату</th>
+                            <th>Выплачено</th>
+                            <th>Осталось выплатить</th>
                             <th>Описание</th>
                             <th></th>
                         </tr>
                         </thead>
                         <tbody>
-                        @foreach (var debt in Model.OrderBy(v=>v.When))
+                        @foreach (var debtVm in Model.OrderBy(v=>v.Model.When))
                         {
+                            var debt = debtVm.Model;
+                            
                             <tr>
                                 <td>@debt.When.ToLongDateString()</td>
-                                <td>@debt.Amount @debt.Ccy</td>
-                                <td>@debt.DaysCount</td>
+                                <td>@debt.DaysCount дней</td>
                                 <td>@debt.Percentage%</td>
+                                <td>@debt.Amount.ToString("N2") @debt.Ccy</td>
+                                <td>@debtVm.AmountWithPercentage.ToString("N2") @debt.Ccy</td>
+                                <td>@debt.Returned.ToString("N2")</td>
+                                <td>@debtVm.RemainingWithPercentage.ToString("N2")</td>
                                 <td>@debt.Description</td>
                                 <td>
                                     <a href="@Url.Action("EditDebt", new {id = debt.Id})">

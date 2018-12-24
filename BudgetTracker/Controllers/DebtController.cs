@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using BudgetTracker.Controllers.ViewModels.Debt;
 using BudgetTracker.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +14,7 @@ namespace BudgetTracker.Controllers
 
         public DebtController(ObjectRepository repository) => _repository = repository;
 
-        public ActionResult Index() => View(_repository.Set<DebtModel>());
+        public ActionResult Index() => View(_repository.Set<DebtModel>().Select(v=>new DebtViewModel(v)).ToList());
 
         public IActionResult AddDebt() => View("EditDebt");
 

@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Таблица";
     var rootClass = Model.Headers.Count > 8 ? "container-fluid" : "container";
+    var currentProvider = (String)ViewData["Provider"];
 }
 
 <div class="@rootClass">
@@ -9,9 +10,22 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">
-                        История
-                    </h3>
+                    <h3 class="card-title">История</h3>
+                    <div style="width: 200px; margin-left: 15px;">
+                        <select class="form-control form-control-sm" id="providerSelector">
+                            @foreach (var provider in Model.Headers.Select(s => s.Provider).Distinct().OrderBy(s => s))
+                            {
+                                if (provider == currentProvider)
+                                {
+                                    <option name="@provider" value="@provider" selected="selected">@provider</option>
+                                }
+                                else
+                                {
+                                    <option name="@provider" value="@provider">@provider</option>
+                                }
+                            }
+                        </select>
+                    </div>
                     <div class="card-options">
                         <a class="btn btn-secondary btn-sm ml-2" href="@Url.Action("Index", "Metadata")"><span class="small fe fe-edit-2"></span></a>
                         <a class="btn btn-secondary btn-sm ml-2" href="?ShowDelta=@(!Model.ShowDelta)">
@@ -60,7 +74,7 @@
                     <table class="table table-sm table-vcenter card-table table-hover table-striped text-nowrap">
                         <tr>
                             <th scope="col" rowspan="2">Когда</th>
-                            @foreach (var p in Model.Headers.Where(v => v.IsVisible || Model.ShowAll).Select(v => v.Provider).Distinct())
+                            @foreach (var p in Model.Headers.Where(v => v.Provider == currentProvider && (v.IsVisible || Model.ShowAll)).Select(v => v.Provider).Distinct())
                             {
                                 <th scope="col" colspan="@Model.Headers.Where(v => v.IsVisible || Model.ShowAll).Count(s => s.Provider == p)">
                                     @p
@@ -68,7 +82,7 @@
                             }
                         </tr>
                         <tr>
-                            @foreach (var p in Model.Headers.Where(v => v.IsVisible || Model.ShowAll))
+                            @foreach (var p in Model.Headers.Where(v => v.Provider == currentProvider && (v.IsVisible || Model.ShowAll)))
                             {
                                 <th title="@p.AccountName">
                                     @p.UserFriendlyName
@@ -90,7 +104,7 @@
                         {
                             <tr>
                                 <th class="table-dark" scope="row">@item.When.ToString("dd.MM.yyyy")</th>
-                                @foreach (var h in Model.Headers.Where(v => v.IsVisible || Model.ShowAll))
+                                @foreach (var h in Model.Headers.Where(v => v.Provider == currentProvider && (v.IsVisible || Model.ShowAll)))
                                 {
                                     var p = item.Cells.GetValueOrDefault(h);
 
@@ -186,3 +200,16 @@
         </div>
     </div>
 </div>
+
+@section Scripts
+{
+    <script type="text/javascript">
+        (function() {
+            $('#providerSelector').on('change', function(item) {
+                var selectedOption = item.currentTarget.selectedOptions[0].value;
+
+                window.location = "?provider=" + selectedOption;
+            });
+        })();
+    </script>
+}
