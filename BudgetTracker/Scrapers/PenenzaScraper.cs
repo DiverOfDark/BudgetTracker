@@ -32,6 +32,10 @@ namespace BudgetTracker.Scrapers
             chrome.SendKeys(configuration.Password);
             chrome.SendKeys(Keys.Return);
 
+            WaitForPageLoad(driver, 10);
+            driver.Navigate().GoToUrl("https://my.penenza.ru/main/tradefinancemvc/?forcedshow=1");
+            WaitForPageLoad(driver, 10);
+
             var portlets = GetElements(driver, By.ClassName("investor-dashboard__portlet-wrapper"));
 
             var firstPortlet = portlets.First();
