@@ -17,6 +17,8 @@ namespace BudgetTracker.Scrapers
     [UsedImplicitly]
     internal class ModulbankScraper : GenericScraper
     {
+        private DateTime? _lastSms;
+
         public ModulbankScraper(ObjectRepository repository) : base(repository)
         {
         }
@@ -25,6 +27,11 @@ namespace BudgetTracker.Scrapers
 
         private void DoLogin(ScraperConfigurationModel configuration, Chrome chrome)
         {
+            if (_lastSms.HasValue && _lastSms.Value > DateTime.UtcNow)
+            {
+                Thread.Sleep(DateTime.UtcNow - _lastSms.Value);
+            }
+            
             var driver = chrome.Driver;
             driver.Navigate().GoToUrl(@"https://my.modulbank.ru/");
             var name = GetElement(driver, By.Name("tel"));
@@ -38,15 +45,17 @@ namespace BudgetTracker.Scrapers
             pass.Click();
             chrome.SendKeys(configuration.Password);
 
-            var now = DateTime.UtcNow;
             chrome.SendKeys(Keys.Return);
             
             GetElement(driver, By.Name("smsCode")).Click();
 
+            _lastSms = DateTime.UtcNow.AddMinutes(5);
+            
             bool success = false;
-            while (DateTime.UtcNow - now < TimeSpan.FromMinutes(15))
+            while (DateTime.UtcNow < _lastSms)
             {
-                var lastSms = Repository.Set<SmsModel>().Where(v=>v.When > now.AddMinutes(-3)).OrderByDescending(v => v.When).FirstOrDefault();
+                var lastSms = Repository.Set<SmsModel>().Where(v => v.When > _lastSms.Value.AddMinutes(-5))
+                    .OrderByDescending(v => v.When).FirstOrDefault();
                 if (lastSms?.Message.Contains("Код подтверждения") == true)
                 {
                     var code = new string(lastSms.Message.Where(char.IsDigit).ToArray());
