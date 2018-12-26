@@ -37,24 +37,21 @@ namespace BudgetTracker.Model
         public MoneyColumnMetadataModel(MoneyColumnMetadataEntity entity)
         {
             _entity = entity;
-            Id = Guid.Parse(_entity.RowKey);
         }
 
         public MoneyColumnMetadataModel(string provider, string accountName)
         {
-            Id = Guid.NewGuid();
             _entity = new MoneyColumnMetadataEntity
             {
                 AccountName = accountName,
                 Provider = provider,
-                PartitionKey = nameof(MoneyColumnMetadataEntity),
-                RowKey = Id.ToString()
+                Id = Guid.NewGuid()
             };
         }
 
         protected override object Entity => _entity;
 
-        public override Guid Id { get; }
+        public override Guid Id => _entity.Id;
 
         public string AccountName => _entity.AccountName;
         public string Provider => _entity.Provider;

@@ -21,23 +21,20 @@ namespace BudgetTracker.Model
         public SmsModel(SmsEntity entity)
         {
             _entity = entity;
-            Id = Guid.Parse(_entity.RowKey);
         }
 
         public SmsModel(string from, string message, DateTime when)
         {
-            Id = Guid.NewGuid();
             _entity = new SmsEntity
             {
-                PartitionKey = nameof(SmsModel),
-                RowKey = Id.ToString(),
+                Id = Guid.NewGuid(),
                 From = from,
                 Message = message,
                 When = when
             };
         }
 
-        public override Guid Id { get; }
+        public override Guid Id => _entity.Id;
         protected override object Entity => _entity;
 
         public Guid? AppliedRuleId => _entity.AppliedRule;

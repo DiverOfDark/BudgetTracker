@@ -35,23 +35,20 @@ namespace BudgetTracker.Model
         public WidgetModel(WidgetEntity entity)
         {
             _entity = entity;
-            Id = Guid.Parse(_entity.RowKey);
         }
 
         public WidgetModel(int order, string title, WidgetKind kind)
         {
-            Id = Guid.NewGuid();
             _entity = new WidgetEntity
             {
-                PartitionKey = nameof(WidgetModel),
-                RowKey = Id.ToString(),
+                Id = Guid.NewGuid(),
                 Order = order,
                 Title = title,
                 WidgetKind = (int) kind,
             };
         }
 
-        public override Guid Id { get; }
+        public override Guid Id => _entity.Id;
         protected override object Entity => _entity;
 
         public int Order

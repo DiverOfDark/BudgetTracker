@@ -19,23 +19,20 @@ namespace BudgetTracker.Model
         public RuleModel(RuleEntity entity)
         {
             _entity = entity;
-            Id = Guid.Parse(_entity.RowKey);
         }
 
         public RuleModel(RuleType ruleType, string regexSender, string regexText)
         {
-            Id = Guid.NewGuid();
             _entity = new RuleEntity
             {
-                PartitionKey = nameof(RuleModel),
-                RowKey = Id.ToString(),
+                Id = Guid.NewGuid(),
                 RuleType = (int)ruleType,
                 RegexSender = regexSender,
                 RegexText = regexText
             };
         }
 
-        public override Guid Id { get; }
+        public override Guid Id => _entity.Id;
         protected override object Entity => _entity;
 
         public RuleType RuleType => (RuleType) _entity.RuleType;

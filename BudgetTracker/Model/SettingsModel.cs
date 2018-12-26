@@ -15,21 +15,18 @@ namespace BudgetTracker.Model
 
         public SettingsModel()
         {
-            Id = Guid.NewGuid();
             _entity = new SettingsEntity
             {
-                RowKey = Id.ToString(),
-                PartitionKey = nameof(SettingsModel),
+                Id = Guid.NewGuid()
             };
         }
 
         public SettingsModel(SettingsEntity entity)
         {
             _entity = entity;
-            Id = Guid.Parse(_entity.RowKey);
         }
 
-        public override Guid Id { get; }
+        public override Guid Id => _entity.Id;
         protected override object Entity => _entity;
 
         public string Password

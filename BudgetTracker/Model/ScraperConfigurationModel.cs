@@ -27,21 +27,18 @@ namespace BudgetTracker.Model
         public ScraperConfigurationModel(ScraperConfigurationEntity entity)
         {
             _entity = entity;
-            Id = Guid.Parse(_entity.RowKey);
         }
 
         public ScraperConfigurationModel(String scraper)
         {
-            Id = Guid.NewGuid();
             _entity = new ScraperConfigurationEntity
             {
+                Id = Guid.NewGuid(),
                 ScraperName = scraper,
-                PartitionKey = nameof(ScraperConfigurationEntity),
-                RowKey = Id.ToString()
             };
         }
-        
-        public override Guid Id { get; }
+
+        public override Guid Id => _entity.Id;
 
         protected override object Entity => _entity;
 

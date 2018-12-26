@@ -21,21 +21,18 @@ namespace BudgetTracker.Model
         public MoneyStateModel(MoneyStateEntity entity)
         {
             _entity = entity;
-            Id = Guid.Parse(_entity.RowKey);
         }
 
         public MoneyStateModel()
         {
-            Id = Guid.NewGuid();
             _entity = new MoneyStateEntity
             {
+                Id = Guid.NewGuid(),
                 When = DateTime.UtcNow.Date,
-                PartitionKey = nameof(MoneyStateModel),
-                RowKey = Id.ToString()
             };
         }
 
-        public override Guid Id { get; }
+        public override Guid Id => _entity.Id;
         protected override object Entity => _entity;
 
         public string Provider

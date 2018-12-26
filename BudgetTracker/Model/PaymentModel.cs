@@ -59,17 +59,14 @@ namespace BudgetTracker.Model
         public PaymentModel(PaymentEntity entity)
         {
             _entity = entity;
-            Id = Guid.Parse(_entity.RowKey);
         }
 
         public PaymentModel(DateTime when, string what, double amount, PaymentKind kind, string ccy, string statementReference,
             MoneyColumnMetadataModel column)
         {
-            Id = Guid.NewGuid();
             _entity = new PaymentEntity
             {
-                PartitionKey = nameof(MoneyStateModel),
-                RowKey = Id.ToString(),
+                Id = Guid.NewGuid(),
                 When = when,
                 Amount = amount,
                 What = what,
@@ -88,11 +85,9 @@ namespace BudgetTracker.Model
 
             amount = new string(amount.Replace(",", ".").Where(v=>char.IsDigit(v) || v == '.').ToArray());
 
-            Id = Guid.NewGuid();
             _entity = new PaymentEntity
             {
-                PartitionKey = nameof(MoneyStateModel),
-                RowKey = Id.ToString(),
+                Id = Guid.NewGuid(),
                 SmsId = sms.Id,
                 When = sms.When,
                 Kind = (int) PaymentKind.Expense
@@ -106,7 +101,7 @@ namespace BudgetTracker.Model
             Ccy = matches.Groups.First(v => v.Name == "ccy").Value;
         }
 
-        public sealed override Guid Id { get; }
+        public sealed override Guid Id => _entity.Id;
         protected override object Entity => _entity;
 
         public Guid? ColumnId => _entity.ColumnId;

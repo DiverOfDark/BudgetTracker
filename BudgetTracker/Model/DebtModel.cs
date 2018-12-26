@@ -28,20 +28,17 @@ namespace BudgetTracker.Model
         public DebtModel(DebtEntity entity)
         {
             _entity = entity;
-            Id = Guid.Parse(_entity.RowKey);
         }
 
         public DebtModel()
         {
-            Id = Guid.NewGuid();
             _entity = new DebtEntity
             {
-                PartitionKey = nameof(MoneyStateModel),
-                RowKey = Id.ToString()
+                Id = Guid.NewGuid()
             };
         }
 
-        public override Guid Id { get; }
+        public override Guid Id => _entity.Id;
         protected override object Entity => _entity;
 
         public string Description

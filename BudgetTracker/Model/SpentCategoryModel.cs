@@ -19,23 +19,20 @@ namespace BudgetTracker.Model
         public SpentCategoryModel(SpendCategoryEntity entity)
         {
             _entity = entity;
-            Id = Guid.Parse(_entity.RowKey);
         }
 
         public SpentCategoryModel(string pattern, string category, PaymentKind kind)
         {
-            Id = Guid.NewGuid();
             _entity = new SpendCategoryEntity
             {
+                Id = Guid.NewGuid(),
                 Pattern = pattern,
                 Category = category,
-                RowKey = Id.ToString(),
-                PartitionKey = nameof(SpendCategoryEntity),
                 Kind = (int) kind
             };
         }
-        
-        public override Guid Id { get; }
+
+        public override Guid Id => _entity.Id;
         protected override Object Entity => _entity;
 
         public string Pattern
