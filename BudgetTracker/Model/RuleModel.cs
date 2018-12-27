@@ -32,8 +32,7 @@ namespace BudgetTracker.Model
             };
         }
 
-        public override Guid Id => _entity.Id;
-        protected override object Entity => _entity;
+        protected override BaseEntity Entity => _entity;
 
         public RuleType RuleType => (RuleType) _entity.RuleType;
         public string RegexSender => _entity.RegexSender;

@@ -49,9 +49,7 @@ namespace BudgetTracker.Model
             };
         }
 
-        protected override object Entity => _entity;
-
-        public override Guid Id => _entity.Id;
+        protected override BaseEntity Entity => _entity;
 
         public string AccountName => _entity.AccountName;
         public string Provider => _entity.Provider;
