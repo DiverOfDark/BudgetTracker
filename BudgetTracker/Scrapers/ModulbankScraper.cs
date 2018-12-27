@@ -71,8 +71,22 @@ namespace BudgetTracker.Scrapers
 
             WaitForPageLoad(driver, 15);
 
-            var popup = GetElement(driver, By.ClassName("popup_close"));
-            popup?.Click();
+            IEnumerable<IWebElement> popups;
+            do
+            {
+                popups = GetElements(driver, By.ClassName("popup_close"));
+                foreach (var p in popups)
+                {
+                    try
+                    {
+                        p.Click();
+                    }
+                    catch
+                    {
+                        // Ignore underneath popup
+                    }
+                }
+            } while (popups.Any());
         }
         
         public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, Chrome chrome)
