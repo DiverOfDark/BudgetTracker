@@ -12,6 +12,7 @@ namespace BudgetTracker.Model
         {
             IsReadOnly = !Startup.IsProduction;
             AddType((MoneyStateModel.MoneyStateEntity x) => new MoneyStateModel(x));
+            AddType((XmlKeyModel.XmlKeyEntity x) => new XmlKeyModel(x));
             AddType((MoneyColumnMetadataModel.MoneyColumnMetadataEntity x) => new MoneyColumnMetadataModel(x));
             AddType((SmsModel.SmsEntity x) => new SmsModel(x));
             AddType((PaymentModel.PaymentEntity x) => new PaymentModel(x));

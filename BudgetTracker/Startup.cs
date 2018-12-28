@@ -12,21 +12,26 @@ using BudgetTracker.Scrapers;
 using BudgetTracker.Services;
 using Hangfire;
 using Hangfire.AspNetCore;
-using Hangfire.Dashboard;
 using Hangfire.Dashboard.Resources;
 using Hangfire.MemoryStorage;
+using LiteDB;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.AzureStorage;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 using OutCode.EscapeTeams.ObjectRepository;
 using OutCode.EscapeTeams.ObjectRepository.AzureTableStorage;
+using OutCode.EscapeTeams.ObjectRepository.LiteDB;
 
 namespace BudgetTracker
 {
@@ -74,11 +79,37 @@ namespace BudgetTracker
             services.AddSingleton<Chrome>();
             services.AddSingleton<ScrapeService>();
 
-            var connectionString = Configuration.GetConnectionString("AzureStorage");
-            var cloudStorageAccount = CloudStorageAccount.Parse(connectionString);
-            var keysStorage = cloudStorageAccount.CreateCloudBlobClient().GetContainerReference("xmlkeys");
-            keysStorage.CreateIfNotExistsAsync().GetAwaiter().GetResult();
+            {
+                var liteDb = Configuration.GetConnectionString("LiteDb");
+                var azureDb = Configuration.GetConnectionString("AzureStorage");
 
+                IStorage storage = null;
+                
+                if (!String.IsNullOrEmpty(liteDb))
+                {
+                    var liteDbDatabase = new LiteDatabase(liteDb);
+                    storage = new LiteDbStorage(liteDbDatabase);
+                } else if (!String.IsNullOrEmpty(azureDb))
+                {
+                    var cloudStorageAccount = CloudStorageAccount.Parse(azureDb);
+                    storage = new AzureTableContext(cloudStorageAccount.CreateCloudTableClient());
+                }
+                else
+                {
+                    throw new Exception(
+                        "Connection string for either 'AzureStorage' or 'LiteDb' should been specified.");
+                }
+                
+                var objectRepository = new ObjectRepository(storage, NullLoggerFactory.Instance);
+
+                services.AddSingleton(storage);
+                services.AddSingleton(objectRepository);
+                services.Configure((Action<KeyManagementOptions>) (options =>
+                {
+                    options.XmlRepository = new ObjectRepositoryXmlStorage(objectRepository);
+                }));
+            }
+            
             var scrapers = GetType().Assembly.GetTypes().Where(v => v.IsSubclassOf(typeof(GenericScraper))).ToList();
             foreach (var s in scrapers)
             {
@@ -91,18 +122,14 @@ namespace BudgetTracker
                 textEncoderSettings.AllowRange(UnicodeRanges.All);
                 o.TextEncoderSettings = textEncoderSettings;
             });
-            services.AddSingleton(_ => cloudStorageAccount);
-            services.AddSingleton(_ => _.GetRequiredService<CloudStorageAccount>().CreateCloudBlobClient());
-            services.AddSingleton(_ => _.GetRequiredService<CloudStorageAccount>().CreateCloudTableClient());
             services.AddTransient(x => new TableViewModelFactory(x.GetRequiredService<ObjectRepository>()));
-            services.AddSingleton<IStorage, AzureTableContext>();
-            services.AddSingleton<ObjectRepository>();
             services.AddSingleton<ScriptService>();
             services.AddSingleton<SmsRuleProcessor>();
             services.AddLogging();
             services.AddSession();
             services.AddHangfire(x=>{ });
-            services.AddDataProtection().PersistKeysToAzureBlobStorage(keysStorage, "keys.xml");
+
+            services.AddDataProtection();
             services.AddAuthorization();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(x =>
             {
@@ -188,7 +215,6 @@ namespace BudgetTracker
                 }
 
                 GlobalSettings = settingsModel;
-
             }).Start();
         }
 
@@ -201,10 +227,5 @@ namespace BudgetTracker
             RecurringJob.AddOrUpdate<SmsRuleProcessor>(x=>x.Process(), Cron.MinuteInterval(5));
             RecurringJob.AddOrUpdate<SpentCategoryProcessor>(x=>x.Process(), Cron.MinuteInterval(30));
         }
-    }
-
-    public class HttpContextAuth : IDashboardAuthorizationFilter
-    {
-        public bool Authorize(DashboardContext context) => context.GetHttpContext().User.Identity.IsAuthenticated;
     }
 }
