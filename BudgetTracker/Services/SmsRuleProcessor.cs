@@ -31,7 +31,7 @@ namespace BudgetTracker.Services
 
                     foreach (SmsModel sms in smsList)
                     {
-                        if (sReg?.IsMatch(sms.From) != false && sText?.IsMatch(sms.Message) != false)
+                        if ((sms.From != null && sReg?.IsMatch(sms.From) != false) && (sms.Message != null && sText?.IsMatch(sms.Message) != false))
                         {
                             try
                             {
