@@ -90,7 +90,7 @@
                                         <span class="badge badge-primary">@item.Value.ToString("N2") @item.Key</span>
                                     }
                                     
-                                    <span class="badge badge-secondary">@month.PaymentModels.SelectMany(v=>v.Items).Count(v => v.Category == null || v.Debt == null) без категорий</span>
+                                    <span class="badge badge-secondary">@month.PaymentModels.SelectMany(v=>v.Items).Count(v => v.Category == null && v.Debt == null) без категорий</span>
                                 </th>
                             </tr>
 
