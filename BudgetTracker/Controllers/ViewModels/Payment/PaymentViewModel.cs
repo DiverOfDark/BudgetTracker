@@ -23,6 +23,8 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
 
             CategoryId = paymentModel.CategoryId;
             Category = paymentModel.Category?.Category;
+            DebtId = paymentModel.Debt?.Id;
+            Debt = paymentModel.Debt?.Description;
             ColumnId = paymentModel.Column?.Id;
         }
 
@@ -41,6 +43,8 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
             Account = list.Count == 1 ? list[0] : MiddleDash;
             list = paymentGroup.Select(v => v.Category?.Category).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
             Category = list.Count == 1 ? list[0] : MiddleDash;
+            list = paymentGroup.Select(v => v.Debt?.Description).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
+            Debt = list.Count == 1 ? list[0] : MiddleDash;
             var list2 = paymentGroup.Select(v => v.Kind).Distinct().ToList();
             Kind = list2.Count == 1 ? list2[0] : (Amount > 0 ? PaymentKind.Income : PaymentKind.Expense);
 
@@ -65,7 +69,9 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
         public IEnumerable<PaymentModel> Items { get; }
 
         public Guid? CategoryId { get; set; }
+        public Guid? DebtId { get; set; }
         public Guid? ColumnId { get; set; }
         public string Category { get; }
+        public string Debt { get; }
     }
 }

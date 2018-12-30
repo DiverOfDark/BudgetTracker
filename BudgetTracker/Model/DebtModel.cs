@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using OutCode.EscapeTeams.ObjectRepository;
 using OutCode.EscapeTeams.ObjectRepository.AzureTableStorage;
 
@@ -10,8 +11,6 @@ namespace BudgetTracker.Model
         {
             public double Amount { get; set; }
 
-            public double Returned { get; set; }
-
             public string Ccy { get; set; }
 
             public DateTime When { get; set; }
@@ -21,6 +20,7 @@ namespace BudgetTracker.Model
             public double Percentage { get; set; }
 
             public string Description { get; set; }
+            public string RegexForTransfer { get; set; }
         }
 
         private readonly DebtEntity _entity;
@@ -46,11 +46,7 @@ namespace BudgetTracker.Model
             set => UpdateProperty(() => _entity.Description, value);
         }
 
-        public double Returned
-        {
-            get => _entity.Returned;
-            set => UpdateProperty(() => _entity.Returned, value);
-        }
+        public IEnumerable<PaymentModel> Payments => Multiple<PaymentModel>(x => x.DebtId);
         
         public double Amount
         {
@@ -80,6 +76,12 @@ namespace BudgetTracker.Model
         {
             get => _entity.Ccy;
             set => UpdateProperty(() => _entity.Ccy, value);
+        }
+
+        public string RegexForTransfer
+        {
+            get => _entity.RegexForTransfer;
+            set => UpdateProperty(() => _entity.RegexForTransfer, value);
         }
     }
 }

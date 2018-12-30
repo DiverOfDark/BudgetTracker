@@ -44,8 +44,8 @@
                                 <td>@debt.Percentage%</td>
                                 <td>@debt.Amount.ToString("N2") @debt.Ccy</td>
                                 <td>@debtVm.AmountWithPercentage.ToString("N2") @debt.Ccy</td>
-                                <td>@debt.Returned.ToString("N2")</td>
-                                <td>@debtVm.RemainingWithPercentage.ToString("N2")</td>
+                                <td title="Последний платеж - @debtVm.Model.Payments.OrderByDescending(v=>v.When).FirstOrDefault()?.When.ToLongDateString()">@debtVm.Returned.ToString("N2") @debt.Ccy</td>
+                                <td>@debtVm.RemainingWithPercentage.ToString("N2") @debt.Ccy</td>
                                 <td>@debt.Description</td>
                                 <td>
                                     <a href="@Url.Action("EditDebt", new {id = debt.Id})">

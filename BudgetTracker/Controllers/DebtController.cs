@@ -22,7 +22,7 @@ namespace BudgetTracker.Controllers
         public IActionResult EditDebt(Guid id) => View("EditDebt", _repository.Set<DebtModel>().FirstOrDefault(v => v.Id == id));
 
         [HttpPost]
-        public IActionResult EditDebt(Guid id, DateTime when, double amount, double returned, string ccy, double percentage, int daysCount, string description)
+        public IActionResult EditDebt(Guid id, DateTime when, double amount, string ccy, double percentage, int daysCount, string description, string regexForTransfer)
         {
             DebtModel model;
             if (id == Guid.Empty)
@@ -41,7 +41,7 @@ namespace BudgetTracker.Controllers
             model.Percentage = percentage;
             model.DaysCount = daysCount;
             model.Description = description;
-            model.Returned = returned;
+            model.RegexForTransfer = regexForTransfer;
             
             return RedirectToAction("Index");
         }

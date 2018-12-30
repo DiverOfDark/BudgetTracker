@@ -1,3 +1,4 @@
+using System.Linq;
 using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels.Debt
@@ -10,8 +11,11 @@ namespace BudgetTracker.Controllers.ViewModels.Debt
         }
 
         public DebtModel Model { get; }
+
+        public double Returned => Model.Payments.Select(s => s.Amount).Sum();
+        
         public double AmountWithPercentage => Model.Amount * (1 + Model.Percentage / 100);
-        public double Remaining => Model.Amount - Model.Returned;
-        public double RemainingWithPercentage => AmountWithPercentage - Model.Returned;
+        public double Remaining => Model.Amount - Returned;
+        public double RemainingWithPercentage => AmountWithPercentage - Returned;
     }
 }

@@ -17,8 +17,9 @@ namespace BudgetTracker.Services
         {
             lock (typeof(SpentCategoryProcessor))
             {
-                var payments = _objectRepository.Set<PaymentModel>().Where(v => v.Category == null).ToList();
+                var payments = _objectRepository.Set<PaymentModel>().Where(v => v.Category == null && v.Debt == null).ToList();
                 var categories = _objectRepository.Set<SpentCategoryModel>();
+                var debts = _objectRepository.Set<DebtModel>();
 
                 var regexOptions = RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.IgnoreCase;
                 var cats = categories.ToDictionary(v => v, v => new Regex(v.Pattern, regexOptions));
@@ -35,6 +36,19 @@ namespace BudgetTracker.Services
                                 p.Kind = category.Key.Kind;
                             }
 
+                            break;
+                        }
+                    }
+                }
+
+                var debs = debts.ToDictionary(v => v, v => new Regex(v.RegexForTransfer, regexOptions));
+                foreach (var p in payments)
+                {
+                    foreach (var d in debs)
+                    {
+                        if (d.Value.IsMatch(p.What))
+                        {
+                            p.Debt = d.Key;
                             break;
                         }
                     }

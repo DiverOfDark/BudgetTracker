@@ -42,12 +42,6 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label class="control-label">Возвращено</label>
-                                        <div control-labelstyle="padding-top: 7px;">
-                                            @Html.TextBoxFor(model => model.Returned, new { @class = "form-control", placeholder = "ДД.ММ.ГГГГ" })
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
                                         <label class="control-label">Валюта</label>
                                         <div control-labelstyle="padding-top: 7px;">
                                             @Html.DropDownListFor(model => model.Ccy, 
@@ -71,6 +65,12 @@
                                         <label class="control-label">Описание</label>
                                         <div control-labelstyle="padding-top: 7px;">
                                             @Html.EditorFor(model => model.Description, new {htmlAttributes = new {@class = "form-control", placeholder = "Заемщик / номер договора"}})
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Строка для определения платежей</label>
+                                        <div control-labelstyle="padding-top: 7px;">
+                                            @Html.EditorFor(model => model.RegexForTransfer, new {htmlAttributes = new {@class = "form-control", placeholder = "Например, номер договора. То, что позволит отнести перевод денег к этому долгу."}})
                                         </div>
                                     </div>
                                     <div class="form-group text-center">

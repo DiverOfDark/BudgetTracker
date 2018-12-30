@@ -47,6 +47,8 @@ namespace BudgetTracker.Model
             public Guid? SmsId { get; set; }
             public Guid? CategoryId { get; set; }
             
+            public Guid? DebtId { get; set; }
+            
             public Guid? ColumnId { get; set; }
             public int Kind { get; set; }
             public string StatementReference { get; set; }
@@ -105,6 +107,7 @@ namespace BudgetTracker.Model
 
         public Guid? ColumnId => _entity.ColumnId;
         public Guid? CategoryId => _entity.CategoryId;
+        public Guid? DebtId => _entity.DebtId;
         public Guid? SmsId => _entity.SmsId;
         public DateTime When => _entity.When;
 
@@ -144,6 +147,12 @@ namespace BudgetTracker.Model
             set => UpdateProperty(() => _entity.ColumnId, value?.Id);
         }
 
+        public DebtModel Debt
+        {
+            get => Single<DebtModel>(_entity.DebtId);
+            set => UpdateProperty(() => _entity.DebtId, value?.Id);
+        }
+        
         public PaymentKind Kind
         {
             get => (PaymentKind) _entity.Kind;

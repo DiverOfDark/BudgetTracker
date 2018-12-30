@@ -24,6 +24,8 @@
         
         if (!string.IsNullOrWhiteSpace(v.Category))
             return v.Category;
+        if (!string.IsNullOrWhiteSpace(v.Debt))
+            return v.Debt;
         if (v.What.Length > 32)
             return v.What.Remove(31) + "...";
         return v.What;

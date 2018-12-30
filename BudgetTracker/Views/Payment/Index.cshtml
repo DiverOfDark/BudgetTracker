@@ -90,7 +90,7 @@
                                         <span class="badge badge-primary">@item.Value.ToString("N2") @item.Key</span>
                                     }
                                     
-                                    <span class="badge badge-secondary">@month.PaymentModels.SelectMany(v=>v.Items).Count(v => v.Category == null) без категорий</span>
+                                    <span class="badge badge-secondary">@month.PaymentModels.SelectMany(v=>v.Items).Count(v => v.Category == null || v.Debt == null) без категорий</span>
                                 </th>
                             </tr>
 
@@ -101,7 +101,7 @@
                                 <tr class="collapse-@month.Key collapse show">
                                     <td class="text-nowrap">@payment.When</td>
                                     <td class="text-nowrap">@payment.Kind.GetDisplayName()</td>
-                                    <td class="text-nowrap">@payment.Category</td>
+                                    <td class="text-nowrap">@(payment.Category ?? payment.Debt)</td>
                                     <td class="text-nowrap">@payment.Provider</td>
                                     <td class="text-nowrap">@payment.Account</td>
                                     <td>

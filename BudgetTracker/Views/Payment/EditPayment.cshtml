@@ -14,6 +14,15 @@
 
     categoriesSelectList.Insert(0, new SelectListItem());
     
+    var debtsSelectList = Repository.Set<DebtModel>().ToList().Select(v => new SelectListItem()
+    {
+        Text = v.Description,
+        Value = v.Id.ToString(),
+        Selected = v == Model.Items.First().Debt
+    }).Distinct((a, b) => a.Text == b.Text).OrderBy(v => v.Text).ToList();
+
+    debtsSelectList.Insert(0, new SelectListItem());
+    
     var providerAccountsSelectList = Repository.Set<MoneyColumnMetadataModel>().Where(v => !v.IsComputed).Select(v => new SelectListItem()
     {
         Text = v.Provider + "/" + v.AccountName,
@@ -46,6 +55,12 @@
                                         <label class="control-label">Категория:</label>
                                         <div control-labelstyle="padding-top: 7px;">
                                             @Html.DropDownListFor(model => model.CategoryId, categoriesSelectList, new {@class = "form-control"})
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Долг, к которому относится платеж:</label>
+                                        <div control-labelstyle="padding-top: 7px;">
+                                            @Html.DropDownListFor(model => model.DebtId, debtsSelectList, new {@class = "form-control"})
                                         </div>
                                     </div>
                                     <div class="form-group">

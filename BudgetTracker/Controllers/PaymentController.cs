@@ -56,7 +56,7 @@ namespace BudgetTracker.Controllers
             IEnumerable<PaymentModel> source = _objectRepository.Set<PaymentModel>();
             if (fc == true)
             {
-                source = source.Where(v => v.Category == null);
+                source = source.Where(v => v.Category == null && v.Debt == null);
             }
             return View(PaymentMonthViewModel.FromPayments(source, groups2).OrderByDescending(v => v.When).ToList());
         }

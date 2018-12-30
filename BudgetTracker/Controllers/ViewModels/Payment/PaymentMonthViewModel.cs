@@ -30,7 +30,7 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
             if (enableGrouping)
             {
                 var groups = paymentModels
-                    .GroupBy(v => (v.Category ?? v.What).ToLower() + v.Ccy + GetKindGrouping(v.Kind))
+                    .GroupBy(v => (v.Category ?? v.Debt ?? v.What).ToLower() + v.Ccy + GetKindGrouping(v.Kind))
                     .Where(v => v.Count() > 1)
                     .ToList();
 
