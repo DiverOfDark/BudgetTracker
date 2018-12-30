@@ -141,8 +141,7 @@ namespace BudgetTracker.Services
                 {
                     existing = new MoneyColumnMetadataModel(item.Key, sub)
                     {
-                        UserFriendlyName = sub,
-                        IsVisible = true
+                        UserFriendlyName = sub
                     };
                     _objectRepository.Add(existing);
                 }

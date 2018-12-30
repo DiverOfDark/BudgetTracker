@@ -75,8 +75,7 @@ namespace BudgetTracker.Scrapers
             {
                 column = new MoneyColumnMetadataModel(ProviderName, account)
                 {
-                    UserFriendlyName = account,
-                    IsVisible = true
+                    UserFriendlyName = account
                 };
                 Repository.Add(column);
             }

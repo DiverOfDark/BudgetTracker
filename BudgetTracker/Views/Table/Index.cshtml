@@ -1,4 +1,5 @@
-﻿@model Controllers.ViewModels.Table.TableViewModel
+﻿@using BudgetTracker.Controllers
+@model Controllers.ViewModels.Table.TableViewModel
 @{
     ViewData["Title"] = "Таблица";
     var rootClass = Model.Headers.Count > 8 ? "container-fluid" : "container";
@@ -13,17 +14,22 @@
                     <h3 class="card-title">История</h3>
                     <div style="width: 200px; margin-left: 15px;">
                         <select class="form-control form-control-sm" id="providerSelector">
-                            @foreach (var provider in Model.Headers.Select(s => s.Provider).Distinct().OrderBy(s => s))
-                            {
-                                if (provider == currentProvider)
+                            <optgroup>
+                                @foreach (var provider in (List<String>)ViewData["Providers"])
                                 {
-                                    <option name="@provider" value="@provider" selected="selected">@provider</option>
+                                    if (provider == currentProvider)
+                                    {
+                                        <option name="@provider" value="@provider" selected="selected">@provider</option>
+                                    }
+                                    else
+                                    {
+                                        <option name="@provider" value="@provider">@provider</option>
+                                    }
                                 }
-                                else
-                                {
-                                    <option name="@provider" value="@provider">@provider</option>
-                                }
-                            }
+                            </optgroup>
+                            <optgroup label="-------------------">
+                                <option name="@TableController.BadOption" value="@TableController.BadOption">Проблемные</option>
+                            </optgroup>
                         </select>
                     </div>
                     <div class="card-options">
@@ -36,16 +42,6 @@
                             else
                             {
                                 <text>&Tau;</text>
-                            }
-                        </a>
-                        <a class="btn btn-secondary btn-sm ml-2" href="?ShowAll=@(!Model.ShowAll)">
-                            @if (Model.ShowAll)
-                            {
-                                <text>Только видимые</text>
-                            }
-                            else
-                            {
-                                <text>Все столбцы</text>
                             }
                         </a>
                         <a class="btn btn-secondary btn-sm ml-2" href="?ShowControls=@(!Model.ShowControls)">
@@ -74,15 +70,15 @@
                     <table class="table table-sm table-vcenter card-table table-hover table-striped text-nowrap">
                         <tr>
                             <th scope="col" rowspan="2">Когда</th>
-                            @foreach (var p in Model.Headers.Where(v => v.Provider == currentProvider && (v.IsVisible || Model.ShowAll)).Select(v => v.Provider).Distinct())
+                            @foreach (var p in Model.Headers.Select(v => v.Provider).Distinct())
                             {
-                                <th scope="col" colspan="@Model.Headers.Where(v => v.IsVisible || Model.ShowAll).Count(s => s.Provider == p)">
+                                <th scope="col" colspan="@Model.Headers.Count(s => s.Provider == p)">
                                     @p
                                 </th>
                             }
                         </tr>
                         <tr>
-                            @foreach (var p in Model.Headers.Where(v => v.Provider == currentProvider && (v.IsVisible || Model.ShowAll)))
+                            @foreach (var p in Model.Headers)
                             {
                                 <th title="@p.AccountName">
                                     @p.UserFriendlyName
@@ -104,7 +100,7 @@
                         {
                             <tr>
                                 <th class="table-dark" scope="row">@item.When.ToString("dd.MM.yyyy")</th>
-                                @foreach (var h in Model.Headers.Where(v => v.Provider == currentProvider && (v.IsVisible || Model.ShowAll)))
+                                @foreach (var h in Model.Headers)
                                 {
                                     var p = item.Cells.GetValueOrDefault(h);
 

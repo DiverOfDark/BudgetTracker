@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,8 @@ namespace BudgetTracker.Controllers
     [Authorize]
     public class TableController : Controller
     {
+        public const string BadOption = nameof(BadOption);
+
         private readonly ObjectRepository _objectRepository;
 
         public TableController(ObjectRepository objectRepository) => _objectRepository = objectRepository;
@@ -69,9 +72,8 @@ namespace BudgetTracker.Controllers
             return Content(content, "text/csv", Encoding.UTF8);
         }
         
-        public IActionResult Index(String provider, bool? showAll, bool? showControls, bool? showDelta, bool? exemptTransfers)
+        public IActionResult Index(String provider, bool? showControls, bool? showDelta, bool? exemptTransfers)
         {
-            var showAll2 = this.TryGetLastValue(showAll, nameof(TableController) + nameof(showAll)) ?? false;
             var showControls2 = this.TryGetLastValue(showControls, nameof(TableController) + nameof(showControls)) ?? false;
             var showDelta2 = this.TryGetLastValue(showDelta, nameof(TableController) + nameof(showDelta)) ?? false;
             var exemptTransfers2 = this.TryGetLastValue(exemptTransfers, nameof(TableController) + nameof(exemptTransfers)) ?? false;
@@ -79,7 +81,6 @@ namespace BudgetTracker.Controllers
             var table = HttpContext.RequestServices.GetRequiredService<TableViewModelFactory>();
 
             var vm = table.GetVM();
-            vm.ShowAll = showAll2;
             vm.ShowDelta = showDelta2;
             vm.ShowControls = showControls2;
             vm.ExemptTransfers = exemptTransfers2;
@@ -87,7 +88,19 @@ namespace BudgetTracker.Controllers
             var provider2 = this.TryGetLastValue(provider, nameof(TableController) + nameof(provider)) ?? vm.Headers.Select(s=>s.Provider).FirstOrDefault();
 
             ViewData["Provider"] = provider2;
+            ViewData["Providers"] = vm.Headers.Select(v => v.Provider).Distinct().OrderBy(v => v).ToList();
 
+            if (provider2 == BadOption)
+            {
+                vm.Values.RemoveAll(v => v.Cells.All(s => s.Value != null && s.Value?.FailedToResolve.Any() == false));
+                vm.Headers.RemoveAll(v => v.IsComputed || vm.Values.All(s =>
+                    s.Cells.Any(c => c.Key == v && c.Value != null && c.Value?.FailedToResolve.Any() == false)));
+            }
+            else
+            {
+                vm.Headers.RemoveAll(v => v.Provider != provider2);
+            }
+            
             return View(vm);
         }
 

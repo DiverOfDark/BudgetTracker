@@ -106,7 +106,6 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             }
         }
 
-        public bool ShowAll { get; set; }
         public bool ShowControls { get; set; }
         public bool ExemptTransfers { get; set; }
         public bool ShowDelta { get; set; }

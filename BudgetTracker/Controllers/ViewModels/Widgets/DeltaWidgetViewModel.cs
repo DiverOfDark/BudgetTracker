@@ -13,10 +13,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         {
             DeltaWidgetSettings = (DeltaWidgetSettings) Settings;
 
-            var table = new TableViewModel(vm)
-            {
-                ShowAll = true
-            };
+            var table = new TableViewModel(vm);
 
             var col = repository.Set<MoneyColumnMetadataModel>().First(v =>
                 v.Provider == DeltaWidgetSettings.ProviderName &&

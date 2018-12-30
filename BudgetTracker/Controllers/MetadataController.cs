@@ -41,7 +41,7 @@ namespace BudgetTracker.Controllers
         }
 
         [HttpPost]
-        public IActionResult MetadataEdit(Guid id, string userFriendlyName, bool isVisible, string function, bool autogenerateStatements)
+        public IActionResult MetadataEdit(Guid id, string userFriendlyName, string function, bool autogenerateStatements)
         {
             MoneyColumnMetadataModel existingModel;
 
@@ -57,7 +57,6 @@ namespace BudgetTracker.Controllers
 
             existingModel.Function = function;
             existingModel.UserFriendlyName = userFriendlyName;
-            existingModel.IsVisible = isVisible;
             existingModel.AutogenerateStatements = autogenerateStatements;
 
             return RedirectToAction(nameof(Index));

@@ -83,7 +83,6 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                 (v.AccountName == _settings.AccountName || v.UserFriendlyName == _settings.AccountName));
 
             var vm = vmf.GetVM();
-            vm.ShowAll = true;
 
             var tableRowViewModel = vm.Values.OrderByDescending(v => v.When).First(v=>v.Cells.ContainsKey(column));
 

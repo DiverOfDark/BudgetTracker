@@ -20,7 +20,6 @@
                             <th>Название</th>
                             <th>Дружелюбное имя</th>
                             <th>Используется</th>
-                            <th>Показывать в таблице</th>
                             <th>
                                 <a href="@Url.Action("MetadataEdit")">
                                     <span class="fe fe-plus"></span>
@@ -62,7 +61,6 @@
                                         <text>@item.UserFriendlyName</text><br/>
                                     }
                                 </td>
-                                <td><span class="fe @(meta.IsVisible ? "fe-plus" : "fe-minus")"></span></td>
                                 <td class="text-nowrap">
                                     <a href="@Url.Action("MetadataEdit", new {id = meta.Id})">
                                         <span class="fe fe-edit-2"></span>
