@@ -69,6 +69,8 @@ namespace BudgetTracker
         public static DateTime LaunchTime { get; } = DateTime.UtcNow;
         public static SettingsModel GlobalSettings { get; private set; }
 
+        public static string DbFileName { get; private set; }
+
         private IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
@@ -87,7 +89,9 @@ namespace BudgetTracker
                 
                 if (!String.IsNullOrEmpty(liteDb))
                 {
-                    var liteDbDatabase = new LiteDatabase(liteDb);
+                    var connectionString = new ConnectionString(liteDb);
+                    DbFileName = connectionString.Filename;
+                    var liteDbDatabase = new LiteDatabase(connectionString);
                     storage = new LiteDbStorage(liteDbDatabase);
                 } else if (!String.IsNullOrEmpty(azureDb))
                 {

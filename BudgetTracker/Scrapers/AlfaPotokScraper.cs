@@ -100,12 +100,12 @@ namespace BudgetTracker.Scrapers
                 var v = rows[index];
                 var cells = v.FindElements(By.TagName("td"));
 
-                var status = cells[11].Text;
+                var status = cells[10].Text;
                 if (status.ToLower() == "выплачено")
                     continue;
 
                 var when = cells[1].Text;
-                var duration = cells[10].Text;
+                var duration = cells[9].Text;
 
                 when = new String(when.TakeWhile(s => s != '\n').Where(s => char.IsDigit(s) || s == '.').ToArray());
                 

@@ -96,7 +96,17 @@ else
                 <div class="container">
                     <div class="row align-items-center flex-row-reverse">
                         <div class="col-auto ml-auto" data-toggle="top-tooltip" title="@Html.Raw(obj.Stats())">
-                            <p>@Startup.CommmitName / @Startup.CommmitHash @@ @Startup.LaunchTime.ToLocalTime().ToString("G")</p>
+                            <p>
+                                @if (!String.IsNullOrWhiteSpace(Startup.DbFileName))
+                                {
+                                    <text>
+                                    @Html.ActionLink("Скачать дамп базы", "DownloadDump", "Settings") /
+                                    </text>
+                                }
+                                @Startup.CommmitName / 
+                                @Startup.CommmitHash @@ 
+                                @Startup.LaunchTime.ToLocalTime().ToString("G")
+                            </p>
                         </div>
                         <div class="col-12 col-lg-auto mt-3 mt-lg-0 text-center">
                             <p>&copy; 2018 - BudgetTracker</p>

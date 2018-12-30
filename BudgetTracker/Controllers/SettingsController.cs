@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using BudgetTracker.Model;
 using BudgetTracker.Scrapers;
@@ -72,6 +73,17 @@ namespace BudgetTracker.Controllers
             public IEnumerable<string> PossibleScrapers { get; }
             
             public IEnumerable<ScraperConfigurationModel> ScraperConfigs { get; }
+        }
+
+        public IActionResult DownloadDump()
+        {
+            using (var fs = new FileStream(Startup.DbFileName, FileMode.Open, FileAccess.Read,
+                FileShare.ReadWrite))
+            using (var reader = new BinaryReader(fs))
+            {
+                var contents = reader.ReadBytes((int) fs.Length);
+                return File(contents, "application/octet-stream", Path.GetFileName(Startup.DbFileName));
+            }
         }
     }
 }
