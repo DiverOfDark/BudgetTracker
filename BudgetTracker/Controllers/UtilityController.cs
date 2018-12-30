@@ -37,14 +37,6 @@ namespace BudgetTracker.Controllers
             return File(_latestBytes, "image/png");
         }
 
-        public IActionResult Rescrape()
-        {
-            var scrapeService = HttpContext.RequestServices.GetService<ScrapeService>();
-            new Thread(() => scrapeService.Scrape()).Start();
-            return RedirectToAction("Screenshot");
-        }
-
-
         public async Task<IActionResult> ScriptConsole(string script)
         {
             script = script ?? string.Empty;

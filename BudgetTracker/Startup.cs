@@ -198,8 +198,7 @@ namespace BudgetTracker
                         action = "Error"
                     }));
 
-            RegisterJobs();
-            
+            RegisterJobs(app.ApplicationServices);
             
             new Thread(()=>
             {
@@ -222,11 +221,11 @@ namespace BudgetTracker
             }).Start();
         }
 
-        private void RegisterJobs()
+        private void RegisterJobs(IServiceProvider services)
         {
             var interval = IsProduction ? Cron.Hourly() : Cron.Yearly();
-            
-            RecurringJob.AddOrUpdate<ScrapeService>(x=>x.Scrape(), interval);
+
+            services.GetService<ScrapeService>().RegisterJobs(interval);
             RecurringJob.AddOrUpdate<RepositoryCleanupService>(x=>x.Run(), interval);
             RecurringJob.AddOrUpdate<SmsRuleProcessor>(x=>x.Process(), Cron.MinuteInterval(5));
             RecurringJob.AddOrUpdate<SpentCategoryProcessor>(x=>x.Process(), Cron.MinuteInterval(30));

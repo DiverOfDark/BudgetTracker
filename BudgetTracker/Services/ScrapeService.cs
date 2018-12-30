@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using BudgetTracker.Model;
 using BudgetTracker.Scrapers;
+using Hangfire;
 using Microsoft.Extensions.Logging;
 
 namespace BudgetTracker.Services
@@ -23,51 +26,47 @@ namespace BudgetTracker.Services
             _scrapers = scrapers.ToList();
         }
 
-        public void Scrape()
+        public void RegisterJobs(string interval)
         {
+            foreach (var item in _scrapers)
+            {
+                var name = item.ProviderName;
+                RecurringJob.AddOrUpdate<ScrapeService>($"{name} / State", x=>x.ScrapeCurrentState(name), interval);
+                RecurringJob.AddOrUpdate<ScrapeService>($"{name} / Transactions", x=>x.ScrapeStatements(name), interval);
+            }
+        }
+
+        public void ScrapeStatements(string name) => ScrapeImpl(name, ScrapeStatementsImpl);
+
+        public void ScrapeCurrentState(string name) => ScrapeImpl(name, ScrapeCurrentStateImpl);
+
+        public void ScrapeImpl(String name, Action<GenericScraper, ScraperConfigurationModel> action, [CallerMemberName] string caller = null)
+        {
+            var scrapeConfig = _objectRepository.Set<ScraperConfigurationModel>().FirstOrDefault(v=>v.ScraperName == name);
+            var scraper = _scrapers.FirstOrDefault(v => v.ProviderName == name);
+            
+            if (scrapeConfig == null || scraper == null)
+            {
+                _logger.LogInformation($"Not enabled scraper {name}");
+                return;
+            }
+
             lock (_chrome)
             {
                 _chrome.Reset();
-                var logger = _logger;
-                var scrapeConfigs = _objectRepository.Set<ScraperConfigurationModel>().ToList();
-                
-                foreach (var scraperConfig in scrapeConfigs)
+
+                try
                 {
-                    var scraper = _scrapers.FirstOrDefault(v => v.ProviderName == scraperConfig.ScraperName);
-
-                    if (scraper == null)
-                    {
-                        logger.LogError($"Failed to find scraper {scraperConfig.ScraperName}");
-                        continue;
-                    }
-
-                    try
-                    {
-                        logger.LogInformation($"Scraping {scraper.ProviderName} current state");
-                        ScrapeCurrentState(scraper, logger, scraperConfig);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(ex, $"Failed to get state for {scraper.ProviderName}...");
-                    }
-                    finally
-                    {
-                        _chrome.Reset();
-                    }
-
-                    try
-                    {
-                        logger.LogInformation($"Scraping {scraper.ProviderName} statements");
-                        ScrapeStatement(scraper, scraperConfig, logger);
-                    }
-                    catch(Exception ex)
-                    {
-                        logger.LogError(ex, $"Failed to get statement for {scraper.ProviderName}...");
-                    }
-                    finally
-                    {
-                        _chrome.Reset();
-                    }
+                    _logger.LogInformation($"Scraping {name} {caller}");
+                    action(scraper, scrapeConfig);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Failed to get state for {scraper.ProviderName}...");
+                }
+                finally
+                {
+                    _chrome.Reset();
                 }
             }
 
@@ -150,7 +149,7 @@ namespace BudgetTracker.Services
             }
         }
 
-        private void ScrapeStatement(GenericScraper scraper, ScraperConfigurationModel scraperConfig, ILogger<ScrapeService> logger)
+        private void ScrapeStatementsImpl(GenericScraper scraper, ScraperConfigurationModel scraperConfig)
         {
             var minDates = new[]
             {
@@ -175,17 +174,17 @@ namespace BudgetTracker.Services
             // Let's not scrape statements too often - it's hard
             if (lastPayment.AddHours(24) < DateTime.Now)
             {
-                logger.LogInformation(
+                _logger.LogInformation(
                     $"Scraping statement for {scraper.ProviderName} since {scrapingSince}...");
 
                 var statements = scraper.ScrapeStatement(scraperConfig, _chrome, scrapingSince)
                     .ToList();
 
-                logger.LogInformation($"Got statement of {statements.Count} items...");
+                _logger.LogInformation($"Got statement of {statements.Count} items...");
 
                 if (statements.Count == 0)
                 {
-                    logger.LogWarning("Suspicious statement count. For the sake of not deleting existing statements - not doing anything for now...");
+                    _logger.LogWarning("Suspicious statement count. For the sake of not deleting existing statements - not doing anything for now...");
                     return;
                 }
                 
@@ -247,7 +246,7 @@ namespace BudgetTracker.Services
             }
         }
 
-        private void ScrapeCurrentState(GenericScraper scraper, ILogger<ScrapeService> logger, ScraperConfigurationModel scraperConfig)
+        private void ScrapeCurrentStateImpl(GenericScraper scraper, ScraperConfigurationModel scraperConfig)
         {
             var currentState = _objectRepository.Set<MoneyStateModel>();
 
@@ -265,15 +264,15 @@ namespace BudgetTracker.Services
 
             if (toScrape)
             {
-                logger.LogInformation("No cached items, scraping...");
+                _logger.LogInformation("No cached items, scraping...");
 
                 var items = scraper.Scrape(scraperConfig, _chrome);
 
-                logger.LogInformation($"Found {items.Count()} items, indexing...");
+                _logger.LogInformation($"Found {items.Count()} items, indexing...");
 
                 foreach (var item in items)
                 {
-                    logger.LogInformation(
+                    _logger.LogInformation(
                         $" - {item.Provider} / {item.AccountName}: {item.Amount} ({item.Ccy})");
                     if (!string.IsNullOrWhiteSpace(item.Provider))
                     {
@@ -285,11 +284,11 @@ namespace BudgetTracker.Services
                 }
 
                 scraperConfig.LastSuccessfulBalanceScraping = DateTime.Now;
-                logger.LogInformation("Indexed...");
+                _logger.LogInformation("Indexed...");
             }
             else
             {
-                logger.LogInformation("For today there are already scraped items, continuing...");
+                _logger.LogInformation("For today there are already scraped items, continuing...");
             }
         }
     }
