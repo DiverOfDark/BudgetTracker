@@ -7,7 +7,7 @@ ADD BudgetTracker/BudgetTracker.csproj BudgetTracker/
 RUN dotnet restore
 
 ADD BudgetTracker BudgetTracker
-RUN dotnet publish --output ../out/ --configuration Release BudgetTracker
+RUN dotnet publish --output ../out/ --configuration Release --runtime linux-x64 BudgetTracker
 
 FROM microsoft/dotnet:2.1-aspnetcore-runtime
 
