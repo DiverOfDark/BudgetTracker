@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore;
+﻿using ElectronNET.API;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
 namespace BudgetTracker
@@ -13,6 +14,7 @@ namespace BudgetTracker
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseApplicationInsights()
+                .UseElectron(args)
                 .UseStartup<Startup>()
                 .Build();
     }

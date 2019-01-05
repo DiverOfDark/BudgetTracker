@@ -1,12 +1,13 @@
 FROM microsoft/dotnet:2.1-sdk as net-builder
 WORKDIR /build
 ADD BudgetTracker.sln .
+ADD nuget.config .
 ADD BudgetTracker/BudgetTracker.csproj BudgetTracker/
 
 RUN dotnet restore
 
 ADD BudgetTracker BudgetTracker
-RUN dotnet publish --output ../out/ --configuration Release BudgetTracker
+RUN dotnet publish --output ../out/ --configuration Release --runtime linux-x64 BudgetTracker
 
 FROM microsoft/dotnet:2.1-aspnetcore-runtime
 
