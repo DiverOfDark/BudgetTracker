@@ -1,0 +1,47 @@
+FROM microsoft/dotnet:2.1-sdk as net-builder
+RUN dpkg --add-architecture i386
+RUN apt-get -yqq update && \
+    apt-get -yqq install zip unzip gnupg2 procps htop wine wine32 apt-utils apt-transport-https lsb-release gcc g++ make && \
+    curl -sL https://deb.nodesource.com/setup_11.x | bash - && \
+    apt-get -yqq install nodejs && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/root/.dotnet/tools
+ENV WINEARCH=win32
+
+RUN winecfg
+
+RUN dotnet tool install ElectronNET.CLI -g
+RUN npm install electron-packager --global
+
+WORKDIR /build
+ADD BudgetTracker.sln .
+ADD nuget.config .
+ADD BudgetTracker BudgetTracker
+
+RUN /root/.dotnet/tools/electronize build /target win /electron-params "BudgetTracker"
+RUN /root/.dotnet/tools/electronize build /target osx /electron-params "BudgetTracker"
+RUN /root/.dotnet/tools/electronize build /target linux /electron-params "BudgetTracker"
+
+RUN zip -r /build/win32-x64.zip   /build/bin/desktop/BudgetTracker-win32-x64
+RUN zip -r /build/darwin.zip      /build/bin/desktop/BudgetTracker-darwin-x64
+RUN zip -r /build/linux-x64.zip   /build/bin/desktop/BudgetTracker-linux-x64
+
+FROM golang:stretch as tool
+
+RUN apt-get -yqq update && \
+    apt-get -yqq install git && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /go/src/github.com/buildkite/
+RUN git clone https://github.com/buildkite/github-release.git 
+
+RUN cd github-release && \
+    pwd && \
+    go get && \
+    go build -o app .
+
+FROM ubuntu:latest
+WORKDIR /workdir
+COPY --from=tool /go/src/github.com/buildkite/github-release/app /workdir/github-releases
+COPY --from=net-builder /build/*.zip /workdir/
