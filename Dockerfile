@@ -1,6 +1,7 @@
 FROM microsoft/dotnet:2.1-sdk as net-builder
 WORKDIR /build
 ADD BudgetTracker.sln .
+ADD nuget.config .
 ADD BudgetTracker/BudgetTracker.csproj BudgetTracker/
 
 RUN dotnet restore
