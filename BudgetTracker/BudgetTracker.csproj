@@ -5,15 +5,12 @@
     <MvcRazorCompileOnPublish>true</MvcRazorCompileOnPublish>
     <LangVersion>7.1</LangVersion>
     <RuntimeFrameworkVersion>2.1.6</RuntimeFrameworkVersion>
-    <CrossGenDuringPublish>false</CrossGenDuringPublish>
-    <ShowLinkerSizeComparison>true</ShowLinkerSizeComparison>
     <TrimUnusedDependencies>true</TrimUnusedDependencies>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="electronnet.api" Version="0.0.11" />
     <PackageReference Include="Hangfire.AspNetCore" Version="1.6.21" />
     <PackageReference Include="Hangfire.MemoryStorage" Version="1.5.2" />
-    <PackageReference Include="ILLink.Tasks" Version="0.1.5-preview-1841731" />
     <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.5.1" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.5" />
