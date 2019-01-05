@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using BudgetTracker.Controllers.ViewModels.Table;
 using BudgetTracker.Model;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace BudgetTracker.Controllers.ViewModels.Widgets
 {
@@ -12,8 +10,6 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
     {
         private class PercentageCalculator
         {
-            private double? _lastAdj;
-
             private readonly Stack<Tuple<DateTime, double, double>> _history;
             
             public PercentageCalculator()

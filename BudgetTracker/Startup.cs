@@ -10,6 +10,8 @@ using BudgetTracker.Controllers.ViewModels.Table;
 using BudgetTracker.Model;
 using BudgetTracker.Scrapers;
 using BudgetTracker.Services;
+using ElectronNET.API;
+using ElectronNET.API.Entities;
 using Hangfire;
 using Hangfire.AspNetCore;
 using Hangfire.Dashboard.Resources;
@@ -38,6 +40,7 @@ namespace BudgetTracker
     public class Startup
     {
         private static readonly CultureInfo RussianCulture = new CultureInfo("ru-RU");
+        private BrowserWindow wnd;
 
         public Startup(IConfiguration configuration)
         {
@@ -66,6 +69,7 @@ namespace BudgetTracker
         public static string CommmitName { get; private set; }
         public static string CommmitHash { get; private set; }
         public static bool IsProduction { get; private set; }
+        public static bool IsElectronApp => HybridSupport.IsElectronActive;
         public static DateTime LaunchTime { get; } = DateTime.UtcNow;
         public static SettingsModel GlobalSettings { get; private set; }
 
@@ -93,13 +97,36 @@ namespace BudgetTracker
                     DbFileName = connectionString.Filename;
                     var liteDbDatabase = new LiteDatabase(connectionString);
                     storage = new LiteDbStorage(liteDbDatabase);
-                } else if (!String.IsNullOrEmpty(azureDb))
-                {
+                } else if (!String.IsNullOrEmpty(azureDb)) {
                     var cloudStorageAccount = CloudStorageAccount.Parse(azureDb);
                     storage = new AzureTableContext(cloudStorageAccount.CreateCloudTableClient());
-                }
-                else
+                } else if (IsElectronApp)
                 {
+                    wnd = Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions()
+                    {
+                        Title = "BudgetTracker",
+                        AutoHideMenuBar = true,
+                        Show = false
+                    }).GetAwaiter().GetResult();
+                    var files = Electron.Dialog.ShowOpenDialogAsync(wnd, new OpenDialogOptions()
+                    {
+                        Title = "Open database...",
+                        Message = "Select database filename"
+                    }).GetAwaiter().GetResult();
+
+                    if (files.Length != 1)
+                    {
+                        Electron.Dialog.ShowErrorBox("Fail", "fail");
+                    }
+
+                    var conn = new ConnectionString
+                    {
+                        Filename = files[0]
+                    };
+                    DbFileName = conn.Filename;
+                    var liteDbDatabase = new LiteDatabase(conn);
+                    storage = new LiteDbStorage(liteDbDatabase);
+                } else {
                     throw new Exception(
                         "Connection string for either 'AzureStorage' or 'LiteDb' should been specified.");
                 }
@@ -218,6 +245,11 @@ namespace BudgetTracker
                 }
 
                 GlobalSettings = settingsModel;
+                
+                if (IsElectronApp){
+                    wnd.Reload();
+                    wnd.Show();
+                }
             }).Start();
         }
 
