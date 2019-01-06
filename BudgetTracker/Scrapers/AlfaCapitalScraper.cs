@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using BudgetTracker.Model;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
 
 namespace BudgetTracker.Scrapers
@@ -11,7 +12,7 @@ namespace BudgetTracker.Scrapers
     [UsedImplicitly]
     internal class AlfaCapitalScraper : GenericScraper
     {
-        public AlfaCapitalScraper(ObjectRepository repository) : base(repository)
+        public AlfaCapitalScraper(ObjectRepository repository, ILoggerFactory factory) : base(repository, factory)
         {
         }
 

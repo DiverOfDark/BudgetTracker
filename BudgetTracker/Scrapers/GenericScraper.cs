@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using BudgetTracker.Model;
+using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Internal;
@@ -16,11 +17,14 @@ namespace BudgetTracker.Scrapers
     {
         private DateTime? _lastSms;
 
-        public GenericScraper(ObjectRepository repository)
+        public GenericScraper(ObjectRepository repository, ILoggerFactory factory)
         {
             Repository = repository;
+            Logger = factory.CreateLogger(GetType().Name);
         }
         
+        protected ILogger Logger { get; }
+
         public abstract string ProviderName { get; }
 
         public ObjectRepository Repository { get; }
@@ -46,7 +50,7 @@ namespace BudgetTracker.Scrapers
                 Thread.Sleep(DateTime.UtcNow - _lastSms.Value);
             }
             
-            var oldLastSms = Repository.Set<SmsModel>().OrderByDescending(v => v.When).First();
+            var oldLastSms = Repository.Set<SmsModel>().Select(v => v.When).Max();
             
             _lastSms = DateTime.UtcNow.AddMinutes(5);
 
@@ -54,13 +58,14 @@ namespace BudgetTracker.Scrapers
 
             while (DateTime.UtcNow < _lastSms.Value)
             {
-                var newSms = Repository.Set<SmsModel>().Where(v => v.When > oldLastSms.When);
+                var newSms = Repository.Set<SmsModel>().Where(v => v.When > oldLastSms);
 
                 var goodSms = newSms.Where(condition).ToList();
                 
                 if (goodSms.Any())
                 {
-                    return goodSms.First();
+                    Logger.LogInformation("Found sms " + goodSms[0].Message);
+                    return goodSms[0];
                 }
                 Thread.Sleep(1000);
             }

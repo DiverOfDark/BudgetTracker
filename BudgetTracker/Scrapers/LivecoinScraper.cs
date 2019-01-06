@@ -12,12 +12,10 @@ namespace BudgetTracker.Scrapers
 {
     internal class LivecoinScraper : GenericScraper
     {
-        private readonly ILogger _logger;
         private HttpClient _client;
 
-        public LivecoinScraper(ObjectRepository repo, ILoggerFactory logger) : base(repo)
+        public LivecoinScraper(ObjectRepository repo, ILoggerFactory logger) : base(repo, logger)
         {
-            _logger = logger.CreateLogger(typeof(LivecoinScraper));
             _client = new HttpClient();
         }
 
@@ -83,7 +81,7 @@ namespace BudgetTracker.Scrapers
             }
             catch
             {
-                _logger.LogInformation($"LiveCoin response:\n{responseText}");
+                Logger.LogInformation($"LiveCoin response:\n{responseText}");
                 throw;
             }
         }

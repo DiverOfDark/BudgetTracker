@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using BudgetTracker.Model;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -14,7 +15,7 @@ namespace BudgetTracker.Scrapers
     [UsedImplicitly]
     internal class PenenzaScraper : GenericScraper
     {
-        public PenenzaScraper(ObjectRepository repository) : base(repository)
+        public PenenzaScraper(ObjectRepository repository, ILoggerFactory factory) : base(repository, factory)
         {
         }
 

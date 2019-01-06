@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using BudgetTracker.Model;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 
@@ -17,7 +18,7 @@ namespace BudgetTracker.Scrapers
     [UsedImplicitly]
     internal class ModulbankScraper : GenericScraper
     {
-        public ModulbankScraper(ObjectRepository repository) : base(repository)
+        public ModulbankScraper(ObjectRepository repository, ILoggerFactory factory) : base(repository, factory)
         {
         }
 

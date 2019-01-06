@@ -18,11 +18,8 @@ namespace BudgetTracker.Scrapers
     [UsedImplicitly]
     internal class RaiffeisenScraper : GenericScraper
     {
-        private readonly ILogger<RaiffeisenScraper> _logger;
-
-        public RaiffeisenScraper(ObjectRepository repository, ILogger<RaiffeisenScraper> logger) : base(repository)
+        public RaiffeisenScraper(ObjectRepository repository, ILoggerFactory logger) : base(repository, logger)
         {
-            _logger = logger;
         }
 
         public override string ProviderName => "Райффайзен";
@@ -92,7 +89,7 @@ namespace BudgetTracker.Scrapers
                 return (id, name);
             }).Distinct().ToList();
 
-            _logger.LogInformation($"Found {accountDetails.Count} Raiffeisen accounts");
+            Logger.LogInformation($"Found {accountDetails.Count} Raiffeisen accounts");
             
             foreach (var account in accountDetails)
             {
@@ -105,7 +102,7 @@ namespace BudgetTracker.Scrapers
                 
                 driver.Navigate().GoToUrl(url);
                 
-                _logger.LogInformation($"Getting statement for {account.name} at {url}");
+                Logger.LogInformation($"Getting statement for {account.name} at {url}");
 
                 int waited = 0;
                 while (chrome.GetDownloads().Count < 1 && waited < 300)
@@ -133,7 +130,7 @@ namespace BudgetTracker.Scrapers
                         }
                     }                    
                     
-                    _logger.LogInformation($"Got {payments.Count} payments from {url}");
+                    Logger.LogInformation($"Got {payments.Count} payments from {url}");
 
                     result.AddRange(payments);
                     csvFile.Delete();

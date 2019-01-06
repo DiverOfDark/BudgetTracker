@@ -17,11 +17,8 @@ namespace BudgetTracker.Scrapers
     [UsedImplicitly]
     internal class AlfaPotokScraper : GenericScraper
     {
-        private readonly ILogger<AlfaPotokScraper> _logger;
-
-        public AlfaPotokScraper(ObjectRepository repository, ILoggerFactory factory) : base(repository)
+        public AlfaPotokScraper(ObjectRepository repository, ILoggerFactory factory) : base(repository, factory)
         {
-            _logger = factory.CreateLogger<AlfaPotokScraper>();
         }
 
         public override string ProviderName => "Альфа-Поток";
@@ -73,7 +70,7 @@ namespace BudgetTracker.Scrapers
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning(ex, "Failed to parse");
+                    Logger.LogWarning(ex, "Failed to parse");
                 }
             }
 
@@ -94,7 +91,7 @@ namespace BudgetTracker.Scrapers
             {
                 if (index % 10 == 0)
                 {
-                    _logger.LogInformation($"Parsing status for AlfaPotok: {((double)index / rows.Count):P2}");
+                    Logger.LogInformation($"Parsing status for AlfaPotok: {((double)index / rows.Count):P2}");
                 }
                 
                 var v = rows[index];

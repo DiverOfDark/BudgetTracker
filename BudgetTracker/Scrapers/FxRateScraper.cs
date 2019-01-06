@@ -2,6 +2,7 @@
 using System.Globalization;
 using BudgetTracker.Model;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 
@@ -10,7 +11,7 @@ namespace BudgetTracker.Scrapers
     [UsedImplicitly]
     internal class FxRateScraper : GenericScraper
     {
-        public FxRateScraper(ObjectRepository repository) : base(repository)
+        public FxRateScraper(ObjectRepository repository, ILoggerFactory factory) : base(repository, factory)
         {
         }
 

@@ -4,13 +4,14 @@ using System.Linq;
 using BudgetTracker.Controllers.ViewModels.Debt;
 using BudgetTracker.Model;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Logging;
 
 namespace BudgetTracker.Scrapers
 {
     [UsedImplicitly]
     internal class DebtScraper : GenericScraper
     {
-        public DebtScraper(ObjectRepository repo) : base(repo)
+        public DebtScraper(ObjectRepository repository, ILoggerFactory factory) : base(repository, factory)
         {
         }
 

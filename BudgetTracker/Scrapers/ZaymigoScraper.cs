@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using BudgetTracker.Model;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using OpenQA.Selenium;
 
@@ -13,7 +14,7 @@ namespace BudgetTracker.Scrapers
     [UsedImplicitly]
     internal class ZaymigoScraper : GenericScraper
     {
-        public ZaymigoScraper(ObjectRepository repository) : base(repository)
+        public ZaymigoScraper(ObjectRepository repository, ILoggerFactory factory) : base(repository, factory)
         {
         }
 

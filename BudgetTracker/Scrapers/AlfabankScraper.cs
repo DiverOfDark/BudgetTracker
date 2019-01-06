@@ -9,6 +9,7 @@ using System.Threading;
 using BudgetTracker.Model;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Remote;
@@ -19,7 +20,7 @@ namespace BudgetTracker.Scrapers
     [UsedImplicitly]
     internal class AlfabankScraper : GenericScraper
     {
-        public AlfabankScraper(ObjectRepository repository) : base(repository)
+        public AlfabankScraper(ObjectRepository repository, ILoggerFactory factory) : base(repository, factory)
         {
         }
 

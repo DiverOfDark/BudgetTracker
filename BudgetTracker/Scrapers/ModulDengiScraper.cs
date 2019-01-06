@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Linq;
 using BudgetTracker.Model;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 
@@ -11,7 +12,7 @@ namespace BudgetTracker.Scrapers
     [UsedImplicitly]
     internal class ModulDengiScraper : GenericScraper
     {
-        public ModulDengiScraper(ObjectRepository repository) : base(repository)
+        public ModulDengiScraper(ObjectRepository repository, ILoggerFactory factory) : base(repository, factory)
         {
         }
 
