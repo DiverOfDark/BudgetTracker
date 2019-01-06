@@ -14,6 +14,8 @@ namespace BudgetTracker.Scrapers
 {
     public abstract class GenericScraper
     {
+        private DateTime? _lastSms;
+
         public GenericScraper(ObjectRepository repository)
         {
             Repository = repository;
@@ -37,6 +39,36 @@ namespace BudgetTracker.Scrapers
             Thread.Sleep(times * 1000);
         }
         
+        protected SmsModel WaitForSms(Action sendSms, Func<SmsModel, bool> condition)
+        {
+            if (_lastSms.HasValue && _lastSms.Value > DateTime.UtcNow)
+            {
+                Thread.Sleep(DateTime.UtcNow - _lastSms.Value);
+            }
+            
+            var oldLastSms = Repository.Set<SmsModel>().OrderByDescending(v => v.When).First();
+            
+            _lastSms = DateTime.UtcNow.AddMinutes(5);
+
+            sendSms();
+
+            while (DateTime.UtcNow < _lastSms.Value)
+            {
+                var newSms = Repository.Set<SmsModel>().Where(v => v.When > oldLastSms.When);
+
+                var goodSms = newSms.Where(condition).ToList();
+                
+                if (goodSms.Any())
+                {
+                    return goodSms.First();
+                }
+                Thread.Sleep(1000);
+            }
+
+            throw new TimeoutException();
+        }
+
+
         protected IWebElement GetElement(ChromeDriver driver, By currencySpan)
         {
             var wt = new WebDriverWait(driver, TimeSpan.FromSeconds(30));

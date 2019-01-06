@@ -33,25 +33,12 @@ namespace BudgetTracker.Scrapers
             chrome.SendKeys(configuration.Password);
             chrome.SendKeys(Keys.Return);
 
-            var now = DateTime.UtcNow;
-            GetElement(driver, By.Id("smsCode")).Click();
-            bool success = false;
-            while (DateTime.UtcNow - now < TimeSpan.FromMinutes(15))
-            {
-                var lastSms = Repository.Set<SmsModel>().Where(v=>v.When > now.AddMinutes(-3)).OrderByDescending(v => v.When).FirstOrDefault();
-                if (lastSms?.Message.Contains("Код для входа:") == true)
-                {
-                    var code = new string(lastSms.Message.Where(char.IsDigit).ToArray());
-                    chrome.SendKeys(code);
-                    chrome.SendKeys(Keys.Return);
-                    success = true;
-                    break;
-                }
-                WaitForPageLoad(driver);
-            }
+            var smsModel = WaitForSms(() => GetElement(driver, By.Id("smsCode")).Click(),
+                s => s.Message.Contains("Код для входа:"));
 
-            if (!success)
-                throw new Exception();
+            var code = new string(smsModel.Message.Where(char.IsDigit).ToArray());
+            chrome.SendKeys(code);
+            chrome.SendKeys(Keys.Return);
 
             WaitForPageLoad(driver, 5);
 
