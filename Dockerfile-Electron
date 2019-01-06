@@ -42,6 +42,9 @@ RUN cd github-release && \
     go build -o app .
 
 FROM ubuntu:latest
+RUN apt-get -yqq update && \
+    apt-get -yqq install ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 WORKDIR /workdir
 COPY --from=tool /go/src/github.com/buildkite/github-release/app /workdir/github-releases
 COPY --from=net-builder /build/*.zip /workdir/
