@@ -42,5 +42,5 @@ RUN apt-get -yqq update && \
     apt-get -yqq install ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 WORKDIR /workdir
-COPY --from=tool /go/src/github.com/tcnksm/ghr/app /workdir/ghr
+COPY --from=tool /go/src/github.com/tcnksm/ghr/app /ghr
 COPY --from=net-builder /build/*.zip /workdir/
