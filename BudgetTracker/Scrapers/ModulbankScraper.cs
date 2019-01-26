@@ -119,9 +119,6 @@ namespace BudgetTracker.Scrapers
             var periodButton = periodRow.FindElement(By.TagName("button"));
             periodButton.Click();
             
-            var wholeYear = GetElement(driver, By.LinkText("За весь год"));
-            wholeYear.Click();
-
             var buttons = form.FindElements(By.TagName("button"));
             var dlButton = buttons.First(s => s.Text.ToLower().Contains("получить"));
 
