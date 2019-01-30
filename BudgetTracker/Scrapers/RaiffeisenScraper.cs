@@ -50,7 +50,7 @@ namespace BudgetTracker.Scrapers
                     NumberDecimalSeparator = ","
                 });
 
-                var ccySign = acc.FindElement(By.ClassName("amount__sign"));
+                var ccySign = acc.FindElement(By.ClassName("amount__symbol"));
                 var ccyText = ccySign.Text;
                 
                 result.Add(Money(text, amountNumber, ccyText));
