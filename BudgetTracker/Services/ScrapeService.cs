@@ -177,6 +177,7 @@ namespace BudgetTracker.Services
                     $"Scraping statement for {scraper.ProviderName} since {scrapingSince}...");
 
                 var statements = scraper.ScrapeStatement(scraperConfig, _chrome, scrapingSince)
+                    .Where(v => v != null)
                     .ToList();
 
                 _logger.LogInformation($"Got statement of {statements.Count} items...");
