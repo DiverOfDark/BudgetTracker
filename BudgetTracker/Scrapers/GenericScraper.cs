@@ -58,7 +58,7 @@ namespace BudgetTracker.Scrapers
 
             while (DateTime.UtcNow < _lastSms.Value)
             {
-                var newSms = Repository.Set<SmsModel>().Where(v => v.When > oldLastSms);
+                var newSms = Repository.Set<SmsModel>().Where(v => v.When >= oldLastSms);
 
                 var goodSms = newSms.Where(condition).ToList();
                 
