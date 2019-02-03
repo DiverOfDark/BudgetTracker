@@ -47,7 +47,7 @@
                                         <input type="text" id="category" name="category" class="form-control form-control-sm"/>
                                     </td>
                                     <td>
-                                        @Html.DropDownList("kind", typeof(PaymentKind).GetSelectList(), new{ @class="form-control form-control-sm"})
+                                        @Html.DropDownList("kind", typeof(PaymentKind).GetSelectList(PaymentKind.Unknown), new{ @class="form-control form-control-sm"})
                                     </td>
                                     <td>
                                         <input type="text" id="pattern" name="pattern" class="form-control form-control-sm"/>
