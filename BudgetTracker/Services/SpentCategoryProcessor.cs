@@ -31,8 +31,10 @@ namespace BudgetTracker.Services
                     });
                 
                 var regexOptions = RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.IgnoreCase;
-                var cats = _objectRepository.Set<SpentCategoryModel>().ToDictionary(v => v, v => new Regex(v.Pattern, regexOptions));
-                var debs = _objectRepository.Set<DebtModel>().ToDictionary(v => v, v => new Regex(v.RegexForTransfer, regexOptions));
+                var cats = _objectRepository.Set<SpentCategoryModel>().Where(v => !string.IsNullOrWhiteSpace(v.Pattern))
+                    .ToDictionary(v => v, v => new Regex(v.Pattern, regexOptions));
+                var debs = _objectRepository.Set<DebtModel>().Where(v => !string.IsNullOrWhiteSpace(v.RegexForTransfer))
+                    .ToDictionary(v => v, v => new Regex(v.RegexForTransfer, regexOptions));
 
                 foreach (var p in payments)
                 {
