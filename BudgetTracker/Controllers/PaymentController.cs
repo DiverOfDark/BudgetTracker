@@ -81,12 +81,15 @@ namespace BudgetTracker.Controllers
         {
             try
             {
-                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                Regex.Match("test", pattern);
+                if (!string.IsNullOrWhiteSpace(pattern))
+                {
+                    // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+                    Regex.Match("test", pattern);
+                }
             }
             catch
             {
-                return RedirectToAction(nameof(SpentCategories));
+                pattern = "";
             }
 
             _objectRepository.Add(new SpentCategoryModel(pattern, category, kind));

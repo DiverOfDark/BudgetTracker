@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using BudgetTracker.Controllers.ViewModels.Debt;
 using BudgetTracker.Model;
 using Microsoft.AspNetCore.Authorization;
@@ -41,7 +42,20 @@ namespace BudgetTracker.Controllers
             model.Percentage = percentage;
             model.DaysCount = daysCount;
             model.Description = description;
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(regexForTransfer))
+                {
+                    // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+                    Regex.Match("test", regexForTransfer);
+                }
+            }
+            catch
+            {
+                regexForTransfer = "";
+            }
             model.RegexForTransfer = regexForTransfer;
+
             
             return RedirectToAction("Index");
         }
