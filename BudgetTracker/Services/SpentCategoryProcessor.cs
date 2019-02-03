@@ -40,6 +40,11 @@ namespace BudgetTracker.Services
                     {
                         p.Debt = matchedPayments[p.What].Debt;
                         p.Category = matchedPayments[p.What].Category;
+                        
+                        if (p.Category.Kind != PaymentKind.Unknown)
+                        {
+                            p.Kind = p.Category.Kind;
+                        }
                         continue;
                     }
                     
