@@ -52,6 +52,8 @@ namespace BudgetTracker.Scrapers
             
             var oldLastSms = Repository.Set<SmsModel>().Select(v => v.When).Max();
             
+            var existingLastSms = Repository.Set<SmsModel>().Where(v=>v.When >= oldLastSms).ToList();
+            
             _lastSms = DateTime.UtcNow.AddMinutes(5);
 
             sendSms();
@@ -60,7 +62,7 @@ namespace BudgetTracker.Scrapers
             {
                 var newSms = Repository.Set<SmsModel>().Where(v => v.When >= oldLastSms);
 
-                var goodSms = newSms.Where(condition).ToList();
+                var goodSms = newSms.Where(condition).Except(existingLastSms).ToList();
                 
                 if (goodSms.Any())
                 {
