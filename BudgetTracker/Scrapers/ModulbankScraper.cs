@@ -113,12 +113,6 @@ namespace BudgetTracker.Scrapers
             var htmlSwitch = switches.First(s => s.Text == "1C");
             htmlSwitch.Click();
 
-            var rows = form.FindElements(By.ClassName("form_group"));
-            
-            var periodRow = rows.First(v => v.Text.ToLower().Contains("за период:"));
-            var periodButton = periodRow.FindElement(By.TagName("button"));
-            periodButton.Click();
-            
             var buttons = form.FindElements(By.TagName("button"));
             var dlButton = buttons.First(s => s.Text.ToLower().Contains("получить"));
 
