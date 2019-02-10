@@ -12,7 +12,7 @@ namespace BudgetTracker.Controllers.ViewModels.Debt
 
         public DebtModel Model { get; }
 
-        public double Returned => Model.Payments.Select(s => s.Amount).Sum();
+        public double Returned => Model.Payments.Where(v=>v.Kind == PaymentKind.Income).Select(s => s.Amount).Sum();
         
         public double AmountWithPercentage => Model.Amount * (1 + Model.Percentage / 100);
         public double Remaining => Model.Amount - Returned;
