@@ -63,6 +63,7 @@ namespace BudgetTracker.Services
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, $"Failed to get state for {scraper.ProviderName}...");
+                    throw;
                 }
                 finally
                 {
