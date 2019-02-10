@@ -12,6 +12,7 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Interactions;
 
 namespace BudgetTracker.Scrapers
 {
@@ -113,6 +114,25 @@ namespace BudgetTracker.Scrapers
             var htmlSwitch = switches.First(s => s.Text == "1C");
             htmlSwitch.Click();
 
+            var rows = form.FindElements(By.ClassName("form_group"));
+            
+            var periodRow = rows.First(v => v.Text.ToLower().Contains("за период:"));
+            var periodButton = periodRow.FindElement(By.TagName("button"));
+            periodButton.Click();
+
+            var dateSelector = GetElement(driver, By.ClassName("filter_date_value"));
+            var inputs = dateSelector.FindElements(By.TagName("input"));
+            var first = inputs.First();
+            first.Click();
+
+            first.SendKeys(Keys.Control + "a");
+            first.SendKeys(Keys.Delete);
+            first.SendKeys(startFrom.ToString("dd.MM.yyyy"));
+            first.SendKeys(Keys.Enter);
+
+            var dateSelectorApply = dateSelector.FindElement(By.TagName("button"));
+            dateSelectorApply.Click();
+            
             var buttons = form.FindElements(By.TagName("button"));
             var dlButton = buttons.First(s => s.Text.ToLower().Contains("получить"));
 
