@@ -255,7 +255,7 @@ namespace BudgetTracker
 
         private void RegisterJobs(IServiceProvider services)
         {
-            var interval = IsProduction ? Cron.HourInterval(3) : Cron.Yearly();
+            var interval = IsProduction ? Cron.HourInterval(12) : Cron.Yearly();
 
             services.GetService<ScrapeService>().RegisterJobs(interval);
             RecurringJob.AddOrUpdate<RepositoryCleanupService>(x=>x.Run(), interval);
