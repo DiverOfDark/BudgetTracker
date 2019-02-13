@@ -14,15 +14,11 @@ using ElectronNET.API;
 using ElectronNET.API.Entities;
 using Hangfire;
 using Hangfire.AspNetCore;
-using Hangfire.Dashboard.Resources;
-using Hangfire.MemoryStorage;
 using LiteDB;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.DataProtection.AzureStorage;
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -30,9 +26,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
 using OutCode.EscapeTeams.ObjectRepository;
 using OutCode.EscapeTeams.ObjectRepository.AzureTableStorage;
+using OutCode.EscapeTeams.ObjectRepository.Hangfire;
 using OutCode.EscapeTeams.ObjectRepository.LiteDB;
 
 namespace BudgetTracker
@@ -85,6 +81,7 @@ namespace BudgetTracker
             services.AddSingleton<Chrome>();
             services.AddSingleton<ScrapeService>();
 
+            ObjectRepository objectRepository;
             {
                 var liteDb = Configuration.GetConnectionString("LiteDb");
                 var azureDb = Configuration.GetConnectionString("AzureStorage");
@@ -131,14 +128,10 @@ namespace BudgetTracker
                         "Connection string for either 'AzureStorage' or 'LiteDb' should been specified.");
                 }
                 
-                var objectRepository = new ObjectRepository(storage, NullLoggerFactory.Instance);
+                objectRepository = new ObjectRepository(storage, NullLoggerFactory.Instance);
 
                 services.AddSingleton(storage);
                 services.AddSingleton(objectRepository);
-                services.Configure((Action<KeyManagementOptions>) (options =>
-                {
-                    options.XmlRepository = new ObjectRepositoryXmlStorage(objectRepository);
-                }));
             }
             
             var scrapers = GetType().Assembly.GetTypes().Where(v => v.IsSubclassOf(typeof(GenericScraper))).ToList();
@@ -159,8 +152,10 @@ namespace BudgetTracker
             services.AddLogging();
             services.AddSession();
             services.AddHangfire(x=>{ });
-
-            services.AddDataProtection();
+            services.AddDataProtection().AddKeyManagementOptions(options =>
+            {
+                options.XmlRepository = new ObjectRepositoryXmlStorage(objectRepository);
+            });
             services.AddAuthorization();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(x =>
             {
@@ -204,7 +199,7 @@ namespace BudgetTracker
             app.UseSession();
             app.UseAuthentication();
             
-            GlobalConfiguration.Configuration.UseMemoryStorage();
+            GlobalConfiguration.Configuration.UseHangfireStorage(app.ApplicationServices.GetService<ObjectRepository>());
             GlobalConfiguration.Configuration.UseActivator(new AspNetCoreJobActivator(new MyFactory(app.ApplicationServices)));
 
             app.UseHangfireDashboard(options: new DashboardOptions

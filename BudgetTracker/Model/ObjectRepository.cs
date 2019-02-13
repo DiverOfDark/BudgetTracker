@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using OutCode.EscapeTeams.ObjectRepository;
 using OutCode.EscapeTeams.ObjectRepository.AzureTableStorage;
+using OutCode.EscapeTeams.ObjectRepository.Hangfire;
 
 namespace BudgetTracker.Model
 {
@@ -22,6 +23,8 @@ namespace BudgetTracker.Model
             AddType((ScraperConfigurationModel.ScraperConfigurationEntity x) => new ScraperConfigurationModel(x));
             AddType((SettingsModel.SettingsEntity x) => new SettingsModel(x));
             AddType((DebtModel.DebtEntity x) => new DebtModel(x));
+            
+            this.RegisterHangfireScheme();
             Initialize();
         }
 

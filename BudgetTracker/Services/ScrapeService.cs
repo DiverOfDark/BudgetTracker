@@ -36,8 +36,10 @@ namespace BudgetTracker.Services
             }
         }
 
+        [AutomaticRetry(Attempts = 3)]
         public void ScrapeStatements(string name) => ScrapeImpl(name, ScrapeStatementsImpl);
 
+        [AutomaticRetry(Attempts = 3)]
         public void ScrapeCurrentState(string name) => ScrapeImpl(name, ScrapeCurrentStateImpl);
 
         public void ScrapeImpl(String name, Action<GenericScraper, ScraperConfigurationModel> action, [CallerMemberName] string caller = null)
