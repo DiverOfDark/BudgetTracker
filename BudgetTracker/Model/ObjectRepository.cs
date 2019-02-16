@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using OutCode.EscapeTeams.ObjectRepository;
 using OutCode.EscapeTeams.ObjectRepository.AzureTableStorage;
 using OutCode.EscapeTeams.ObjectRepository.Hangfire;
+using OutCode.EscapeTeams.ObjectRepository.LiteDB;
 
 namespace BudgetTracker.Model
 {
@@ -28,7 +29,20 @@ namespace BudgetTracker.Model
             Initialize();
         }
 
-        public string ExportDiff() => ((AzureTableContext)Storage).ExportStream();
+        public string ExportDiff()
+        {
+            if (Storage is AzureTableContext)
+            {
+                return ((AzureTableContext) Storage).ExportStream();
+            }
+
+            if (Storage is LiteDbStorage)
+            {
+                return ((LiteDbStorage) Storage).ExportStream();
+            }
+
+            return null;
+        }
 
         public string Stats() => String.Join("\n", _sets.Select(v=>v.Key.Name + $" ({v.Value.Count()})"));
     }
