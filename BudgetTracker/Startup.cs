@@ -221,6 +221,9 @@ namespace BudgetTracker
                     }));
 
             RegisterJobs(app.ApplicationServices);
+
+            var storage = app.ApplicationServices.GetService<IStorage>();
+            app.ApplicationServices.GetService<IApplicationLifetime>().ApplicationStopping.Register(() => storage.SaveChanges().GetAwaiter().GetResult());
             
             new Thread(()=>
             {
