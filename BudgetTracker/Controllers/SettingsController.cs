@@ -75,15 +75,5 @@ namespace BudgetTracker.Controllers
             public IEnumerable<ScraperConfigurationModel> ScraperConfigs { get; }
         }
 
-        public IActionResult DownloadDump()
-        {
-            using (var fs = new FileStream(Startup.DbFileName, FileMode.Open, FileAccess.Read,
-                FileShare.ReadWrite))
-            using (var reader = new BinaryReader(fs))
-            {
-                var contents = reader.ReadBytes((int) fs.Length);
-                return File(contents, "application/octet-stream", Path.GetFileName(Startup.DbFileName));
-            }
-        }
     }
 }

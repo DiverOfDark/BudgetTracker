@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using BudgetTracker.Services;
@@ -57,6 +58,17 @@ namespace BudgetTracker.Controllers
             }
 
             return View();
+        }
+        
+        public IActionResult DownloadDump()
+        {
+            using (var fs = new FileStream(Startup.DbFileName, FileMode.Open, FileAccess.Read,
+                FileShare.ReadWrite))
+            using (var reader = new BinaryReader(fs))
+            {
+                var contents = reader.ReadBytes((int) fs.Length);
+                return File(contents, "application/octet-stream", Path.GetFileName(Startup.DbFileName));
+            }
         }
 
         public IActionResult Tasks() => View();
