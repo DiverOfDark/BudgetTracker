@@ -81,7 +81,7 @@ namespace BudgetTracker.Scrapers
 
                         result.Add(Money(name, value, CurrencyExtensions.RUB));
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                     }
                 }
