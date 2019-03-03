@@ -154,7 +154,7 @@ namespace BudgetTracker.Controllers
         }
 
         [HttpPost]
-        public IActionResult EditPayment(Guid id, double amount, string ccy, string what, Guid? categoryId, Guid? columnId, PaymentKind kind)
+        public IActionResult EditPayment(Guid id, double amount, string ccy, string what, Guid? categoryId, Guid? columnId, Guid? debtId, PaymentKind kind)
         {
             var payment = _objectRepository.Set<PaymentModel>().First(v => v.Id == id);
 
@@ -163,8 +163,9 @@ namespace BudgetTracker.Controllers
             payment.What = what;
             payment.Category = null;
             payment.Kind = kind;
-            payment.Category = _objectRepository.Set<SpentCategoryModel>().FirstOrDefault(v => v.Id == categoryId);
-            payment.Column = _objectRepository.Set<MoneyColumnMetadataModel>().FirstOrDefault(v => v.Id == columnId);
+            payment.Category = categoryId == null ? null : _objectRepository.Set<SpentCategoryModel>().Find(categoryId.Value);
+            payment.Column = columnId == null ? null : _objectRepository.Set<MoneyColumnMetadataModel>().Find(columnId.Value);
+            payment.Debt = debtId == null ? null : _objectRepository.Set<DebtModel>().Find(debtId.Value);
             payment.UserEdited = true;
             return RedirectToAction(nameof(Index));
         }
