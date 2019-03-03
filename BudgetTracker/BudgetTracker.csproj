@@ -9,7 +9,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="electronnet.api" Version="0.0.11" />
-    <PackageReference Include="Hangfire.AspNetCore" Version="1.6.22" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.6.21" />
     <PackageReference Include="JetBrains.Annotations" Version="2018.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.5" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="2.10.0" />
