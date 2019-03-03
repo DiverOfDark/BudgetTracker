@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using BudgetTracker.Controllers.ViewModels.Table;
 using BudgetTracker.Model;
@@ -20,10 +21,21 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                 (v.AccountName == DeltaWidgetSettings.AccountName ||
                  v.UserFriendlyName == DeltaWidgetSettings.AccountName));
 
-            AddDelta(col, table, 1, "24ч");
-            AddDelta(col, table, 2, "48ч");
-            AddDelta(col, table, 7, "1н");
-            AddDelta(col, table, 30, "1м");
+            if (DeltaWidgetSettings.DeltaInterval == DeltaInterval.Daily)
+            {
+                AddDelta(col, table, 1, "24ч");
+                AddDelta(col, table, 2, "48ч");
+                AddDelta(col, table, 7, "1н");
+                AddDelta(col, table, 30, "1м");
+            }
+            else
+            {
+                AddDelta(col, table, 30, "1м");
+                AddDelta(col, table, 90, "3м");
+                AddDelta(col, table, 182, "6м");
+                AddDelta(col, table, 365, "1г");
+                
+            }
         }
 
         private void AddDelta(MoneyColumnMetadataModel col, TableViewModel table, int daysDiff, string name)
