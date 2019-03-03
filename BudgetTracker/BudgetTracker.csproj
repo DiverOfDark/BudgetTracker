@@ -12,15 +12,15 @@
     <PackageReference Include="Hangfire.AspNetCore" Version="1.6.21" />
     <PackageReference Include="JetBrains.Annotations" Version="2018.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.5" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="2.10.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="2.9.0" />
     <PackageReference Include="Microsoft.Packaging.Tools.Trimming" Version="1.1.0-prerelease.18603.1" />
-    <PackageReference Include="OutCode.EscapeTeams.ObjectRepository.AzureTableStorage" Version="1.0.112" />
-    <PackageReference Include="OutCode.EscapeTeams.ObjectRepository.LiteDB" Version="1.0.112" />
-    <PackageReference Include="OutCode.EscapeTeams.ObjectRepository.Hangfire" Version="1.0.112" />
+    <PackageReference Include="OutCode.EscapeTeams.ObjectRepository.AzureTableStorage" Version="1.0.111" />
+    <PackageReference Include="OutCode.EscapeTeams.ObjectRepository.LiteDB" Version="1.0.111" />
+    <PackageReference Include="OutCode.EscapeTeams.ObjectRepository.Hangfire" Version="1.0.111" />
     <PackageReference Include="Selenium.Support" Version="3.141.0" />
     <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />
-    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="2.46.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
+    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="2.43.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="electron.manifest.json">
