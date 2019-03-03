@@ -7,7 +7,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
     {
         [DisplayName("24ч/48ч/Неделя/Месяц")]
         Daily,
-        [DisplayName("Месяц/Кватал/Полгода/Год")]
+        [DisplayName("Месяц/Квартал/Полгода/Год")]
         Monthly
     }
 
