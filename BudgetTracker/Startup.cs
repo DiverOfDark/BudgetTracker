@@ -93,6 +93,7 @@ namespace BudgetTracker
                     var connectionString = new ConnectionString(liteDb);
                     DbFileName = connectionString.Filename;
                     var liteDbDatabase = new LiteDatabase(connectionString);
+                    liteDbDatabase.Engine.Shrink();
                     storage = new LiteDbStorage(liteDbDatabase);
                 } else if (!String.IsNullOrEmpty(azureDb)) {
                     var cloudStorageAccount = CloudStorageAccount.Parse(azureDb);
