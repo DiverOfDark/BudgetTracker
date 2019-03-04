@@ -9,7 +9,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
     {
         private readonly MoneyColumnMetadataModel _model;
         private readonly string _symbol;
-        public static readonly string[] Symbols = { "/", "*", "+", "-", "??" }; 
+        public static readonly string[] Symbols = { "/", "*", "+", "-" }; 
 
         public BinaryExpression(MoneyColumnMetadataModel model, string symbol)
         {
@@ -65,33 +65,31 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                 rightValueAdj = rightValueAdj.PreviousValue;
             }
 
-            adjustment = (leftValueAdj?.Adjustment ?? 0) + (rightValueAdj?.Adjustment ?? 0);
 
             switch (_symbol)
             {
-                case "??":
-                    value = leftIsNan ? rightValue : leftValue;
-                    ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
-                    failedToResolve = leftIsNan ? Right.Value.FailedToResolve : Left.Value.FailedToResolve;
-
-                    break;
                 case "+":
                     value = leftValue + rightValue;
                     ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
+                    adjustment = (leftValueAdj?.Adjustment ?? 0) + (rightValueAdj?.Adjustment ?? 0);
                     break;
                 case "-":
                     value = leftValue - rightValue;
                     ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
+                    adjustment = (leftValueAdj?.Adjustment ?? 0) - (rightValueAdj?.Adjustment ?? 0);
                     break;
                 
                 case "*":
                     value = leftValue * rightValue;
+                    adjustment = (leftValueAdj?.Adjustment ?? 0) * (rightValueAdj?.Adjustment ?? 0);
                     ccy = Left.Value.Ccy;
 
                     // TODO ccy?
                     break;
                 case "/":
                     value = leftValue / rightValue;
+                    adjustment = (leftValueAdj?.Adjustment ?? 0) / (rightValueAdj?.Adjustment ?? 0);
+                    ccy = Left.Value.Ccy;
 
                     // TODO ccy?
                     break;

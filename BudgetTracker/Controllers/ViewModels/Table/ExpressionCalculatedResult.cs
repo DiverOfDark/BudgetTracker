@@ -107,6 +107,14 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                         
                         function = function.Substring(i);
                     }
+                    else if (function[0] == '{')
+                    {
+                        var constant = function.Substring(1, function.IndexOf('}') - 1);
+
+                        function = function.Remove(0, function.IndexOf('}') + 1);
+
+                        currentExpression = currentExpression.TryApply(new ConstantExpression(column, constant));
+                    } 
                     else 
                     {
                         var symbol = BinaryExpression.Symbols.FirstOrDefault(function.StartsWith);
