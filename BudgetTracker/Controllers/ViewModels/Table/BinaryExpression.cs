@@ -9,7 +9,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
     {
         private readonly MoneyColumnMetadataModel _model;
         private readonly string _symbol;
-        public static readonly string[] Symbols = { "/", "*", "+", "-" }; 
+        public static readonly string[] Symbols = { "/", "*", "+", "-", "??" }; 
 
         public BinaryExpression(MoneyColumnMetadataModel model, string symbol)
         {
@@ -68,6 +68,11 @@ namespace BudgetTracker.Controllers.ViewModels.Table
 
             switch (_symbol)
             {
+                case "??":
+                    value = leftValue.HasValue ? leftValue : rightValue;
+                    ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
+                    adjustment = leftValueAdj?.Adjustment ?? rightValueAdj?.Adjustment ?? 0; 
+                    break;
                 case "+":
                     value = leftValue + rightValue;
                     ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
