@@ -40,8 +40,13 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 
         private void AddDelta(MoneyColumnMetadataModel col, TableViewModel table, int daysDiff, string name)
         {
-            var today = table.Values.OrderByDescending(v => v.When).FirstOrDefault();
-            var baseSet = table.Values.OrderByDescending(v => v.When).FirstOrDefault(v => v.When.Date.AddDays(daysDiff) <= DateTime.Now.Date);
+            var sequence = table.Values.SkipWhile(v=>
+            {
+                var s = v.Cells.GetValueOrDefault(col)?.Value;
+                return s == null || double.IsNaN(s.Value);
+            }).OrderByDescending(v => v.When);
+            var today = sequence.FirstOrDefault();
+            var baseSet = sequence.FirstOrDefault(v => v.When.Date.AddDays(daysDiff) <= DateTime.Now.Date);
 
             var todayValue = today?.Cells.GetValueOrDefault(col);
             var baseSetValue = baseSet?.Cells.GetValueOrDefault(col);
