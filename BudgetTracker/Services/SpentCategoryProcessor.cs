@@ -38,14 +38,6 @@ namespace BudgetTracker.Services
 
                 foreach (var p in payments)
                 {
-                    if (matchedPayments.ContainsKey(p.What) && !string.IsNullOrWhiteSpace(p.What))
-                    {
-                        p.Debt = matchedPayments[p.What].Debt;
-                        p.Category = matchedPayments[p.What].Category;
-                        
-                        continue;
-                    }
-                    
                     foreach (var category in cats)
                     {
                         var stringContains = !string.IsNullOrWhiteSpace(category.Key.Pattern) && p.What.Contains(category.Key.Pattern);
@@ -73,6 +65,14 @@ namespace BudgetTracker.Services
                             p.Debt = d.Key;
                             break;
                         }
+                    }
+                    
+                    if (matchedPayments.ContainsKey(p.What) && !string.IsNullOrWhiteSpace(p.What))
+                    {
+                        p.Debt = matchedPayments[p.What].Debt;
+                        p.Category = matchedPayments[p.What].Category;
+                        
+                        continue;
                     }
                 }
             }
