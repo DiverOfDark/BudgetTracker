@@ -48,7 +48,10 @@ namespace BudgetTracker.Services
                     
                     foreach (var category in cats)
                     {
-                        if (string.Equals(category.Key.Category, p.What) || category.Value.IsMatch(p.What))
+                        var stringContains = !string.IsNullOrWhiteSpace(category.Key.Pattern) && p.What.Contains(category.Key.Pattern);
+                        var categoryNameSameAsTransferDescription = string.Equals(category.Key.Category, p.What);
+                        var regexMatch = category.Value.IsMatch(p.What);
+                        if (stringContains || categoryNameSameAsTransferDescription || regexMatch)
                         {
                             p.Category = category.Key;
 
@@ -63,7 +66,9 @@ namespace BudgetTracker.Services
 
                     foreach (var d in debs)
                     {
-                        if (d.Value.IsMatch(p.What))
+                        var stringContains = !string.IsNullOrWhiteSpace(d.Key.RegexForTransfer) && p.What.Contains(d.Key.RegexForTransfer);
+                        var regexMatch = d.Value.IsMatch(p.What);
+                        if (stringContains || regexMatch)
                         {
                             p.Debt = d.Key;
                             break;
