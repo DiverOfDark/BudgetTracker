@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using BudgetTracker.Controllers.ViewModels.Payment;
 using BudgetTracker.Model;
 using BudgetTracker.Services;
+using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OpenQA.Selenium;
@@ -167,6 +168,9 @@ namespace BudgetTracker.Controllers
             payment.Column = columnId == null ? null : _objectRepository.Set<MoneyColumnMetadataModel>().Find(columnId.Value);
             payment.Debt = debtId == null ? null : _objectRepository.Set<DebtModel>().Find(debtId.Value);
             payment.UserEdited = true;
+
+            new SpentCategoryProcessor(_objectRepository).Process();
+            
             return RedirectToAction(nameof(Index));
         }
         
