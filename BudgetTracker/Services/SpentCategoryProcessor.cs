@@ -24,9 +24,11 @@ namespace BudgetTracker.Services
                 var matchedPayments = _objectRepository.Set<PaymentModel>()
                     .Where(v => v.Category != null || v.Debt != null)
                     .OrderBy(v => v.When)
+                    .GroupBy(v => v.What)
+                    .Where(v => v.GroupBy(s => s.Category).Count() == 1)
                     .Aggregate(new Dictionary<string, PaymentModel>(), (a, b) =>
                     {
-                        a[b.What] = b;
+                        a[b.Key] = b.First();
                         return a;
                     });
                 
