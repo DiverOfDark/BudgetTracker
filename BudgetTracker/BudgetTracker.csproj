@@ -14,6 +14,7 @@
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.5" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="2.9.0" />
     <PackageReference Include="Microsoft.Packaging.Tools.Trimming" Version="1.1.0-prerelease.18603.1" />
+    <PackageReference Include="Octokit" Version="0.32.0" />
     <PackageReference Include="OutCode.EscapeTeams.ObjectRepository.AzureTableStorage" Version="1.0.113" />
     <PackageReference Include="OutCode.EscapeTeams.ObjectRepository.LiteDB" Version="1.0.113" />
     <PackageReference Include="OutCode.EscapeTeams.ObjectRepository.Hangfire" Version="1.0.113" />

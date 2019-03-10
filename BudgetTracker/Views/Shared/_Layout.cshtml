@@ -1,12 +1,14 @@
 ﻿@using BudgetTracker.Model
+@using BudgetTracker.Services
 @inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
 @inject ObjectRepository obj
+@inject UpdateService updateService
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-@if (ViewBag.RefreshPage)
+@if (ViewBag.RefreshPage == true)
 {
     <meta http-equiv="Refresh" content="300">
 }
@@ -97,8 +99,19 @@ else
                     <div class="row align-items-center flex-row-reverse">
                         <div class="col-auto ml-auto" data-toggle="top-tooltip" title="@Html.Raw(obj.Stats())">
                             <p>
-                                @Startup.CommmitName / 
-                                @Startup.CommmitHash @@ 
+                                @await updateService.GetCurrentVersion() 
+                                
+                                @if (await updateService.HasNewerVersion())
+                                {
+                                    <text>
+                                        (latest: 
+                                        <a href="@await updateService.GetLatestVersionUrl()">
+                                            @await updateService.GetLatestVersion()
+                                        </a>
+                                        )
+                                    </text>
+                                }
+                                @@ 
                                 @Startup.LaunchTime.ToLocalTime().ToString("G")
                             </p>
                         </div>

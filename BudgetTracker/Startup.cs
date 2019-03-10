@@ -150,6 +150,7 @@ namespace BudgetTracker
             services.AddTransient(x => new TableViewModelFactory(x.GetRequiredService<ObjectRepository>()));
             services.AddSingleton<ScriptService>();
             services.AddSingleton<SmsRuleProcessor>();
+            services.AddSingleton<UpdateService>();
             services.AddLogging();
             services.AddSession();
             services.AddHangfire(x=>{ });
