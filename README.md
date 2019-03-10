@@ -21,8 +21,11 @@ services:
     restart: unless-stopped
     environment:
       Properties__IsProduction: 'true' # true если необходимо сохранять изменения в базу. false для локального запуска/отладки.
-      ConnectionStrings__AzureStorage: 'DefaultEndpointsProtocol=https;AccountName=...;AccountKey=ABC==;EndpointSuffix=core.windows.net' # Строка подключения к Azure Storage. 
-      # ApplicationInsights__InstrumentationKey: '' # Ключ к Azure Application Insights, если нужна аналитика
+      ConnectionStrings__AzureStorage: 'DefaultEndpointsProtocol=https;AccountName=...;AccountKey=ABC==;EndpointSuffix=core.windows.net' # Строка подключения к Azure Storage, если используется Azure Storage для подключения 
+      ConnectionStrings__LiteDb: '/data/budgettracker.db' # Строка подключения к LiteDb, если используется локальный файл базы
+    volumes:
+      - /dev/shm:/dev/shm # Рекомендуется для использования скрэйпинга через Google Chrome
+      - /root/bt:/data # Путь монтирования папки /data, если используется локальный файл базы
     ports:
       - "80:80"
     networks:
@@ -37,11 +40,14 @@ networks:
 ## Источники данных:
 На данный момент поддерживаются следующие источники данных:
 - **АльфаБанк**
+- **АльфаДирект**
 - **АльфаКапитал** _требуется SMS-интеграция_
 - **АльфаПоток**
-- **Райффайзен банк**
-- **МодульБанк** _требуется SMS-интеграция_
+- **Долги**: создание балансов из заведенных вручную долгов
+- **Займиго**
 - **МодульДеньги**
+- **МодульБанк** _требуется SMS-интеграция_
+- **Райффайзен банк**
 - **FX**: Биржевые курсы валют USD/RUB, EUR/RUB, индекса S&P 500
 - **LiveCoin**
 - **Penenza**
@@ -75,9 +81,14 @@ networks:
 На основной странице доступна система виджетов, которые берут свои значения из табличного представления.
 ![Пример](docs/images/dashboard.jpg)
 
+## Долги
+
+Возможно вручную заносить долги (тех кто должен вам - с положительным знаком, и те которые вы должны - с отрицательным знаком баланса.
+Возможно также указать шаблон описания переводов для автоматического учета их в долгах 
+![Пример](docs/images/debt.jpg)
 
 ## Интеграция с SMS:
-В настоящее время проверена интеграция только с Android телефонами с использованием IFTTT и Tasker.
+В настоящее время возможна интеграция только с Android телефонами с использованием IFTTT и Tasker.
 Для IFTTT используется простой рецепт с получением Android SMS и отправкой на **/sms**.
 Для Tasker используется отправка на **/sms-tasker**. Подробнее см. код _ApiController.cs_.
 
