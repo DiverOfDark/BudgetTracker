@@ -114,7 +114,7 @@ Karta \*3436;\s+Pokupka:(?<sum>[\d.]*) (?<ccy>[A-Z]{3});\s+(?<what>.*);\s+
 | Категория | Щаблон           |
 | --------- | ---------------- | 
 | Taxi	    | .*GETT.*         |
-| Taxi    	| .*UBER.*	       |
+| Taxi      | .*UBER.*	       |
 | Taxi	    | .*Yandex\.Taxi.* |
 ```
 
