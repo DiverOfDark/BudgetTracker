@@ -38,7 +38,7 @@ namespace BudgetTracker.Services
         {
             await RefreshVersions();
 
-            var matchingVersion = versions.FirstOrDefault(v => v.TagName == Startup.CommmitHash);
+            var matchingVersion = versions.FirstOrDefault(v => v.TargetCommitish == Startup.CommmitHash);
             return matchingVersion?.TagName ?? $"{Startup.CommmitName} / {Startup.CommmitHash}";
         }
 
