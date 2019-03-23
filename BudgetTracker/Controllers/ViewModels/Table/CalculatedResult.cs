@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.Serialization;
 using BudgetTracker.Model;
 using Microsoft.EntityFrameworkCore.Internal;
+using Newtonsoft.Json;
 
 namespace BudgetTracker.Controllers.ViewModels.Table
 {
@@ -57,9 +60,13 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             _failedToResolve = Enumerable.Empty<string>();
         }
 
+        [JsonIgnore]
         public MoneyColumnMetadataModel Column { get; }
 
-        public MoneyStateModel Money { get; private set;}
+        [JsonIgnore]
+        public MoneyStateModel Money { get; private set; }
+
+        public Guid? MoneyId => Money?.Id;
 
         public virtual double Adjustment => _adjustment;
         
@@ -73,6 +80,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
 
         public virtual string Ccy => _ccy;
 
+        [JsonIgnore]
         public CalculatedResult PreviousValue { get; set; }
 
         public double? DiffValue => AdjustedValue - PreviousValue?.AdjustedValue;

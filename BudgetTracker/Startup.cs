@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
@@ -26,6 +29,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.WindowsAzure.Storage;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using OutCode.EscapeTeams.ObjectRepository;
 using OutCode.EscapeTeams.ObjectRepository.AzureTableStorage;
 using OutCode.EscapeTeams.ObjectRepository.Hangfire;
@@ -35,6 +40,47 @@ namespace BudgetTracker
 {
     public class Startup
     {
+        private class ShouldSerializeContractResolver : CamelCasePropertyNamesContractResolver
+        {
+            public static readonly ShouldSerializeContractResolver Instance = new ShouldSerializeContractResolver();
+
+            protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+            {
+                JsonProperty property = base.CreateProperty(member, memberSerialization);
+
+                if (property.PropertyType != typeof(string) &&
+                    typeof(IEnumerable).IsAssignableFrom(property.PropertyType))
+                {
+                    property.ShouldSerialize = instance =>
+                    {
+                        IEnumerable enumerable = null;
+                        // this value could be in a public field or public property
+                        switch (member.MemberType)
+                        {
+                            case MemberTypes.Property:
+                                enumerable = instance
+                                    .GetType()
+                                    .GetProperty(member.Name)
+                                    ?.GetValue(instance, null) as IEnumerable;
+                                break;
+                            case MemberTypes.Field:
+                                enumerable = instance
+                                    .GetType()
+                                    .GetField(member.Name)
+                                    .GetValue(instance) as IEnumerable;
+                                break;
+                        }
+
+                        return enumerable == null ||
+                               enumerable.GetEnumerator().MoveNext();
+                        // if the list is null, we defer the decision to NullValueHandling
+                    };
+                }
+
+                return property;
+            }
+        }
+        
         private static readonly CultureInfo RussianCulture = new CultureInfo("ru-RU");
         private BrowserWindow wnd;
 
@@ -77,7 +123,13 @@ namespace BudgetTracker
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            services.AddMvc();
+            services.AddMvc().AddJsonOptions(options =>
+            {
+                options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                options.SerializerSettings.ContractResolver = ShouldSerializeContractResolver.Instance;
+                options.SerializerSettings.DefaultValueHandling = DefaultValueHandling.Ignore;
+                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            });
             services.AddSingleton<Chrome>();
             services.AddSingleton<ScrapeService>();
 

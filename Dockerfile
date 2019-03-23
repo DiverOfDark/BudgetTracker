@@ -1,3 +1,10 @@
+FROM node as client-builder
+WORKDIR /build
+ADD Client/package.json .
+RUN npm install
+ADD Client ./
+RUN ls -la && mkdir out && npm run build
+
 FROM microsoft/dotnet:2.1-sdk as net-builder
 WORKDIR /build
 ADD BudgetTracker.sln .
@@ -7,6 +14,8 @@ ADD BudgetTracker/BudgetTracker.csproj BudgetTracker/
 RUN dotnet restore
 
 ADD BudgetTracker BudgetTracker
+COPY --from=client-builder /build/out/*.js* BudgetTracker/wwwroot/js/
+COPY --from=client-builder /build/out/*.css* BudgetTracker/wwwroot/css/
 RUN dotnet publish --output ../out/ --configuration Release --runtime linux-x64 BudgetTracker
 
 FROM microsoft/dotnet:2.1-aspnetcore-runtime

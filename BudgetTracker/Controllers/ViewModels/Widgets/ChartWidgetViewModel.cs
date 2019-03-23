@@ -63,7 +63,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             {
                 foreach (var header in columnsToChart)
                 {
-                    var item = row.Cells.GetValueOrDefault(header);
+                    var item = row.CalculatedCells.GetValueOrDefault(header);
 
                     var value = ExemptTransfers ? item?.AdjustedValue : item?.Value;
                     if (value == null)

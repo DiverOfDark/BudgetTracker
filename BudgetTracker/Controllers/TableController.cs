@@ -51,7 +51,7 @@ namespace BudgetTracker.Controllers
 
                 rowString += string.Join(",", vm.Headers.Select(h =>
                 {
-                    item.Cells.TryGetValue(h, out var p); 
+                    item.CalculatedCells.TryGetValue(h, out var p); 
 
                     var value = exemptTransfers ? p?.Value : p?.AdjustedValue;
                     if (value != null && !double.IsNaN(value.Value))
@@ -72,36 +72,39 @@ namespace BudgetTracker.Controllers
             return Content(content, "text/csv", Encoding.UTF8);
         }
         
-        public IActionResult Index(String provider, bool? showControls, bool? showDelta, bool? exemptTransfers)
+        public IActionResult Index()
         {
-            var showControls2 = this.TryGetLastValue(showControls, nameof(TableController) + nameof(showControls)) ?? false;
-            var showDelta2 = this.TryGetLastValue(showDelta, nameof(TableController) + nameof(showDelta)) ?? false;
-            var exemptTransfers2 = this.TryGetLastValue(exemptTransfers, nameof(TableController) + nameof(exemptTransfers)) ?? false;
-            
+            return View();
+        }
+
+        public IActionResult IndexJson(String provider)
+        {
             var table = HttpContext.RequestServices.GetRequiredService<TableViewModelFactory>();
 
             var vm = table.GetVM();
-            vm.ShowDelta = showDelta2;
-            vm.ShowControls = showControls2;
-            vm.ExemptTransfers = exemptTransfers2;
 
-            var provider2 = this.TryGetLastValue(provider, nameof(TableController) + nameof(provider)) ?? vm.Headers.Select(s=>s.Provider).FirstOrDefault();
-
-            ViewData["Provider"] = provider2;
-            ViewData["Providers"] = vm.Headers.Select(v => v.Provider).Distinct().OrderBy(v => v).ToList();
+            var providers = vm.Headers.Select(v => v.Provider).Distinct().OrderBy(v => v).ToList();
+            var provider2 = provider ?? vm.Headers.Select(s => s.Provider).FirstOrDefault();
 
             if (provider2 == BadOption)
             {
-                vm.Values.RemoveAll(v => v.Cells.All(s => s.Value != null && s.Value?.FailedToResolve.Any() == false));
+                vm.Values.RemoveAll(v => v.CalculatedCells.All(s => s.Value != null && s.Value?.FailedToResolve.Any() == false));
                 vm.Headers.RemoveAll(v => v.IsComputed || vm.Values.All(s =>
-                    s.Cells.Any(c => c.Key == v && c.Value != null && c.Value?.FailedToResolve.Any() == false)));
+                                              s.CalculatedCells.Any(c =>
+                                                  c.Key == v && c.Value != null &&
+                                                  c.Value?.FailedToResolve.Any() == false)));
             }
             else
             {
                 vm.Headers.RemoveAll(v => v.Provider != provider2);
             }
-            
-            return View(vm);
+
+            return Json(new
+            {
+                vm,
+                Provider = provider2,
+                Providers = providers
+            });
         }
 
         public IActionResult Chart(string provider, string account, bool exemptTransfers = false)

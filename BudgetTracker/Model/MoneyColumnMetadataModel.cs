@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 using OutCode.EscapeTeams.ObjectRepository;
 using OutCode.EscapeTeams.ObjectRepository.AzureTableStorage;
 
@@ -79,6 +80,7 @@ namespace BudgetTracker.Model
             set => UpdateProperty(() => _entity.Function, value);
         }
 
+        [JsonIgnore]
         public IEnumerable<string> ChartList
         {
             get

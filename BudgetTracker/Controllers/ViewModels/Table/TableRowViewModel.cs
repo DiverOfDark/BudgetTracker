@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using BudgetTracker.Model;
+using Newtonsoft.Json;
 
 namespace BudgetTracker.Controllers.ViewModels.Table
 {
@@ -10,13 +12,13 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         public TableRowViewModel(IList<MoneyStateModel> item, List<MoneyColumnMetadataModel> headers, Dictionary<string, MoneyColumnMetadataModel> headersCached, Dictionary<MoneyColumnMetadataModel, Dictionary<DateTime, double>> paymentsToExempt)
         {
             When = item.Select(v => v.When).Max();
-            Cells = new Dictionary<MoneyColumnMetadataModel, CalculatedResult>(); 
+            CalculatedCells = new Dictionary<MoneyColumnMetadataModel, CalculatedResult>(); 
             
             foreach (var h in headers)
             {
                 if (h.IsComputed)
                 {
-                    Cells[h] = CalculatedResult.FromComputed(headersCached, h, Cells);
+                    CalculatedCells[h] = CalculatedResult.FromComputed(headersCached, h, CalculatedCells);
                 }
                 else
                 {
@@ -25,7 +27,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                     {
                         var adj = paymentsToExempt.GetValueOrDefault(h)?.GetValueOrDefault(money.When.Date.AddDays(-1)) ?? 0;
 
-                        Cells[h] = CalculatedResult.FromMoney(h, money, adj);
+                        CalculatedCells[h] = CalculatedResult.FromMoney(h, money, adj);
                     }
                 }
             }
@@ -33,7 +35,12 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         
         public DateTime When { get; }
         
-        public Dictionary<MoneyColumnMetadataModel, CalculatedResult> Cells { get; }
+        [JsonIgnore]
+        public Dictionary<MoneyColumnMetadataModel, CalculatedResult> CalculatedCells { get; }
+
+        public Dictionary<Guid, CalculatedResult> Cells => CalculatedCells.ToDictionary(v => v.Key.Id, v => v.Value);
+        
+        [JsonIgnore]
         public TableRowViewModel Previous { get; set; }
     }
 }
