@@ -1,5 +1,3 @@
-
-
 {#if !vm}
 <div class="container text-center">
     <div class="display-1 text-muted mb-5"><i class="si si-exclamation"></i>Загрузка...</div>
@@ -234,31 +232,7 @@
 				state.vm.values = [];
 				this.set(state);
 				fetchData(this, this.get().provider, null);	
-			},
-			loadMore(provider, from) {
-				let data = this.get();
-				fetchData(data, provider, from);
 			}
 		}
 	};
-</script>
-
-<!--
-    @*
-<style>
-	h1 {
-		color: purple;
-	}
-</style>
-
-    <script type="text/javascript">
-        (function() {
-            $('#providerSelector').on('change', function(item) {
-                var selectedOption = item.currentTarget.selectedOptions[0].value;
-
-                window.location = "?provider=" + selectedOption;
-            });
-        })();
-    </script>*@
--->
-	
+</script>	
