@@ -38,7 +38,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 
         private Node LoadData(MoneyColumnMetadataModel column, ObjectRepository repository, TableViewModel vm)
         {
-            var cell = vm.Values.FirstOrDefault()?.Cells?.GetValueOrDefault(column);
+            var cell = vm.Values.FirstOrDefault()?.CalculatedCells?.GetValueOrDefault(column);
             var cellValue = ExemptTransfers ? cell?.AdjustedValue : cell?.Value;
             if (cellValue == null || double.IsNaN(cellValue.Value))
             {

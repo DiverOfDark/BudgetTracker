@@ -43,7 +43,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                 .OrderByDescending(v => v.Key)
                 .ToList();
 
-            var end = rows.Select(v => (DateTime?)v.Key).FirstOrDefault();
+            var end = rows.Select(v => (DateTime?)v.Key.Date).FirstOrDefault();
 
             foreach (var col in paymentsToExempt)
             {
@@ -68,10 +68,10 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             {
                 var row = Values[i];
                 row.Previous = Values[i + 1];
-                foreach (var value in row.Cells.Values)
+                foreach (var value in row.CalculatedCells.Values)
                 {
                     var previous = Values[i + 1];
-                    value.PreviousValue = previous.Cells.GetValueOrDefault(value.Column);
+                    value.PreviousValue = previous.CalculatedCells.GetValueOrDefault(value.Column);
                 }
             }
 
@@ -80,37 +80,33 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             {
                 var row = Values[i];
 
-                var toAddMissing = markedAsOkCells.Except(row.Cells.Keys).ToList();
+                var toAddMissing = markedAsOkCells.Except(row.CalculatedCells.Keys).ToList();
                 
                 foreach(var item in toAddMissing)
                 {
-                    row.Cells.Add(item, CalculatedResult.Empty(item));
+                    row.CalculatedCells.Add(item, CalculatedResult.Empty(item));
                 }
 
-                markedAsOkCells = row.Cells.Values.Where(v => !(v is ExpressionCalculatedResult) && v.Value != null && double.IsNaN(v.Value.Value))
+                markedAsOkCells = row.CalculatedCells.Values.Where(v => !(v is ExpressionCalculatedResult) && v.Value != null && double.IsNaN(v.Value.Value))
                     .Select(v => v.Column).ToList();
             }
 
-            var columnsToCheck = Values.SelectMany(v => v.Cells.Keys).Distinct()
+            var columnsToCheck = Values.SelectMany(v => v.CalculatedCells.Keys).Distinct()
                 .Where(v => !v.IsComputed).ToList();
             for (int i = Values.Count - 1; i >= 0; i--)
             {
                 var row = Values[i];
 
-                columnsToCheck = columnsToCheck.Except(row.Cells.Keys).ToList();
+                columnsToCheck = columnsToCheck.Except(row.CalculatedCells.Keys).ToList();
                 
                 foreach(var item in columnsToCheck)
                 {
-                    row.Cells.Add(item, CalculatedResult.Empty(item));
+                    row.CalculatedCells.Add(item, CalculatedResult.Empty(item));
                 }
             }
         }
 
-        public bool ShowControls { get; set; }
-        public bool ExemptTransfers { get; set; }
-        public bool ShowDelta { get; set; }
-
         public List<MoneyColumnMetadataModel> Headers { get; private set; }
-        public List<TableRowViewModel> Values { get; private set; }
+        public List<TableRowViewModel> Values { get; set; }
     }
 }

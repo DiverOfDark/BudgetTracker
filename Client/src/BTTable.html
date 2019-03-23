@@ -1,0 +1,264 @@
+
+
+{#if !vm}
+<div class="container text-center">
+    <div class="display-1 text-muted mb-5"><i class="si si-exclamation"></i>Загрузка...</div>
+</div>
+{:else}
+	<div class="{vm && vm.headers.length > 8 ? 'container-fluid' : 'container'}">
+		<div class="row row-cards row-deck">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-header">
+						<h3 class="card-title">История</h3> 
+						<div style="width: 200px; margin-left: 15px;">
+							<select class="form-control form-control-sm" id="providerSelector" bind:value=provider on:change=changeProvider()>
+								<optgroup>
+									{#each providers as i}
+										{#if i == provider}
+											<option name="{i}" value="{i}" selected="selected">{i}</option>
+										{:else}
+											<option name="{i}" value="{i}">{i}</option>
+										{/if}
+									{/each}
+								</optgroup>
+								<optgroup label="-------------------">
+									<option name="BadOption" value="BadOption">Проблемные</option>
+								</optgroup>
+							</select>
+						</div>
+						<div class="card-options">
+							<a class="btn btn-secondary btn-sm ml-2" href="/Metadata">
+								<span class="small fe fe-edit-2"></span>
+							</a>
+							<button class="btn btn-secondary btn-sm ml-2" on:click="set({ showDelta: !showDelta })">
+								{#if showDelta}
+									&Delta;
+								{:else}
+									&Tau;
+								{/if}
+							</button>
+							<button class="btn btn-secondary btn-sm ml-2" on:click="set({ showControls: !showControls })">
+								{#if showControls}
+									Скрыть кнопки
+								{:else}
+									Показать кнопки
+								{/if}
+							</button>
+							<button class="btn btn-secondary btn-sm ml-2" on:click="set({ exemptTransfers: !exemptTransfers})">
+								{#if exemptTransfers}
+									Показать переводы
+								{:else}
+									Скрыть переводы
+								{/if}
+							</button>
+						</div> 
+					</div>
+					{#if vm.headers && vm.values}
+					<div class="table-responsive">
+						<table class="table table-sm table-vcenter card-table table-hover table-striped text-nowrap">
+							<tr>
+								<th scope="col" rowspan="2">Когда</th>
+								{#each getGroupedHeaders(vm.headers) as groupedHeader}
+									<th scope="col" colspan="{groupedHeader.count}">
+										{groupedHeader.name}
+									</th>
+								{/each}
+							</tr>
+							<tr>
+								{#each vm.headers as p}
+									<th title="{p.accountName}">
+										{p.userFriendlyName}
+										<a href="/Chart?provider={p.provider}&account={p.accountName}{p.userFriendlyName}">
+											<span class="fe fe-trending-up"></span>
+										</a>
+										{#if showControls}
+											<a href="/Metadata/MetadataEdit?id={p.id}">
+												<span class="fe fe-edit-2"></span>
+											</a>
+										{/if}
+									</th>
+								{/each}
+							</tr>
+							{#each vm.values as item}
+								<tr>
+									<th class="table-dark" scope="row">
+										{formatDate(item.when)}
+									</th>
+									{#each vm.headers as header}
+										<td class="{cellIsOk(item.cells[header.id])}">
+											{#if item.cells[header.id]}
+												{#if getValue(item.cells[header.id], exemptTransfers)}
+													<div alt="{tooltipOrDefault(item.cells[header.id])}" title="{tooltipOrDefault(item.cells[header.id])}" data-toggle="tooltip">
+														{#if (item.cells[header.id].value == 'NaN')}
+															<span class="fe fe-check"></span>
+														{:else}
+															{#if showDelta}
+																{#if item.cells[header.id].diffValue}
+																	<span class="{item.cells[header.id].diffValue > 0 ? 'text-success' : 'text-danger'}">
+																		{formatDiff(item.cells[header.id])}
+																	</span>
+																{:else}
+																	&mdash;
+																{/if}
+															{:else}
+																<span>{formatPrice(getValue(item.cells[header.id], exemptTransfers))}</span>
+															{/if}
+
+															{#if item.cells[header.id].ccy}
+																<span style="font-size: x-small; color: gray;">
+																	<i>{item.cells[header.id].ccy}</i>
+																</span>
+															{/if}
+															{#if hasPercentage(item.cells[header.id].diffPercentage)}
+																<span style="font-size: 0.7em" class="{item.cells[header.id].diffPercentage > 0 ? 'text-success': 'text-danger'}">
+																	{formatPercentage(item.cells[header.id].diffPercentage)}
+																</span>
+															{/if}
+														{/if}
+
+														{#if showControls && item.cells[header.id].moneyId}
+															<a style="position: relative; right: 0;" href="/Table/DeleteMoney?id={item.cells[header.id].moneyId}">
+																<span class="fe fe-x-circle"></span>
+															</a>
+														{/if}
+													</div>
+												{:else}
+													<div alt="{item.cells[header.id].tooltip}" title="{item.cells[header.id].tooltip}">
+														&mdash;
+													</div>
+												{/if}
+											{:else}
+												&mdash;
+												{#if showControls && hasPreviousCell(vm.values, header.id, item.when)}
+													<a href="/Table/CopyFromPrevious?headerId={header.id}&date={formatDate(item.when)}">
+														<span class="fe fe-copy"></span>
+													</a>
+													<a href="/Table/MarkAsOk?headerId={header.id}&date={formatDate(item.when)}">
+														<span class="fe fe-check"></span>
+													</a>
+												{/if}
+											{/if}
+										</td>
+									{/each}
+								</tr>
+							{/each}
+						</table>
+					</div>
+					{/if}
+
+				</div>
+			</div>
+		</div>
+	</div>
+{/if}
+
+
+<script>
+	import moment from 'moment'
+
+	const fetchData = async (component, provider, from) => {
+		const response = await fetch(`/Table/IndexJson?provider=` + provider + `&startingFrom=` + from);
+		const data = await response.json();
+		component.set(data);
+	}
+
+	const formatDate = when => moment(when).format('DD.MM.YYYY');
+
+	export default {
+		oncreate() {
+			fetchData(this, "", "");
+		},
+		onupdate({changed, current, previous}) {
+			$('body').tooltip('dispose');
+			$('[data-toggle="tooltip"]').tooltip();
+		},
+		helpers: {
+			getGroupedHeaders(headers) {
+				let grouped = headers.reduce((h, x) => {
+					h[x.provider] = (h[x.provider] || 0) + 1;
+					return h;
+				}, []);
+
+				return Object.keys(grouped).map(function(key){ return { "name": key, "count": grouped[key] }; });;
+			},
+			formatDate(date) {
+				return formatDate(date);
+			},
+			cellIsOk(cell) {
+				if (!cell || cell.failedToResolve) {
+					return 'table-dark';
+				}
+				return '';
+			},
+			hasPreviousCell(values, header, when) {
+				let whenDate = moment(when).subtract(1, 'days');
+				let row = values.filter(t=> formatDate(moment(t.when)) == formatDate(whenDate));
+				if (row) {
+					let cell = row[0].cells[header];
+					if (cell) {
+						return cell.value && cell.value != 'NaN';
+					}
+				}
+				return false;
+			},
+			tooltipOrDefault(value) {
+				return value.tooltip ? value.tooltip : '';
+			},
+			getValue(cell, exemptTransfers) {
+				if (exemptTransfers) {
+					return cell.adjustedValue;
+				}
+				return cell.value;
+			},
+			formatPrice(value) {
+				if (!(typeof(value) === 'string' || value instanceof String)) {
+					return value.toFixed(2);
+				}
+				return value;
+			},
+			formatDiff(value) {
+				return value ? value.diffValue : '';
+			},
+			hasPercentage(percentage) {
+				return percentage && percentage !== 'NaN' && Math.abs(percentage.Value) > 0.0001;
+			},
+			formatPercentage(percentage) {
+				return (percentage > 0 ? "+" : "") + (percentage * 100).toFixed(2) + '%';
+			},
+		},
+		methods: {
+			changeProvider() {
+				let state = this.get()
+				state.vm.headers = [];
+				state.vm.values = [];
+				this.set(state);
+				fetchData(this, this.get().provider, null);	
+			},
+			loadMore(provider, from) {
+				let data = this.get();
+				fetchData(data, provider, from);
+			}
+		}
+	};
+</script>
+
+<!--
+    @*
+<style>
+	h1 {
+		color: purple;
+	}
+</style>
+
+    <script type="text/javascript">
+        (function() {
+            $('#providerSelector').on('change', function(item) {
+                var selectedOption = item.currentTarget.selectedOptions[0].value;
+
+                window.location = "?provider=" + selectedOption;
+            });
+        })();
+    </script>*@
+-->
+	

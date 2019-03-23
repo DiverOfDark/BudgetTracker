@@ -42,14 +42,14 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         {
             var sequence = table.Values.SkipWhile(v=>
             {
-                var s = v.Cells.GetValueOrDefault(col)?.Value;
+                var s = v.CalculatedCells.GetValueOrDefault(col)?.Value;
                 return s == null || double.IsNaN(s.Value);
             }).OrderByDescending(v => v.When);
             var today = sequence.FirstOrDefault();
             var baseSet = sequence.FirstOrDefault(v => v.When.Date.AddDays(daysDiff) <= DateTime.Now.Date);
 
-            var todayValue = today?.Cells.GetValueOrDefault(col);
-            var baseSetValue = baseSet?.Cells.GetValueOrDefault(col);
+            var todayValue = today?.CalculatedCells.GetValueOrDefault(col);
+            var baseSetValue = baseSet?.CalculatedCells.GetValueOrDefault(col);
 
             if (todayValue != null && baseSetValue != null)
             {
