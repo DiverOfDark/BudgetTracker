@@ -12,7 +12,7 @@
 						<div style="width: 200px; margin-left: 15px;">
 							<select class="form-control form-control-sm" id="providerSelector" bind:value=provider on:change=changeProvider()>
                                 {#each providers as i}
-                                    {#if i == provider}
+                                    {#if i === provider}
                                         <option name="{i}" value="{i}" selected="selected">{i}</option>
                                     {:else}
                                         <option name="{i}" value="{i}">{i}</option>
@@ -84,9 +84,9 @@
 									{#each item.cells as cell, idx}
 										<td class="{cellIsOk(cell)}">
 											{#if (cell)}
-												{#if getValue(cell, exemptTransfers)}
+												{#if typeof getValue(cell, exemptTransfers) !== 'undefined'}
 													<div alt="{tooltipOrDefault(cell)}" title="{tooltipOrDefault(cell)}" data-toggle="tooltip">
-														{#if (cell.value == 'NaN')}
+														{#if (cell.value === 'NaN')}
 															<span class="fe fe-check"></span>
 														{:else}
 															{#if showDelta}
@@ -193,7 +193,7 @@
 				if (row) {
 					let cell = row[0].cells[idx];
 					if (cell) {
-						return cell.value && cell.value !== 'NaN';
+						return typeof cell.value !== 'undefined' && cell.value !== 'NaN';
 					}
 				}
 				return false;
