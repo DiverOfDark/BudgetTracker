@@ -8,6 +8,7 @@ using BudgetTracker.Controllers.ViewModels.Widgets;
 using BudgetTracker.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BudgetTracker.Controllers
@@ -89,18 +90,26 @@ namespace BudgetTracker.Controllers
             if (provider2 == BadOption)
             {
                 vm.Values.RemoveAll(v => v.CalculatedCells.All(s => s.Value != null && s.Value?.FailedToResolve.Any() == false));
-/*                vm.Headers.RemoveAll(v => v.IsComputed || vm.Values.All(s =>
-                                              s.CalculatedCells.Any(c =>
-                                                  c.Key == v && c.Value != null &&
-                                                  c.Value?.FailedToResolve.Any() == false)));*/
+                foreach (var header in vm.Headers.ToList())
+                {
+                    bool toRemove = header.IsComputed || vm.Values.All(s =>
+                                        s.CalculatedCells.Any(c =>
+                                            c.Key == header && c.Value != null &&
+                                            c.Value?.FailedToResolve.Any() == false));
+
+                    if (toRemove)
+                    {
+                        var idx = vm.Headers.IndexOf(header);
+                        vm.Headers.RemoveAt(idx);
+                        foreach (var row in vm.Values)
+                        {
+                            row.Cells.RemoveAt(idx);
+                        }
+                    }
+                }
             }
             else
             {
-                foreach (var calculatedResult in vm.Values.SelectMany(v=>v.Cells).Where(v=> v != null && v.Column.Provider == provider2).OfType<ExpressionCalculatedResult>())
-                {
-                    calculatedResult.EvalExpression();
-                }
-
                 foreach (var item in Enumerable.Reverse(vm.Headers).ToList())
                 {
                     if (item.Provider != provider2)

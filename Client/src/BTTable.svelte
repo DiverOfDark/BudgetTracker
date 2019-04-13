@@ -81,7 +81,7 @@
 									<th class="table-dark" scope="row">
 										{formatDate(item.when)}
 									</th>
-									{#each item.cells as cell}
+									{#each item.cells as cell, idx}
 										<td class="{cellIsOk(cell)}">
 											{#if (cell)}
 												{#if getValue(cell, exemptTransfers)}
@@ -126,11 +126,11 @@
 												{/if}
 											{:else}
 												&mdash;
-												{#if showControls && hasPreviousCell(vm.values, header.id, item.when)}
-													<a href="/Table/CopyFromPrevious?headerId={header.id}&date={formatDate(item.when)}">
+												{#if showControls && hasPreviousCell(vm.values, idx, item.when)}
+													<a href="/Table/CopyFromPrevious?headerId={vm.headers[idx].id}&date={formatDate(item.when)}">
 														<span class="fe fe-copy"></span>
 													</a>
-													<a href="/Table/MarkAsOk?headerId={header.id}&date={formatDate(item.when)}">
+													<a href="/Table/MarkAsOk?headerId={vm.headers[idx].id}&date={formatDate(item.when)}">
 														<span class="fe fe-check"></span>
 													</a>
 												{/if}
@@ -187,11 +187,11 @@
 				}
 				return '';
 			},
-			hasPreviousCell(values, header, when) {
+			hasPreviousCell(values, idx, when) {
 				let whenDate = moment(when).subtract(1, 'days');
 				let row = values.filter(t=> formatDate(moment(t.when)) === formatDate(whenDate));
 				if (row) {
-					let cell = row[0].cells[header];
+					let cell = row[0].cells[idx];
 					if (cell) {
 						return cell.value && cell.value !== 'NaN';
 					}
