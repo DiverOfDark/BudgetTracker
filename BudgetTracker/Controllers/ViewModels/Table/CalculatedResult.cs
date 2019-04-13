@@ -87,6 +87,6 @@ namespace BudgetTracker.Controllers.ViewModels.Table
 
         public double? DiffPercentage => DiffValue / PreviousValue?.AdjustedValue;
         
-        public override string ToString() => $"[{Column.Provider}/{Column.AccountName}]({AdjustedValue})";
+        public override string ToString() => $"[{Column.Provider}/{Column.UserFriendlyName ?? Column.AccountName}]({AdjustedValue})";
     }
 }

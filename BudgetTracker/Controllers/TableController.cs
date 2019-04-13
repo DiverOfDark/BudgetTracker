@@ -89,25 +89,30 @@ namespace BudgetTracker.Controllers
             if (provider2 == BadOption)
             {
                 vm.Values.RemoveAll(v => v.CalculatedCells.All(s => s.Value != null && s.Value?.FailedToResolve.Any() == false));
-                vm.Headers.RemoveAll(v => v.IsComputed || vm.Values.All(s =>
+/*                vm.Headers.RemoveAll(v => v.IsComputed || vm.Values.All(s =>
                                               s.CalculatedCells.Any(c =>
                                                   c.Key == v && c.Value != null &&
-                                                  c.Value?.FailedToResolve.Any() == false)));
+                                                  c.Value?.FailedToResolve.Any() == false)));*/
             }
             else
             {
-                foreach (var calculatedResult in vm.Values.SelectMany(v=>v.CalculatedCells).Select(s=>s.Value).OfType<ExpressionCalculatedResult>())
+                foreach (var calculatedResult in vm.Values.SelectMany(v=>v.Cells).Where(v=> v != null && v.Column.Provider == provider2).OfType<ExpressionCalculatedResult>())
                 {
                     calculatedResult.EvalExpression();
                 }
-                vm.Values.ForEach(v =>
+
+                foreach (var item in Enumerable.Reverse(vm.Headers).ToList())
                 {
-                    foreach (var key in v.CalculatedCells.Where(s=>s.Key.Provider != provider).Select(s=>s.Key).ToList())
+                    if (item.Provider != provider2)
                     {
-                        v.CalculatedCells.Remove(key);
+                        var idx = vm.Headers.IndexOf(item);
+                        vm.Headers.RemoveAt(idx);
+                        foreach (var row in vm.Values)
+                        {
+                            row.Cells.RemoveAt(idx);
+                        }
                     }
-                });
-                vm.Headers.RemoveAll(v => v.Provider != provider2);
+                }
             }
 
             return Json(new

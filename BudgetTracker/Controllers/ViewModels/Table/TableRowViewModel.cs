@@ -12,13 +12,15 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         public TableRowViewModel(IList<MoneyStateModel> item, List<MoneyColumnMetadataModel> headers, Dictionary<string, MoneyColumnMetadataModel> headersCached, Dictionary<MoneyColumnMetadataModel, Dictionary<DateTime, double>> paymentsToExempt)
         {
             When = item.Select(v => v.When).Max();
-            CalculatedCells = new Dictionary<MoneyColumnMetadataModel, CalculatedResult>(); 
+            Cells = new List<CalculatedResult>(); 
             
+            CalculatedCells = new Dictionary<MoneyColumnMetadataModel, CalculatedResult>();
             foreach (var h in headers)
             {
+                CalculatedResult cell = null;
                 if (h.IsComputed)
                 {
-                    CalculatedCells[h] = CalculatedResult.FromComputed(headersCached, h, CalculatedCells);
+                    cell = CalculatedResult.FromComputed(headersCached, h, CalculatedCells);
                 }
                 else
                 {
@@ -27,18 +29,24 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                     {
                         var adj = paymentsToExempt.GetValueOrDefault(h)?.GetValueOrDefault(money.When.Date.AddDays(-1)) ?? 0;
 
-                        CalculatedCells[h] = CalculatedResult.FromMoney(h, money, adj);
+                        cell = CalculatedResult.FromMoney(h, money, adj);
                     }
+                }
+
+                Cells.Add(cell);
+
+                if (cell != null)
+                {
+                    CalculatedCells[h] = cell;
                 }
             }
         }
         
         public DateTime When { get; }
-        
-        [JsonIgnore]
-        public Dictionary<MoneyColumnMetadataModel, CalculatedResult> CalculatedCells { get; }
 
-        public Dictionary<Guid, CalculatedResult> Cells => CalculatedCells.ToDictionary(v => v.Key.Id, v => v.Value);
+        [JsonIgnore] public Dictionary<MoneyColumnMetadataModel, CalculatedResult> CalculatedCells { get; }
+
+        public List<CalculatedResult> Cells {get; }
         
         [JsonIgnore]
         public TableRowViewModel Previous { get; set; }

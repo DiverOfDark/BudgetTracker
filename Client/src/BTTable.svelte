@@ -11,15 +11,13 @@
 						<h3 class="card-title">История</h3> 
 						<div style="width: 200px; margin-left: 15px;">
 							<select class="form-control form-control-sm" id="providerSelector" bind:value=provider on:change=changeProvider()>
-								<optgroup>
-									{#each providers as i}
-										{#if i == provider}
-											<option name="{i}" value="{i}" selected="selected">{i}</option>
-										{:else}
-											<option name="{i}" value="{i}">{i}</option>
-										{/if}
-									{/each}
-								</optgroup>
+                                {#each providers as i}
+                                    {#if i == provider}
+                                        <option name="{i}" value="{i}" selected="selected">{i}</option>
+                                    {:else}
+                                        <option name="{i}" value="{i}">{i}</option>
+                                    {/if}
+                                {/each}
 								<optgroup label="-------------------">
 									<option name="BadOption" value="BadOption">Проблемные</option>
 								</optgroup>
@@ -83,46 +81,46 @@
 									<th class="table-dark" scope="row">
 										{formatDate(item.when)}
 									</th>
-									{#each vm.headers as header}
-										<td class="{cellIsOk(item.cells[header.id])}">
-											{#if item.cells[header.id]}
-												{#if getValue(item.cells[header.id], exemptTransfers)}
-													<div alt="{tooltipOrDefault(item.cells[header.id])}" title="{tooltipOrDefault(item.cells[header.id])}" data-toggle="tooltip">
-														{#if (item.cells[header.id].value == 'NaN')}
+									{#each item.cells as cell}
+										<td class="{cellIsOk(cell)}">
+											{#if (cell)}
+												{#if getValue(cell, exemptTransfers)}
+													<div alt="{tooltipOrDefault(cell)}" title="{tooltipOrDefault(cell)}" data-toggle="tooltip">
+														{#if (cell.value == 'NaN')}
 															<span class="fe fe-check"></span>
 														{:else}
 															{#if showDelta}
-																{#if item.cells[header.id].diffValue}
-																	<span class="{item.cells[header.id].diffValue > 0 ? 'text-success' : 'text-danger'}">
-																		{formatDiff(item.cells[header.id])}
+																{#if cell.diffValue}
+																	<span class="{cell.diffValue > 0 ? 'text-success' : 'text-danger'}">
+																		{formatDiff(cell)}
 																	</span>
 																{:else}
 																	&mdash;
 																{/if}
 															{:else}
-																<span>{formatPrice(getValue(item.cells[header.id], exemptTransfers))}</span>
+																<span>{formatPrice(getValue(cell, exemptTransfers))}</span>
 															{/if}
 
-															{#if item.cells[header.id].ccy}
+															{#if cell.ccy}
 																<span style="font-size: x-small; color: gray;">
-																	<i>{item.cells[header.id].ccy}</i>
+																	<i>{cell.ccy}</i>
 																</span>
 															{/if}
-															{#if hasPercentage(item.cells[header.id].diffPercentage)}
-																<span style="font-size: 0.7em" class="{item.cells[header.id].diffPercentage > 0 ? 'text-success': 'text-danger'}">
-																	{formatPercentage(item.cells[header.id].diffPercentage)}
+															{#if hasPercentage(cell.diffPercentage)}
+																<span style="font-size: 0.7em" class="{cell.diffPercentage > 0 ? 'text-success': 'text-danger'}">
+																	{formatPercentage(cell.diffPercentage)}
 																</span>
 															{/if}
 														{/if}
 
-														{#if showControls && item.cells[header.id].moneyId}
-															<a style="position: relative; right: 0;" href="/Table/DeleteMoney?id={item.cells[header.id].moneyId}">
+														{#if showControls && cell.moneyId}
+															<a style="position: relative; right: 0;" href="/Table/DeleteMoney?id={cell.moneyId}">
 																<span class="fe fe-x-circle"></span>
 															</a>
 														{/if}
 													</div>
 												{:else}
-													<div alt="{item.cells[header.id].tooltip}" title="{item.cells[header.id].tooltip}">
+													<div alt="{cell.tooltip}" title="{cell.tooltip}">
 														&mdash;
 													</div>
 												{/if}
@@ -168,8 +166,8 @@
 			fetchData(this, "", "");
 		},
 		onupdate({changed, current, previous}) {
-			//$('body').tooltip('dispose');
-			//$('[data-toggle="tooltip"]').tooltip();
+			$('body').tooltip('dispose');
+			$('[data-toggle="tooltip"]').tooltip();
 		},
 		helpers: {
 			getGroupedHeaders(headers) {
@@ -191,11 +189,11 @@
 			},
 			hasPreviousCell(values, header, when) {
 				let whenDate = moment(when).subtract(1, 'days');
-				let row = values.filter(t=> formatDate(moment(t.when)) == formatDate(whenDate));
+				let row = values.filter(t=> formatDate(moment(t.when)) === formatDate(whenDate));
 				if (row) {
 					let cell = row[0].cells[header];
 					if (cell) {
-						return cell.value && cell.value != 'NaN';
+						return cell.value && cell.value !== 'NaN';
 					}
 				}
 				return false;
@@ -227,7 +225,7 @@
 		},
 		methods: {
 			changeProvider() {
-				let state = this.get()
+				let state = this.get();
 				state.vm.headers = [];
 				state.vm.values = [];
 				this.set(state);
