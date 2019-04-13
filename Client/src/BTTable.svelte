@@ -168,8 +168,8 @@
 			fetchData(this, "", "");
 		},
 		onupdate({changed, current, previous}) {
-			$('body').tooltip('dispose');
-			$('[data-toggle="tooltip"]').tooltip();
+			//$('body').tooltip('dispose');
+			//$('[data-toggle="tooltip"]').tooltip();
 		},
 		helpers: {
 			getGroupedHeaders(headers) {

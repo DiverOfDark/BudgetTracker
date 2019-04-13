@@ -96,6 +96,17 @@ namespace BudgetTracker.Controllers
             }
             else
             {
+                foreach (var calculatedResult in vm.Values.SelectMany(v=>v.CalculatedCells).Select(s=>s.Value).OfType<ExpressionCalculatedResult>())
+                {
+                    calculatedResult.EvalExpression();
+                }
+                vm.Values.ForEach(v =>
+                {
+                    foreach (var key in v.CalculatedCells.Where(s=>s.Key.Provider != provider).Select(s=>s.Key).ToList())
+                    {
+                        v.CalculatedCells.Remove(key);
+                    }
+                });
                 vm.Headers.RemoveAll(v => v.Provider != provider2);
             }
 

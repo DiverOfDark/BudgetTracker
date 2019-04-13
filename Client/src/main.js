@@ -1,4 +1,4 @@
-import BTTable from './BTTable.html';
+import BTTable from './BTTable.svelte';
 
 const table = new BTTable({
 	target: document.querySelector('BTTable')
