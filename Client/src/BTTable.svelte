@@ -161,13 +161,30 @@
 
 	const formatDate = when => moment(when).format('DD.MM.YYYY');
 
+    const throttle = (func, limit) => {
+      let inThrottle
+      return function() {
+        const args = arguments
+        const context = this
+        if (!inThrottle) {
+          inThrottle = true
+          setTimeout(() => {
+            inThrottle = false;
+            func.apply(context, args)
+            }, limit)
+        }
+      }
+    }
+
 	export default {
 		oncreate() {
 			fetchData(this, "", "");
 		},
 		onupdate({changed, current, previous}) {
-			$('body').tooltip('dispose');
-			$('[data-toggle="tooltip"]').tooltip();
+		    throttle(function() {
+			    $('body').tooltip('dispose');
+			    $('[data-toggle="tooltip"]').tooltip();
+			}, 500)();
 		},
 		helpers: {
 			getGroupedHeaders(headers) {
@@ -190,7 +207,7 @@
 			hasPreviousCell(values, idx, when) {
 				let whenDate = moment(when).subtract(1, 'days');
 				let row = values.filter(t=> formatDate(moment(t.when)) === formatDate(whenDate));
-				if (row) {
+				if (row && row[0] && row[0].cells) {
 					let cell = row[0].cells[idx];
 					if (cell) {
 						return typeof cell.value !== 'undefined' && cell.value !== 'NaN';
