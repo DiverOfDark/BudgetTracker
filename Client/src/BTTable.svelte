@@ -82,7 +82,7 @@
 										{formatDate(item.when)}
 									</th>
 									{#each item.cells as cell, idx}
-										<td class="{cellIsOk(cell)}">
+										<td class="{cellIsOk(vm.values, rowIdx, idx)}">
 											{#if (cell)}
 												{#if typeof getValue(cell, exemptTransfers) !== 'undefined'}
 													<div alt="{tooltipOrDefault(cell)}" title="{tooltipOrDefault(cell)}" data-toggle="tooltip">
@@ -114,9 +114,9 @@
 														{/if}
 
 														{#if showControls && cell.moneyId}
-															<a style="position: relative; right: 0;" href="/Table/DeleteMoney?id={cell.moneyId}">
+															<button class="btn btn-sm btn-link btn-anchor" style="position: relative; right: 0;" on:click="deleteMoney(cell.moneyId)">
 																<span class="fe fe-x-circle"></span>
-															</a>
+															</button>
 														{/if}
 													</div>
 												{:else}
@@ -127,12 +127,12 @@
 											{:else}
 												&mdash;
 												{#if showControls && hasPreviousCell(vm.values, rowIdx, idx, item.when)}
-													<a href="/Table/CopyFromPrevious?headerId={vm.headers[idx].id}&date={formatDate(item.when)}">
+													<button on:click="copyFromPrevious(vm.headers[idx].id, item.when)" class="btn btn-sm btn-link btn-anchor">
 														<span class="fe fe-copy"></span>
-													</a>
-													<a href="/Table/MarkAsOk?headerId={vm.headers[idx].id}&date={formatDate(item.when)}">
+													</button>
+													<button on:click="markAsOk(vm.headers[idx].id, item.when)" class="btn btn-sm btn-link btn-anchor">
 														<span class="fe fe-check"></span>
-													</a>
+													</button>
 												{/if}
 											{/if}
 										</td>
@@ -149,6 +149,14 @@
 	</div>
 {/if}
 
+<style>
+    .btn-link.btn-anchor {
+        outline: none !important;
+        padding: 0;
+        border: 0;
+        vertical-align: baseline;
+    }
+</style>
 
 <script>
 	import moment from 'moment'
@@ -198,11 +206,29 @@
 			formatDate(date) {
 				return formatDate(date);
 			},
-			cellIsOk(cell) {
-				if (!cell || cell.failedToResolve) {
-					return 'table-dark';
-				}
-				return '';
+			cellIsOk(vmValues, rowIdx, cellIdx) {
+			    let cell = vmValues[rowIdx].cells[cellIdx];
+			    
+                if (cell && cell.failedToResolve) {
+                    return 'table-dark'; 
+                }
+			    
+			    if (cell) { 
+			        return '';
+                }
+                
+                for(var rowId = rowIdx + 1; rowId < vmValues.length; rowId++) {
+                    let previousCell = vmValues[rowId].cells[cellIdx];
+                    
+                    if (previousCell && previousCell.value === 'NaN') {
+                        return '';
+                    }
+                    if (previousCell) {
+                        return 'table-dark';
+                    }
+                }
+			        
+                return '';
 			},
 			hasPreviousCell(values, rowIdx, idx, when) {
 				let row = values[rowIdx + 1];
@@ -240,6 +266,18 @@
 			},
 		},
 		methods: {
+		    async deleteMoney(id) {
+        		const response = await fetch("/Table/DeleteMoney?id=" + id);
+		        fetchData(this,this.get().provider, null);
+		    },
+		    async copyFromPrevious(header,date) {
+        		const response = await fetch("/Table/CopyFromPrevious?headerId=" + header + "&date=" + formatDate(date));
+		        fetchData(this,this.get().provider, null);
+		    },
+		    async markAsOk(header, date) {
+        		const response = await fetch("/Table/MarkAsOk?headerId=" + header + "&date=" + formatDate(date));
+		        fetchData(this,this.get().provider, null);
+		    },
 			changeProvider() {
 				let state = this.get();
 				state.vm.headers = [];

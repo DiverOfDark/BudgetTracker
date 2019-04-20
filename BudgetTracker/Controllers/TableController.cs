@@ -151,7 +151,7 @@ namespace BudgetTracker.Controllers
         public IActionResult DeleteMoney(Guid id)
         {
             _objectRepository.Remove<MoneyStateModel>(x => x.Id == id);
-            return RedirectToAction(nameof(Index));
+            return Ok();
         }
 
         public IActionResult CopyFromPrevious(Guid headerid, string date)
@@ -173,7 +173,7 @@ namespace BudgetTracker.Controllers
                 Ccy = previous.Ccy
             });
 
-            return RedirectToAction(nameof(Index));
+            return Ok();
         }
 
         public IActionResult MarkAsOk(Guid headerid, string date)
@@ -190,7 +190,7 @@ namespace BudgetTracker.Controllers
                 Provider = column.Provider
             });
 
-            return RedirectToAction(nameof(Index));
+            return Ok();
         }
     }
 }
