@@ -76,7 +76,7 @@
 									</th>
 								{/each}
 							</tr>
-							{#each vm.values as item}
+							{#each vm.values as item, rowIdx}
 								<tr>
 									<th class="table-dark" scope="row">
 										{formatDate(item.when)}
@@ -126,7 +126,7 @@
 												{/if}
 											{:else}
 												&mdash;
-												{#if showControls && hasPreviousCell(vm.values, idx, item.when)}
+												{#if showControls && hasPreviousCell(vm.values, rowIdx, idx, item.when)}
 													<a href="/Table/CopyFromPrevious?headerId={vm.headers[idx].id}&date={formatDate(item.when)}">
 														<span class="fe fe-copy"></span>
 													</a>
@@ -204,11 +204,10 @@
 				}
 				return '';
 			},
-			hasPreviousCell(values, idx, when) {
-				let whenDate = moment(when).subtract(1, 'days');
-				let row = values.filter(t=> formatDate(moment(t.when)) === formatDate(whenDate));
-				if (row && row[0] && row[0].cells) {
-					let cell = row[0].cells[idx];
+			hasPreviousCell(values, rowIdx, idx, when) {
+				let row = values[rowIdx + 1];
+				if (row && row.cells) {
+					let cell = row.cells[idx];
 					if (cell) {
 						return typeof cell.value !== 'undefined' && cell.value !== 'NaN';
 					}
