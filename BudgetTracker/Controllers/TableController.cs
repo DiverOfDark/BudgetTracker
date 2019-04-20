@@ -89,13 +89,14 @@ namespace BudgetTracker.Controllers
 
             if (provider2 == BadOption)
             {
-                vm.Values.RemoveAll(v => v.CalculatedCells.All(s => s.Value != null && s.Value?.FailedToResolve.Any() == false));
                 foreach (var header in vm.Headers.ToList())
                 {
                     bool toRemove = header.IsComputed || vm.Values.All(s =>
-                                        s.CalculatedCells.Any(c =>
-                                            c.Key == header && c.Value != null &&
-                                            c.Value?.FailedToResolve.Any() == false));
+                                                          s.CalculatedCells.Any(c =>
+                                                              c.Key == header && c.Value != null &&
+                                                              c.Value?.FailedToResolve.Any() == false))
+                                                      || vm.Values.All(s =>
+                                                          s.CalculatedCells.All(c => c.Key == header && c.Value == null));
 
                     if (toRemove)
                     {
