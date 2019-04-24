@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BudgetTracker.Controllers.ViewModels.Table;
 using BudgetTracker.Model;
@@ -40,7 +41,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         {
             var cell = vm.Values.FirstOrDefault()?.CalculatedCells?.GetValueOrDefault(column);
             var cellValue = ExemptTransfers ? cell?.AdjustedValue : cell?.Value;
-            if (cellValue == null || double.IsNaN(cellValue.Value))
+            if (cellValue == null || cellValue == 0 || double.IsNaN(cellValue.Value))
             {
                 return null;
             }
