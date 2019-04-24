@@ -108,7 +108,8 @@ else
 				                title: d3.format(',.2f')(@sum),
 				                label: {
 					               format: function (value, ratio, id) {
-						               return names[id];
+										var trimmed = names[id].length > 16 ? names[id].substring(0, 15) + "…" : names[id];
+						                return trimmed + " (" + d3.format(',.1f')(ratio*100) + "%)";
 					               }
 				                }
 			                },</text>
@@ -132,8 +133,8 @@ else
                   			},
                   			tooltip: {
 				                  format: {
-					                  value: function (value) {
-						                  return d3.format(',.2f')(value);
+					                  value: function (value, ratio, id) {
+						                  return d3.format(',.2f')(value) + " (" + d3.format(',.1f')(ratio*100) + "%)";
 					                  }
 				                  }
                   			}
