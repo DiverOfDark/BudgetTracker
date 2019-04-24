@@ -54,6 +54,11 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 
                 var children = columnsToChart.Select(v => LoadData(v, repository, vm)).Where(v => v != null).ToList();
 
+                if (children.Count == 0)
+                {
+                    return null;
+                }
+
                 return new Node
                 {
                     Title = cell.Column.UserFriendlyName,
