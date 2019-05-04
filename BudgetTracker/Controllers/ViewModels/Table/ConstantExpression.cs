@@ -11,7 +11,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
     {
         private readonly MoneyColumnMetadataModel _model;
         private readonly string _source;
-        private static Regex parseRegex = new Regex(@"(?<value>[0-9.]+)(\:(?<adj>[0-9.]+))?(?<ccy>\@.+)?", RegexOptions.Compiled);
+        private static Regex parseRegex = new Regex(@"(?<value>[0-9.,]+)(\:(?<adj>[0-9.,]+))?(?<ccy>\@.+)?", RegexOptions.Compiled);
         
         public ConstantExpression(MoneyColumnMetadataModel model, string source)
         {
