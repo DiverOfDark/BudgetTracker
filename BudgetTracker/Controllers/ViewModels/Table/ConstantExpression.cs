@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using BudgetTracker.Model;
@@ -26,8 +27,12 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             var ccy = match.Groups["ccy"].Captures.FirstOrDefault()?.Value;
             var adjustmentString = match.Groups["adj"].Captures.FirstOrDefault()?.Value;
 
-            double.TryParse(valueString, out var value);
-            double.TryParse(adjustmentString, out var adjustment);
+            valueString = valueString?.Replace(",", ".");
+            adjustmentString = adjustmentString?.Replace(",", ".");
+
+            var numberFormatInfo = new NumberFormatInfo{NumberDecimalSeparator = "."};
+            double.TryParse(valueString, NumberStyles.Any, numberFormatInfo, out var value);
+            double.TryParse(adjustmentString, NumberStyles.Any, numberFormatInfo, out var adjustment);
             
             Value = CalculatedResult.FromComputed(_model, value, ccy, Enumerable.Empty<string>(), adjustment, ToString());
         }
