@@ -1,0 +1,38 @@
+{
+  "name": "BudgetTracker.Client",
+  "description": "TODO",
+  "scripts": {
+    "dev": "sapper dev",
+    "build": "sapper build",
+    "export": "sapper export",
+    "lint": "eslint src --plugin svelte3 --ext .svelte,.js",
+    "start": "node __sapper__/build",
+    "ci": "npm run lint && npm run build"
+  },
+  "dependencies": {
+    "compression": "^1.7.1",
+    "moment": "^2.24.0",
+    "polka": "^0.5.0",
+    "sirv": "^0.4.0",
+    "unfetch": "^4.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.0.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.0.0",
+    "@babel/plugin-transform-runtime": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "@babel/runtime": "^7.0.0",
+    "eslint": "^5.16.0",
+    "eslint-plugin-svelte3": "^1.2.0",
+    "npm-run-all": "^4.1.5",
+    "rollup": "^1.0.0",
+    "rollup-plugin-babel": "^4.0.2",
+    "rollup-plugin-commonjs": "^9.1.6",
+    "rollup-plugin-node-resolve": "^4.0.0",
+    "rollup-plugin-replace": "^2.0.0",
+    "rollup-plugin-svelte": "^5.0.1",
+    "rollup-plugin-terser": "^4.0.4",
+    "sapper": "^0.27.0",
+    "svelte": "^3.0.0"
+  }
+}
