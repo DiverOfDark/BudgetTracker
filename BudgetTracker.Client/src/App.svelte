@@ -11,10 +11,10 @@
 	<div class="page-main">
 		<Nav />
 		<div class="page-content">
-        <Router>
-            <Route path="*" component={NotFound} />
-            <Route path="/Table" component={BTTable} />
-        </Router>
+      <Router>
+        <Route path="*" component={NotFound} />
+        <Route path="/Table" component={BTTable} />
+      </Router>
 		</div>
 	</div>
 	<Footer />
