@@ -1,8 +1,7 @@
 <script>
-    import {systemInfo} from './Rest.svelte'
+    import {systemInfo} from '../Services/Rest.js'
 
-    export let footer;
-    export let info;
+    let info;
 
     systemInfo().then(i => info = i);;
 </script>

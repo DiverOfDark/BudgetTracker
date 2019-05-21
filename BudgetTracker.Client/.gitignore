@@ -1,4 +1,5 @@
 .DS_Store
 node_modules
-yarn-error.log
-/__sapper__/
+out/bundle.*
+package-lock.json
+yarn.lock

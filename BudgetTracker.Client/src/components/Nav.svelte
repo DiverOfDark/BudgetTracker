@@ -1,8 +1,7 @@
 <script>
-    export let nav;
-    export let info;
+    let info;
 
-    import {systemInfo} from './Rest.svelte'
+    import {systemInfo} from '../Services/Rest.js'
     import { readable } from 'svelte/store';
 
     systemInfo().then(i => info = i);

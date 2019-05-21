@@ -212,8 +212,6 @@ namespace BudgetTracker
             {
                 options.XmlRepository = new ObjectRepositoryXmlStorage(objectRepository);
             });
-            services.AddSpaStaticFiles(x=>x.RootPath = "../BudgetTracker.Client/__sapper__/export/");
-            services.AddSpaPrerenderer();
             services.AddNodeServices();
             services.AddAuthorization();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(x =>
@@ -255,7 +253,6 @@ namespace BudgetTracker
             app.UseStatusCodePagesWithReExecute("/Error", "?statusCode={0}");
             app.UseExceptionHandler("/Error");
             app.UseStaticFiles();
-            app.UseSpaStaticFiles();
             
             app.UseSession();
             app.UseAuthentication();
@@ -280,13 +277,6 @@ namespace BudgetTracker
                         controller = "Widget",
                         action = "Error"
                     }));
-            app.UseSpa(x =>
-            {
-                if (!IsProduction)
-                {
-                    x.UseProxyToSpaDevelopmentServer("http://localhost:3000/");
-                }
-            });
 
             RegisterJobs(app.ApplicationServices);
 

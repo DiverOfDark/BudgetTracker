@@ -1,3 +1,7 @@
+@{
+	Layout = null;
+}
+
 <!doctype html>
 <html>
 <head>
@@ -12,15 +16,13 @@
 	<meta name="mobile-web-app-capable" content="yes">
 	<meta name="HandheldFriendly" content="True">
 	<meta name="MobileOptimized" content="320">
- 
-	%sapper.base%
-
 	<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
 	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico"/>
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,300i,400,400i,500,500i,600,600i,700,700i&amp;subset=latin-ext">
 	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/vega-tooltip@0.6.1/build/vega-tooltip.min.css">
 	<link rel="stylesheet" href="/css/dashboard.css"/>
 	<link rel="stylesheet" href="/css/c3.css" />
+	<link rel='stylesheet' href='/css/bundle.css' asp-append-version="true">
 
 	<script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/jquery-sparkline@2/jquery.sparkline.min.js"></script>
@@ -32,24 +34,8 @@
 	<script src="https://cdn.jsdelivr.net/npm/c3@0.6.8/c3.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/d3@5.1.0/dist/d3.min.js"></script>
 	<script type="text/javascript" src="/js/dashboard.js"></script>
-
-	<!-- Sapper generates a <style> tag containing critical CSS
-	     for the current page. CSS for the rest of the app is
-	     lazily loaded when it precaches secondary pages -->
-	%sapper.styles%
-
-	<!-- This contains the contents of the <svelte:head> component, if
-	     the current page has one -->
-	%sapper.head%
 </head>
 <body>
-	<!-- The application will be rendered inside this element,
-	     because `app/client.js` references it -->
-	<div id='sapper'>%sapper.html%</div>
-
-	<!-- Sapper creates a <script> tag containing `app/client.js`
-	     and anything else it needs to hydrate the app and
-	     initialise the router -->
-	%sapper.scripts%
+	<script src='/js/bundle.js' asp-append-version="true"></script>
 </body>
 </html>

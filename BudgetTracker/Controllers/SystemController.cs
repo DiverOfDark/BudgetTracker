@@ -32,5 +32,7 @@ namespace BudgetTracker.Controllers
             
             return Json(result);
         } 
+        
+        public ActionResult Svelte() => View("Svelte");
     }
 }
