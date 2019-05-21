@@ -11,9 +11,8 @@
     "svelte3"
   ],
   "rules": {
-
+    "indent": ["error", 2]
   },
   "settings": {
-
   }
 }

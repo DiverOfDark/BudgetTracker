@@ -174,138 +174,138 @@
 	let showControls = false;
 	let vm;
 
-    let activeTooltip = "";
+let activeTooltip = "";
 	let showTooltip = false;
 	let tooltipPosition;
 
 	function doShowTooltip(node, text) {
-		let mouseover = () => {
-			tooltipPosition = node.getBoundingClientRect();
-			activeTooltip = text;
-			showTooltip = true;
-		}
-		let mouseout = () => showTooltip = false;
+	  let mouseover = () => {
+	    tooltipPosition = node.getBoundingClientRect();
+	    activeTooltip = text;
+	    showTooltip = true;
+	  }
+	  let mouseout = () => showTooltip = false;
 
-	    node.addEventListener('mouseover', mouseover);
-        node.addEventListener('mouseout', mouseout);
+	  node.addEventListener('mouseover', mouseover);
+  node.addEventListener('mouseout', mouseout);
 
-		return {
-			destroy() {
-                node.removeEventListener('mouseover', mouseover);
-                node.removeEventListener('mouseout', mouseout);
-			}
-		};
+	  return {
+	    destroy() {
+      node.removeEventListener('mouseover', mouseover);
+      node.removeEventListener('mouseout', mouseout);
+	    }
+	  };
 	}
 
 	const fetchData = async (component, provider, from) => {
-		const data = await table(provider, from);
-		provider = data.provider;
-		providers = data.providers;
-		vm = data.vm;
+	  const data = await table(provider, from);
+	  provider = data.provider;
+	  providers = data.providers;
+	  vm = data.vm;
 	}
 
 	const formatDate = when => moment(when).format('DD.MM.YYYY');
 
-    const throttle = (func, limit) => {
-      let inThrottle
-      return function() {
-        const args = arguments
-        const context = this
-        if (!inThrottle) {
-          inThrottle = true
-          setTimeout(() => {
-            inThrottle = false;
-            func.apply(context, args)
-            }, limit)
-        }
-      }
+const throttle = (func, limit) => {
+  let inThrottle
+  return function() {
+    const args = arguments
+    const context = this
+    if (!inThrottle) {
+      inThrottle = true
+      setTimeout(() => {
+        inThrottle = false;
+        func.apply(context, args)
+      }, limit)
     }
+  }
+}
 
 	let deleteMoney = async function(id) {
-		const response = await fetch("/Table/DeleteMoney?id=" + id);
-		fetchData(this,provider, null);
+	  const response = await fetch("/Table/DeleteMoney?id=" + id);
+	  fetchData(this,provider, null);
 	};
 
 	let copyFromPrevious = async function(header,date) {
-		const response = await fetch("/Table/CopyFromPrevious?headerId=" + header + "&date=" + formatDate(date));
-		fetchData(this,provider, null);
+	  const response = await fetch("/Table/CopyFromPrevious?headerId=" + header + "&date=" + formatDate(date));
+	  fetchData(this,provider, null);
 	};
 
 	let markAsOk = async function(header, date) {
-		const response = await fetch("/Table/MarkAsOk?headerId=" + header + "&date=" + formatDate(date));
-		fetchData(this,provider, null);
+	  const response = await fetch("/Table/MarkAsOk?headerId=" + header + "&date=" + formatDate(date));
+	  fetchData(this,provider, null);
 	};
 	
 	let changeProvider = function() {
-		vm.headers = [];
-		vm.values = [];
-		fetchData(this, provider, null);	
+	  vm.headers = [];
+	  vm.values = [];
+	  fetchData(this, provider, null);	
 	};
 
 	let getGroupedHeaders = function(headers) {
-				let grouped = headers.reduce((h, x) => {
-					h[x.provider] = (h[x.provider] || 0) + 1;
-					return h;
-				}, []);
+	  let grouped = headers.reduce((h, x) => {
+	    h[x.provider] = (h[x.provider] || 0) + 1;
+	    return h;
+	  }, []);
 
-				return Object.keys(grouped).map(function(key){ return { "name": key, "count": grouped[key] }; });;
+	  return Object.keys(grouped).map(function(key){ return { "name": key, "count": grouped[key] }; });;
 	};
 	
 	let cellIsOk = function(vmValues, rowIdx, cellIdx) {
 			    let cell = vmValues[rowIdx].cells[cellIdx];
 			    
-                if (cell && cell.failedToResolve) {
-                    return 'table-dark'; 
-                }
+  if (cell && cell.failedToResolve) {
+    return 'table-dark'; 
+  }
 			    
 			    if (cell) { 
 			        return '';
-                }
+  }
                 
-                for(var rowId = rowIdx + 1; rowId < vmValues.length; rowId++) {
-                    let previousCell = vmValues[rowId].cells[cellIdx];
+  for(var rowId = rowIdx + 1; rowId < vmValues.length; rowId++) {
+    let previousCell = vmValues[rowId].cells[cellIdx];
                     
-                    if (previousCell && previousCell.value === 'NaN') {
-                        return '';
-                    }
-                    if (previousCell) {
-                        return 'table-dark';
-                    }
-                }
+    if (previousCell && previousCell.value === 'NaN') {
+      return '';
+    }
+    if (previousCell) {
+      return 'table-dark';
+    }
+  }
 			        
-                return '';
-			};
+  return '';
+	};
 	let hasPreviousCell = function(values, rowIdx, idx, when) {
-				let row = values[rowIdx + 1];
-				if (row && row.cells) {
-					let cell = row.cells[idx];
-					if (cell) {
-						return typeof cell.value !== 'undefined' && cell.value !== 'NaN';
-					}
-				}
-				return false;
-			};
+	  let row = values[rowIdx + 1];
+	  if (row && row.cells) {
+	    let cell = row.cells[idx];
+	    if (cell) {
+	      return typeof cell.value !== 'undefined' && cell.value !== 'NaN';
+	    }
+	  }
+	  return false;
+	};
 	let getValue = function(cell, exemptTransfers) {
-				if (exemptTransfers) {
-					return cell.adjustedValue;
-				}
-				return cell.value;
-			};
+	  if (exemptTransfers) {
+	    return cell.adjustedValue;
+	  }
+	  return cell.value;
+	};
 	let formatPrice = function(value) {
-				if (!(typeof(value) === 'string' || value instanceof String)) {
-					return value.toFixed(2);
-				}
-				return value;
-			};
+	  if (!(typeof(value) === 'string' || value instanceof String)) {
+	    return value.toFixed(2);
+	  }
+	  return value;
+	};
 	let formatDiff = function(value) {
-				return value ? value.diffValue : '';
-			};
+	  return value ? value.diffValue : '';
+	};
 	let hasPercentage = function(percentage) {
-				return percentage && percentage !== 'NaN' && Math.abs(percentage.Value) > 0.0001;
-			};
+	  return percentage && percentage !== 'NaN' && Math.abs(percentage.Value) > 0.0001;
+	};
 	let formatPercentage = function(percentage) {
-				return (percentage > 0 ? "+" : "") + (percentage * 100).toFixed(2) + '%';
-			};
+	  return (percentage > 0 ? "+" : "") + (percentage * 100).toFixed(2) + '%';
+	};
 
 	fetchData(this, "", "");
 </script>	

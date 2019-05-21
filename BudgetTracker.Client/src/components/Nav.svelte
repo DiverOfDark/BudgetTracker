@@ -7,11 +7,11 @@
     systemInfo().then(i => info = i);
 
     const time = readable(new Date().toLocaleString(), set => {
-        const interval = setInterval(() => {
-            set(new Date().toLocaleString());
-        }, 1000);
+      const interval = setInterval(() => {
+        set(new Date().toLocaleString());
+      }, 1000);
 
-        return () => clearInterval(interval);
+      return () => clearInterval(interval);
     });
 </script>
 

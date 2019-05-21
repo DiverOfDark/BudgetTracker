@@ -15,12 +15,12 @@
     "svelte": "^3.0.0"
   },
   "scripts": {
-    "build": "rollup -c",
+    "build": "npm run lint && rollup -c",
     "autobuild": "rollup -c -w",
     "dev": "run-p start:dev autobuild",
     "start": "sirv --port 3000 public",
     "start:dev": "sirv --port 3000 public --dev",
-    "lint": "eslint src --plugin svelte3 --ext .svelte,.js"
+    "lint": "eslint src --plugin svelte3 --ext .svelte,.js --fix"
   },
   "dependencies": {
     "moment": "^2.24.0",
