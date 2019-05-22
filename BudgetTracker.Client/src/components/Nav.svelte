@@ -1,7 +1,7 @@
 <script>
     let info;
 
-    import {systemInfo} from '../Services/Rest.js'
+    import {systemInfo} from '../services/Rest.js'
     import { readable } from 'svelte/store';
 
     systemInfo().then(i => info = i);

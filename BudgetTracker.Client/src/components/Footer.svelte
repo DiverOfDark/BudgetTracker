@@ -1,5 +1,5 @@
 <script>
-    import {systemInfo} from '../Services/Rest.js'
+    import {systemInfo} from '../services/Rest.js'
 
     let info;
 
