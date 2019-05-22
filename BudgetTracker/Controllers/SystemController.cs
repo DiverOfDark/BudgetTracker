@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using BudgetTracker.Model;
 using BudgetTracker.Services;
-using ElectronNET.API;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BudgetTracker.Controllers

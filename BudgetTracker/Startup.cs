@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -13,8 +12,6 @@ using BudgetTracker.Controllers.ViewModels.Table;
 using BudgetTracker.Model;
 using BudgetTracker.Scrapers;
 using BudgetTracker.Services;
-using ElectronNET.API;
-using ElectronNET.API.Entities;
 using Hangfire;
 using Hangfire.AspNetCore;
 using LiteDB;
@@ -24,8 +21,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.SpaServices;
-using Microsoft.AspNetCore.StaticFiles.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -84,7 +79,6 @@ namespace BudgetTracker
         }
         
         private static readonly CultureInfo RussianCulture = new CultureInfo("ru-RU");
-        private BrowserWindow wnd;
 
         public Startup(IConfiguration configuration)
         {
@@ -113,7 +107,6 @@ namespace BudgetTracker
         public static string CommmitName { get; private set; }
         public static string CommmitHash { get; private set; }
         public static bool IsProduction { get; private set; }
-        public static bool IsElectronApp => HybridSupport.IsElectronActive;
         public static DateTime LaunchTime { get; } = DateTime.UtcNow;
         public static SettingsModel GlobalSettings { get; private set; }
 
@@ -152,35 +145,8 @@ namespace BudgetTracker
                 } else if (!String.IsNullOrEmpty(azureDb)) {
                     var cloudStorageAccount = CloudStorageAccount.Parse(azureDb);
                     storage = new AzureTableContext(cloudStorageAccount.CreateCloudTableClient());
-                } else if (IsElectronApp)
-                {
-                    wnd = Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions()
-                    {
-                        Title = "BudgetTracker",
-                        AutoHideMenuBar = true,
-                        Show = false
-                    }).GetAwaiter().GetResult();
-                    var files = Electron.Dialog.ShowOpenDialogAsync(wnd, new OpenDialogOptions()
-                    {
-                        Title = "Open database...",
-                        Message = "Select database filename"
-                    }).GetAwaiter().GetResult();
-
-                    if (files.Length != 1)
-                    {
-                        Electron.Dialog.ShowErrorBox("Fail", "fail");
-                    }
-
-                    var conn = new ConnectionString
-                    {
-                        Filename = files[0]
-                    };
-                    DbFileName = conn.Filename;
-                    var liteDbDatabase = new LiteDatabase(conn);
-                    storage = new LiteDbStorage(liteDbDatabase);
                 } else {
-                    throw new Exception(
-                        "Connection string for either 'AzureStorage' or 'LiteDb' should been specified.");
+                    throw new Exception("Connection string for either 'AzureStorage' or 'LiteDb' should been specified.");
                 }
                 
                 objectRepository = new ObjectRepository(storage, NullLoggerFactory.Instance);
@@ -288,10 +254,7 @@ namespace BudgetTracker
                 var objectRepository = app.ApplicationServices.GetService<ObjectRepository>();
                 objectRepository.OnException += OnError;
 
-                while (objectRepository.IsLoading)
-                {
-                    Thread.Sleep(50);
-                }
+                objectRepository.WaitForInitialize().GetAwaiter().GetResult();
 
                 var settingsModel = objectRepository.Set<SettingsModel>().FirstOrDefault();
                 if (settingsModel == null)
@@ -301,11 +264,6 @@ namespace BudgetTracker
                 }
 
                 GlobalSettings = settingsModel;
-                
-                if (IsElectronApp){
-                    wnd.Reload();
-                    wnd.Show();
-                }
             }).Start();
         }
 

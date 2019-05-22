@@ -3,9 +3,9 @@ WORKDIR /build
 ADD BudgetTracker.Client/package.json .
 RUN npm install
 ADD BudgetTracker.Client ./
-RUN ls -la && mkdir out && npm run build
+RUN mkdir out && npm run build
 
-FROM microsoft/dotnet:2.1-sdk as net-builder
+FROM microsoft/dotnet:2.2-sdk as net-builder
 WORKDIR /build
 ADD BudgetTracker.sln .
 ADD nuget.config .
@@ -18,14 +18,14 @@ COPY --from=client-builder /build/out/*.js* BudgetTracker/wwwroot/js/
 COPY --from=client-builder /build/out/*.css* BudgetTracker/wwwroot/css/
 RUN dotnet publish --output ../out/ --configuration Release --runtime linux-x64 BudgetTracker
 
-FROM microsoft/dotnet:2.1-aspnetcore-runtime
+FROM microsoft/dotnet:2.2-aspnetcore-runtime
 
 # Install Chrome WebDriver
 RUN apt-get -yqq update && \
     apt-get -yqq install unzip gnupg2 procps htop && \
     rm -rf /var/lib/apt/lists/*
 
-RUN CHROMEDRIVER_VERSION=2.37 && \
+RUN CHROMEDRIVER_VERSION=74.0.3729.6 && \
     mkdir -p /opt/chromedriver-$CHROMEDRIVER_VERSION && \
     curl -sS -o /tmp/chromedriver_linux64.zip http://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip && \
     unzip -qq /tmp/chromedriver_linux64.zip -d /opt/chromedriver-$CHROMEDRIVER_VERSION && \
