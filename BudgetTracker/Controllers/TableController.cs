@@ -22,62 +22,11 @@ namespace BudgetTracker.Controllers
 
         public TableController(ObjectRepository objectRepository) => _objectRepository = objectRepository;
 
-        [AllowAnonymous, Route("/Table.csv")]
-        public IActionResult IndexCsv(string password, bool exemptTransfers = false, bool excelCompatible = false)
-        {
-            if (!Startup.GlobalSettings.Password.Equals(password))
-            {
-                return Unauthorized();
-            }
-            
-            var table = HttpContext.RequestServices.GetRequiredService<TableViewModelFactory>();
-            var vm = table.GetVM();
-
-            var sb = new StringBuilder();
-
-            if (excelCompatible)
-            {
-                sb.AppendLine("sep=,");
-            }
-            
-            var headers = string.Join(",", vm.Headers.Select(v => (v.IsComputed ? "" : v.Provider + "/") + v.UserFriendlyName));
-
-            headers = "Когда," + headers;
-            
-            sb.AppendLine(headers);
-
-            foreach (var item in vm.Values)
-            {
-                var rowString = item.When.ToString("dd.MM.yyyy") + ",";
-
-                rowString += string.Join(",", vm.Headers.Select(h =>
-                {
-                    item.CalculatedCells.TryGetValue(h, out var p); 
-
-                    var value = exemptTransfers ? p?.Value : p?.AdjustedValue;
-                    if (value != null && !double.IsNaN(value.Value))
-                    {
-                        return "\"" + value.Value.ToString("0.00###", new NumberFormatInfo {NumberDecimalSeparator = ","}) + "\"";
-                    }
-
-                    return "";
-                }).ToList());
-                
-                sb.AppendLine(rowString);
-            }
-
-
-            var content = sb.ToString();
-            
-            
-            return Content(content, "text/csv", Encoding.UTF8);
-        }
-        
         public IActionResult Index()
         {
-            return View();
+            return View("Svelte");
         }
-
+        
         public IActionResult IndexJson(String provider)
         {
             var table = HttpContext.RequestServices.GetRequiredService<TableViewModelFactory>();

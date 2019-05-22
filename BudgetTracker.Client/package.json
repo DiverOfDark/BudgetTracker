@@ -1,0 +1,29 @@
+{
+  "name": "BudgetTracker.Client",
+  "version": "1.0.0",
+  "devDependencies": {
+    "npm-run-all": "^4.1.5",
+    "rollup": "^1.10.1",
+    "rollup-plugin-commonjs": "^9.3.4",
+    "rollup-plugin-livereload": "^1.0.0",
+    "rollup-plugin-node-resolve": "^4.2.3",
+    "rollup-plugin-svelte": "^5.0.3",
+    "rollup-plugin-terser": "^4.0.4",
+    "eslint": "^5.16.0",
+    "eslint-plugin-svelte3": "^1.2.0",
+    "sirv-cli": "^0.4.0",
+    "svelte": "^3.0.0"
+  },
+  "scripts": {
+    "build": "npm run lint && rollup -c",
+    "autobuild": "rollup -c -w",
+    "dev": "run-p start:dev autobuild",
+    "start": "sirv --port 3000 public",
+    "start:dev": "sirv --port 3000 public --dev",
+    "lint": "eslint src --plugin svelte3 --ext .svelte,.js --fix"
+  },
+  "dependencies": {
+    "moment": "^2.24.0",
+    "svero": "^0.5.0"
+  }
+}

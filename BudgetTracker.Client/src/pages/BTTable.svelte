@@ -1,3 +1,6 @@
+<svelte:head>
+	<title>BudgetTracker - История</title>
+</svelte:head>
 {#if !vm}
 <div class="container text-center">
     <div class="display-1 text-muted mb-5"><i class="si si-exclamation"></i>Загрузка...</div>
@@ -10,7 +13,7 @@
 					<div class="card-header">
 						<h3 class="card-title">История</h3> 
 						<div style="width: 200px; margin-left: 15px;">
-							<select class="form-control form-control-sm" id="providerSelector" bind:value=provider on:change=changeProvider()>
+							<select class="form-control form-control-sm" id="providerSelector" bind:value={provider} on:change={() => changeProvider()}>
                                 {#each providers as i}
                                     {#if i === provider}
                                         <option name="{i}" value="{i}" selected="selected">{i}</option>
@@ -27,21 +30,21 @@
 							<a class="btn btn-secondary btn-sm ml-2" href="/Metadata">
 								<span class="small fe fe-edit-2"></span>
 							</a>
-							<button class="btn btn-secondary btn-sm ml-2" on:click="set({ showDelta: !showDelta })">
+							<button class="btn btn-secondary btn-sm ml-2" on:click="{ () => showDelta = !showDelta }">
 								{#if showDelta}
 									&Delta;
 								{:else}
 									&Tau;
 								{/if}
 							</button>
-							<button class="btn btn-secondary btn-sm ml-2" on:click="set({ showControls: !showControls })">
+							<button class="btn btn-secondary btn-sm ml-2" on:click="{ () => showControls = !showControls }">
 								{#if showControls}
 									Скрыть кнопки
 								{:else}
 									Показать кнопки
 								{/if}
 							</button>
-							<button class="btn btn-secondary btn-sm ml-2" on:click="set({ exemptTransfers: !exemptTransfers})">
+							<button class="btn btn-secondary btn-sm ml-2" on:click="{ () => exemptTransfers = !exemptTransfers }">
 								{#if exemptTransfers}
 									Показать переводы
 								{:else}
@@ -85,7 +88,7 @@
 										<td class="{cellIsOk(vm.values, rowIdx, idx)}">
 											{#if (cell)}
 												{#if typeof getValue(cell, exemptTransfers) !== 'undefined'}
-													<div alt="{tooltipOrDefault(cell)}" title="{tooltipOrDefault(cell)}" data-toggle="tooltip">
+													<div use:doShowTooltip="{cell.tooltip}">
 														{#if (cell.value === 'NaN')}
 															<span class="fe fe-check"></span>
 														{:else}
@@ -114,7 +117,7 @@
 														{/if}
 
 														{#if showControls && cell.moneyId}
-															<button class="btn btn-sm btn-link btn-anchor" style="position: relative; right: 0;" on:click="deleteMoney(cell.moneyId)">
+															<button class="btn btn-sm btn-link btn-anchor" style="position: relative; right: 0;" on:click="{() => deleteMoney(cell.moneyId)}">
 																<span class="fe fe-x-circle"></span>
 															</button>
 														{/if}
@@ -127,10 +130,10 @@
 											{:else}
 												&mdash;
 												{#if showControls && hasPreviousCell(vm.values, rowIdx, idx, item.when)}
-													<button on:click="copyFromPrevious(vm.headers[idx].id, item.when)" class="btn btn-sm btn-link btn-anchor">
+													<button on:click="{() => copyFromPrevious(vm.headers[idx].id, item.when)}" class="btn btn-sm btn-link btn-anchor">
 														<span class="fe fe-copy"></span>
 													</button>
-													<button on:click="markAsOk(vm.headers[idx].id, item.when)" class="btn btn-sm btn-link btn-anchor">
+													<button on:click="{() => markAsOk(vm.headers[idx].id, item.when)}" class="btn btn-sm btn-link btn-anchor">
 														<span class="fe fe-check"></span>
 													</button>
 												{/if}
@@ -147,6 +150,7 @@
 			</div>
 		</div>
 	</div>
+	<Tooltip text="{activeTooltip}" show="{showTooltip}" position="{tooltipPosition}" />
 {/if}
 
 <style>
@@ -160,131 +164,148 @@
 
 <script>
 	import moment from 'moment'
+	import Tooltip from '../components/Tooltip.svelte'
+	import { table } from '../services/Rest.js'
+
+	let provider;
+	let providers = [];
+	let exemptTransfers = false;
+	let showDelta = false;
+	let showControls = false;
+	let vm;
+
+let activeTooltip = "";
+	let showTooltip = false;
+	let tooltipPosition;
+
+	function doShowTooltip(node, text) {
+	  let mouseover = () => {
+	    tooltipPosition = node.getBoundingClientRect();
+	    activeTooltip = text;
+	    showTooltip = true;
+	  }
+	  let mouseout = () => showTooltip = false;
+
+	  node.addEventListener('mouseover', mouseover);
+  node.addEventListener('mouseout', mouseout);
+
+	  return {
+	    destroy() {
+      node.removeEventListener('mouseover', mouseover);
+      node.removeEventListener('mouseout', mouseout);
+	    }
+	  };
+	}
 
 	const fetchData = async (component, provider, from) => {
-		const response = await fetch(`/Table/IndexJson?provider=` + provider + `&startingFrom=` + from);
-		const data = await response.json();
-		component.set(data);
+	  const data = await table(provider, from);
+	  provider = data.provider;
+	  providers = data.providers;
+	  vm = data.vm;
 	}
 
 	const formatDate = when => moment(when).format('DD.MM.YYYY');
 
-    const throttle = (func, limit) => {
-      let inThrottle
-      return function() {
-        const args = arguments
-        const context = this
-        if (!inThrottle) {
-          inThrottle = true
-          setTimeout(() => {
-            inThrottle = false;
-            func.apply(context, args)
-            }, limit)
-        }
-      }
+const throttle = (func, limit) => {
+  let inThrottle
+  return function() {
+    const args = arguments
+    const context = this
+    if (!inThrottle) {
+      inThrottle = true
+      setTimeout(() => {
+        inThrottle = false;
+        func.apply(context, args)
+      }, limit)
     }
+  }
+}
 
-	export default {
-		oncreate() {
-			fetchData(this, "", "");
-		},
-		onupdate({changed, current, previous}) {
-		    throttle(function() {
-			    $('body').tooltip('dispose');
-			    $('[data-toggle="tooltip"]').tooltip();
-			}, 500)();
-		},
-		helpers: {
-			getGroupedHeaders(headers) {
-				let grouped = headers.reduce((h, x) => {
-					h[x.provider] = (h[x.provider] || 0) + 1;
-					return h;
-				}, []);
+	let deleteMoney = async function(id) {
+	  const response = await fetch("/Table/DeleteMoney?id=" + id);
+	  fetchData(this,provider, null);
+	};
 
-				return Object.keys(grouped).map(function(key){ return { "name": key, "count": grouped[key] }; });;
-			},
-			formatDate(date) {
-				return formatDate(date);
-			},
-			cellIsOk(vmValues, rowIdx, cellIdx) {
+	let copyFromPrevious = async function(header,date) {
+	  const response = await fetch("/Table/CopyFromPrevious?headerId=" + header + "&date=" + formatDate(date));
+	  fetchData(this,provider, null);
+	};
+
+	let markAsOk = async function(header, date) {
+	  const response = await fetch("/Table/MarkAsOk?headerId=" + header + "&date=" + formatDate(date));
+	  fetchData(this,provider, null);
+	};
+	
+	let changeProvider = function() {
+	  vm.headers = [];
+	  vm.values = [];
+	  fetchData(this, provider, null);	
+	};
+
+	let getGroupedHeaders = function(headers) {
+	  let grouped = headers.reduce((h, x) => {
+	    h[x.provider] = (h[x.provider] || 0) + 1;
+	    return h;
+	  }, []);
+
+	  return Object.keys(grouped).map(function(key){ return { "name": key, "count": grouped[key] }; });;
+	};
+	
+	let cellIsOk = function(vmValues, rowIdx, cellIdx) {
 			    let cell = vmValues[rowIdx].cells[cellIdx];
 			    
-                if (cell && cell.failedToResolve) {
-                    return 'table-dark'; 
-                }
+  if (cell && cell.failedToResolve) {
+    return 'table-dark'; 
+  }
 			    
 			    if (cell) { 
 			        return '';
-                }
+  }
                 
-                for(var rowId = rowIdx + 1; rowId < vmValues.length; rowId++) {
-                    let previousCell = vmValues[rowId].cells[cellIdx];
+  for(var rowId = rowIdx + 1; rowId < vmValues.length; rowId++) {
+    let previousCell = vmValues[rowId].cells[cellIdx];
                     
-                    if (previousCell && previousCell.value === 'NaN') {
-                        return '';
-                    }
-                    if (previousCell) {
-                        return 'table-dark';
-                    }
-                }
+    if (previousCell && previousCell.value === 'NaN') {
+      return '';
+    }
+    if (previousCell) {
+      return 'table-dark';
+    }
+  }
 			        
-                return '';
-			},
-			hasPreviousCell(values, rowIdx, idx, when) {
-				let row = values[rowIdx + 1];
-				if (row && row.cells) {
-					let cell = row.cells[idx];
-					if (cell) {
-						return typeof cell.value !== 'undefined' && cell.value !== 'NaN';
-					}
-				}
-				return false;
-			},
-			tooltipOrDefault(value) {
-				return value.tooltip ? value.tooltip : '';
-			},
-			getValue(cell, exemptTransfers) {
-				if (exemptTransfers) {
-					return cell.adjustedValue;
-				}
-				return cell.value;
-			},
-			formatPrice(value) {
-				if (!(typeof(value) === 'string' || value instanceof String)) {
-					return value.toFixed(2);
-				}
-				return value;
-			},
-			formatDiff(value) {
-				return value ? value.diffValue : '';
-			},
-			hasPercentage(percentage) {
-				return percentage && percentage !== 'NaN' && Math.abs(percentage.Value) > 0.0001;
-			},
-			formatPercentage(percentage) {
-				return (percentage > 0 ? "+" : "") + (percentage * 100).toFixed(2) + '%';
-			},
-		},
-		methods: {
-		    async deleteMoney(id) {
-        		const response = await fetch("/Table/DeleteMoney?id=" + id);
-		        fetchData(this,this.get().provider, null);
-		    },
-		    async copyFromPrevious(header,date) {
-        		const response = await fetch("/Table/CopyFromPrevious?headerId=" + header + "&date=" + formatDate(date));
-		        fetchData(this,this.get().provider, null);
-		    },
-		    async markAsOk(header, date) {
-        		const response = await fetch("/Table/MarkAsOk?headerId=" + header + "&date=" + formatDate(date));
-		        fetchData(this,this.get().provider, null);
-		    },
-			changeProvider() {
-				let state = this.get();
-				state.vm.headers = [];
-				state.vm.values = [];
-				this.set(state);
-				fetchData(this, this.get().provider, null);	
-			}
-		}
+  return '';
 	};
+	let hasPreviousCell = function(values, rowIdx, idx, when) {
+	  let row = values[rowIdx + 1];
+	  if (row && row.cells) {
+	    let cell = row.cells[idx];
+	    if (cell) {
+	      return typeof cell.value !== 'undefined' && cell.value !== 'NaN';
+	    }
+	  }
+	  return false;
+	};
+	let getValue = function(cell, exemptTransfers) {
+	  if (exemptTransfers) {
+	    return cell.adjustedValue;
+	  }
+	  return cell.value;
+	};
+	let formatPrice = function(value) {
+	  if (!(typeof(value) === 'string' || value instanceof String)) {
+	    return value.toFixed(2);
+	  }
+	  return value;
+	};
+	let formatDiff = function(value) {
+	  return value ? value.diffValue : '';
+	};
+	let hasPercentage = function(percentage) {
+	  return percentage && percentage !== 'NaN' && Math.abs(percentage.Value) > 0.0001;
+	};
+	let formatPercentage = function(percentage) {
+	  return (percentage > 0 ? "+" : "") + (percentage * 100).toFixed(2) + '%';
+	};
+
+	fetchData(this, "", "");
 </script>	

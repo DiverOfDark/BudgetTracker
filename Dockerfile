@@ -1,8 +1,8 @@
 FROM node as client-builder
 WORKDIR /build
-ADD Client/package.json .
+ADD BudgetTracker.Client/package.json .
 RUN npm install
-ADD Client ./
+ADD BudgetTracker.Client ./
 RUN ls -la && mkdir out && npm run build
 
 FROM microsoft/dotnet:2.1-sdk as net-builder

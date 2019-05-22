@@ -100,24 +100,20 @@ else
                     <div class="row align-items-center flex-row-reverse">
                         <div class="col-auto ml-auto" data-toggle="top-tooltip" title="@Html.Raw(obj.Stats())">
                             <p>
-                                @await updateService.GetCurrentVersion() 
+                                @Startup.CommmitHash 
                                 
                                 @if (await updateService.HasNewerVersion())
                                 {
-                                    <text>
-                                        (latest: 
-                                        <a href="@await updateService.GetLatestVersionUrl()">
-                                            @await updateService.GetLatestVersion()
-                                        </a>
-                                        )
-                                    </text>
+                                    <a href="https://github.com/DiverOfDark/BudgetTracker">
+                                        (there is an update!)
+                                    </a>
                                 }
                                 @@ 
                                 @Startup.LaunchTime.ToLocalTime().ToString("G")
                             </p>
                         </div>
                         <div class="col-12 col-lg-auto mt-3 mt-lg-0 text-center">
-                            <p>&copy; 2018 - BudgetTracker</p>
+                            <p>&copy; 2019 - BudgetTracker</p>
                         </div>
                     </div>
                 </div>
