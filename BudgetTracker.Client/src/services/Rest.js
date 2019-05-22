@@ -1,5 +1,3 @@
-import promiseMemoize from 'promise-memoize';
-
 window.rest = window.rest || class RestCache {
   static memoize(method) {
     return async function() {

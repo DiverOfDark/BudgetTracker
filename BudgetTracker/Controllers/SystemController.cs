@@ -22,10 +22,9 @@ namespace BudgetTracker.Controllers
             var result = new
             {
                 IsProduction = Startup.IsProduction,
-                CurrentVersion = await _updateService.GetCurrentVersion(),
+                CurrentVersion = Startup.CommmitHash,
                 HasNewerVersion = await _updateService.HasNewerVersion(),
                 LatestVersion = await _updateService.GetLatestVersion(),
-                LatestVersionUrl = await _updateService.GetLatestVersionUrl(),
                 LaunchTime = Startup.LaunchTime.ToLocalTime().ToString("G"),
                 Stats = _objectRepository.Stats()
             };

@@ -15,9 +15,8 @@
                     {info.currentVersion}
                     
                     {#if info.hasNewerVersion}
-                        latest: 
-                        <a href="{info.latestVersionUrl}">
-                            {info.latestVersion}
+                        <a href="https://github.com/DiverOfDark/BudgetTracker">
+                            (there is an update!)
                         </a>
                     {/if}
                     @@ 

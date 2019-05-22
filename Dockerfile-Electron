@@ -19,7 +19,7 @@ ENV WINEARCH=win32
 RUN winecfg
 
 RUN dotnet tool install ElectronNET.CLI -g
-RUN npm install electron-packager --global
+RUN npm install electron-builder --global
 
 WORKDIR /build
 ADD BudgetTracker.sln .
