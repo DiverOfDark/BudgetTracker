@@ -12,7 +12,7 @@ export default {
 		sourcemap: true,
 		format: 'iife',
 		name: 'app',
-		file: '../BudgetTracker/wwwroot/js/bundle.js'
+		file: production ? 'out/bundle.js' : '../BudgetTracker/wwwroot/js/bundle.js'
 	},
 	plugins: [
 		svelte({
@@ -21,7 +21,7 @@ export default {
 			// we'll extract any component CSS out into
 			// a separate file — better for performance
 			css: css => {
-				css.write('../BudgetTracker/wwwroot/css/bundle.css');
+				css.write(production ? 'out/bundle.css' : '../BudgetTracker/wwwroot/css/bundle.css');
 			}
 		}),
 
