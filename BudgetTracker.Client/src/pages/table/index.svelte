@@ -150,7 +150,6 @@
 			</div>
 		</div>
 	</div>
-	<Tooltip text="{activeTooltip}" show="{showTooltip}" position="{tooltipPosition}" />
 {/if}
 
 <style>
@@ -164,7 +163,7 @@
 
 <script>
 	import moment from 'moment'
-	import Tooltip from '../../components/Tooltip.svelte'
+	import { doShowTooltip } from '../../components/Tooltip.svelte'
 	import { Link } from 'svero';
 
 	let provider;
@@ -173,29 +172,6 @@
 	let showDelta = false;
 	let showControls = false;
 	let vm;
-
-let activeTooltip = "";
-	let showTooltip = false;
-	let tooltipPosition;
-
-	function doShowTooltip(node, text) {
-	  let mouseover = () => {
-	    tooltipPosition = node.getBoundingClientRect();
-	    activeTooltip = text;
-	    showTooltip = true;
-	  }
-	  let mouseout = () => showTooltip = false;
-
-	  node.addEventListener('mouseover', mouseover);
-  node.addEventListener('mouseout', mouseout);
-
-	  return {
-	    destroy() {
-      node.removeEventListener('mouseover', mouseover);
-      node.removeEventListener('mouseout', mouseout);
-	    }
-	  };
-	}
 
 	const fetchData = async (provider, from) => {
 	  const data = await window.rest.query(`/Table/IndexJson?provider=` + provider + `&startingFrom=` + from);

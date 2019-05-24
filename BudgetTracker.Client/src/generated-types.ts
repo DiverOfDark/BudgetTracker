@@ -21,10 +21,10 @@ export interface TableJsModel {
 }
 
 export class SystemController {
-    static async SiteInfo(): Promise<SystemInfo> { return window.rest.cachedQuery(`/SystemController/SiteInfo`); };
+    static async SiteInfo(): Promise<SystemInfo> { return window.rest.cachedQuery(`/System/SiteInfo`); };
 }
 
 export class TableController {
-    static async IndexJson(provider: string): Promise<TableJsModel> { return window.rest.query(`/TableController/IndexJson?provider=` + provider + ``); };
+    static async IndexJson(provider: string): Promise<TableJsModel> { return window.rest.query(`/Table/IndexJson?provider=` + provider + ``); };
 }
 

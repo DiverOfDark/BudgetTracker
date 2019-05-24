@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { SystemInfo, SystemController } from '../generated-types'
+    import { SystemController } from '../generated-types'
     import { readable } from 'svelte/store';
     
     //@ts-ignore
@@ -17,7 +17,8 @@
       return () => clearInterval(interval);
     });
 
-    let link = Link;
+    // used in template
+    Link; info; time;
 </script>
 
 <nav>

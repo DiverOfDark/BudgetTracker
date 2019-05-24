@@ -86,6 +86,10 @@ import './services/Rest';
 
         private static string GetMethodQuery(MethodInfo method, string controllerName)
         {
+            if (controllerName.EndsWith("Controller"))
+            {
+                controllerName = controllerName.Substring(0, controllerName.IndexOf("Controller"));
+            }
             var endpoint = $"`/{controllerName}/{method.Name}";
             var param = method.GetParameters();
             if (param.Length > 0)

@@ -1,9 +1,36 @@
-<script lang="ts">
-    export let text = "";
-    export let show = false;
-    export let position = {left: 0, top: 0, width: 0, height: 0}
+<script context="module">
+    import { writable } from 'svelte/store';
 
-    export let self = 0;
+    export let text = writable("");
+    export let show = writable(false);
+    export let position = writable({left: 0, top: 0, width: 0, height: 0})
+
+    export function doShowTooltip(node, newText) {
+	  let mouseover = () => {
+	    position.set(node.getBoundingClientRect());
+	    text.set(newText);
+	    show.set(true);
+	  }
+      
+      let mouseout = () => show.set(false);
+
+	  node.addEventListener('mouseover', mouseover);
+      node.addEventListener('mouseout', mouseout);
+
+	  return {
+	    destroy() {
+          node.removeEventListener('mouseover', mouseover);
+          node.removeEventListener('mouseout', mouseout);
+	    }
+	  };
+	}
+</script>
+<script>
+    let self = 0;
+
+    $: left = $position.left;
+    $: top = $position.top + $position.height;
+    $: arrowLeft = Math.min(self, $position.width) * 0.382;
 </script>
 
 <style>
@@ -16,14 +43,14 @@
     }
 </style>
 
-{#if show}
+{#if $show}
     <div class="tooltip fade show bs-tooltip-bottom" 
-    style="transform: translate3d({position.left}px, {position.top + position.height}px, 0px)"
+    style="transform: translate3d({left}px, {top}px, 0px)"
     role="tooltip" bind:clientWidth={self}
     x-placement="bottom">
-        <div class="arrow" style="left: {Math.min(self, position.width) * 0.382}px;"></div>
+        <div class="arrow" style="left: {arrowLeft}px;"></div>
         <div class="tooltip-inner">
-            {text}
+            {$text}
         </div>
     </div>
 {/if}
