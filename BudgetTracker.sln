@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BudgetTracker", "BudgetTracker\BudgetTracker.csproj", "{B4679145-28F9-410A-9FB3-35E30460AC2E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BudgetTracker.JsApiGenerator", "BudgetTracker.JsApiGenerator\BudgetTracker.JsApiGenerator.csproj", "{713A214D-21FA-429E-87C3-031D3E710691}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{B4679145-28F9-410A-9FB3-35E30460AC2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B4679145-28F9-410A-9FB3-35E30460AC2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B4679145-28F9-410A-9FB3-35E30460AC2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{713A214D-21FA-429E-87C3-031D3E710691}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{713A214D-21FA-429E-87C3-031D3E710691}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{713A214D-21FA-429E-87C3-031D3E710691}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{713A214D-21FA-429E-87C3-031D3E710691}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

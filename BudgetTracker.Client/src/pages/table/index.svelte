@@ -27,9 +27,9 @@
 							</select>
 						</div>
 						<div class="card-options">
-							<a class="btn btn-secondary btn-sm ml-2" href="/Metadata">
+							<Link className="btn btn-secondary btn-sm ml-2" href="/Metadata">
 								<span class="small fe fe-edit-2"></span>
-							</a>
+							</Link>
 							<button class="btn btn-secondary btn-sm ml-2" on:click="{ () => showDelta = !showDelta }">
 								{#if showDelta}
 									&Delta;
@@ -164,8 +164,8 @@
 
 <script>
 	import moment from 'moment'
-	import Tooltip from '../components/Tooltip.svelte'
-	import { table } from '../services/Rest.js'
+	import Tooltip from '../../components/Tooltip.svelte'
+	import { Link } from 'svero';
 
 	let provider;
 	let providers = [];
@@ -197,8 +197,8 @@ let activeTooltip = "";
 	  };
 	}
 
-	const fetchData = async (component, provider, from) => {
-	  const data = await table(provider, from);
+	const fetchData = async (provider, from) => {
+	  const data = await window.rest.query(`/Table/IndexJson?provider=` + provider + `&startingFrom=` + from);
 	  provider = data.provider;
 	  providers = data.providers;
 	  vm = data.vm;
@@ -223,23 +223,23 @@ const throttle = (func, limit) => {
 
 	let deleteMoney = async function(id) {
 	  const response = await fetch("/Table/DeleteMoney?id=" + id);
-	  fetchData(this,provider, null);
+	  fetchData(provider, null);
 	};
 
 	let copyFromPrevious = async function(header,date) {
 	  const response = await fetch("/Table/CopyFromPrevious?headerId=" + header + "&date=" + formatDate(date));
-	  fetchData(this,provider, null);
+	  fetchData(provider, null);
 	};
 
 	let markAsOk = async function(header, date) {
 	  const response = await fetch("/Table/MarkAsOk?headerId=" + header + "&date=" + formatDate(date));
-	  fetchData(this,provider, null);
+	  fetchData(provider, null);
 	};
 	
 	let changeProvider = function() {
 	  vm.headers = [];
 	  vm.values = [];
-	  fetchData(this, provider, null);	
+	  fetchData(provider, null);	
 	};
 
 	let getGroupedHeaders = function(headers) {
@@ -307,5 +307,5 @@ const throttle = (func, limit) => {
 	  return (percentage > 0 ? "+" : "") + (percentage * 100).toFixed(2) + '%';
 	};
 
-	fetchData(this, "", "");
+	fetchData("", "");
 </script>	

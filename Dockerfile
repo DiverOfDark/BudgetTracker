@@ -6,16 +6,29 @@ ADD BudgetTracker.Client ./
 RUN mkdir out && npm run build
 
 FROM microsoft/dotnet:2.2-sdk as net-builder
+RUN dotnet tool install --global dotnet-sonarscanner
+RUN apt -y update && \
+    apt -y install openjdk-8-jre libnss3 && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /build
 ADD BudgetTracker.sln .
 ADD nuget.config .
 ADD BudgetTracker/BudgetTracker.csproj BudgetTracker/
+ADD BudgetTracker.JsApiGenerator/BudgetTracker.JsApiGenerator.csproj BudgetTracker.JsApiGenerator/
 
 RUN dotnet restore
 
 ADD BudgetTracker BudgetTracker
+ADD BudgetTracker.JsApiGenerator BudgetTracker.JsApiGenerator
 COPY --from=client-builder /build/out/*.js* BudgetTracker/wwwroot/js/
 COPY --from=client-builder /build/out/*.css* BudgetTracker/wwwroot/css/
+
+ARG SONAR_TOKEN=test
+RUN echo $SONAR_TOKEN && /root/.dotnet/tools/dotnet-sonarscanner begin /k:"DiverOfDark_BudgetTracker" /o:"diverofdark-github" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login=$SONAR_TOKEN && \
+    dotnet build BudgetTracker.sln && \
+    /root/.dotnet/tools/dotnet-sonarscanner end /d:sonar.login="$SONAR_TOKEN"
+
 RUN dotnet publish --output ../out/ --configuration Release --runtime linux-x64 BudgetTracker
 
 FROM microsoft/dotnet:2.2-aspnetcore-runtime

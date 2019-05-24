@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using BudgetTracker.JsModel;
 using BudgetTracker.Model;
 using BudgetTracker.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -16,19 +17,10 @@ namespace BudgetTracker.Controllers
             _objectRepository = objectRepository;
         }
         
-        public async Task<ActionResult> SiteInfo()
+        [CacheableRest]
+        public async Task<SystemInfo> SiteInfo()
         {
-            var result = new
-            {
-                IsProduction = Startup.IsProduction,
-                CurrentVersion = Startup.CommmitHash,
-                HasNewerVersion = await _updateService.HasNewerVersion(),
-                LatestVersion = await _updateService.GetLatestVersion(),
-                LaunchTime = Startup.LaunchTime.ToLocalTime().ToString("G"),
-                Stats = _objectRepository.Stats()
-            };
-            
-            return Json(result);
+            return await SystemInfo.Create(_updateService, _objectRepository);
         } 
         
         public ActionResult Svelte() => View("Svelte");

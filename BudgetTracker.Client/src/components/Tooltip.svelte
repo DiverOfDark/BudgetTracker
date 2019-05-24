@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     export let text = "";
     export let show = false;
     export let position = {left: 0, top: 0, width: 0, height: 0}

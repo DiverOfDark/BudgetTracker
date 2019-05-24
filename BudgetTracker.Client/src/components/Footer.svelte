@@ -1,9 +1,9 @@
-<script>
-    import {systemInfo} from '../services/Rest.js'
+<script lang="ts">
+    import {SystemInfo, SystemController} from '../generated-types'
 
     let info;
 
-    systemInfo().then(i => info = i);;
+    SystemController.SiteInfo().then(i => info = i);
 </script>
 
 <footer class="footer">

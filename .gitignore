@@ -261,3 +261,4 @@ __pycache__/
 *.pyc
 
 BudgetTracker/wwwroot/**/bundle.*
+.rpt2_cache

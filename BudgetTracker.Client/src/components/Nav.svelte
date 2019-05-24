@@ -1,10 +1,13 @@
-<script>
+<script lang="ts">
+    import { SystemInfo, SystemController } from '../generated-types'
+    import { readable } from 'svelte/store';
+    
+    //@ts-ignore
+    import { Link } from 'svero';
+
     let info;
 
-    import {systemInfo} from '../services/Rest.js'
-    import { readable } from 'svelte/store';
-
-    systemInfo().then(i => info = i);
+    SystemController.SiteInfo().then(i => info = i);
 
     const time = readable(new Date().toLocaleString(), set => {
       const interval = setInterval(() => {
@@ -13,6 +16,8 @@
 
       return () => clearInterval(interval);
     });
+
+    let link = Link;
 </script>
 
 <nav>
@@ -44,7 +49,7 @@
                 <div class="col">
                     <ul class="nav nav-tabs border-0 flex-column flex-lg-row">
                         <li class="nav-item"><a class="nav-link" href="/Widget">Отчёт</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/Table">История</a></li>
+                        <li class="nav-item"><Link className="nav-link" href="/Table">История</Link></li>
                         <li class="nav-item"><a class="nav-link" href="/SmsList">SMS</a></li>
                         <li class="nav-item"><a class="nav-link" href="Payment">ДДС</a></li>
                         <li class="nav-item"><a class="nav-link" href="Debt">Долги</a></li>

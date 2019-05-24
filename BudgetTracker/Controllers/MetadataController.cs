@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using BudgetTracker.JsModel;
 using BudgetTracker.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,17 +21,17 @@ namespace BudgetTracker.Controllers
             _objectRepository = objectRepository;
         }
 
-        public IActionResult Index()
+        public IActionResult IndexJson()
         {
-            var models = _objectRepository.Set<MoneyColumnMetadataModel>().SortColumns().ToList();
-            return View(models);
+            var models = _objectRepository.Set<MoneyColumnMetadataModel>().SortColumns().Select(v=>new MoneyColumnMetadataJsModel(v)).ToList();
+            return Json(models);
         }
 
         [HttpGet]
         public IActionResult MetadataDelete(Guid id)
         {
             _objectRepository.Remove<MoneyColumnMetadataModel>(x => x.Id == id);
-            return RedirectToAction(nameof(Index));
+            return Ok();
         }
 
         [HttpGet]
@@ -59,7 +60,7 @@ namespace BudgetTracker.Controllers
             existingModel.UserFriendlyName = userFriendlyName;
             existingModel.AutogenerateStatements = autogenerateStatements;
 
-            return RedirectToAction(nameof(Index));
+            return Ok();
         }
         
         [HttpPost]
@@ -127,7 +128,7 @@ namespace BudgetTracker.Controllers
             model.Order = order;
             oldModel.Order = oldOrder;
 
-            return RedirectToAction(nameof(Index));
+            return Ok();
         }
     }
 }
