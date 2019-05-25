@@ -88,7 +88,7 @@
 										<td class="{cellIsOk(vm.values, rowIdx, idx)}">
 											{#if (cell)}
 												{#if typeof getValue(cell, exemptTransfers) !== 'undefined'}
-													<div use:doShowTooltip="{cell.tooltip}">
+													<div use:tooltip="{cell.tooltip}">
 														{#if (cell.value === 'NaN')}
 															<span class="fe fe-check"></span>
 														{:else}
@@ -163,7 +163,7 @@
 
 <script>
 	import moment from 'moment'
-	import { doShowTooltip } from '../../components/Tooltip.svelte'
+	import { tooltip } from '../../services/Tooltip'
 	import { Link } from 'svero';
 
 	let provider;

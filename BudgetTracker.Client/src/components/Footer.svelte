@@ -1,20 +1,17 @@
-<script lang="ts">
+<script>
     import { SystemController } from '../generated-types';
-    import { doShowTooltip } from './Tooltip.svelte';
+	import { tooltip } from '../services/Tooltip';
 
     let info;
 
     SystemController.SiteInfo().then(i => info = i);
-
-    // used in template
-    info; doShowTooltip;
 </script>
 
 <footer class="footer">
     <div class="container">
         <div class="row align-items-center flex-row-reverse">
             {#if info}
-            <div class="col-auto ml-auto" use:doShowTooltip="{info.stats}">
+            <div class="col-auto ml-auto" use:tooltip="{info.stats}">
                 <p>
                     {info.currentVersion}
                     
