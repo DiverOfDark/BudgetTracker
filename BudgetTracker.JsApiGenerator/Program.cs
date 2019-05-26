@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading.Tasks;
 using BudgetTracker.JsModel;
 using Microsoft.AspNetCore.Mvc;
@@ -40,8 +43,10 @@ import './services/Rest';
         {
             var controllerName = type.Name;
 
+            var whiteList = new[] {typeof(OkResult)};
+            
             var methods = type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
-                .Where(v => !typeof(IActionResult).IsAssignableFrom(ExpandType(v.ReturnType)))
+                .Where(v => !typeof(IActionResult).IsAssignableFrom(ExpandType(v.ReturnType)) || whiteList.Contains(v.ReturnType))
                 .GroupBy(v => v.Name)
                 .Select(v => v.OrderByDescending(s => s.GetParameters().Length).First())
                 .ToList();
@@ -58,8 +63,24 @@ import './services/Rest';
                     var jsMethod = method.GetCustomAttribute<CacheableRestAttribute>() == null
                         ? "query"
                         : "cachedQuery";
-                    
-                    fileWrite.Write($"    static async {GetMethodSignature(method)}: Promise<{GetTypescriptType(method.ReturnType, knownTypes)}> {{ return window.rest.{jsMethod}({GetMethodQuery(method, controllerName)}); }};\n");
+
+                    var httpMethod = "undefined";
+
+                    if (method.GetCustomAttribute<HttpGetAttribute>() != null)
+                    {
+                        httpMethod = "\"GET\"";
+                    }
+
+                    if (method.GetCustomAttribute<HttpPostAttribute>() != null)
+                    {
+                        httpMethod = "\"POST\"";
+                    }
+
+                    bool hasResponse = GetTypescriptType(method.ReturnType, knownTypes) != "void";
+
+                    fileWrite.WriteLine($"    static async {GetMethodSignature(method)}: Promise<{GetTypescriptType(method.ReturnType, knownTypes)}> {{ ");
+                    fileWrite.WriteLine($"      return window.rest.{jsMethod}({GetMethodQuery(method, controllerName)}, {httpMethod}, {hasResponse.ToString().ToLower()}); ");
+                    fileWrite.WriteLine( "    };");
                 }
                 
                 fileWrite.Write("}\n\n");
@@ -70,7 +91,7 @@ import './services/Rest';
         {
             var args = method.GetParameters().Select(v => FilterKeywords(v.Name) + ": " + GetTypescriptType(v.ParameterType, Enumerable.Empty<Type>()))
                 .Join(", ");
-            return $"{method.Name}({args})";
+            return $"{CamelCase(method.Name)}({args})";
         }
 
         private static string FilterKeywords(string argName)
@@ -111,7 +132,7 @@ import './services/Rest';
                 {
                     try
                     {
-                        var formattableString = $"   {p.Name}: {GetTypescriptType(p.PropertyType, knownTypes)};";
+                        var formattableString = $"   {CamelCase(p.Name)}: {GetTypescriptType(p.PropertyType, knownTypes)};";
                         fileWrite.WriteLine(formattableString);
                     }
                     catch(Exception ex)
@@ -123,6 +144,13 @@ import './services/Rest';
                 fileWrite.Write("}\n\n");
                 
             }
+        }
+
+        private static string CamelCase(string pName)
+        {
+            var sb = new StringBuilder(pName);
+            sb[0] = sb[0].ToString().ToLower()[0];
+            return sb.ToString();
         }
 
         private static Type ExpandType(Type type)
@@ -140,31 +168,50 @@ import './services/Rest';
             return type;
         } 
 
-        private static string GetTypescriptType(Type type, IEnumerable<Type> knownTypes)
+        private static string GetTypescriptType(Type type, IEnumerable<Type> knownTypes, [CallerLineNumber] int ln = 0, [CallerMemberName] string who = null)
         {
             type = ExpandType(type);
             
-            if (knownTypes.Contains(type))
-                return type.Name;
-            
-            if (type == typeof(String) || type == typeof(Guid) || type.IsEnum)
-                return "string";
-            if (type == typeof(DateTime))
-                return "Date";
-            if (type == typeof(int))
-                return "number";
-            if (type == typeof(double))
-                return "number";
-            if (type == typeof(bool))
-                return "boolean";
-            if (type == typeof(IEnumerable<String>))
-                return "string[]";
+            bool array = false;
+            if (typeof(IEnumerable).IsAssignableFrom(type) && type != typeof(string))
+            {
+                type = type.GetGenericArguments()[0];
+                array = true;
+            }
 
-            var oldColor = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine("Unsupported type " + type.FullName);
-            Console.ForegroundColor = oldColor;
-            return "any";
+            string result = "";
+            
+            if (knownTypes.Contains(type))
+                result = type.Name;
+            else if (type == typeof(String) || type == typeof(Guid) || type.IsEnum)
+                result = "string";
+            else if (type == typeof(DateTime))
+                result = "Date";
+            else if (type == typeof(int))
+                result = "number";
+            else if (type == typeof(double))
+                result = "number";
+            else if (type == typeof(bool))
+                result = "boolean";
+            else if (type == typeof(OkResult))
+            {
+                result = "void";
+            } else {
+
+                var oldColor = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.WriteLine($"Unsupported type {type.FullName} at {who}:{ln}");
+                Console.ForegroundColor = oldColor;
+                result = "any";
+            }
+
+            if (array)
+            {
+                result += "[]";
+            }
+
+            return result;
+
         }
     }
 }

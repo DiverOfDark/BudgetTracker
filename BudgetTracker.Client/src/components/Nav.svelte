@@ -7,7 +7,7 @@
 
     let info;
 
-    SystemController.SiteInfo().then(i => info = i);
+    SystemController.siteInfo().then(i => info = i);
 
     const time = readable(new Date().toLocaleString(), set => {
       const interval = setInterval(() => {

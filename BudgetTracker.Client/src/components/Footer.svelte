@@ -4,7 +4,7 @@
 
     let info;
 
-    SystemController.SiteInfo().then(i => info = i);
+    SystemController.siteInfo().then(i => info = i);
 </script>
 
 <footer class="footer">

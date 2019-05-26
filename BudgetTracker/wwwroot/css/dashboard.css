@@ -18610,3 +18610,12 @@ svg {
 .fe-zoom-out:before {
   content: "\ea06";
 }
+
+
+.btn-link.btn-anchor {
+  outline: none !important;
+  padding: 0;
+  border: 0;
+  vertical-align: baseline;
+  min-width: 0;
+}

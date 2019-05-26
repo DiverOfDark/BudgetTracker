@@ -21,14 +21,14 @@ namespace BudgetTracker.Controllers
             _objectRepository = objectRepository;
         }
 
-        public IActionResult IndexJson()
+        public IEnumerable<MoneyColumnMetadataJsModel> IndexJson()
         {
-            var models = _objectRepository.Set<MoneyColumnMetadataModel>().SortColumns().Select(v=>new MoneyColumnMetadataJsModel(v)).ToList();
-            return Json(models);
+            var models = _objectRepository.Set<MoneyColumnMetadataModel>().SortColumns().Select(v=>new MoneyColumnMetadataJsModel(_objectRepository, v)).ToList();
+            return models;
         }
 
-        [HttpGet]
-        public IActionResult MetadataDelete(Guid id)
+        [HttpPost]
+        public OkResult MetadataDelete(Guid id)
         {
             _objectRepository.Remove<MoneyColumnMetadataModel>(x => x.Id == id);
             return Ok();
@@ -64,7 +64,7 @@ namespace BudgetTracker.Controllers
         }
         
         [HttpPost]
-        public IActionResult ComputedAutocomplete()
+        public List<string> ComputedAutocomplete()
         {
             var variants = new List<string>();
             try
@@ -84,7 +84,7 @@ namespace BudgetTracker.Controllers
                 lastIndex = term.LastIndexOf('[', term.Length - 1, term.Length - lastIndex);
 
                 if (lastIndex == -1)
-                    return Json(variants);
+                    return variants;
 
                 var searchPart = term.Substring(lastIndex + 1);
 
@@ -100,10 +100,10 @@ namespace BudgetTracker.Controllers
             }
             catch { }
 
-            return Json(variants);
+            return variants;
         }
 
-        public IActionResult UpdateColumnOrder(Guid id, bool moveUp)
+        public OkResult UpdateColumnOrder(Guid id, bool moveUp)
         {
             var models = _objectRepository.Set<MoneyColumnMetadataModel>().SortColumns().ToList();
 

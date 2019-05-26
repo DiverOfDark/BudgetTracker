@@ -2,29 +2,54 @@
 import './services/Rest';
 
 export interface MoneyColumnMetadataJsModel {
-   AccountName: string;
+   accountName: string;
+   function: string;
+   provider: string;
+   userFriendlyName: string;
+   isComputed: boolean;
+   canDelete: boolean;
+   id: string;
 }
 
 export interface SystemInfo {
-   IsProduction: boolean;
-   LaunchTime: string;
-   Stats: string;
-   CurrentVersion: string;
-   LatestVersion: string;
-   HasNewerVersion: boolean;
+   isProduction: boolean;
+   launchTime: string;
+   stats: string;
+   currentVersion: string;
+   latestVersion: string;
+   hasNewerVersion: boolean;
 }
 
 export interface TableJsModel {
-   Vm: any;
-   Providers: string[];
-   Provider: string;
+   vm: any;
+   providers: string[];
+   provider: string;
+}
+
+export class MetadataController {
+    static async indexJson(): Promise<MoneyColumnMetadataJsModel[]> { 
+      return window.rest.query(`/Metadata/IndexJson`, undefined, true); 
+    };
+    static async metadataDelete(id: string): Promise<void> { 
+      return window.rest.query(`/Metadata/MetadataDelete?id=` + id + ``, "POST", false); 
+    };
+    static async computedAutocomplete(): Promise<string[]> { 
+      return window.rest.query(`/Metadata/ComputedAutocomplete`, "POST", true); 
+    };
+    static async updateColumnOrder(id: string, moveUp: boolean): Promise<void> { 
+      return window.rest.query(`/Metadata/UpdateColumnOrder?id=` + id + `&moveUp=` + moveUp + ``, undefined, false); 
+    };
 }
 
 export class SystemController {
-    static async SiteInfo(): Promise<SystemInfo> { return window.rest.cachedQuery(`/System/SiteInfo`); };
+    static async siteInfo(): Promise<SystemInfo> { 
+      return window.rest.cachedQuery(`/System/SiteInfo`, undefined, true); 
+    };
 }
 
 export class TableController {
-    static async IndexJson(provider: string): Promise<TableJsModel> { return window.rest.query(`/Table/IndexJson?provider=` + provider + ``); };
+    static async indexJson(provider: string): Promise<TableJsModel> { 
+      return window.rest.query(`/Table/IndexJson?provider=` + provider + ``, undefined, true); 
+    };
 }
 

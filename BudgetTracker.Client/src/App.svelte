@@ -52,7 +52,7 @@
 <style>
     .tooltip {
         position: absolute; 
-        transform: translate3d(px, 295px, 0px); 
+        transform: translate3d(0px, 295px, 0px); 
         top: 0px; 
         left: 0px; 
         will-change: transform;

@@ -152,15 +152,6 @@
 	</div>
 {/if}
 
-<style>
-    .btn-link.btn-anchor {
-        outline: none !important;
-        padding: 0;
-        border: 0;
-        vertical-align: baseline;
-    }
-</style>
-
 <script>
 	import moment from 'moment'
 	import { tooltip } from '../../services/Tooltip'
