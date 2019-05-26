@@ -19,7 +19,7 @@
     "typescript": "^3.4.5"
   },
   "scripts": {
-    "build": "npm run lint && rollup -c",
+    "build": "rollup -c",
     "autobuild": "rollup -c -w",
     "dev": "run-p start:dev autobuild",
     "start": "sirv --port 3000 public",
