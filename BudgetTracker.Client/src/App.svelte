@@ -3,6 +3,7 @@
 
   import TableIndex from './pages/table/index.svelte';
   import MetadataIndex from './pages/metadata/index.svelte';
+  import MetadataEdit from './pages/metadata/edit.svelte';
   import NotFound from './pages/NotFound.svelte';
   import Footer from './components/Footer.svelte'
   import Nav from './components/Nav.svelte';
@@ -27,6 +28,8 @@
         <Route path="*" component={NotFound} />
         <Route path="/Table" component={TableIndex} />
         <Route path="/Metadata" component={MetadataIndex} />
+        <Route path="/Metadata/Edit" component={MetadataEdit} />
+        <Route path="/Metadata/Edit/:id" component={MetadataEdit} />
       </Router>
 		</div>
 	</div>

@@ -1,5 +1,8 @@
 <script lang="ts">
     import {MetadataController, MoneyColumnMetadataJsModel} from '../../generated-types';
+    
+    // @ts-ignore
+    import { Link } from 'svero';
 
     let columns : MoneyColumnMetadataJsModel[] = [];
 
@@ -20,7 +23,7 @@
     };
 
     // used in view
-    getUsedIn; deleteColumn; updateColumnOrder;
+    getUsedIn; deleteColumn; updateColumnOrder; Link;
 </script>
 
 <style>
@@ -48,9 +51,9 @@
                             <th>Дружелюбное имя</th>
                             <th>Используется</th>
                             <th>
-                                <a href="/Metadata/MetadataEdit">
+                                <Link href="/Metadata/Edit">
                                     <span class="fe fe-plus"></span>
-                                </a>
+                                </Link>
                             </th>
                         </tr>
                         {#each columns as meta}
@@ -76,9 +79,9 @@
                                     {/each}
                                 </td>
                                 <td class="text-nowrap">
-                                    <a href="/Metadata/MetadataEdit?id={meta.id}">
+                                    <Link href="/Metadata/Edit/{meta.id}">
                                         <span class="fe fe-edit-2"></span>
-                                    </a>
+                                    </Link>
                                     {#if meta.canDelete}
                                         <button on:click="{() => deleteColumn(meta.id)}" class="btn btn-link btn-anchor">
                                             <span class="fe fe-x-circle"></span>

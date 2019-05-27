@@ -1,9 +1,41 @@
-﻿@using Model
-@model MoneyColumnMetadataModel
-@{
-    ViewData["Title"] = "Редактировать столбец";
-}
+<script lang="ts">
+    import {MetadataController} from '../../generated-types';
+    import { afterUpdate } from 'svelte';
+  
+    //@ts-ignore
+    import {navigateTo} from 'svero';
 
+    export let router:any = {};
+    
+    afterUpdate(() => {
+        if (router.params && router.params['id']) {
+            MetadataController.indexJson().then(cols => {
+                cols;
+                debugger;
+            })
+        }
+    })
+
+    let id = "";
+    let isComputed = true;
+    let provider;
+    let accountName;
+    let function2 = "";
+    let userFriendlyName = "";
+    let autogenerateStatements = false;
+
+    let submit = async function() {
+        await MetadataController.metadataEdit(id, userFriendlyName, function2, autogenerateStatements);
+        navigateTo("/Metadata");
+    }
+
+    // used in view:
+    id; isComputed; provider; accountName; function2; userFriendlyName; autogenerateStatements; submit;
+</script>
+
+<svelte:head>
+    <title>BudgetTracker - Редактировать столбец</title>
+</svelte:head>
 
 <div class="container">
     <div class="row row-cards row-deck">
@@ -15,51 +47,45 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-12">
-                            @using (Html.BeginForm("MetadataEdit", "Metadata", FormMethod.Post))
-                            {
-                                @Html.HiddenFor(v => v.Id)
                                 <div class="form-horizontal">
-                                    @if (!(Model?.IsComputed ?? true))
-                                    {
+                                    {#if !isComputed}
                                         <div class="form-group">
                                             <label class="control-label">Поставщик</label>
                                             <div control-labelstyle="padding-top: 7px;">
-                                                @Model.Provider
+                                                {provider}
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="control-label">Название аккаунта</label>
                                             <div control-labelstyle="padding-top: 7px;">
-                                                @Model.AccountName
+                                                {accountName}
                                             </div>
                                         </div>
-                                    }
-                                    else
-                                    {
+                                    {:else}
                                         <div class="form-group">
                                             <label class="control-label">Функция</label>
                                             <div control-labelstyle="padding-top: 7px;">
-                                                @Html.EditorFor(model => model.Function, new { htmlAttributes = new { @class = "form-control" } })
+                                                <input type="text" class="form-control" bind:value="{function2}" />
                                             </div>
                                         </div>
-                                    }
+                                    {/if}
+
                                     <div class="form-group">
                                         <label class="control-label">Название</label>
                                         <div control-labelstyle="padding-top: 7px;">
-                                            @Html.EditorFor(model => model.UserFriendlyName, new { htmlAttributes = new { @class = "form-control" } })
+                                            <input type="text" class="form-control" bind:value="{userFriendlyName}" />
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label class="control-label">Автоматически создавать ДДС из баланса</label>
                                         <div class="col-1" control-labelstyle="padding-top: 7px;">
-                                            @Html.EditorFor(model => model.AutogenerateStatements, new { htmlAttributes = new { @class = "form-control" } })
+                                            <input type="checkbox" class="form-control" bind:checked="{autogenerateStatements}" />
                                         </div>
                                     </div>
                                     <div class="form-group text-center">
-                                        <input type="submit" value="Обновить" class="btn btn-default" />
+                                        <input value="Обновить" class="btn btn-default" on:click="{() => submit()}" />
                                     </div>
                                 </div>
-                            }
                         </div>
                     </div>
                 </div>
@@ -68,6 +94,7 @@
     </div>
 </div>
 
+<!--
 @section Scripts{
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
@@ -94,3 +121,5 @@
         });
     </script>
 }
+
+-->

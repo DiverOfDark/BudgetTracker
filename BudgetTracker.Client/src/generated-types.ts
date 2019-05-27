@@ -31,13 +31,16 @@ export class MetadataController {
       return window.rest.query(`/Metadata/IndexJson`, undefined, true); 
     };
     static async metadataDelete(id: string): Promise<void> { 
-      return window.rest.query(`/Metadata/MetadataDelete?id=` + id + ``, "POST", false); 
+      return window.rest.query(`/Metadata/MetadataDelete?id=` + id, "POST", false); 
+    };
+    static async metadataEdit(id: string, userFriendlyName: string, function2: string, autogenerateStatements: boolean): Promise<void> { 
+      return window.rest.query(`/Metadata/MetadataEdit?id=` + id + `&userFriendlyName=` + userFriendlyName + `&function=` + function2 + `&autogenerateStatements=` + autogenerateStatements, "POST", false); 
     };
     static async computedAutocomplete(): Promise<string[]> { 
       return window.rest.query(`/Metadata/ComputedAutocomplete`, "POST", true); 
     };
     static async updateColumnOrder(id: string, moveUp: boolean): Promise<void> { 
-      return window.rest.query(`/Metadata/UpdateColumnOrder?id=` + id + `&moveUp=` + moveUp + ``, undefined, false); 
+      return window.rest.query(`/Metadata/UpdateColumnOrder?id=` + id + `&moveUp=` + moveUp, undefined, false); 
     };
 }
 
@@ -49,7 +52,7 @@ export class SystemController {
 
 export class TableController {
     static async indexJson(provider: string): Promise<TableJsModel> { 
-      return window.rest.query(`/Table/IndexJson?provider=` + provider + ``, undefined, true); 
+      return window.rest.query(`/Table/IndexJson?provider=` + provider, undefined, true); 
     };
 }
 

@@ -72,9 +72,9 @@
 											<span class="fe fe-trending-up"></span>
 										</a>
 										{#if showControls}
-											<a href="/Metadata/MetadataEdit?id={p.id}">
+											<Link href="/Metadata/MetadataEdit/{p.id}">
 												<span class="fe fe-edit-2"></span>
-											</a>
+											</Link>
 										{/if}
 									</th>
 								{/each}
@@ -156,6 +156,7 @@
 	import moment from 'moment'
 	import { tooltip } from '../../services/Tooltip'
 	import { Link } from 'svero';
+	import { TableController } from '../../generated-types.ts'
 
 	let provider;
 	let providers = [];
@@ -165,7 +166,7 @@
 	let vm;
 
 	const fetchData = async (provider, from) => {
-	  const data = await window.rest.query(`/Table/IndexJson?provider=` + provider + `&startingFrom=` + from);
+	  const data = await TableController.indexJson(provider, from);
 	  provider = data.provider;
 	  providers = data.providers;
 	  vm = data.vm;

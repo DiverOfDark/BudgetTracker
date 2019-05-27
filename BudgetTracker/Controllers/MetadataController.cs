@@ -34,15 +34,8 @@ namespace BudgetTracker.Controllers
             return Ok();
         }
 
-        [HttpGet]
-        public IActionResult MetadataEdit(Guid id)
-        {
-            var model = _objectRepository.Set<MoneyColumnMetadataModel>().FirstOrDefault(v => v.Id == id);
-            return View(model);
-        }
-
         [HttpPost]
-        public IActionResult MetadataEdit(Guid id, string userFriendlyName, string function, bool autogenerateStatements)
+        public OkResult MetadataEdit(Guid id, string userFriendlyName, string function, bool autogenerateStatements)
         {
             MoneyColumnMetadataModel existingModel;
 

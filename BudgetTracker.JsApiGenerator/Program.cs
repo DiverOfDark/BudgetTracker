@@ -118,7 +118,15 @@ import './services/Rest';
                 endpoint += "?";
                 endpoint += param.Select(v => v.Name + "=" + "` + " + FilterKeywords(v.Name) + " + `").Join("&");
             }
-            return endpoint + "`";
+            
+            endpoint +="`";
+
+            if (endpoint.EndsWith(" + ``"))
+            {
+                endpoint = endpoint.Substring(0, endpoint.LastIndexOf(" + ``"));
+            }
+            
+            return endpoint;
         }
 
         private static void GenerateType(Type type, IEnumerable<Type> knownTypes)
