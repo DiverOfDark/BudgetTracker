@@ -25,6 +25,8 @@ namespace BudgetTracker.JsModel
         public string UserFriendlyName => _model.UserFriendlyName;
 
         public bool IsComputed => _model.IsComputed;
+
+        public bool AutogenerateStatements => _model.AutogenerateStatements;
  
         public bool CanDelete => _model.IsComputed || _repository.Set<MoneyStateModel>()
                                      .All(s => s.AccountName != _model.AccountName && s.Provider != _model.Provider)

@@ -1,20 +1,25 @@
 <script lang="ts">
     import {MetadataController} from '../../generated-types';
-    import { afterUpdate } from 'svelte';
   
     //@ts-ignore
     import {navigateTo} from 'svero';
 
     export let router:any = {};
     
-    afterUpdate(() => {
-        if (router.params && router.params['id']) {
-            MetadataController.indexJson().then(cols => {
-                cols;
-                debugger;
-            })
-        }
-    })
+    if (router.params && router.params.id) {
+        MetadataController.indexJson().then(cols => {
+            let actualCol = cols.find(s=>s.id == router.params.id);
+            if (actualCol) {
+                id = actualCol.id;
+                isComputed = actualCol.isComputed;
+                provider = actualCol.provider;
+                accountName = actualCol.accountName;
+                function2 = actualCol.function;
+                userFriendlyName = actualCol.userFriendlyName;
+                autogenerateStatements = actualCol.autogenerateStatements;
+            }
+        })
+    }
 
     let id = "";
     let isComputed = true;
@@ -83,7 +88,7 @@
                                         </div>
                                     </div>
                                     <div class="form-group text-center">
-                                        <input value="Обновить" class="btn btn-default" on:click="{() => submit()}" />
+                                        <button class="btn btn-primary btn-default form-control" on:click="{() => submit()}" >{!id ? "Создать" : "Обновить"}</button>
                                     </div>
                                 </div>
                         </div>

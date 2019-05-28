@@ -7,6 +7,7 @@ export interface MoneyColumnMetadataJsModel {
    provider: string;
    userFriendlyName: string;
    isComputed: boolean;
+   autogenerateStatements: boolean;
    canDelete: boolean;
    id: string;
 }

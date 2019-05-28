@@ -79,7 +79,7 @@
                                     {/each}
                                 </td>
                                 <td class="text-nowrap">
-                                    <Link href="/Metadata/Edit/{meta.id}">
+                                    <Link className="btn btn-link btn-anchor" href="/Metadata/Edit/{meta.id}">
                                         <span class="fe fe-edit-2"></span>
                                     </Link>
                                     {#if meta.canDelete}
