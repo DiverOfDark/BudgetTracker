@@ -27,7 +27,7 @@ RUN /root/.dotnet/tools/dotnet-sonarscanner begin \
         /o:"diverofdark-github" \
         /d:sonar.host.url="https://sonarcloud.io" \
         /d:sonar.login=$SONAR_TOKEN \
-        /d:sonar.branch.name=$CiCommitName && \
+        /d:sonar.branch.name=$CiCommitName /d:sonar.sources=/build/BudgetTracker.Client && \
     dotnet build BudgetTracker.sln && \
     /root/.dotnet/tools/dotnet-sonarscanner end /d:sonar.login="$SONAR_TOKEN"
 

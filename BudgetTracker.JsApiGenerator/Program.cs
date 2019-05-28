@@ -208,7 +208,7 @@ import './services/Rest';
 
                 var oldColor = Console.ForegroundColor;
                 Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.WriteLine($"Unsupported type {type.FullName} at {who}:{ln}");
+                Console.Error.WriteLine($"Unsupported type {type.FullName} at {who}:{ln}");
                 Console.ForegroundColor = oldColor;
                 result = "any";
             }
