@@ -1,14 +1,16 @@
-<script lang="ts">
+<script>
     import {MetadataController} from '../../generated-types';
-  
+    import AutoComplete from '../../components/Autocomplete.svelte'
+
     //@ts-ignore
     import {navigateTo} from 'svero';
 
-    export let router:any = {};
+    export let router = {};
     
     if (router.params && router.params.id) {
         MetadataController.indexJson().then(cols => {
             let actualCol = cols.find(s=>s.id == router.params.id);
+            knownColumns = cols.map(s=>s.isComputed ? s.userFriendlyName : s.provider + "/" + s.accountName);
             if (actualCol) {
                 id = actualCol.id;
                 isComputed = actualCol.isComputed;
@@ -21,6 +23,7 @@
         })
     }
 
+    let knownColumns = [];
     let id = "";
     let isComputed = true;
     let provider;
@@ -34,8 +37,21 @@
         navigateTo("/Metadata");
     }
 
-    // used in view:
-    id; isComputed; provider; accountName; function2; userFriendlyName; autogenerateStatements; submit;
+    let getAutocompleteFor = function(input) {
+        let lastIndex = input.lastIndexOf(']') + 1;
+        lastIndex = input.indexOf('[', lastIndex);
+
+        if (lastIndex == -1)
+            return [];
+
+        var searchPart = input.substring(lastIndex + 1);
+        var possibleItems = knownColumns.map(s=>"[" + s + "]");
+        var matched = possibleItems.filter(t=>t.indexOf(searchPart) != -1 && input.indexOf(t) == -1);
+
+        return matched.map(v => input.substring(0, lastIndex) + v).sort();
+    }
+
+    $: autocompleteVariants = getAutocompleteFor(function2);
 </script>
 
 <svelte:head>
@@ -70,7 +86,7 @@
                                         <div class="form-group">
                                             <label class="control-label">Функция</label>
                                             <div control-labelstyle="padding-top: 7px;">
-                                                <input type="text" class="form-control" bind:value="{function2}" />
+                                                <AutoComplete className="form-control" items="{autocompleteVariants}" bind:value="{function2}" />
                                             </div>
                                         </div>
                                     {/if}
@@ -98,33 +114,3 @@
         </div>
     </div>
 </div>
-
-<!--
-@section Scripts{
-    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script type="text/javascript">
-        $(function () {
-            $("#Function").autocomplete({
-                source: function (request, response) {
-                    $.ajax({
-                        url: "ComputedAutocomplete",
-                        contentType: 'application/json',
-                        data: JSON.stringify(request),
-                        type: "POST",
-                        processData: false,
-                        success: function (data) {
-                            response(data);
-                        },
-                        error: function (XMLHttpRequest, textStatus) {
-                            alert(textStatus);
-                        }
-                    });
-                },
-                minLength: 1
-            });
-        });
-    </script>
-}
-
--->

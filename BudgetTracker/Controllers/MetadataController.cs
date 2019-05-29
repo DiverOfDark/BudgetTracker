@@ -55,46 +55,6 @@ namespace BudgetTracker.Controllers
 
             return Ok();
         }
-        
-        [HttpPost]
-        public List<string> ComputedAutocomplete()
-        {
-            var variants = new List<string>();
-            try
-            {
-                string bodyStr;
-                using (var reader = new StreamReader(Request.Body, Encoding.UTF8, true, 1024, true))
-                {
-                    bodyStr = reader.ReadToEnd();
-                }
-
-                var content = JObject.Parse(bodyStr);
-
-                var term = content["term"].Value<string>();
-
-                var lastIndex = term.LastIndexOf(']') + 1;
-
-                lastIndex = term.LastIndexOf('[', term.Length - 1, term.Length - lastIndex);
-
-                if (lastIndex == -1)
-                    return variants;
-
-                var searchPart = term.Substring(lastIndex + 1);
-
-                var possibleItems = _objectRepository.Set<MoneyStateModel>()
-                    .Select(v => $"[{v.Provider}/{v.AccountName}]")
-                    .Distinct().Concat(_objectRepository.Set<MoneyColumnMetadataModel>().Where(v=>v.IsComputed)
-                        .Select(v => $"[{v.UserFriendlyName}]"))
-                    .ToList();
-
-                var matched = possibleItems.Where(v => v.Contains(searchPart) && !term.Contains(v));
-
-                variants = matched.Select(v => term.Substring(0, lastIndex) + v).OrderBy(v=>v).ToList();
-            }
-            catch { }
-
-            return variants;
-        }
 
         public OkResult UpdateColumnOrder(Guid id, bool moveUp)
         {
