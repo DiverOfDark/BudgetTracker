@@ -1,24 +1,41 @@
-FROM node as client-builder
-WORKDIR /build
-ADD BudgetTracker.Client/package.json .
-RUN npm install
-ADD BudgetTracker.Client ./
-RUN mkdir out && npm run build
-
 FROM microsoft/dotnet:2.2-sdk as net-builder
+ARG IsProduction=false
+ARG CiCommitName=local
+ARG CiCommitHash=sha
+ARG SONAR_TOKEN=test
+
+RUN dotnet tool install --global dotnet-sonarscanner
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
+    apt -y update && \
+    apt -y install nodejs openjdk-8-jre libnss3 && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /build
-ADD BudgetTracker.sln .
-ADD nuget.config .
-ADD BudgetTracker/BudgetTracker.csproj BudgetTracker/
-
+ADD . .
 RUN dotnet restore
+RUN cd BudgetTracker.JsApiGenerator && dotnet run --project BudgetTracker.JsApiGenerator.csproj
 
-ADD BudgetTracker BudgetTracker
-COPY --from=client-builder /build/out/*.js* BudgetTracker/wwwroot/js/
-COPY --from=client-builder /build/out/*.css* BudgetTracker/wwwroot/css/
+WORKDIR /build/BudgetTracker.Client
+RUN npm install
+RUN npm run build
+
+WORKDIR /build/
+
+ENV CiCommitName=$CiCommitName
+RUN /root/.dotnet/tools/dotnet-sonarscanner begin \
+        /k:"DiverOfDark_BudgetTracker" \
+        /o:"diverofdark-github" \
+        /d:sonar.host.url="https://sonarcloud.io" \
+        /d:sonar.login=$SONAR_TOKEN \
+        /d:sonar.branch.name=$CiCommitName /d:sonar.sources=/build/BudgetTracker.Client && \
+    dotnet build BudgetTracker.sln && \
+    /root/.dotnet/tools/dotnet-sonarscanner end /d:sonar.login="$SONAR_TOKEN"
+
 RUN dotnet publish --output ../out/ --configuration Release --runtime linux-x64 BudgetTracker
 
 FROM microsoft/dotnet:2.2-aspnetcore-runtime
+ENV TZ=Europe/Moscow
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Install Chrome WebDriver
 RUN apt-get -yqq update && \
@@ -49,16 +66,9 @@ RUN ln -fs /opt/google/chrome/chrome /usr/bin/chrome
 ADD run.sh .
 RUN chmod +x run.sh
 
-ARG IsProduction=false
-ARG CiCommitName=local
-ARG CiCommitHash=sha
-
 ENV Properties__IsProduction=$IsProduction
 ENV Properties__CiCommitName=$CiCommitName
 ENV Properties__CiCommitHash=$CiCommitHash
 ENV ASPNETCORE_ENVIRONMENT=Production
-
-ENV TZ=Europe/Moscow
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 ENTRYPOINT ["/app/run.sh"]

@@ -21,6 +21,7 @@
     <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />
     <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="74.0.3729.6" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
+    <PackageReference Include="System.Text.Encodings.Web" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="electron.manifest.json">

@@ -17,7 +17,7 @@
                             <label class="form-label">
                                 Пароль для входа
                             </label>
-                            <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="Пароль">
+                            <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="Пароль" />
                         </div>
                         <div class="form-footer">
                             <button type="submit" class="btn btn-primary btn-block">Обновить</button>
@@ -92,8 +92,8 @@
                                     }
                                 </td>
                                 <td>
-                                    Баланс: <b>@(matchingConfig.LastSuccessfulBalanceScraping == default ? "-" : matchingConfig.LastSuccessfulBalanceScraping.ToString("g"))</b><br/>
-                                    Выписка: <b>@(matchingConfig.LastSuccessfulStatementScraping == default ? "-" : matchingConfig.LastSuccessfulStatementScraping.ToString("g"))</b>
+                                    Баланс: <b>@(matchingConfig.LastSuccessfulBalanceScraping == default(DateTime) ? "-" : matchingConfig.LastSuccessfulBalanceScraping.ToString("g"))</b><br/>
+                                    Выписка: <b>@(matchingConfig.LastSuccessfulStatementScraping == default(DateTime) ? "-" : matchingConfig.LastSuccessfulStatementScraping.ToString("g"))</b>
                                     <a href="@Url.Action("ClearLastSuccessful", new { id=matchingConfig.Id })"><span class="fe fe-delete"></span></a>
                                 </td>
                                 <td>

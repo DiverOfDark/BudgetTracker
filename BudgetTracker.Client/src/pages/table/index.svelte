@@ -27,9 +27,9 @@
 							</select>
 						</div>
 						<div class="card-options">
-							<a class="btn btn-secondary btn-sm ml-2" href="/Metadata">
+							<Link className="btn btn-secondary btn-sm ml-2" href="/Metadata">
 								<span class="small fe fe-edit-2"></span>
-							</a>
+							</Link>
 							<button class="btn btn-secondary btn-sm ml-2" on:click="{ () => showDelta = !showDelta }">
 								{#if showDelta}
 									&Delta;
@@ -72,9 +72,9 @@
 											<span class="fe fe-trending-up"></span>
 										</a>
 										{#if showControls}
-											<a href="/Metadata/MetadataEdit?id={p.id}">
+											<Link href="/Metadata/MetadataEdit/{p.id}">
 												<span class="fe fe-edit-2"></span>
-											</a>
+											</Link>
 										{/if}
 									</th>
 								{/each}
@@ -88,7 +88,7 @@
 										<td class="{cellIsOk(vm.values, rowIdx, idx)}">
 											{#if (cell)}
 												{#if typeof getValue(cell, exemptTransfers) !== 'undefined'}
-													<div use:doShowTooltip="{cell.tooltip}">
+													<div use:tooltip="{cell.tooltip}">
 														{#if (cell.value === 'NaN')}
 															<span class="fe fe-check"></span>
 														{:else}
@@ -150,22 +150,13 @@
 			</div>
 		</div>
 	</div>
-	<Tooltip text="{activeTooltip}" show="{showTooltip}" position="{tooltipPosition}" />
 {/if}
-
-<style>
-    .btn-link.btn-anchor {
-        outline: none !important;
-        padding: 0;
-        border: 0;
-        vertical-align: baseline;
-    }
-</style>
 
 <script>
 	import moment from 'moment'
-	import Tooltip from '../components/Tooltip.svelte'
-	import { table } from '../services/Rest.js'
+	import { tooltip } from '../../services/Tooltip'
+	import { Link } from 'svero';
+	import { TableController } from '../../generated-types.ts'
 
 	let provider;
 	let providers = [];
@@ -174,31 +165,8 @@
 	let showControls = false;
 	let vm;
 
-let activeTooltip = "";
-	let showTooltip = false;
-	let tooltipPosition;
-
-	function doShowTooltip(node, text) {
-	  let mouseover = () => {
-	    tooltipPosition = node.getBoundingClientRect();
-	    activeTooltip = text;
-	    showTooltip = true;
-	  }
-	  let mouseout = () => showTooltip = false;
-
-	  node.addEventListener('mouseover', mouseover);
-  node.addEventListener('mouseout', mouseout);
-
-	  return {
-	    destroy() {
-      node.removeEventListener('mouseover', mouseover);
-      node.removeEventListener('mouseout', mouseout);
-	    }
-	  };
-	}
-
-	const fetchData = async (component, provider, from) => {
-	  const data = await table(provider, from);
+	const fetchData = async (provider, from) => {
+	  const data = await TableController.indexJson(provider, from);
 	  provider = data.provider;
 	  providers = data.providers;
 	  vm = data.vm;
@@ -223,23 +191,23 @@ const throttle = (func, limit) => {
 
 	let deleteMoney = async function(id) {
 	  const response = await fetch("/Table/DeleteMoney?id=" + id);
-	  fetchData(this,provider, null);
+	  fetchData(provider, null);
 	};
 
 	let copyFromPrevious = async function(header,date) {
 	  const response = await fetch("/Table/CopyFromPrevious?headerId=" + header + "&date=" + formatDate(date));
-	  fetchData(this,provider, null);
+	  fetchData(provider, null);
 	};
 
 	let markAsOk = async function(header, date) {
 	  const response = await fetch("/Table/MarkAsOk?headerId=" + header + "&date=" + formatDate(date));
-	  fetchData(this,provider, null);
+	  fetchData(provider, null);
 	};
 	
 	let changeProvider = function() {
 	  vm.headers = [];
 	  vm.values = [];
-	  fetchData(this, provider, null);	
+	  fetchData(provider, null);	
 	};
 
 	let getGroupedHeaders = function(headers) {
@@ -307,5 +275,5 @@ const throttle = (func, limit) => {
 	  return (percentage > 0 ? "+" : "") + (percentage * 100).toFixed(2) + '%';
 	};
 
-	fetchData(this, "", "");
+	fetchData("", "");
 </script>	

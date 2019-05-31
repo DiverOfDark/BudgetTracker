@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using BudgetTracker.Controllers.ViewModels.Table;
 using BudgetTracker.Controllers.ViewModels.Widgets;
+using BudgetTracker.JsModel;
 using BudgetTracker.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,12 +23,7 @@ namespace BudgetTracker.Controllers
 
         public TableController(ObjectRepository objectRepository) => _objectRepository = objectRepository;
 
-        public IActionResult Index()
-        {
-            return View("Svelte");
-        }
-        
-        public IActionResult IndexJson(String provider)
+        public TableJsModel IndexJson(String provider)
         {
             var table = HttpContext.RequestServices.GetRequiredService<TableViewModelFactory>();
 
@@ -74,12 +70,7 @@ namespace BudgetTracker.Controllers
                 }
             }
 
-            return Json(new
-            {
-                vm,
-                Provider = provider2,
-                Providers = providers
-            });
+            return new TableJsModel(vm, provider2, providers);
         }
 
         public IActionResult Chart(string provider, string account, bool exemptTransfers = false)

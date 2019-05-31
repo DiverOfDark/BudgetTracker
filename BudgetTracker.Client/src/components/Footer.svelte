@@ -1,16 +1,17 @@
 <script>
-    import {systemInfo} from '../services/Rest.js'
+    import { SystemController } from '../generated-types';
+	import { tooltip } from '../services/Tooltip';
 
     let info;
 
-    systemInfo().then(i => info = i);;
+    SystemController.siteInfo().then(i => info = i);
 </script>
 
 <footer class="footer">
     <div class="container">
         <div class="row align-items-center flex-row-reverse">
             {#if info}
-            <div class="col-auto ml-auto" data-toggle="top-tooltip" title="{info.stats}">
+            <div class="col-auto ml-auto" use:tooltip="{info.stats}">
                 <p>
                     {info.currentVersion}
                     

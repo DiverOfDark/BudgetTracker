@@ -236,12 +236,12 @@ namespace BudgetTracker
             app.UseMvc(routes => routes.MapRoute(
                     name: "not_so_default",
                     template: "{controller=Widget}/{action=Index}")
-                .MapRoute(name: "error",
+                .MapRoute(name: "default",
                     template: "Error",
                     defaults: new
                     {
-                        controller = "Widget",
-                        action = "Error"
+                        controller = "System",
+                        action = "Svelte"
                     }));
 
             RegisterJobs(app.ApplicationServices);
