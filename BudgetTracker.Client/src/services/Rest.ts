@@ -26,6 +26,7 @@ export class RestCache {
         if (hasResponse) {
             return await fetched.json();
         }
+        return;
     }
 
     let fetched = await fetch(uri);

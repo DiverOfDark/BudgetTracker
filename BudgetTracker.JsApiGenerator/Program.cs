@@ -116,7 +116,11 @@ import './services/Rest';
             if (param.Length > 0)
             {
                 endpoint += "?";
-                endpoint += param.Select(v => v.Name + "=" + "` + " + FilterKeywords(v.Name) + " + `").Join("&");
+                endpoint += param.Select(v =>
+                {
+                    var value = GetTypescriptType(v.ParameterType, Enumerable.Empty<Type>()) == "string" ? "encodeURIComponent(" + FilterKeywords(v.Name) + ")" : FilterKeywords(v.Name); 
+                    return v.Name + "=" + "` + " + value + " + `";
+                }).Join("&");
             }
             
             endpoint +="`";

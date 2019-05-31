@@ -7,10 +7,10 @@
 
     export let router = {};
     
-    if (router.params && router.params.id) {
-        MetadataController.indexJson().then(cols => {
+    MetadataController.indexJson().then(cols => {
+        knownColumns = cols.map(s=>s.isComputed ? s.userFriendlyName : s.provider + "/" + s.accountName);
+        if (router.params && router.params.id) {
             let actualCol = cols.find(s=>s.id == router.params.id);
-            knownColumns = cols.map(s=>s.isComputed ? s.userFriendlyName : s.provider + "/" + s.accountName);
             if (actualCol) {
                 id = actualCol.id;
                 isComputed = actualCol.isComputed;
@@ -20,8 +20,8 @@
                 userFriendlyName = actualCol.userFriendlyName;
                 autogenerateStatements = actualCol.autogenerateStatements;
             }
-        })
-    }
+        };
+    });
 
     let knownColumns = [];
     let id = "";

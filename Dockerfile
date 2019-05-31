@@ -13,7 +13,7 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
 WORKDIR /build
 ADD . .
 RUN dotnet restore
-RUN dotnet run --project BudgetTracker.JsApiGenerator/BudgetTracker.JsApiGenerator.csproj
+RUN cd BudgetTracker.JsApiGenerator && dotnet run --project BudgetTracker.JsApiGenerator.csproj
 
 WORKDIR /build/BudgetTracker.Client
 RUN npm install
