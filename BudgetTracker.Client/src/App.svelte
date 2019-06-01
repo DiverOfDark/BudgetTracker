@@ -9,15 +9,15 @@
   import Nav from './components/Nav.svelte';
   import { tooltip, text, show, position } from './services/Tooltip';
 
-  let self = 0;
-  let self2 = 0;
+  let selfWidth = 0;
+  let selfHeight = 0;
 
   $: left = $position.left;
   $: topForBottom = $position.top + $position.height + window.scrollY;
-  $: topForTop = $position.top + window.scrollY - self2;
-  $: showOnBottom = document.body.scrollHeight && document.body.scrollHeight < topForBottom;
+  $: topForTop = $position.top + window.scrollY - selfHeight;
+  $: showOnBottom = document.body.scrollHeight > topForBottom + selfHeight;
   $: top = showOnBottom ? topForBottom : topForTop;
-  $: arrowLeft = Math.min(self, $position.width) * 0.382;
+  $: arrowLeft = Math.min(selfWidth, $position.width) * 0.382;
 </script>
 
 <div class="page">
@@ -37,8 +37,8 @@
 {#if $show}
     <div class="tooltip fade show bs-tooltip-{showOnBottom ? 'bottom' : 'top'}" 
     style="transform: translate3d({left}px, {top}px, 0px)"
-    role="tooltip" bind:clientWidth={self}
-    x-placement="bottom" bind:clientHeight={self2}>
+    role="tooltip" bind:clientWidth={selfWidth}
+    x-placement="bottom" bind:clientHeight={selfHeight}>
     {#if showOnBottom}
         <div class="arrow" style="left: {arrowLeft}px;"></div>
     {/if}
