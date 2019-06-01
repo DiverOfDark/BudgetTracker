@@ -24,8 +24,6 @@ namespace BudgetTracker.Controllers
         }
 
         
-        public ActionResult Screenshot() => View();
-
         public ActionResult ScreenshotFile()
         {
             try
@@ -38,10 +36,10 @@ namespace BudgetTracker.Controllers
             return File(_latestBytes, "image/png");
         }
 
-        public async Task<IActionResult> ScriptConsole(string script)
+        [HttpPost]
+        public async Task<string> ScriptConsole(string script)
         {
             script = script ?? string.Empty;
-            ViewData["Script"] = script;
 
             try
             {
@@ -49,15 +47,15 @@ namespace BudgetTracker.Controllers
 
                 if (result != null)
                 {
-                    ViewData["ScriptResult"] = result.GetPropertiesAsRawData();
+                    return result.GetPropertiesAsRawData();
                 }
             }
             catch (Exception ex)
             {
-                ViewData["ScriptResult"] = ex.ToString();
+                return ex.ToString();
             }
 
-            return View();
+            return "Ok";
         }
         
         public IActionResult DownloadDump()
@@ -70,7 +68,5 @@ namespace BudgetTracker.Controllers
                 return File(contents, "application/octet-stream", Path.GetFileName(Startup.DbFileName));
             }
         }
-
-        public IActionResult Tasks() => View();
     }
 }

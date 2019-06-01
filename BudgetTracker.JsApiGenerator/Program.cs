@@ -37,7 +37,7 @@ import './services/Rest';
                 GenerateType(type, exportableTypes);
             }
 
-            var controllers = types.Where(v => typeof(Controller).IsAssignableFrom(v)).ToList();
+            var controllers = types.Where(v => typeof(Controller).IsAssignableFrom(v) && v.GetCustomAttribute<HideFromRestAttribute>() == null).ToList();
             foreach (var controller in controllers)
             {
                 GenerateController(controller, exportableTypes);
@@ -47,16 +47,29 @@ import './services/Rest';
         private static void GenerateController(Type type, IEnumerable<Type> knownTypes)
         {
             var controllerName = type.Name;
+            if (controllerName.EndsWith("Controller"))
+            {
+                controllerName = controllerName.Substring(0, controllerName.IndexOf("Controller"));
+            }
 
             var whiteList = new[] {typeof(OkResult)};
+
+            var methodInfos = type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
+                .Where(v => v.GetCustomAttribute<HideFromRestAttribute>() == null)
+                .ToList();
             
-            var methods = type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
+            var methods = methodInfos
                 .Where(v => !typeof(IActionResult).IsAssignableFrom(ExpandType(v.ReturnType)) || whiteList.Contains(v.ReturnType))
                 .GroupBy(v => v.Name)
                 .Select(v => v.OrderByDescending(s => s.GetParameters().Length).First())
                 .ToList();
+            
+            var navigations = methodInfos
+                .Where(v => typeof(IActionResult).IsAssignableFrom(ExpandType(v.ReturnType)) || whiteList.Contains(v.ReturnType))
+                .Where(v => v.GetParameters().Length == 0)
+                .ToList(); 
 
-            if (!methods.Any())
+            if (!methods.Any() && !navigations.Any())
                 return;
             
             using (var fileWrite = File.AppendText(_fileName))
@@ -69,7 +82,7 @@ import './services/Rest';
                         ? "query"
                         : "cachedQuery";
 
-                    var httpMethod = "undefined";
+                    var httpMethod = "\"GET\"";
 
                     if (method.GetCustomAttribute<HttpGetAttribute>() != null)
                     {
@@ -84,12 +97,28 @@ import './services/Rest';
                     bool hasResponse = GetTypescriptType(method.ReturnType, knownTypes) != "void";
 
                     fileWrite.WriteLine($"    static async {GetMethodSignature(method)}: Promise<{GetTypescriptType(method.ReturnType, knownTypes)}> {{ ");
-                    fileWrite.WriteLine($"      return window.rest.{jsMethod}({GetMethodQuery(method, controllerName)}, {httpMethod}, {hasResponse.ToString().ToLower()}); ");
+                    fileWrite.WriteLine($"      return window.rest.{jsMethod}({GetMethodQuery(method, controllerName)}, {httpMethod}, {hasResponse.ToString().ToLower()}, {ShouldDeserialize(method.ReturnType).ToString().ToLower()}); ");
                     fileWrite.WriteLine( "    };");
                 }
+
+                if (navigations.Any() && methods.Any())
+                {
+                    fileWrite.WriteLine();
+                }
                 
+                foreach (var navigation in navigations)
+                {
+                    fileWrite.WriteLine($"    static {CamelCase(FilterKeywords(navigation.Name))} = `/{controllerName}/{navigation.Name}`");
+                }
+
                 fileWrite.Write("}\n\n");
             }
+        }
+
+        private static bool ShouldDeserialize(Type type)
+        {
+            type = ExpandType(type);
+            return !type.IsPrimitive && type != typeof(string);
         }
         
         private static string GetMethodSignature(MethodInfo method)
@@ -112,10 +141,6 @@ import './services/Rest';
 
         private static string GetMethodQuery(MethodInfo method, string controllerName)
         {
-            if (controllerName.EndsWith("Controller"))
-            {
-                controllerName = controllerName.Substring(0, controllerName.IndexOf("Controller"));
-            }
             var endpoint = $"`/{controllerName}/{method.Name}";
             var param = method.GetParameters();
             if (param.Length > 0)

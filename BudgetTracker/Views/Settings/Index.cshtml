@@ -32,16 +32,16 @@
                     Утилиты
                 </div>
                 <div class="card-body">
-                    <a class="btn btn-pill btn-outline-info btn-sm mb-2" asp-area="" asp-controller="Utility" asp-action="Tasks">Фоновые&nbsp;задачи</a>
+                    <a class="btn btn-pill btn-outline-info btn-sm mb-2" href="/Utility/Tasks">Фоновые&nbsp;задачи</a>
                     <br/>
                     @if (!String.IsNullOrWhiteSpace(Startup.DbFileName))
                     {
                         <a class="btn btn-pill btn-outline-info btn-sm mb-2" asp-area="" asp-controller="Utility" asp-action="DownloadDump">Скачать дамп базы</a>
                         <br/>
                     }
-                    <a class="btn btn-pill btn-outline-info btn-sm mb-2" asp-area="" asp-controller="Utility" asp-action="Screenshot">Скриншот&nbsp;браузера</a>
+                    <a class="btn btn-pill btn-outline-info btn-sm mb-2" href="/Utility/Screenshot">Скриншот&nbsp;браузера</a>
                     <br/>
-                    <a class="btn btn-pill btn-outline-info btn-sm mb-2" asp-area="" asp-controller="Utility" asp-action="ScriptConsole">Командная&nbsp;консоль</a>
+                    <a class="btn btn-pill btn-outline-info btn-sm mb-2" href="/Utility/ScriptConsole">Командная&nbsp;консоль</a>
                 </div>
             </div>
         </div>

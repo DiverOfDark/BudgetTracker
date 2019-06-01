@@ -14,24 +14,23 @@ export class RestCache {
     return func;
   }
 
-  cachedQuery(uri: string, method?: string, hasResponse = true) : Promise<any> {
-    return window.rest.memoize(window.rest.query)(uri, method, hasResponse);
+  cachedQuery(uri: string, method: string, hasResponse: boolean, shouldDeserialize: boolean) : Promise<any> {
+    return window.rest.memoize(window.rest.query)(uri, method, hasResponse, shouldDeserialize);
   }
 
-  async query(uri: string, method?: string, hasResponse = true) : Promise<any> {
+  async query(uri: string, method: string, hasResponse: boolean, shouldDeserialize: boolean) : Promise<any> {
+    let fetched: Response;
     if (method) {
-        let init = {method: method};
-        let fetched = await fetch(uri, init);
-
-        if (hasResponse) {
-            return await fetched.json();
-        }
-        return;
+        fetched = await fetch(uri, {method: method});
+    } else {
+        fetched = await fetch(uri);
     }
 
-    let fetched = await fetch(uri);
     if (hasResponse) {
-        return await fetched.json();
+      if (!shouldDeserialize) {
+        return await fetched.text();
+      }
+      return await fetched.json();
     }
   }
 };

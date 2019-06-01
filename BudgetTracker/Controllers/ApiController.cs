@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using BudgetTracker.JsModel;
 using BudgetTracker.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
@@ -13,6 +14,7 @@ using Newtonsoft.Json.Linq;
 
 namespace BudgetTracker.Controllers
 {
+    [HideFromRest]
     public class ApiController : Controller
     {
         private readonly ILogger<ApiController> _logger;

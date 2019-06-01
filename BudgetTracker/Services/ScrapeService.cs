@@ -44,6 +44,9 @@ namespace BudgetTracker.Services
 
         public void ScrapeImpl(String name, Action<GenericScraper, ScraperConfigurationModel> action, [CallerMemberName] string caller = null)
         {
+            if (!Startup.IsProduction)
+                return;
+            
             var scrapeConfig = _objectRepository.Set<ScraperConfigurationModel>().FirstOrDefault(v=>v.ScraperName == name);
             var scraper = _scrapers.FirstOrDefault(v => v.ProviderName == name);
             
