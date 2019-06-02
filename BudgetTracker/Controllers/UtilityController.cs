@@ -6,6 +6,7 @@ using BudgetTracker.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using OutCode.EscapeTeams.ObjectRepository;
 
 namespace BudgetTracker.Controllers
@@ -15,12 +16,14 @@ namespace BudgetTracker.Controllers
     {
         private readonly Chrome _chrome;
         private readonly ScriptService _scriptService;
+        private readonly ILogger<UtilityController> _logger;
         private byte[] _latestBytes = new byte[0];
 
-        public UtilityController(Chrome chrome, ScriptService scriptService)
+        public UtilityController(Chrome chrome, ScriptService scriptService, ILogger<UtilityController> logger)
         {
             _chrome = chrome;
             _scriptService = scriptService;
+            _logger = logger;
         }
 
         
@@ -30,8 +33,10 @@ namespace BudgetTracker.Controllers
             {
                 _latestBytes = _chrome.Driver.GetScreenshot().AsByteArray;
             }
-            // ReSharper disable once EmptyGeneralCatchClause
-            catch { }
+            catch (Exception ex)
+            {
+                _logger.LogError("Failed to get screenshot", ex);
+            }
 
             return File(_latestBytes, "image/png");
         }

@@ -55,7 +55,7 @@ namespace BudgetTracker.Controllers
             ViewBag.Sorting = sorting;
             
             IEnumerable<PaymentModel> source = _objectRepository.Set<PaymentModel>();
-            if (fc == true)
+            if (fc)
             {
                 source = source.Where(v => v.Category == null && v.Debt == null);
             }
@@ -85,7 +85,7 @@ namespace BudgetTracker.Controllers
                 if (!string.IsNullOrWhiteSpace(pattern))
                 {
                     // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                    Regex.Match("test", pattern);
+                    new Regex(pattern, RegexOptions.None, TimeSpan.FromSeconds(0.1)).Match("test");
                 }
             }
             catch

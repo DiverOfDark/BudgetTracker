@@ -29,10 +29,10 @@ namespace BudgetTracker.Controllers
             {
                 // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
                 if (!string.IsNullOrEmpty(regexSender))
-                    Regex.Match("test", regexSender);
+                    new Regex(regexSender, RegexOptions.None, TimeSpan.FromSeconds(0.1)).Match("test");
                 // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
                 if (!string.IsNullOrEmpty(regexText))
-                    Regex.Match("test", regexText);
+                    new Regex(regexText, RegexOptions.None, TimeSpan.FromSeconds(0.1)).Match("test");
             }
             catch
             {

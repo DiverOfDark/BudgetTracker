@@ -47,7 +47,7 @@ namespace BudgetTracker.Controllers
                 if (!string.IsNullOrWhiteSpace(regexForTransfer))
                 {
                     // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                    Regex.Match("test", regexForTransfer);
+                    new Regex(regexForTransfer, RegexOptions.None, TimeSpan.FromSeconds(0.1)).Match("test");
                 }
             }
             catch

@@ -2,16 +2,19 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using BudgetTracker.Model;
+using Microsoft.Extensions.Logging;
 
 namespace BudgetTracker.Services
 {
     public class SmsRuleProcessor
     {
         private readonly ObjectRepository _objectRepository;
+        private readonly ILogger<SmsRuleProcessor> _logger;
 
-        public SmsRuleProcessor(ObjectRepository objectRepository)
+        public SmsRuleProcessor(ObjectRepository objectRepository, ILogger<SmsRuleProcessor> logger)
         {
             _objectRepository = objectRepository;
+            _logger = logger;
         }
 
         public void Process()
@@ -42,8 +45,9 @@ namespace BudgetTracker.Services
 
                                 sms.AppliedRule = rule;
                             }
-                            catch
+                            catch (Exception ex)
                             {
+                                _logger.LogError("Failed to process sms", ex);
                             }
                         }
                     }
