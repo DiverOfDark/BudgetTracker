@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
@@ -15,6 +16,7 @@ namespace BudgetTracker.Controllers
         {
             if (HttpContext.User.Identity.IsAuthenticated)
             {
+                returnUrl = ValidateReturnUrl(returnUrl);
                 if (!string.IsNullOrEmpty(returnUrl))
                 {
                     return Redirect(returnUrl);
@@ -40,6 +42,9 @@ namespace BudgetTracker.Controllers
                     claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+                returnUrl = ValidateReturnUrl(returnUrl);
+                
                 if (!string.IsNullOrEmpty(returnUrl))
                 {
                     return Redirect(returnUrl);
@@ -51,6 +56,17 @@ namespace BudgetTracker.Controllers
             ViewData["RenderBody"] = false;
             ViewData["Error"] = "Неверный пароль!";
             return View(nameof(Index));
+        }
+
+        private string ValidateReturnUrl(string url)
+        {
+            if (string.IsNullOrEmpty(url))
+                return url;
+            
+            if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out var uri) && uri.IsAbsoluteUri)
+                return null;
+            
+            return url;
         }
 
         [Authorize]

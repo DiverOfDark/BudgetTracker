@@ -14,8 +14,11 @@ namespace BudgetTracker.Scrapers
     [UsedImplicitly]
     internal class ZaymigoScraper : GenericScraper
     {
+        private ILogger<ZaymigoScraper> _logger;
+
         public ZaymigoScraper(ObjectRepository repository, ILoggerFactory factory) : base(repository, factory)
         {
+            _logger = factory.CreateLogger<ZaymigoScraper>();
         }
 
         public override string ProviderName => "Займиго";
@@ -81,8 +84,9 @@ namespace BudgetTracker.Scrapers
 
                         result.Add(Money(name, value, CurrencyExtensions.RUB));
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        _logger.LogError("Zaymigo scraping error", ex);
                     }
                 }
             }

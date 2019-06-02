@@ -2,21 +2,21 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Threading;
 using BudgetTracker.Model;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
 
 namespace BudgetTracker.Scrapers
 {
     [UsedImplicitly]
     internal class PenenzaScraper : GenericScraper
     {
+        private ILogger<PenenzaScraper> _logger;
+
         public PenenzaScraper(ObjectRepository repository, ILoggerFactory factory) : base(repository, factory)
         {
+            _logger = factory.CreateLogger<PenenzaScraper>();
         }
 
         public override string ProviderName => "Penenza";
@@ -58,8 +58,9 @@ namespace BudgetTracker.Scrapers
                         if (subTd != null)
                             td = subTd;
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        _logger.LogError("Penenza scraping error", ex);
                     }
 
                     var acc = td.Text;
@@ -68,8 +69,9 @@ namespace BudgetTracker.Scrapers
                     var mm = Money(acc, doubleValue, CurrencyExtensions.RUB);
                     result.Add(mm);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    _logger.LogError("Penenza scraping error", ex);
                 }
             }
 
@@ -92,8 +94,9 @@ namespace BudgetTracker.Scrapers
                         if (subTd != null)
                             td = subTd;
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        _logger.LogError("Penenza scraping error", ex);
                     }
 
                     var acc = td.Text;
@@ -104,8 +107,9 @@ namespace BudgetTracker.Scrapers
                         debtValue += ParseDouble(text);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    _logger.LogError("Penenza scraping error", ex);
                 }
             }
 

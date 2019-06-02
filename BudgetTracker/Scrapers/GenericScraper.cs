@@ -7,7 +7,6 @@ using BudgetTracker.Model;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Internal;
 using OpenQA.Selenium.Support.Extensions;
 using OpenQA.Selenium.Support.UI;
 
@@ -83,7 +82,7 @@ namespace BudgetTracker.Scrapers
             return amountWait;
         }
 
-        protected IEnumerable<IWebElement> GetElements(ChromeDriver driver, By by)
+        protected ICollection<IWebElement> GetElements(ChromeDriver driver, By by)
         {
             ReadOnlyCollection<IWebElement> elements = null;
 
