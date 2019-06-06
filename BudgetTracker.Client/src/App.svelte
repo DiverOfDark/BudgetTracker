@@ -7,6 +7,7 @@
   import UtilityTasks from './pages/utility/tasks.svelte';
   import UtilityScriptConsole from './pages/utility/scriptconsole.svelte';
   import UtilityScreenshot from './pages/utility/screenshot.svelte';
+  import Settings from './pages/Settings.svelte';
   import NotFound from './pages/NotFound.svelte';
   import Footer from './components/Footer.svelte'
   import Nav from './components/Nav.svelte';
@@ -33,6 +34,7 @@
         <Route path="/Metadata" component={MetadataIndex} />
         <Route path="/Metadata/Edit" component={MetadataEdit} />
         <Route path="/Metadata/Edit/:id" component={MetadataEdit} />
+        <Route path="/Settings" component={Settings} />
         <Route path="/Utility/Tasks" component={UtilityTasks} />
         <Route path="/Utility/ScriptConsole" component={UtilityScriptConsole} />
         <Route path="/Utility/Screenshot" component={UtilityScreenshot} />

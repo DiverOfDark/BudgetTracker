@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BudgetTracker.JsModel;
 using BudgetTracker.Model;
 using BudgetTracker.Scrapers;
 using Microsoft.AspNetCore.Authorization;
@@ -20,20 +21,22 @@ namespace BudgetTracker.Controllers
             _objectRepository = objectRepository;
         }
 
-        public IActionResult Index()
+        public IndexViewModel IndexJson()
         {
             var scrapers = HttpContext.RequestServices.GetService<IEnumerable<GenericScraper>>();
 
-            return View(new IndexViewModel(scrapers, _objectRepository));
+            return new IndexViewModel(scrapers, _objectRepository);
         }
 
-        public IActionResult UpdatePassword(string newPassword)
+        [HttpPost]
+        public OkResult UpdatePassword(string newPassword)
         {
             Startup.GlobalSettings.Password = newPassword;
-            return RedirectToAction(nameof(Index));
+            return Ok();
         }
 
-        public IActionResult AddScraper(string name, string login, string password)
+        [HttpPost]
+        public OkResult AddScraper(string name, string login, string password)
         {
             var scm = new ScraperConfigurationModel(name)
             {
@@ -42,38 +45,60 @@ namespace BudgetTracker.Controllers
             };
 
             _objectRepository.Add(scm);
-            
-            return RedirectToAction(nameof(Index));
+
+            return Ok();
         }
 
-        public IActionResult DeleteConfig(Guid id)
+        [HttpPost]
+        public OkResult DeleteConfig(Guid id)
         {
             _objectRepository.Remove<ScraperConfigurationModel>(v=>v.Id == id);
-            
-            return RedirectToAction(nameof(Index));
+
+            return Ok();
         }
 
-        public IActionResult ClearLastSuccessful(Guid id)
+        [HttpPost]
+        public OkResult ClearLastSuccessful(Guid id)
         {
             var model = _objectRepository.Set<ScraperConfigurationModel>().First(v => v.Id == id);
             model.LastSuccessfulBalanceScraping = default;
             model.LastSuccessfulStatementScraping = default;
 
-            return RedirectToAction(nameof(Index));
+            return Ok();
         }
 
+        [ExportJsModel]
         public class IndexViewModel
         {
             public IndexViewModel(IEnumerable<GenericScraper> scrapers, ObjectRepository repository)
             {
                 PossibleScrapers = scrapers.Select(v => v.ProviderName).OrderBy(v => v).ToList();
-                ScraperConfigs = repository.Set<ScraperConfigurationModel>().ToList();
+                ScraperConfigs = repository.Set<ScraperConfigurationModel>().Select(v=>new ScraperConfigurationJsModel(v)).ToList();
             }
+
+            public bool CanDownloadDbDump => !string.IsNullOrWhiteSpace(Startup.DbFileName);
             
             public IEnumerable<string> PossibleScrapers { get; }
             
-            public IEnumerable<ScraperConfigurationModel> ScraperConfigs { get; }
+            public IEnumerable<ScraperConfigurationJsModel> ScraperConfigs { get; }
         }
 
+        [ExportJsModel]
+        public class ScraperConfigurationJsModel
+        {
+            private readonly ScraperConfigurationModel _scraperConfigurationModel;
+
+            public ScraperConfigurationJsModel(ScraperConfigurationModel scraperConfigurationModel)
+            {
+                _scraperConfigurationModel = scraperConfigurationModel;
+            }
+
+            public Guid Id => _scraperConfigurationModel.Id;
+            public string ScraperName => _scraperConfigurationModel.ScraperName;
+            public string Login => _scraperConfigurationModel.Login;
+            public string Password => string.IsNullOrWhiteSpace(_scraperConfigurationModel.Password) ? "" : "********" + new String(_scraperConfigurationModel.Password.TakeLast(2).ToArray());
+            public string LastSuccessfulBalanceScraping => _scraperConfigurationModel.LastSuccessfulBalanceScraping != default ? _scraperConfigurationModel.LastSuccessfulBalanceScraping.ToString("g") : "-";
+            public string LastSuccessfulStatementScraping => _scraperConfigurationModel.LastSuccessfulStatementScraping != default ? _scraperConfigurationModel.LastSuccessfulStatementScraping.ToString("g") : "-";
+        }
     }
 }
