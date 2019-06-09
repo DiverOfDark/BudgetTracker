@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using BudgetTracker.JsModel;
+using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
 using BudgetTracker.Services;
 using Microsoft.AspNetCore.Mvc;

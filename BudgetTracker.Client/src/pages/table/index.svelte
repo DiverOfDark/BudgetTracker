@@ -157,6 +157,7 @@
 	import { tooltip } from '../../services/Tooltip'
 	import { Link } from 'svero';
 	import { TableController } from '../../generated-types.ts'
+	import { formatMoney } from '../../services/Shared'
 
 	let provider;
 	let providers = [];
@@ -174,20 +175,20 @@
 
 	const formatDate = when => moment(when).format('DD.MM.YYYY');
 
-const throttle = (func, limit) => {
-  let inThrottle
-  return function() {
-    const args = arguments
-    const context = this
-    if (!inThrottle) {
-      inThrottle = true
-      setTimeout(() => {
-        inThrottle = false;
-        func.apply(context, args)
-      }, limit)
-    }
-  }
-}
+	const throttle = (func, limit) => {
+	let inThrottle
+	return function() {
+		const args = arguments
+		const context = this
+		if (!inThrottle) {
+		inThrottle = true
+		setTimeout(() => {
+			inThrottle = false;
+			func.apply(context, args)
+		}, limit)
+		}
+	}
+	}
 
 	let deleteMoney = async function(id) {
 	  const response = await fetch("/Table/DeleteMoney?id=" + id);
@@ -261,7 +262,7 @@ const throttle = (func, limit) => {
 	};
 	let formatPrice = function(value) {
 	  if (!(typeof(value) === 'string' || value instanceof String)) {
-	    return value.toFixed(2);
+	    return formatMoney(value);
 	  }
 	  return value;
 	};

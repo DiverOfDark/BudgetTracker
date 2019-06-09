@@ -28,7 +28,4 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Views\Utility" />
-  </ItemGroup>
 </Project>

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using BudgetTracker.JsModel;
+using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;

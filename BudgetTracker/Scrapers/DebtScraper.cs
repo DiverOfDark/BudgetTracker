@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BudgetTracker.Controllers.ViewModels.Debt;
+using BudgetTracker.JsModel;
 using BudgetTracker.Model;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
@@ -19,8 +19,16 @@ namespace BudgetTracker.Scrapers
         
         public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, Chrome driver)
         {
-            var s1 = Calculate(s => new DebtViewModel(s).RemainingWithPercentage, "Долги с процентами");
-            var s2 = Calculate(s => new DebtViewModel(s).Remaining, "Долги");
+            var s1 = Calculate(s =>
+            {
+                var debtJsViewModel = new DebtJsViewModel(s);
+                return debtJsViewModel.Amount * (1 + debtJsViewModel.Percentage / 100) - debtJsViewModel.Returned;
+            }, "Долги с процентами");
+            var s2 = Calculate(s =>
+            {
+                var vm = new DebtJsViewModel(s);
+                return vm.Amount - vm.Returned;
+            }, "Долги");
 
             return s1.Concat(s2).ToList();
         }

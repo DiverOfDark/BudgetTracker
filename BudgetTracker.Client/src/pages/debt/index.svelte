@@ -1,8 +1,21 @@
-@model List<BudgetTracker.Controllers.ViewModels.Debt.DebtViewModel>
+<svelte:head>
+    <title>BudgetTracker - Долги и займы</title>
+</svelte:head>
 
-@{
-    ViewData["Title"] = "Долги и займы";
-}
+<script lang="ts">
+    //@ts-ignore
+    import {Link} from 'svero';
+    import {DebtController, DebtJsViewModel} from '../../generated-types'
+    import {formatMoney} from '../../services/Shared'
+
+    let debts: DebtJsViewModel[] = [];
+
+    DebtController.indexJson().then(s=> debts = s);
+
+    //used in views:
+    Link; debts; formatMoney;
+</script>
+
 <div class="container">
     <div class="row row-cards row-deck">
         <div class="col-12">
@@ -13,9 +26,9 @@
                     </h3>
                     <div class="card-options">
                         &nbsp;
-                        <a class="btn btn-primary btn-sm" href="@Url.Action("AddDebt")">
+                        <Link class="btn btn-primary btn-sm" href="/Debt/Edit">
                             Добавить
-                        </a>
+                        </Link>
                     </div>
                 </div>
                 <div class="table-responsive">
@@ -34,26 +47,25 @@
                         </tr>
                         </thead>
                         <tbody>
-                        @foreach (var debtVm in Model.OrderBy(v=>v.Model.When))
-                        {
-                            var debt = debtVm.Model;
-                            
+                        {#each debts as debt}
                             <tr>
-                                <td>@debt.When.ToLongDateString()</td>
-                                <td>@debt.DaysCount дней</td>
-                                <td>@debt.Percentage%</td>
-                                <td>@debt.Amount.ToString("N2") @debt.Ccy</td>
-                                <td>@debtVm.AmountWithPercentage.ToString("N2") @debt.Ccy</td>
-                                <td title="Последний платеж - @debtVm.Model.Payments.OrderByDescending(v=>v.When).FirstOrDefault()?.When.ToLongDateString()">@debtVm.Returned.ToString("N2") @debt.Ccy</td>
-                                <td>@debtVm.RemainingWithPercentage.ToString("N2") @debt.Ccy</td>
-                                <td>@debt.Description</td>
+                                <td>{debt.when}</td>
+                                <td>{debt.daysCount} дней</td>
+                                <td>{debt.percentage}%</td>
+                                <td>{formatMoney(debt.amount)} {debt.ccy}</td>
+                                <td>{formatMoney(debt.amount * (1 + debt.percentage / 100))} {debt.ccy}</td>
+                                <td title="Последний платеж - {debt.lastPaymentDate}">
+                                    {formatMoney(debt.returned)} {debt.ccy}
+                                </td>
+                                <td>{formatMoney((debt.amount * (1 + debt.percentage / 100)) - debt.returned)} {debt.ccy}</td>
+                                <td>{debt.description}</td>
                                 <td>
-                                    <a href="@Url.Action("EditDebt", new {id = debt.Id})">
+                                    <Link href="/Debt/Edit/{debt.id}">
                                         <span class="fe fe-edit-2"></span>
-                                    </a>
+                                    </Link>
                                 </td>
                             </tr>
-                        }
+                        {/each}
                         </tbody>
                     </table>
                 </div>

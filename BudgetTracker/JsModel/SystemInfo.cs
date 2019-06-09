@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
 using BudgetTracker.Services;
 

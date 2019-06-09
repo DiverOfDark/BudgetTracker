@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using BudgetTracker.JsModel;
+using BudgetTracker.JsModel.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -123,7 +124,7 @@ import './services/Rest';
         
         private static string GetMethodSignature(MethodInfo method)
         {
-            var args = method.GetParameters().Select(v => FilterKeywords(v.Name) + ": " + GetTypescriptType(v.ParameterType, Enumerable.Empty<Type>()))
+            var args = method.GetParameters().Select(v => FilterKeywords(v.Name) + ": " + GetTypescriptType(v.ParameterType))
                 .Join(", ");
             return $"{CamelCase(method.Name)}({args})";
         }
@@ -148,7 +149,7 @@ import './services/Rest';
                 endpoint += "?";
                 endpoint += param.Select(v =>
                 {
-                    var value = GetTypescriptType(v.ParameterType, Enumerable.Empty<Type>()) == "string" ? "encodeURIComponent(" + FilterKeywords(v.Name) + ")" : FilterKeywords(v.Name); 
+                    var value = GetTypescriptType(v.ParameterType) == "string" ? "encodeURIComponent(" + FilterKeywords(v.Name) + ")" : FilterKeywords(v.Name); 
                     return v.Name + "=" + "` + " + value + " + `";
                 }).Join("&");
             }
@@ -210,7 +211,7 @@ import './services/Rest';
             return type;
         } 
 
-        private static string GetTypescriptType(Type type, IEnumerable<Type> knownTypes, [CallerLineNumber] int ln = 0, [CallerMemberName] string who = null)
+        private static string GetTypescriptType(Type type, IEnumerable<Type> knownTypes = null, [CallerLineNumber] int ln = 0, [CallerMemberName] string who = null)
         {
             type = ExpandType(type);
             
@@ -223,18 +224,18 @@ import './services/Rest';
 
             string result = "";
             
-            if (knownTypes.Contains(type))
+            if (knownTypes?.Contains(type) == true)
                 result = type.Name;
             else if (type == typeof(String) || type == typeof(Guid) || type.IsEnum)
                 result = "string";
-            else if (type == typeof(DateTime))
-                result = "Date";
             else if (type == typeof(int))
                 result = "number";
             else if (type == typeof(double))
                 result = "number";
             else if (type == typeof(bool))
                 result = "boolean";
+            else if (type == typeof(DateTime))
+                result = "string";
             else if (type == typeof(OkResult))
             {
                 result = "void";

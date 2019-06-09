@@ -1,6 +1,6 @@
 using System;
 
-namespace BudgetTracker.JsModel
+namespace BudgetTracker.JsModel.Attributes
 {
     public class CacheableRestAttribute : Attribute
     {

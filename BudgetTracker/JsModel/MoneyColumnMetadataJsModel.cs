@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
 
 namespace BudgetTracker.JsModel

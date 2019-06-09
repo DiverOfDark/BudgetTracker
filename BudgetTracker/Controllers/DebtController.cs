@@ -1,7 +1,9 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using BudgetTracker.Controllers.ViewModels.Debt;
+using BudgetTracker.JsModel;
 using BudgetTracker.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,15 +17,11 @@ namespace BudgetTracker.Controllers
 
         public DebtController(ObjectRepository repository) => _repository = repository;
 
-        public ActionResult Index() => View(_repository.Set<DebtModel>().Select(v=>new DebtViewModel(v)).ToList());
-
-        public IActionResult AddDebt() => View("EditDebt");
-
-        [HttpGet]
-        public IActionResult EditDebt(Guid id) => View("EditDebt", _repository.Set<DebtModel>().FirstOrDefault(v => v.Id == id));
+        public IEnumerable<DebtJsViewModel> IndexJson() =>
+            _repository.Set<DebtModel>().Select(v => new DebtJsViewModel(v)).ToList();
 
         [HttpPost]
-        public IActionResult EditDebt(Guid id, DateTime when, double amount, string ccy, double percentage, int daysCount, string description, string regexForTransfer)
+        public OkResult EditDebt(Guid id, DateTime when, double amount, string ccy, double percentage, int daysCount, string description, string regexForTransfer)
         {
             DebtModel model;
             if (id == Guid.Empty)
@@ -36,7 +34,7 @@ namespace BudgetTracker.Controllers
                 model = _repository.Set<DebtModel>().First(v => v.Id == id);
             }
 
-            model.When = when;
+            model.When = new DateTime(when.Ticks, DateTimeKind.Utc);
             model.Amount = amount;
             model.Ccy = ccy;
             model.Percentage = percentage;
@@ -57,7 +55,7 @@ namespace BudgetTracker.Controllers
             model.RegexForTransfer = regexForTransfer;
 
             
-            return RedirectToAction("Index");
+            return Ok();
         }
     }
 }

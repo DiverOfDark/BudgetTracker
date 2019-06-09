@@ -122,7 +122,6 @@ namespace BudgetTracker
             {
                 options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                 options.SerializerSettings.ContractResolver = ShouldSerializeContractResolver.Instance;
-                options.SerializerSettings.DefaultValueHandling = DefaultValueHandling.Ignore;
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
             });
             services.AddSingleton<Chrome>();
