@@ -7,6 +7,8 @@
   import UtilityTasks from './pages/utility/tasks.svelte';
   import UtilityScriptConsole from './pages/utility/scriptconsole.svelte';
   import UtilityScreenshot from './pages/utility/screenshot.svelte';
+  import Sms from './pages/sms/index.svelte';
+  import SmsRules from './pages/sms/rules.svelte';
   import Debt from './pages/debt/index.svelte';
   import DebtAdd from './pages/debt/add.svelte';
   import Settings from './pages/Settings.svelte';
@@ -36,6 +38,8 @@
         <Route path="/Metadata" component={MetadataIndex} />
         <Route path="/Metadata/Edit" component={MetadataEdit} />
         <Route path="/Metadata/Edit/:id" component={MetadataEdit} />
+        <Route path="/SmsList" component={Sms} />
+        <Route path="/SmsList/SmsRules" component={SmsRules} />
         <Route path="/Debt" component={Debt} />
         <Route path="/Debt/Edit" component={DebtAdd} />
         <Route path="/Debt/Edit/:id" component={DebtAdd} />

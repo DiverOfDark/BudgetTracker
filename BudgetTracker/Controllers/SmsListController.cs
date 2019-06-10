@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using BudgetTracker.Controllers.ViewModels.Sms;
+using BudgetTracker.JsModel;
 using BudgetTracker.Model;
 using BudgetTracker.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace BudgetTracker.Controllers
 {
@@ -19,32 +21,32 @@ namespace BudgetTracker.Controllers
             _objectRepository = objectRepository;
         }
 
-        public ActionResult Index(bool showHidden = false) => View(new SmsListViewModel(_objectRepository, showHidden));
-
-        public ActionResult SmsRules() => View(_objectRepository.Set<RuleModel>().ToList());
-
-        public IActionResult CreateRule(RuleType ruleType, string regexSender, string regexText)
+        [AjaxOnly]
+        public IEnumerable<SmsMonthViewModel> IndexJson()
         {
-            try
-            {
-                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                if (!string.IsNullOrEmpty(regexSender))
-                    new Regex(regexSender, RegexOptions.None, TimeSpan.FromSeconds(0.1)).Match("test");
-                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                if (!string.IsNullOrEmpty(regexText))
-                    new Regex(regexText, RegexOptions.None, TimeSpan.FromSeconds(0.1)).Match("test");
-            }
-            catch
-            {
-                return RedirectToAction(nameof(SmsRules));
-            }
+            return SmsMonthViewModel.FromSms(_objectRepository).OrderByDescending(v=>v.When).ToList();
+        }
+
+        [AjaxOnly]
+        public IEnumerable<SmsRuleJsModel> SmsRules() => _objectRepository.Set<RuleModel>().Select(v=>new SmsRuleJsModel(v)).ToList();
+
+        [AjaxOnly]
+        public OkResult CreateRule(RuleType ruleType, string regexSender, string regexText)
+        {
+            // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+            if (!string.IsNullOrEmpty(regexSender))
+                new Regex(regexSender, RegexOptions.None, TimeSpan.FromSeconds(0.1)).Match("test");
+            // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+            if (!string.IsNullOrEmpty(regexText))
+                new Regex(regexText, RegexOptions.None, TimeSpan.FromSeconds(0.1)).Match("test");
 
             var rule = new RuleModel(ruleType, regexSender, regexText);
             _objectRepository.Add(rule);
-            return RedirectToAction(nameof(SmsRules));
+            return Ok();
         }
 
-        public IActionResult DeleteSms(Guid id)
+        [AjaxOnly]
+        public OkResult DeleteSms(Guid id)
         {
             var sms = _objectRepository.Set<SmsModel>().First(v => v.Id == id);
 
@@ -54,10 +56,11 @@ namespace BudgetTracker.Controllers
             }}
             
             _objectRepository.Remove(sms);
-            return RedirectToAction(nameof(Index));
+            return Ok();
         }
 
-        public IActionResult DeleteRule(Guid id)
+        [AjaxOnly]
+        public OkResult DeleteRule(Guid id)
         {
             var rule = _objectRepository.Set<RuleModel>().First(v => v.Id == id);
 
@@ -71,7 +74,7 @@ namespace BudgetTracker.Controllers
                 _objectRepository.Remove(rule);
             }
 
-            return RedirectToAction(nameof(SmsRules));
+            return Ok();
         }
     }
 }

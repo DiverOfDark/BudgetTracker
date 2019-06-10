@@ -157,7 +157,7 @@
 	import { tooltip } from '../../services/Tooltip'
 	import { Link } from 'svero';
 	import { TableController } from '../../generated-types.ts'
-	import { formatMoney } from '../../services/Shared'
+	import { formatMoney, formatDate } from '../../services/Shared'
 
 	let provider;
 	let providers = [];
@@ -172,8 +172,6 @@
 	  providers = data.providers;
 	  vm = data.vm;
 	}
-
-	const formatDate = when => moment(when).format('DD.MM.YYYY');
 
 	const throttle = (func, limit) => {
 	let inThrottle

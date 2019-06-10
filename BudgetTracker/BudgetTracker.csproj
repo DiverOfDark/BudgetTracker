@@ -28,4 +28,8 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Views\SmsList\Index.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\SmsList\SmsRules.cshtml" />
+  </ItemGroup>
 </Project>

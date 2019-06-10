@@ -20,11 +20,12 @@ export class RestCache {
 
   async query(uri: string, method: string, hasResponse: boolean, shouldDeserialize: boolean) : Promise<any> {
     let fetched: Response;
-    if (method) {
-        fetched = await fetch(uri, {method: method});
-    } else {
-        fetched = await fetch(uri);
+
+    if (!method) {
+      method = "GET";
     }
+
+    fetched = await fetch(uri, {method: method, headers: { "X-Requested-With": "XMLHttpRequest" }});
 
     if (hasResponse) {
       if (!shouldDeserialize) {

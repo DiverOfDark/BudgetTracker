@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
 
-namespace BudgetTracker.Controllers.ViewModels.Sms
+namespace BudgetTracker.JsModel
 {
+    [ExportJsModel]
     public class SmsMonthViewModel
     {
-        public static List<SmsMonthViewModel> FromSms(ObjectRepository objectRepository, bool showHidden)
+        public static List<SmsMonthViewModel> FromSms(ObjectRepository objectRepository)
         {
             var smses = objectRepository.Set<SmsModel>()
-                .Where(v => v.AppliedRule == null || showHidden)
                 .GroupBy(v => v.When.ToString(Discriminator)).ToDictionary(v => v.Key, v => v);
             
             var keys = smses.Select(v => v.Key).Distinct().ToList();
@@ -27,14 +28,14 @@ namespace BudgetTracker.Controllers.ViewModels.Sms
 
         public SmsMonthViewModel(IEnumerable<SmsModel> smsModels)
         {
-            Sms = smsModels.OrderByDescending(v=>v.When).ToList();
+            Sms = smsModels.Select(v=>new SmsJsModel(v)).OrderByDescending(v=>v.When).ToList();
             
             When = Sms.Select(v => (DateTime?)v.When).FirstOrDefault() ?? DateTime.Now;
         }
 
         public DateTime When { get; }
 
-        public IList<SmsModel> Sms { get; }
+        public IList<SmsJsModel> Sms { get; }
 
         public string Key => When.ToString(Discriminator);
     }
