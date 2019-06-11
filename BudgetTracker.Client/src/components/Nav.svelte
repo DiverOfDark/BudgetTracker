@@ -3,7 +3,7 @@
     import { readable } from 'svelte/store';
     
     //@ts-ignore
-    import { Link } from 'svero';
+    import NavLink from './NavLink.svelte';
 
     let info;
 
@@ -18,7 +18,7 @@
     });
 
     // used in template
-    Link; info; time;
+    NavLink; info; time;
 </script>
 
 <nav>
@@ -50,11 +50,11 @@
                 <div class="col">
                     <ul class="nav nav-tabs border-0 flex-column flex-lg-row">
                         <li class="nav-item"><a class="nav-link" href="/Widget">Отчёт</a></li>
-                        <li class="nav-item"><Link className="nav-link" href="/Table">История</Link></li>
-                        <li class="nav-item"><Link class="nav-link" href="/SmsList">SMS</Link></li>
+                        <li class="nav-item"><NavLink title="История" href="/Table"/></li>
+                        <li class="nav-item"><NavLink title="SMS" href="/SmsList"/></li>
                         <li class="nav-item"><a class="nav-link" href="/Payment">ДДС</a></li>
-                        <li class="nav-item"><Link class="nav-link" href="/Debt">Долги</Link></li>
-                        <li class="nav-item"><Link class="nav-link" href="/Settings">Настройки</Link></li>
+                        <li class="nav-item"><NavLink title="Долги" href="/Debt"/></li>
+                        <li class="nav-item"><NavLink title="Настройки" href="/Settings"/></li>
                     </ul>
                 </div>
             </div>
