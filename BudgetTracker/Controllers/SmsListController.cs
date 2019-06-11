@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace BudgetTracker.Controllers
 {
-    [Authorize]
+    [Authorize, AjaxOnlyActions]
     public class SmsListController : Controller
     {
         private readonly ObjectRepository _objectRepository;
@@ -21,16 +21,13 @@ namespace BudgetTracker.Controllers
             _objectRepository = objectRepository;
         }
 
-        [AjaxOnly]
         public IEnumerable<SmsMonthViewModel> IndexJson()
         {
             return SmsMonthViewModel.FromSms(_objectRepository).OrderByDescending(v=>v.When).ToList();
         }
 
-        [AjaxOnly]
         public IEnumerable<SmsRuleJsModel> SmsRules() => _objectRepository.Set<RuleModel>().Select(v=>new SmsRuleJsModel(v)).ToList();
 
-        [AjaxOnly]
         public OkResult CreateRule(RuleType ruleType, string regexSender, string regexText)
         {
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
@@ -45,7 +42,6 @@ namespace BudgetTracker.Controllers
             return Ok();
         }
 
-        [AjaxOnly]
         public OkResult DeleteSms(Guid id)
         {
             var sms = _objectRepository.Set<SmsModel>().First(v => v.Id == id);
@@ -59,7 +55,6 @@ namespace BudgetTracker.Controllers
             return Ok();
         }
 
-        [AjaxOnly]
         public OkResult DeleteRule(Guid id)
         {
             var rule = _objectRepository.Set<RuleModel>().First(v => v.Id == id);
