@@ -5,9 +5,12 @@ export let show = writable(false);
 export let position = writable({left: 0, top: 0, width: 0, height: 0});
 
 export function tooltip(node: any, newText: string) {
+    var currentText: string;
+
+    currentText = newText;
     let mouseover = () => {
         position.set(node.getBoundingClientRect());
-        text.set(newText);
+        text.set(currentText);
         show.set(true);
     }
     
@@ -17,6 +20,10 @@ export function tooltip(node: any, newText: string) {
     node.addEventListener('mouseout', mouseout);
 
     return {
+        update(newText: string) {
+            currentText = newText;
+        },
+
         destroy() {
             node.removeEventListener('mouseover', mouseover);
             node.removeEventListener('mouseout', mouseout);
