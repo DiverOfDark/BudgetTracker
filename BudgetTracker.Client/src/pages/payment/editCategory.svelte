@@ -1,4 +1,8 @@
-﻿@model Model.SpentCategoryModel
+editCategory
+
+<!--
+
+@model Model.SpentCategoryModel
 @{
     ViewData["Title"] = "Редактировать столбец";
 }
@@ -48,3 +52,5 @@
         </div>
     </div>
 </div>
+
+-->

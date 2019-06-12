@@ -18,7 +18,7 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
             Id = paymentModel.Id;
             Provider = paymentModel.Column?.Provider;
             Account = paymentModel.Column?.AccountName;
-            Kind = paymentModel.Kind;
+            Kind = paymentModel.Kind.GetDisplayName();
 
             CategoryId = paymentModel.CategoryId;
             Category = paymentModel.Category?.Category;
@@ -37,7 +37,7 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
 
         public DateTime When { get; }
         
-        public PaymentKind Kind { get; }
+        public string Kind { get; }
         public string Provider { get; }
         public string Account { get; }
 

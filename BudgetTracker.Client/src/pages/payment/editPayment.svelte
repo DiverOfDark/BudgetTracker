@@ -1,4 +1,6 @@
-﻿@using Controllers.ViewModels.Payment
+editPayment
+
+<!--@using Controllers.ViewModels.Payment
 @using Microsoft.EntityFrameworkCore.Internal
 @using Model
 @inject ObjectRepository Repository
@@ -142,3 +144,4 @@
         });
     </script>
 }
+-->

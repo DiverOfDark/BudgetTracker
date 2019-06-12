@@ -1,4 +1,8 @@
-﻿@using Controllers.ViewModels.Payment
+splitPayment
+
+<!--
+
+@using Controllers.ViewModels.Payment
 @using Microsoft.EntityFrameworkCore.Internal
 @using Model
 @inject ObjectRepository Repository
@@ -74,3 +78,5 @@
         </div>
     </div>
 </div>
+
+-->

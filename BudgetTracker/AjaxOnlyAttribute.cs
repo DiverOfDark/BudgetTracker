@@ -1,3 +1,4 @@
+using BudgetTracker.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.ActionConstraints;
@@ -12,7 +13,7 @@ namespace BudgetTracker
         {
             if (!context.HttpContext.Request.IsAjaxRequest())
             {
-                context.Result = new RedirectResult("/");
+                context.Result = new ViewResult {ViewName = "Svelte"};
             }
         }
     }

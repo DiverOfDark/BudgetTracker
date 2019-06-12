@@ -9,6 +9,11 @@
   import UtilityScreenshot from './pages/utility/screenshot.svelte';
   import Sms from './pages/sms/index.svelte';
   import SmsRules from './pages/sms/rules.svelte';
+  import Payment from './pages/payment/index.svelte';
+  import PaymentSplit from './pages/payment/splitPayment.svelte';
+  import PaymentEdit from './pages/payment/editPayment.svelte';
+  import PaymentCategory from './pages/payment/spentCategories.svelte';
+  import PaymentCategoryEdit from './pages/payment/editCategory.svelte';
   import Debt from './pages/debt/index.svelte';
   import DebtAdd from './pages/debt/add.svelte';
   import Settings from './pages/Settings.svelte';
@@ -30,6 +35,12 @@
                 <Route path="/Metadata/Edit/:id" component={MetadataEdit} />
                 <Route path="/SmsList" component={Sms} />
                 <Route path="/SmsList/SmsRules" component={SmsRules} />
+                <Route path="/Payment" component={Payment} />
+                <Route path="/Payment/Split/:id" component={PaymentSplit} />
+                <Route path="/Payment/Edit/:id" component={PaymentEdit} />
+                <Route path="/Payment/Category" component={PaymentCategory} />
+                <Route path="/Payment/Category/Edit" component={PaymentCategoryEdit} />
+                <Route path="/Payment/Category/Edit/:id" component={PaymentCategoryEdit} />
                 <Route path="/Debt" component={Debt} />
                 <Route path="/Debt/Edit" component={DebtAdd} />
                 <Route path="/Debt/Edit/:id" component={DebtAdd} />

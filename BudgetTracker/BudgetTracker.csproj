@@ -31,5 +31,10 @@
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Views\SmsList\Index.cshtml" />
     <_ContentIncludedByDefault Remove="Views\SmsList\SmsRules.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Payment\EditCategory.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Payment\EditPayment.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Payment\Index.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Payment\SpentCategories.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Payment\SplitPayment.cshtml" />
   </ItemGroup>
 </Project>

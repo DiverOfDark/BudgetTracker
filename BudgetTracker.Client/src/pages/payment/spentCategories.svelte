@@ -1,4 +1,7 @@
-﻿@using Model
+spentCategories
+
+<!--
+@using Model
 @model IEnumerable<SpentCategoryModel>
 @{
     ViewData["Title"] = "Категории расходов";
@@ -64,3 +67,5 @@
         </div>
     </div>
 </div>
+
+-->
