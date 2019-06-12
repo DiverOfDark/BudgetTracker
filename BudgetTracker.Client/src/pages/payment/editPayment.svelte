@@ -4,9 +4,9 @@
 
 <script>
     import {PaymentController, PaymentViewModelController, DebtModelController, MoneyColumnMetadataModelController, SpentCategoryModelController} from '../../generated-types';
-    import AutoComplete from '../../components/AutoComplete.svelte';
     import {compare} from '../../services/Shared'
     import {navigateTo} from 'svero';
+    import moment from 'moment';
 
     export let router = {};
 
@@ -83,7 +83,7 @@
                         <div class="col-12">
                                 <div class="form-horizontal">
                                     <div class="form-group">
-                                        <label class="control-label">Когда: <span class="font-weight-bold font-italic">{when}</span></label>
+                                        <label class="control-label">Когда: <span class="font-weight-bold font-italic">{moment(when).format("DD.MM.YY H:mm:ss")}</span></label>
                                     </div>
                                     <div class="form-group">
                                         <label class="control-label">Категория:</label>
