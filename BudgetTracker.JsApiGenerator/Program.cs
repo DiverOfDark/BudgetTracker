@@ -39,7 +39,7 @@ import './services/Rest';
                 GenerateType(type, exportableTypes);
             }
 
-            var controllers = types.Where(v => typeof(Controller).IsAssignableFrom(v) && v.GetCustomAttribute<HideFromRestAttribute>() == null).ToList();
+            var controllers = types.Where(v => typeof(Controller).IsAssignableFrom(v) && v.GetCustomAttribute<HideFromRestAttribute>() == null && !v.IsAbstract).ToList();
             foreach (var controller in controllers.OrderBy(v=>v.Name))
             {
                 GenerateController(controller, exportableTypes);
@@ -56,8 +56,8 @@ import './services/Rest';
 
             var whiteList = new[] {typeof(OkResult)};
 
-            var methodInfos = type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
-                .Where(v => v.GetCustomAttribute<HideFromRestAttribute>() == null)
+            var methodInfos = type.GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                .Where(v => v.GetCustomAttribute<HideFromRestAttribute>() == null && !v.DeclaringType.IsAssignableFrom(typeof(Controller)))
                 .OrderBy(v=>v.Name)
                 .ToList();
             

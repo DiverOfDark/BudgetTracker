@@ -24,11 +24,6 @@ namespace BudgetTracker.Controllers
             _objectRepository = objectRepository;
         }
 
-        public IEnumerable<PaymentViewModel> Index()
-        {
-            return _objectRepository.Set<PaymentModel>().Select(v => new PaymentViewModel(v)).ToList();
-        }
-
         public IEnumerable<SpentCategoryJsModel> SpentCategories() => _objectRepository.Set<SpentCategoryModel>().Select(v=>new SpentCategoryJsModel(v)).ToList();
 
         public OkResult CreateCategory(string pattern, string category, PaymentKind kind)
@@ -48,13 +43,6 @@ namespace BudgetTracker.Controllers
 
             _objectRepository.Add(new SpentCategoryModel(pattern, category, kind));
             return Ok();
-        }
-
-        public PaymentViewModel EditPayment(Guid id)
-        {
-            var payment = _objectRepository.Set<PaymentModel>().First(v => v.Id == id);
-            var vm = new PaymentViewModel(payment);
-            return vm;
         }
 
         [HttpPost]

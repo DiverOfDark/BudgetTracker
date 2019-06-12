@@ -1,40 +1,75 @@
-editPayment
+<svelte:head>
+    <title>BudgetTracker - Редактировать столбец</title>
+</svelte:head>
 
-<!--@using Controllers.ViewModels.Payment
-@using Microsoft.EntityFrameworkCore.Internal
-@using Model
-@inject ObjectRepository Repository
-@model Controllers.ViewModels.Payment.PaymentViewModel
-@{
-    ViewData["Title"] = "Редактировать столбец";
-    var categoriesSelectList = Repository.Set<SpentCategoryModel>().ToList().Select(v => new SelectListItem()
-    {
-        Text = v.Category,
-        Value = v.Id.ToString(),
-        Selected = v == Model.Items.First().Category
-    }).Distinct((a, b) => a.Text == b.Text).OrderBy(v => v.Text).ToList();
+<script>
+    import {PaymentController, PaymentViewModelController, DebtModelController, MoneyColumnMetadataModelController, SpentCategoryModelController} from '../../generated-types';
+    import AutoComplete from '../../components/AutoComplete.svelte';
+    import {compare} from '../../services/Shared'
+    import {navigateTo} from 'svero';
 
-    categoriesSelectList.Insert(0, new SelectListItem());
-    
-    var debtsSelectList = Repository.Set<DebtModel>().ToList().Select(v => new SelectListItem()
-    {
-        Text = v.Description,
-        Value = v.Id.ToString(),
-        Selected = v == Model.Items.First().Debt
-    }).Distinct((a, b) => a.Text == b.Text).OrderBy(v => v.Text).ToList();
+    export let router = {};
 
-    debtsSelectList.Insert(0, new SelectListItem());
-    
-    var providerAccountsSelectList = Repository.Set<MoneyColumnMetadataModel>().Where(v => !v.IsComputed).Select(v => new SelectListItem()
-    {
-        Text = v.Provider + "/" + v.AccountName,
-        Value = v.Id.ToString(),
-        Selected = v.Id == Model.ColumnId
-    }).OrderBy(v => v.Text).ToList();
+    let id = "";
+    let amount = 0;
+    let ccy = "";
+    let what = "";
+    let categoryId = "";
+    let columnId = "";
+    let debtId = "";
+    let kind = "";
 
-    providerAccountsSelectList.Insert(0, new SelectListItem());
-}
+    let when = "";
+    let statement = "";
+    let sms = "";
 
+    let debts = [];
+    let columns = [];
+    let spents = [];
+
+    async function load() {
+        let responses = await Promise.all([PaymentViewModelController.find(router.params.id), DebtModelController.list(), MoneyColumnMetadataModelController.list(), SpentCategoryModelController.list()]);
+
+        let payment = responses[0];
+
+        id = payment.id;
+        amount = payment.amount;
+        ccy = payment.ccy;
+        what = payment.what;
+        categoryId = payment.categoryId;
+        columnId = payment.columnId;
+        debtId = payment.debtId;
+        kind = payment.kindId.toString();
+
+        when = payment.when;
+        statement = payment.statementReference;
+        sms = payment.sms;
+
+        let distinct = function(list, accessor) {
+            let result = list.reduce((a,b)=>{
+                if (!a.find(t=>accessor(t) === accessor(b))) {
+                    a.push(b);
+                }
+                return a;
+            }, []);
+
+            result = result.sort((a,b)=>compare(accessor(a),accessor(b)));
+
+            return result;
+        }
+
+        debts = distinct(responses[1], s=>s.description);
+        columns = distinct(responses[2], s=>s.provider + s.accountName);
+        spents = distinct(responses[3], s=>s.category);
+    }
+
+    async function update() {
+        await PaymentController.editPayment(id, amount, ccy, what, categoryId, columnId, debtId, kind);
+        navigateTo("/Payment");
+    }
+
+    load();
+</script>
 
 <div class="container">
     <div class="row row-cards row-deck">
@@ -46,70 +81,91 @@ editPayment
                 <div class="card-body">
                     <div class="row">
                         <div class="col-12">
-                            @using (Html.BeginForm("EditPayment", "Payment", FormMethod.Post))
-                            {
-                                @Html.HiddenFor(v => v.Id)
                                 <div class="form-horizontal">
                                     <div class="form-group">
-                                        <label class="control-label">Когда: <span class="font-weight-bold font-italic">@Model.When.ToString("g")</span></label>
+                                        <label class="control-label">Когда: <span class="font-weight-bold font-italic">{when}</span></label>
                                     </div>
                                     <div class="form-group">
                                         <label class="control-label">Категория:</label>
                                         <div control-labelstyle="padding-top: 7px;">
-                                            @Html.DropDownListFor(model => model.CategoryId, categoriesSelectList, new {@class = "form-control"})
+                                            <select class="form-control" bind:value="{categoryId}">
+                                                <option value=""></option>
+                                                {#each spents as spent}
+                                                    <option value="{spent.id}">{spent.category}</option>
+                                                {/each}
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label class="control-label">Долг, к которому относится платеж:</label>
                                         <div control-labelstyle="padding-top: 7px;">
-                                            @Html.DropDownListFor(model => model.DebtId, debtsSelectList, new {@class = "form-control"})
+                                            <select class="form-control" bind:value="{debtId}">
+                                                <option value=""></option>
+                                                {#each debts as debt}
+                                                    <option value="{debt.id}">{debt.description}</option>
+                                                {/each}
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label class="control-label">Провайдер/аккаунт</label>
                                         <div control-labelstyle="padding-top: 7px;">
-                                            @Html.DropDownListFor(model => model.ColumnId, providerAccountsSelectList, new {@class = "form-control"})
+                                            <select class="form-control" bind:value="{columnId}">
+                                                <option value=""></option>
+                                                {#each columns as column}
+                                                    <option value="{column.id}">{column.provider} / {column.accountName}</option>
+                                                {/each}
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label class="control-label">Reference: <span class="font-weight-bold font-italic">@(Model.Items.First().StatementReference ?? "<не определен>")</span></label>
+                                        <label class="control-label">Reference: 
+                                            <span class="font-weight-bold font-italic">{statement || "<не определен>"}</span></label>
                                     </div>
                                     <div class="form-group">
                                         <label class="control-label">SMS:</label>
                                         <div control-labelstyle="padding-top: 7px;">
-                                            <textarea rows="2" class="form-control" disabled="disabled">@(Model.Items.First().Sms?.Message.Replace("\n","") ?? "<не определена>")</textarea>
+                                            <textarea rows="2" class="form-control" disabled="disabled">{sms || "<не определена>"}</textarea>
                                         </div>
                                     </div>
 
                                     <div class="form-group">
                                         <label class="control-label">Тип</label>
                                         <div control-labelstyle="padding-top: 7px;">
-                                            @Html.DropDownListFor(model => model.Kind, typeof(Model.PaymentKind).GetSelectList(Model.Kind), new {@class = "form-control"})
+                                            <select class="form-control" bind:value="{kind}">
+                                                <option value="0">Трата</option>
+                                                <option value="1">Доход</option>
+                                                <option value="2">Перевод</option>
+                                                <option value="-1">Неизвестно</option>
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label class="control-label">Количество</label>
                                         <div control-labelstyle="padding-top: 7px;">
-                                            @Html.EditorFor(model => model.Amount, new {htmlAttributes = new {@class = "form-control"}})
+                                            <input type="text" bind:value="{amount}" class="form-control" />
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label class="control-label">Валюта</label>
                                         <div control-labelstyle="padding-top: 7px;">
-                                            @Html.EditorFor(model => model.Ccy, new {htmlAttributes = new {@class = "form-control"}})
+                                            <select class="form-control" bind:value="{ccy}">
+                                                <option value="RUB">₽</option>
+                                                <option value="USD">$</option>
+                                                <option value="EUR">€</option>
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label class="control-label">На что потрачено</label>
                                         <div control-labelstyle="padding-top: 7px;">
-                                            @Html.EditorFor(model => model.Items.First().What, new {htmlAttributes = new {@class = "form-control"}})
+                                            <input type="text" bind:value="{what}" class="form-control" />
                                         </div>
                                     </div>
                                     <div class="form-group text-center">
-                                        <input type="submit" value="Обновить" class="btn btn-default"/>
+                                        <button class="btn btn-default" on:click="{() => update()}">Обновить</button>
                                     </div>
                                 </div>
-                            }
                         </div>
                     </div>
                 </div>
@@ -117,31 +173,3 @@ editPayment
         </div>
     </div>
 </div>
-
-@section Scripts{
-    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script type="text/javascript">
-        $(function () {
-            $("#Function").autocomplete({
-                source: function (request, response) {
-                    $.ajax({
-                        url: "ComputedAutocomplete",
-                        contentType: 'application/json',
-                        data: JSON.stringify(request),
-                        type: "POST",
-                        processData: false,
-                        success: function (data) {
-                            response(data);
-                        },
-                        error: function (XMLHttpRequest, textStatus) {
-                            alert(textStatus);
-                        }
-                    });
-                },
-                minLength: 1
-            });
-        });
-    </script>
-}
--->

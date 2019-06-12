@@ -6,7 +6,7 @@
     import {Link} from 'svero';
     import moment from 'moment';
 
-    import {PaymentController} from '../../generated-types';
+    import {PaymentController, PaymentViewModelController } from '../../generated-types';
     import {compare, formatMoney} from '../../services/Shared';
     import { tooltip } from '../../services/Tooltip'
     import PaymentRow from './paymentRow.svelte';
@@ -50,7 +50,7 @@
             });
         }
 
-        let payments = await PaymentController.index();
+        let payments = await PaymentViewModelController.list();
 
         payments.forEach(t=>t.whenMoment = moment(t.when));
 
