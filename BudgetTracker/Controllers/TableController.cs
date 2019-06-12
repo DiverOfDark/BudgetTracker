@@ -14,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BudgetTracker.Controllers
 {
-    [Authorize]
+    [Authorize, AjaxOnlyActions]
     public class TableController : Controller
     {
         public const string BadOption = nameof(BadOption);

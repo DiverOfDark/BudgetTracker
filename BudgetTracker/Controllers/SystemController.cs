@@ -3,10 +3,12 @@ using BudgetTracker.JsModel;
 using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
 using BudgetTracker.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BudgetTracker.Controllers
 {
+    [AjaxOnlyActions, Authorize]
     public class SystemController : Controller
     {
         private readonly UpdateService _updateService;

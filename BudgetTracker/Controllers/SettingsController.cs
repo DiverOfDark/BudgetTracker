@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BudgetTracker.Controllers
 {
-    [Authorize]
+    [Authorize, AjaxOnlyActions]
     public class SettingsController : Controller
     {
         private readonly ObjectRepository _objectRepository;
