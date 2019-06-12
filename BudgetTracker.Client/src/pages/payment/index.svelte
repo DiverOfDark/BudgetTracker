@@ -8,9 +8,10 @@
 
     import {PaymentController} from '../../generated-types';
     import {compare, formatMoney} from '../../services/Shared';
+    import { tooltip } from '../../services/Tooltip'
+    import PaymentRow from './paymentRow.svelte';
 
-    let showGrouped = true;
-    let hideCategorized = true;
+    let hideCategorized = false;
 
     let sorting = "date"; // "amount"
 
@@ -31,7 +32,24 @@
         return map;
     }
 
+    let state = {};
+
     let reload = async function() {
+        state = {};
+        if (keys) {
+            keys.forEach(t=> {
+                state["collapsed_" + t] = months[t].collapsed;
+
+                months[t].values.forEach(val => {
+                    if (val.grouped && !!val.expanded) {
+                        val.group.forEach(item => {
+                            state["collapsed_" + t + "_" + item.id] = true;
+                        });
+                    }
+                })
+            });
+        }
+
         let payments = await PaymentController.index();
 
         payments.forEach(t=>t.whenMoment = moment(t.when));
@@ -51,8 +69,8 @@
 
         keys.forEach(t=>{
             months[t] = {
-                collapsed: true,
-                values: groupedMonths.get(t),
+                collapsed: state["collapsed_" + t] || false,
+                values: groupValues(groupedMonths.get(t), "collapsed_" + t + "_"),
                 totals: groupedMonths.get(t).reduce((a,b) => {
                     a[b.ccy] = (a[b.ccy] || 0) + b.amount;
                     return a;
@@ -68,25 +86,81 @@
         resort()
     }
 
-    let regroup = function() {
-        keys.forEach(t => {
-            months[t].groupedValues = months[t].values.reduce(function(a,b) {
-                a.push(b);
+    let groupValues = function(values, keyPrefix) {
+        let grouped = groupBy(values, v => (v.category || v.debt || v.what || '').toLowerCase() + v.ccy + v.kind);
+
+        let iter = grouped.keys();
+        var curr = iter.next();
+        let a = [];
+
+        let distinctReducer = (a,b) => {
+            if (!a && !b)
                 return a;
-            }, []);
-        });
+            if (!a && b || !b && a)
+                return "-";
+
+            if (a.toString().toLowerCase() == b.toString().toLowerCase())
+                return a;
+            return "-";
+        }
+
+        while (!curr.done) {
+            let group = grouped.get(curr.value);
+
+            if (group.length == 1) {
+                a.push(group[0]);
+            }
+            else {
+                a.push({
+                    grouped: true,
+                    expanded: group.map(s=>s.id).reduce((a,b) => a || Object.keys(state).indexOf(keyPrefix + b) != -1, false),
+                    whenMoment: group.map(s=>s.whenMoment).reduce((a,b)=>a>b?a:b),
+                    when: group.map(s=>s.whenMoment).reduce((a,b)=>a>b?a:b).toString(),
+                    amount: group.map(s=>s.amount).reduce((a,b)=>a+b),
+                    ccy: group[0].ccy,
+                    id: group[0].id,
+                    what: group.map(s=>s.what).reduce(distinctReducer),
+                    provider: group.map(s=>s.provider).reduce(distinctReducer),
+                    account: group.map(s=>s.account).reduce(distinctReducer),
+                    category: group.map(s=>s.category).reduce(distinctReducer),
+                    debt: group.map(s=>s.debt).reduce(distinctReducer),
+                    kind: group.map(s=>s.kind).reduce(distinctReducer),
+
+                    group: group
+                });
+            }
+            curr = iter.next();
+        }
+
+        return a;
     }
 
     let resort = function() {
-        keys.forEach(t => {
-            months[t].values = months[t].values.sort((b,a)=>{ 
+        let comparer = (b,a)=>{ 
                 if (sorting == "date")
-                    return a.whenMoment.unix() - b.whenMoment.unix();
+                    return compare(a.kind, b.kind) * 10 + a.whenMoment.unix() - b.whenMoment.unix();
                 if (sorting == "amount")
-                    return compare(a.ccy, b.ccy) * 10 + a.amount - b.amount;
-            });
+                    return compare(a.kind, b.kind) * 100 + compare(a.ccy, b.ccy) * 10 + a.amount - b.amount;
+            };
+        keys.forEach(t => {
+            months[t].values = months[t].values.sort(comparer);
+
+            months[t].values.forEach(val => {
+                if (val.grouped) {
+                    val.group = val.group.sort(comparer);
+                }
+            })
         })
-        regroup();
+    }
+
+    let deletePayment = async function(id) {
+        await PaymentController.deletePayment(id);
+        
+        await reload();
+    }
+
+    let showHeader = function(month, hideCategorized) {
+        return month.values.filter(s=>!hideCategorized || s.category == null && s.debt == null).length > 0;
     }
 
     $: resort(sorting);
@@ -111,21 +185,12 @@
                 <div class="card-header">
                     <h3 class="card-title">
                         Движение денежных средств 
-<!--
-                        @if (ViewBag.Groups == null)
-                        {
-                            <span class="badge badge-primary">@Model.First().PaymentModels.First().Category</span>                            
-                        }
--->
                      </h3>
                     <div class="card-options">
                         &nbsp;
                         <Link class="btn btn-primary btn-sm" href="/Payment/Category">
                             Категории расходов
                         </Link>
-                        <button class="btn btn-secondary btn-sm ml-2" on:click="{() => showGrouped = !showGrouped}">
-                            {showGrouped ? "Разгруппировать": "Сгруппировать"}
-                        </button>
                         <button class="btn btn-secondary btn-sm ml-2" on:click="{() => hideCategorized = !hideCategorized}">
                             {hideCategorized ? "Показать все" : "Скрыть с категориями"}
                         </button>
@@ -161,6 +226,8 @@
                         </thead>
                         <tbody>
                         {#each keys as monthKey}
+
+                            {#if (showHeader(months[monthKey], hideCategorized))}
                             <tr>
                                 <th colspan="8">
                                     <span class="card-title">
@@ -176,56 +243,11 @@
                                     </span>
                                 </th>
                             </tr>
+                            {/if}
 
                             {#if !months[monthKey].collapsed}
                                 {#each months[monthKey].values as payment}
-                                <!-- sorting!-->
-                                {#if payment.category == null && payment.debt == null || !hideCategorized}
-                                <tr class="collapse-@month.Key collapse show">
-                                    <td class="text-nowrap">{moment(payment.when).format("DD.MM.YY H:mm:ss")}</td>
-                                    <td class="text-nowrap">{payment.kind}</td>
-                                    <td class="text-nowrap">{(payment.category == null ? payment.debt : payment.category) || ''}</td>
-                                    <td class="text-nowrap">{payment.provider}</td>
-                                    <td class="text-nowrap">{payment.account}</td>
-                                    <td>
-                                        <b>{formatMoney(payment.amount)}</b> 
-                                        <i>{payment.ccy}</i>
-                                    </td>
-                                    <td>
-                                        <b>{payment.what}</b>
-                                        <!--
-                                        @if (payment.Count > 1)
-                                        {
-                                            <a href="@Url.Action("PaymentList", new { id=payment.Id })" target="_blank">
-                                                (@payment.Count)
-                                            </a>
-                                        }
-                                        -->
-                                    </td>
-                                    <td>
-                                        <!--
-                                        @if (payment.Count > 1)
-                                        {
-                                            <a href="@Url.Action("PaymentList", new { id=payment.Id })" target="_blank">
-                                                (@payment.Count)
-                                            </a>
-                                        }
-                                        else
-                                        {
-                                            <a href="@Url.Action("SplitPayment", new {id = payment.Id})">
-                                                <span class="fe fe-git-branch"></span>
-                                            </a>
-                                            <a href="@Url.Action("EditPayment", new {id = payment.Id})">
-                                                <span class="fe fe-edit-2"></span>
-                                            </a>
-                                            <a href="@Url.Action("DeletePayment", new {id = payment.Id})">
-                                                <span class="fe fe-x-circle"></span>
-                                            </a>
-                                        }
-                                        -->
-                                    </td>
-                                </tr>
-                                {/if}
+                                    <PaymentRow {payment} {hideCategorized} {deletePayment} />
                                 {/each}
                             {/if}
                         {/each}
