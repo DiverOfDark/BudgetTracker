@@ -74,11 +74,12 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             int? period) : base(model, new LastValueWidgetSettings(model.Properties.ToDictionary(v=>v.Key,v=>v.Value)))
         {
             _settings = (LastValueWidgetSettings) Settings;
-            var column = repo.Set<MoneyColumnMetadataModel>().First(v =>
+            var vm = vmf.GetVM();
+
+            var column = vm.Headers.First(v =>
                 v.Provider == _settings.ProviderName &&
                 (v.AccountName == _settings.AccountName || v.UserFriendlyName == _settings.AccountName));
 
-            var vm = vmf.GetVM();
 
             var tableRowViewModel = vm.Values.OrderByDescending(v => v.When).First(v=>v.CalculatedCells.ContainsKey(column));
 

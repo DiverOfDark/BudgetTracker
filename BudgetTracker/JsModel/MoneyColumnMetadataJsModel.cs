@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
@@ -26,6 +27,8 @@ namespace BudgetTracker.JsModel
         public string UserFriendlyName => _model.UserFriendlyName;
 
         public bool IsComputed => _model.IsComputed;
+
+        public IEnumerable<String> ChartList => _model.ChartList;
 
         public bool AutogenerateStatements => _model.AutogenerateStatements;
  

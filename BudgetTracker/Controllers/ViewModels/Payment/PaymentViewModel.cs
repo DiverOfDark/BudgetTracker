@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels.Payment
 {
+    [ExportJsModel]
     public class PaymentViewModel 
     {
-        protected const string MiddleDash = "—";
-
         public PaymentViewModel(PaymentModel paymentModel)
         {
             When = paymentModel.When;
@@ -18,7 +18,6 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
             Id = paymentModel.Id;
             Provider = paymentModel.Column?.Provider;
             Account = paymentModel.Column?.AccountName;
-            Items = new[] {paymentModel};
             Kind = paymentModel.Kind;
 
             CategoryId = paymentModel.CategoryId;
@@ -26,29 +25,6 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
             DebtId = paymentModel.Debt?.Id;
             Debt = paymentModel.Debt?.Description;
             ColumnId = paymentModel.Column?.Id;
-        }
-
-        public PaymentViewModel(IList<PaymentModel> paymentGroup)
-        {
-            When = paymentGroup.Max(v => v.When);
-            Amount = paymentGroup.Sum(v => v.Amount);
-            Ccy = paymentGroup.Select(s => s.Ccy).Distinct().Single();
-            Id = paymentGroup.First().Id;
-
-            var list = paymentGroup.Select(v => v.What).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
-            What = list.Count == 1 ? list[0] : MiddleDash;
-            list = paymentGroup.Select(v => v.Column?.Provider).Where(v=>v!=null).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
-            Provider = list.Count == 1 ? list[0] : MiddleDash;
-            list = paymentGroup.Select(v => v.Column?.AccountName).Where(v=>v!=null).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
-            Account = list.Count == 1 ? list[0] : MiddleDash;
-            list = paymentGroup.Select(v => v.Category?.Category).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
-            Category = list.Count == 1 ? list[0] : MiddleDash;
-            list = paymentGroup.Select(v => v.Debt?.Description).Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
-            Debt = list.Count == 1 ? list[0] : MiddleDash;
-            var list2 = paymentGroup.Select(v => v.Kind).Distinct().ToList();
-            Kind = list2.Count == 1 ? list2[0] : (Amount > 0 ? PaymentKind.Income : PaymentKind.Expense);
-
-            Items = paymentGroup;
         }
 
         public string What { get; }
@@ -64,9 +40,6 @@ namespace BudgetTracker.Controllers.ViewModels.Payment
         public PaymentKind Kind { get; }
         public string Provider { get; }
         public string Account { get; }
-
-        public int Count => Items.Count();
-        public IEnumerable<PaymentModel> Items { get; }
 
         public Guid? CategoryId { get; set; }
         public Guid? DebtId { get; set; }

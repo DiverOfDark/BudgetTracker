@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using BudgetTracker.Controllers.ViewModels.Table;
+using BudgetTracker.JsModel;
 using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels.Widgets
@@ -16,7 +16,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 
             var table = new TableViewModel(vm);
 
-            var col = repository.Set<MoneyColumnMetadataModel>().First(v =>
+            var col = vm.Headers.First(v =>
                 v.Provider == DeltaWidgetSettings.ProviderName &&
                 (v.AccountName == DeltaWidgetSettings.AccountName ||
                  v.UserFriendlyName == DeltaWidgetSettings.AccountName));
@@ -38,7 +38,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             }
         }
 
-        private void AddDelta(MoneyColumnMetadataModel col, TableViewModel table, int daysDiff, string name)
+        private void AddDelta(MoneyColumnMetadataJsModel col, TableViewModel table, int daysDiff, string name)
         {
             var sequence = table.Values.SkipWhile(v=>
             {

@@ -80,7 +80,6 @@ namespace BudgetTracker.Model
             set => UpdateProperty(() => _entity.Function, value);
         }
 
-        [JsonIgnore]
         public IEnumerable<string> ChartList
         {
             get

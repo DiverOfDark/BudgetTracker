@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using BudgetTracker.Controllers.ViewModels.Payment;
+using BudgetTracker.JsModel;
 using BudgetTracker.Model;
 using BudgetTracker.Services;
 using Hangfire;
@@ -13,29 +14,7 @@ using SQLitePCL;
 
 namespace BudgetTracker.Controllers
 {
-    public enum Sorting
-    {
-        Date,
-        Amount
-    }
-
-    public static class PaymentSortingExtensions
-    {
-        public static IEnumerable<PaymentViewModel> OrderBySorting(this IEnumerable<PaymentViewModel> vms, Sorting sortingMode)
-        {
-            switch (sortingMode)
-            {
-                case Sorting.Date:
-                    return vms.OrderBy(v => v.Kind).ThenBy(v => v.What);
-                case Sorting.Amount:
-                    return vms.OrderBy(v => v.Kind).ThenByDescending(v => v.Amount).ThenBy(v => v.When);
-                default:
-                    return vms;
-            }
-        }
-    }
-
-    [Authorize]
+    [Authorize, AjaxOnlyActions]
     public class PaymentController : Controller
     {
         private readonly ObjectRepository _objectRepository;
@@ -45,40 +24,14 @@ namespace BudgetTracker.Controllers
             _objectRepository = objectRepository;
         }
 
-        public ActionResult Index(bool? groups, bool? filterCategorized, Sorting sorting = Sorting.Date)
+        public IEnumerable<PaymentViewModel> Index()
         {
-            var groups2 = this.TryGetLastValue(groups, nameof(PaymentController) + nameof(groups)) ?? true;
-            var fc = this.TryGetLastValue(filterCategorized, nameof(PaymentController) + nameof(filterCategorized)) ?? false;
-
-            ViewBag.Groups = groups2;
-            ViewBag.FilterCategorized = fc;
-            ViewBag.Sorting = sorting;
-            
-            IEnumerable<PaymentModel> source = _objectRepository.Set<PaymentModel>();
-            if (fc)
-            {
-                source = source.Where(v => v.Category == null && v.Debt == null);
-            }
-            return View(PaymentMonthViewModel.FromPayments(source, groups2).OrderByDescending(v => v.When).ToList());
+            return _objectRepository.Set<PaymentModel>().Select(v => new PaymentViewModel(v)).ToList();
         }
 
-        public ActionResult PaymentList(Guid? id, Sorting sorting = Sorting.Date)
-        {
-            ViewBag.Sorting = sorting;
-            
-            var payments = PaymentMonthViewModel.FromPayments(_objectRepository.Set<PaymentModel>()).OrderByDescending(v => v.When);
+        public IEnumerable<SpentCategoryJsModel> SpentCategories() => _objectRepository.Set<SpentCategoryModel>().Select(v=>new SpentCategoryJsModel(v)).ToList();
 
-            var group = payments.SelectMany(v => v.PaymentModels).FirstOrDefault(v => v.Items.Any(s => s.Id == id));
-
-            if (group == null)
-                return RedirectToAction(nameof(Index));
-
-            return View(nameof(Index), PaymentMonthViewModel.FromPayments(group.Items, false));
-        }
-
-        public ActionResult SpentCategories() => View(_objectRepository.Set<SpentCategoryModel>().ToList());
-
-        public IActionResult CreateCategory(string pattern, string category, PaymentKind kind)
+        public OkResult CreateCategory(string pattern, string category, PaymentKind kind)
         {
             try
             {
@@ -94,18 +47,18 @@ namespace BudgetTracker.Controllers
             }
 
             _objectRepository.Add(new SpentCategoryModel(pattern, category, kind));
-            return RedirectToAction(nameof(SpentCategories));
+            return Ok();
         }
 
-        public IActionResult SplitPayment(Guid id)
+        public PaymentViewModel EditPayment(Guid id)
         {
             var payment = _objectRepository.Set<PaymentModel>().First(v => v.Id == id);
             var vm = new PaymentViewModel(payment);
-            return View(vm);
+            return vm;
         }
 
         [HttpPost]
-        public IActionResult SplitPayment(Guid id, double amount)
+        public OkResult SplitPayment(Guid id, double amount)
         {
             var payment = _objectRepository.Set<PaymentModel>().First(v => v.Id == id);
 
@@ -144,18 +97,11 @@ namespace BudgetTracker.Controllers
                 newPayment.UserEdited = true;
             }
             
-            return RedirectToAction(nameof(Index));
-        }
-
-        public IActionResult EditPayment(Guid id)
-        {
-            var payment = _objectRepository.Set<PaymentModel>().First(v => v.Id == id);
-            var vm = new PaymentViewModel(payment);
-            return View(vm);
+            return Ok();
         }
 
         [HttpPost]
-        public IActionResult EditPayment(Guid id, double amount, string ccy, string what, Guid? categoryId, Guid? columnId, Guid? debtId, PaymentKind kind)
+        public OkResult EditPayment(Guid id, double amount, string ccy, string what, Guid? categoryId, Guid? columnId, Guid? debtId, PaymentKind kind)
         {
             var payment = _objectRepository.Set<PaymentModel>().First(v => v.Id == id);
 
@@ -171,10 +117,10 @@ namespace BudgetTracker.Controllers
 
             new SpentCategoryProcessor(_objectRepository).Process();
             
-            return RedirectToAction(nameof(Index));
+            return Ok();
         }
         
-        public IActionResult DeletePayment(Guid id)
+        public OkResult DeletePayment(Guid id)
         {
             var payment = _objectRepository.Set<PaymentModel>().First(v => v.Id == id);
             if (payment.Sms != null)
@@ -183,10 +129,10 @@ namespace BudgetTracker.Controllers
             }
 
             _objectRepository.Remove(payment);
-            return RedirectToAction(nameof(Index));
+            return Ok();
         }
 
-        public IActionResult DeleteCategory(Guid id)
+        public OkResult DeleteCategory(Guid id)
         {
             lock (typeof(SpentCategoryProcessor))
             {
@@ -203,13 +149,13 @@ namespace BudgetTracker.Controllers
                 _objectRepository.Remove(category);
             }
 
-            return RedirectToAction(nameof(SpentCategories));
+            return Ok();
         }
 
-        public IActionResult EditCategory(Guid id) => View(_objectRepository.Set<SpentCategoryModel>().First(v => v.Id == id));
+        public SpentCategoryJsModel EditCategory(Guid id) => new SpentCategoryJsModel(_objectRepository.Set<SpentCategoryModel>().First(v => v.Id == id));
 
         [HttpPost]
-        public IActionResult EditCategory(Guid id, string pattern, string category, PaymentKind kind)
+        public OkResult EditCategory(Guid id, string pattern, string category, PaymentKind kind)
         {
             var categoryObj = _objectRepository.Set<SpentCategoryModel>().First(v => v.Id == id);
 
@@ -217,7 +163,7 @@ namespace BudgetTracker.Controllers
             categoryObj.Category = category;
             categoryObj.Kind = kind;
             
-            return RedirectToAction(nameof(SpentCategories));
+            return Ok();
         }
     }
 }
