@@ -11,6 +11,7 @@ using BudgetTracker.JsModel;
 using BudgetTracker.JsModel.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Internal;
+using Newtonsoft.Json;
 
 namespace BudgetTracker.JsApiGenerator
 {
@@ -33,13 +34,13 @@ import './services/Rest';
             
             var types = typeof(Startup).Assembly.GetTypes();
             var exportableTypes = types.Where(v => v.GetCustomAttribute<ExportJsModelAttribute>() != null).ToList();
-            foreach (var type in exportableTypes)
+            foreach (var type in exportableTypes.OrderBy(v=>v.Name))
             {
                 GenerateType(type, exportableTypes);
             }
 
-            var controllers = types.Where(v => typeof(Controller).IsAssignableFrom(v) && v.GetCustomAttribute<HideFromRestAttribute>() == null).ToList();
-            foreach (var controller in controllers)
+            var controllers = types.Where(v => typeof(Controller).IsAssignableFrom(v) && v.GetCustomAttribute<HideFromRestAttribute>() == null && !v.IsAbstract).ToList();
+            foreach (var controller in controllers.OrderBy(v=>v.Name))
             {
                 GenerateController(controller, exportableTypes);
             }
@@ -55,8 +56,9 @@ import './services/Rest';
 
             var whiteList = new[] {typeof(OkResult)};
 
-            var methodInfos = type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
-                .Where(v => v.GetCustomAttribute<HideFromRestAttribute>() == null)
+            var methodInfos = type.GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                .Where(v => v.GetCustomAttribute<HideFromRestAttribute>() == null && !v.DeclaringType.IsAssignableFrom(typeof(Controller)))
+                .OrderBy(v=>v.Name)
                 .ToList();
             
             var methods = methodInfos
@@ -171,11 +173,14 @@ import './services/Rest';
             {
                 fileWrite.Write($"export interface {type.Name} {{\n");
 
-                foreach (var p in type.GetProperties())
+                foreach (var p in type.GetProperties().OrderBy(v=>v.Name))
                 {
                     try
                     {
-                        var formattableString = $"   {CamelCase(p.Name)}: {GetTypescriptType(p.PropertyType, knownTypes)};";
+                        if (p.GetCustomAttribute<JsonIgnoreAttribute>() != null)
+                            continue;
+                        
+                        var formattableString = $"   {CamelCase(p.Name)}: {GetTypescriptType(ExpandType(p.PropertyType), knownTypes)};";
                         fileWrite.WriteLine(formattableString);
                     }
                     catch(Exception ex)
@@ -206,6 +211,11 @@ import './services/Rest';
             if (typeof(Nullable).IsAssignableFrom(type) && type.IsGenericType)
             {
                 return type.GetGenericArguments()[0];
+            }
+
+            if (Nullable.GetUnderlyingType(type) != null)
+            {
+                return Nullable.GetUnderlyingType(type);
             }
 
             return type;

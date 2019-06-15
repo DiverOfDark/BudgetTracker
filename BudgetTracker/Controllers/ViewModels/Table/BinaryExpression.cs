@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BudgetTracker.JsModel;
 using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels.Table
 {
     public class BinaryExpression : CalculateExpression
     {
-        private readonly MoneyColumnMetadataModel _model;
+        private readonly MoneyColumnMetadataJsModel _model;
         private readonly string _symbol;
         public static readonly string[] Symbols = { "/", "*", "+", "-", "??" }; 
 
-        public BinaryExpression(MoneyColumnMetadataModel model, string symbol)
+        public BinaryExpression(MoneyColumnMetadataJsModel model, string symbol)
         {
             _model = model;
             _symbol = symbol;
@@ -20,7 +21,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         public CalculateExpression Left { get; set; }
         public CalculateExpression Right { get; set; }
 
-        public override void Evaluate(Dictionary<MoneyColumnMetadataModel, CalculatedResult> dependencies)
+        public override void Evaluate(Dictionary<MoneyColumnMetadataJsModel, CalculatedResult> dependencies)
         {
             if (Left == null || Right == null)
             {

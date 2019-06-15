@@ -13,7 +13,7 @@
 
     if (toRemove.Any())
     {
-        data.Add(new PaymentViewModel(toRemove.SelectMany(s=>s.Items).ToList()));
+        toRemove.ForEach(x => data.Remove(x));
     }
     
     var values = data.Select(v => (int)-v.Amount).ToList();

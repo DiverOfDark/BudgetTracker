@@ -11,7 +11,7 @@ using Newtonsoft.Json.Linq;
 
 namespace BudgetTracker.Controllers
 {
-    [Authorize]
+    [Authorize, AjaxOnlyActions]
     public class MetadataController : Controller
     {
         private readonly ObjectRepository _objectRepository;

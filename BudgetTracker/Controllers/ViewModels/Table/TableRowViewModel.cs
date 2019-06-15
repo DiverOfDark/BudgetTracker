@@ -2,19 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using BudgetTracker.JsModel;
+using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
 using Newtonsoft.Json;
 
 namespace BudgetTracker.Controllers.ViewModels.Table
 {
+    [ExportJsModel]
     public class TableRowViewModel
     {
-        public TableRowViewModel(IList<MoneyStateModel> item, List<MoneyColumnMetadataModel> headers, Dictionary<string, MoneyColumnMetadataModel> headersCached, Dictionary<MoneyColumnMetadataModel, Dictionary<DateTime, double>> paymentsToExempt)
+        public TableRowViewModel(IList<MoneyStateModel> item, List<MoneyColumnMetadataJsModel> headers, Dictionary<string, MoneyColumnMetadataJsModel> headersCached, Dictionary<MoneyColumnMetadataJsModel, Dictionary<DateTime, double>> paymentsToExempt)
         {
             When = item.Select(v => v.When).Max();
             Cells = new List<CalculatedResult>(); 
             
-            CalculatedCells = new Dictionary<MoneyColumnMetadataModel, CalculatedResult>();
+            CalculatedCells = new Dictionary<MoneyColumnMetadataJsModel, CalculatedResult>();
             foreach (var h in headers)
             {
                 CalculatedResult cell = null;
@@ -44,7 +47,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         
         public DateTime When { get; }
 
-        [JsonIgnore] public Dictionary<MoneyColumnMetadataModel, CalculatedResult> CalculatedCells { get; }
+        [JsonIgnore] public Dictionary<MoneyColumnMetadataJsModel, CalculatedResult> CalculatedCells { get; }
 
         public List<CalculatedResult> Cells {get; }
         

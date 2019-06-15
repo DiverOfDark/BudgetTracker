@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using BudgetTracker.JsModel;
 using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels.Table
@@ -12,7 +13,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             _baseExpression = baseExpression;
         }
 
-        public override void Evaluate(Dictionary<MoneyColumnMetadataModel, CalculatedResult> dependencies)
+        public override void Evaluate(Dictionary<MoneyColumnMetadataJsModel, CalculatedResult> dependencies)
         {
             if (Value == null)
             {

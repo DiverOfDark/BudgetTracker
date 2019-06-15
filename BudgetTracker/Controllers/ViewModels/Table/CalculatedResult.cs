@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
+using BudgetTracker.JsModel;
+using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
 using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
 
 namespace BudgetTracker.Controllers.ViewModels.Table
 {
+    [ExportJsModel]
     public class CalculatedResult
     {
         private double? _value;
@@ -17,12 +20,12 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         private IEnumerable<string> _failedToResolve;
         private double _adjustment;
 
-        public static CalculatedResult FromComputed(Dictionary<string, MoneyColumnMetadataModel> columns, MoneyColumnMetadataModel h, Dictionary<MoneyColumnMetadataModel, CalculatedResult> deps)
+        public static CalculatedResult FromComputed(Dictionary<string, MoneyColumnMetadataJsModel> columns, MoneyColumnMetadataJsModel h, Dictionary<MoneyColumnMetadataJsModel, CalculatedResult> deps)
         {
             return new ExpressionCalculatedResult(columns, h, deps);
         }
 
-        public static CalculatedResult FromMoney(MoneyColumnMetadataModel h, MoneyStateModel money, double adjustment) => new CalculatedResult(h)
+        public static CalculatedResult FromMoney(MoneyColumnMetadataJsModel h, MoneyStateModel money, double adjustment) => new CalculatedResult(h)
         {
             Money = money,
             _ccy = money.Ccy,
@@ -31,20 +34,20 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             _tooltip = $"{(money.Amount).ToString(CultureInfo.CurrentCulture)}({money.Amount.ToString(CultureInfo.CurrentCulture)} + {adjustment.ToString(CultureInfo.CurrentCulture)})"
         };
 
-        public static CalculatedResult Empty(MoneyColumnMetadataModel item) => new CalculatedResult(item)
+        public static CalculatedResult Empty(MoneyColumnMetadataJsModel item) => new CalculatedResult(item)
         {
             _ccy = null,
             _value = double.NaN
         };
 
-        public static CalculatedResult ResolutionFail(MoneyColumnMetadataModel item, params string[] failedToResolve) => new CalculatedResult(item)
+        public static CalculatedResult ResolutionFail(MoneyColumnMetadataJsModel item, params string[] failedToResolve) => new CalculatedResult(item)
         {
             _ccy = null,
             _value = double.NaN,
             _failedToResolve = failedToResolve
         };
 
-        public static CalculatedResult FromComputed(MoneyColumnMetadataModel item, double? value, string ccy,
+        public static CalculatedResult FromComputed(MoneyColumnMetadataJsModel item, double? value, string ccy,
             IEnumerable<string> failedToResolve, double adjustment, string tooltip) => new CalculatedResult(item)
         {
             _value = value,
@@ -54,14 +57,14 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             _tooltip = tooltip
         };
         
-        protected CalculatedResult(MoneyColumnMetadataModel item)
+        protected CalculatedResult(MoneyColumnMetadataJsModel item)
         {
             Column = item;
             _failedToResolve = Enumerable.Empty<string>();
         }
 
         [JsonIgnore]
-        public MoneyColumnMetadataModel Column { get; }
+        public MoneyColumnMetadataJsModel Column { get; }
 
         [JsonIgnore]
         public MoneyStateModel Money { get; private set; }

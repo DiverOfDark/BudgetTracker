@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BudgetTracker.JsModel;
 using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels.Table
 {
     public class ExpressionCalculatedResult : CalculatedResult
     {
-        private readonly Dictionary<MoneyColumnMetadataModel, CalculatedResult> _deps;
+        private readonly Dictionary<MoneyColumnMetadataJsModel, CalculatedResult> _deps;
         private readonly CalculateExpression _expression;
         private bool _evaluated;
 
@@ -17,7 +18,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         private string _tooltip;
         private IEnumerable<string> _failedToResolve;
         
-        public ExpressionCalculatedResult(Dictionary<string, MoneyColumnMetadataModel> columns, MoneyColumnMetadataModel h, Dictionary<MoneyColumnMetadataModel, CalculatedResult> deps) : base(h)
+        public ExpressionCalculatedResult(Dictionary<string, MoneyColumnMetadataJsModel> columns, MoneyColumnMetadataJsModel h, Dictionary<MoneyColumnMetadataJsModel, CalculatedResult> deps) : base(h)
         {
             _deps = deps;
             var expression = Parse(columns, h, h.Function);
@@ -70,7 +71,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             }
         }
 
-        private static CalculateExpression Parse(Dictionary<string, MoneyColumnMetadataModel> columns, MoneyColumnMetadataModel column, string function)
+        private static CalculateExpression Parse(Dictionary<string, MoneyColumnMetadataJsModel> columns, MoneyColumnMetadataJsModel column, string function)
         {
             CalculateExpression currentExpression = new EmptyExpression(column);
             try

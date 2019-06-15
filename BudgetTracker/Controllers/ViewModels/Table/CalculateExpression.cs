@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using BudgetTracker.JsModel;
 using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels.Table
 {
     public abstract class CalculateExpression
     {
-        public abstract void Evaluate(Dictionary<MoneyColumnMetadataModel, CalculatedResult> dependencies);
+        public abstract void Evaluate(Dictionary<MoneyColumnMetadataJsModel, CalculatedResult> dependencies);
 
         public CalculatedResult Value { get; protected set; }
         

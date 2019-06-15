@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BudgetTracker.Controllers
 {
-    [Authorize]
+    [Authorize, AjaxOnlyActions]
     public class DebtController : Controller
     {
         private readonly ObjectRepository _repository;

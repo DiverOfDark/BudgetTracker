@@ -3,23 +3,24 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using BudgetTracker.JsModel;
 using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels.Table
 {
     public class ConstantExpression : CalculateExpression
     {
-        private readonly MoneyColumnMetadataModel _model;
+        private readonly MoneyColumnMetadataJsModel _model;
         private readonly string _source;
         private static Regex parseRegex = new Regex(@"(?<value>[0-9.,]+)(\:(?<adj>[0-9.,]+))?(?<ccy>\@.+)?", RegexOptions.Compiled);
         
-        public ConstantExpression(MoneyColumnMetadataModel model, string source)
+        public ConstantExpression(MoneyColumnMetadataJsModel model, string source)
         {
             _model = model;
             _source = source;
         }
         
-        public override void Evaluate(Dictionary<MoneyColumnMetadataModel, CalculatedResult> dependencies)
+        public override void Evaluate(Dictionary<MoneyColumnMetadataJsModel, CalculatedResult> dependencies)
         {
             var match = parseRegex.Match(_source);
 

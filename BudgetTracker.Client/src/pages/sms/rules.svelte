@@ -4,24 +4,7 @@
 
 <script>
     import { SmsListController } from '../../generated-types';
-
-    let compare = function(a,b) {
-        if (!a && !b)
-            return 0;
-
-        if (a && !b)
-            return 1;
-
-        if (!a && b)
-            return -1;
-
-        if (a == b)
-            return 0;
-        if (a > b)
-            return 1;
-        if (a < b)
-            return -1;
-    }
+    import {compare} from '../../services/Shared';
 
     let load = async function() {
         rules = await SmsListController.smsRules();

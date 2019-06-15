@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BudgetTracker.Controllers.ViewModels.Table;
+using BudgetTracker.JsModel;
 using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels.Widgets
@@ -10,16 +11,15 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
     {
         public ChartWidgetViewModel(string providerName, string accountName,
             ChartKind kind,
-            ObjectRepository repository,
             TableViewModel vm, bool exemptTransfers) : base(null, null)
         {
             ChartKind = kind;
             ExemptTransfers = exemptTransfers;
             Title = accountName;
-            LoadData(repository, vm, providerName, accountName);
+            LoadData(vm, providerName, accountName);
         }
 
-        public ChartWidgetViewModel(WidgetModel model, ObjectRepository repository, int? period, TableViewModel vm) :
+        public ChartWidgetViewModel(WidgetModel model, int? period, TableViewModel vm) :
             base(model, new ChartWidgetSettings(model.Properties.ToDictionary(v => v.Key, v => v.Value)))
         {
             var chartWidgetSettings = (ChartWidgetSettings) Settings;
@@ -28,7 +28,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             Title = Title ?? chartWidgetSettings.AccountName;
             Period = period;
 
-            LoadData(repository, vm, chartWidgetSettings.ProviderName, chartWidgetSettings.AccountName);
+            LoadData(vm, chartWidgetSettings.ProviderName, chartWidgetSettings.AccountName);
         }
 
         public int? Period { get; set; }
@@ -36,18 +36,18 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         public ChartKind ChartKind { get; set; }
         public bool ExemptTransfers { get; }
 
-        private void LoadData(ObjectRepository repository, TableViewModel vm, string providerName, string accountName)
+        private void LoadData(TableViewModel vm, string providerName, string accountName)
         {
-            var column = repository.Set<MoneyColumnMetadataModel>().First(v =>
+            var column = vm.Headers.First(v =>
                 v.Provider == providerName &&
                 (v.AccountName == accountName ||
                  v.UserFriendlyName == accountName));
 
-            var columnsToChart = new List<MoneyColumnMetadataModel> {column};
+            var columnsToChart = new List<MoneyColumnMetadataJsModel> {column};
 
             if (column.IsComputed && column.ChartList.Any())
             {
-                columnsToChart = repository.Set<MoneyColumnMetadataModel>().Where(v =>
+                columnsToChart = vm.Headers.Where(v =>
                     column.ChartList.Contains(v.Provider + "/" + v.AccountName) ||
                     column.ChartList.Contains(v.UserFriendlyName)).ToList();
 

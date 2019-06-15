@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using BudgetTracker.Controllers.ViewModels.Table;
+using BudgetTracker.JsModel;
 using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels.Widgets
@@ -10,34 +10,34 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
     {
         public bool ExemptTransfers { get; }
 
-        public BurstWidgetViewModel(string providerName, string accountName, ObjectRepository repository,
+        public BurstWidgetViewModel(string providerName, string accountName,
             TableViewModel vm, bool exemptTransfers) : base(null, null)
         {
             ExemptTransfers = exemptTransfers;
-            var column = repository.Set<MoneyColumnMetadataModel>().First(v =>
+            var column = vm.Headers.First(v =>
                 v.Provider == providerName &&
                 (v.AccountName == accountName ||
                  v.UserFriendlyName == accountName));
 
-            RootNode = LoadData(column, repository, vm);
+            RootNode = LoadData(column, vm);
         }
 
         public Node RootNode { get; set; }
 
-        public BurstWidgetViewModel(WidgetModel model, ObjectRepository repository, TableViewModel vm) :
+        public BurstWidgetViewModel(WidgetModel model, TableViewModel vm) :
             base(model, new BurstWidgetSettings(model.Properties.ToDictionary(v => v.Key, v => v.Value)))
         {
             var burstWidgetSettings = (BurstWidgetSettings) Settings;
             
-            var column = repository.Set<MoneyColumnMetadataModel>().First(v =>
+            var column = vm.Headers.First(v =>
                 v.Provider == burstWidgetSettings.ProviderName &&
                 (v.AccountName == burstWidgetSettings.AccountName ||
                  v.UserFriendlyName == burstWidgetSettings.AccountName));
 
-            RootNode = LoadData(column, repository, vm);
+            RootNode = LoadData(column, vm);
         }
 
-        private Node LoadData(MoneyColumnMetadataModel column, ObjectRepository repository, TableViewModel vm)
+        private Node LoadData(MoneyColumnMetadataJsModel column, TableViewModel vm)
         {
             var cell = vm.Values.FirstOrDefault()?.CalculatedCells?.GetValueOrDefault(column);
             var cellValue = ExemptTransfers ? cell?.AdjustedValue : cell?.Value;
@@ -48,11 +48,11 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             
             if (column.IsComputed && column.ChartList.Any())
             {
-                var columnsToChart = repository.Set<MoneyColumnMetadataModel>().Where(v =>
+                var columnsToChart = vm.Headers.Where(v =>
                     column.ChartList.Contains(v.Provider + "/" + v.AccountName) ||
                     column.ChartList.Contains(v.UserFriendlyName)).ToList();
 
-                var children = columnsToChart.Select(v => LoadData(v, repository, vm)).Where(v => v != null).ToList();
+                var children = columnsToChart.Select(v => LoadData(v, vm)).Where(v => v != null).ToList();
 
                 if (children.Count == 0)
                 {

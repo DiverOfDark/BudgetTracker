@@ -52,7 +52,7 @@
                         <li class="nav-item"><a class="nav-link" href="/Widget">Отчёт</a></li>
                         <li class="nav-item"><NavLink title="История" href="/Table"/></li>
                         <li class="nav-item"><NavLink title="SMS" href="/SmsList"/></li>
-                        <li class="nav-item"><a class="nav-link" href="/Payment">ДДС</a></li>
+                        <li class="nav-item"><NavLink title="ДДС" href="/Payment"/></li>
                         <li class="nav-item"><NavLink title="Долги" href="/Debt"/></li>
                         <li class="nav-item"><NavLink title="Настройки" href="/Settings"/></li>
                     </ul>

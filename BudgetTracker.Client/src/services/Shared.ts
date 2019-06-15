@@ -17,3 +17,23 @@ export function formatDate(from: string) {
 export function formatDateTime(from: string) {
     return moment(from).format("DD.MM.YYYY HH:mm:ss");
 }
+
+export function compare(a: any,b: any) {
+    if (!a && !b)
+        return 0;
+
+    if (a && !b)
+        return 1;
+
+    if (!a && b)
+        return -1;
+
+    if (a == b)
+        return 0;
+    if (a > b)
+        return 1;
+    if (a < b)
+        return -1;
+
+    return 0;
+}

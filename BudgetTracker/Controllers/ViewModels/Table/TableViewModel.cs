@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BudgetTracker.JsModel;
+using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels.Table
 {
+    [ExportJsModel]
     public class TableViewModel
     {
         public TableViewModel(TableViewModel source)
@@ -15,9 +18,10 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         
         public TableViewModel(ObjectRepository repository)
         {
-            Headers = repository.Set<MoneyColumnMetadataModel>().SortColumns().ToList();
+            Headers = repository.Set<MoneyColumnMetadataModel>().SortColumns()
+                .Select(v => new MoneyColumnMetadataJsModel(repository, v)).ToList();
 
-            Dictionary<string, MoneyColumnMetadataModel> headersCached = new Dictionary<string, MoneyColumnMetadataModel>();
+            var headersCached = new Dictionary<string, MoneyColumnMetadataJsModel>();
 
             foreach (var h in Headers)
             {
@@ -28,7 +32,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             }
 
             var paymentsToExempt = repository.Set<PaymentModel>().Where(v => v.Kind == PaymentKind.Transfer).ToList().GroupBy(v => v.Column)
-                .ToDictionary(v => v.Key, v =>
+                .ToDictionary(v => new MoneyColumnMetadataJsModel(repository, v.Key), v =>
                 {
                     var d = new Dictionary<DateTime, double>();
                     foreach (var item in v)
@@ -75,7 +79,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                 }
             }
 
-            var markedAsOkCells = Enumerable.Empty<MoneyColumnMetadataModel>();
+            var markedAsOkCells = Enumerable.Empty<MoneyColumnMetadataJsModel>();
             for (int i = Values.Count - 1; i >= 0; i--)
             {
                 var row = Values[i];
@@ -106,7 +110,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             }
         }
 
-        public List<MoneyColumnMetadataModel> Headers { get; private set; }
+        public List<MoneyColumnMetadataJsModel> Headers { get; private set; }
         public List<TableRowViewModel> Values { get; set; }
     }
 }

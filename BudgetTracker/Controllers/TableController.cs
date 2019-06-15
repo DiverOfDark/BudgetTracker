@@ -76,7 +76,7 @@ namespace BudgetTracker.Controllers
         public IActionResult Chart(string provider, string account, bool exemptTransfers = false)
         {
             var table = HttpContext.RequestServices.GetRequiredService<TableViewModelFactory>();
-            var vm = new ChartWidgetViewModel(provider, account, ChartKind.Linear, _objectRepository, table.GetVM(), exemptTransfers);
+            var vm = new ChartWidgetViewModel(provider, account, ChartKind.Linear, table.GetVM(), exemptTransfers);
 
             return View(vm);
         }
@@ -84,7 +84,7 @@ namespace BudgetTracker.Controllers
         public IActionResult Burst(string provider, string account, bool exemptTransfers = false)
         {
             var table = HttpContext.RequestServices.GetRequiredService<TableViewModelFactory>();
-            var vm = new BurstWidgetViewModel(provider, account, _objectRepository, table.GetVM(), exemptTransfers);
+            var vm = new BurstWidgetViewModel(provider, account, table.GetVM(), exemptTransfers);
 
             return View(vm);
         }
