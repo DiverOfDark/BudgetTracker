@@ -8,13 +8,19 @@ export function tooltip(node: any, newText: string) {
     var currentText: string;
 
     currentText = newText;
+    let currentlyShown = false;
+
     let mouseover = () => {
         position.set(node.getBoundingClientRect());
         text.set(currentText);
         show.set(true);
+        currentlyShown = true;
     }
     
-    let mouseout = () => show.set(false);
+    let mouseout = () => {
+        show.set(false);
+        currentlyShown = false;
+    }
 
     node.addEventListener('mouseover', mouseover);
     node.addEventListener('mouseout', mouseout);
@@ -25,6 +31,9 @@ export function tooltip(node: any, newText: string) {
         },
 
         destroy() {
+            if (currentlyShown) {
+                show.set(false);
+            }
             node.removeEventListener('mouseover', mouseover);
             node.removeEventListener('mouseout', mouseout);
         }
