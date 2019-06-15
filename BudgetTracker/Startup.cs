@@ -118,6 +118,7 @@ namespace BudgetTracker
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
+            services.AddResponseCompression(x => x.EnableForHttps = true);
             services.AddMvc().AddJsonOptions(options =>
             {
                 options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
@@ -198,6 +199,7 @@ namespace BudgetTracker
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            app.UseResponseCompression();
             app.UseDeveloperExceptionPage();
             
             var objRepoLogger = loggerFactory.CreateLogger("ObjectRepository");
