@@ -1,12 +1,33 @@
-editCategory
+<svelte:head>
+    <title>BudgetTracker - Редактировать категорию</title>
+</svelte:head>
 
-<!--
+<script>
+    import {navigateTo} from 'svero';
+    import {PaymentController, SpentCategoryModelController} from '../../generated-types';
+    
+    export let router;
 
-@model Model.SpentCategoryModel
-@{
-    ViewData["Title"] = "Редактировать столбец";
-}
+    let id;
+    let kind;
+    let pattern;
+    let category;
 
+    async function load() {
+        let response = await SpentCategoryModelController.find(router.params.id);
+        id = response.id;
+        pattern = response.pattern;
+        category = response.category;
+        kind = response.kind;
+    }
+
+    async function update() {
+        await PaymentController.editCategory(id, pattern, category, kind);
+        navigateTo("/Payment/Category");
+    }
+
+    load();
+</script>
 
 <div class="container">
     <div class="row row-cards row-deck">
@@ -18,33 +39,34 @@ editCategory
                 <div class="card-body">
                     <div class="row">
                         <div class="col-12">
-                            @using (Html.BeginForm("EditCategory", "Payment", FormMethod.Post))
-                            {
-                                @Html.HiddenFor(v => v.Id)
                                 <div class="form-horizontal">
-                                    <div class="form-group">
-                                        <label class="control-label">Тип</label>
-                                        <div control-labelstyle="padding-top: 7px;">
-                                            @Html.DropDownListFor(model => model.Kind, typeof(Model.PaymentKind).GetSelectList(Model.Kind), new {@class = "form-control"})
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="control-label">Количество</label>
-                                        <div control-labelstyle="padding-top: 7px;">
-                                            @Html.EditorFor(model => model.Pattern, new {htmlAttributes = new {@class = "form-control"}})
-                                        </div>
-                                    </div>
                                     <div class="form-group">
                                         <label class="control-label">Категория</label>
                                         <div control-labelstyle="padding-top: 7px;">
-                                            @Html.EditorFor(model => model.Category, new {htmlAttributes = new {@class = "form-control"}})
+                                            <input type="text" class="form-control" bind:value="{category}" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Тип</label>
+                                        <div control-labelstyle="padding-top: 7px;">
+                                            <select bind:value="{kind}" class="form-control form-control-sm">
+                                                <option value="Expense">Трата</option>
+                                                <option value="Income">Доход</option>
+                                                <option value="Transfer">Перевод</option>
+                                                <option value="Unknown">Неизвестно</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Шаблон</label>
+                                        <div control-labelstyle="padding-top: 7px;">
+                                            <input type="text" class="form-control" bind:value="{pattern}" />
                                         </div>
                                     </div>
                                     <div class="form-group text-center">
-                                        <input type="submit" value="Обновить" class="btn btn-default"/>
+                                        <button class="btn btn-default" on:click="{() => update()}">Обновить</button>
                                     </div>
                                 </div>
-                            }
                         </div>
                     </div>
                 </div>
@@ -52,5 +74,3 @@ editCategory
         </div>
     </div>
 </div>
-
--->

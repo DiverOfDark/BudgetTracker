@@ -11,20 +11,32 @@ using OutCode.EscapeTeams.ObjectRepository;
 namespace BudgetTracker.Controllers
 {
     [AjaxOnlyActions, Authorize]
-    public abstract class ObjectRepositoryControllerBase<T, U>: Controller where T:ModelBase
+    public abstract class ObjectRepositoryControllerBase<TModel, TViewModel>: Controller where TModel:ModelBase where TViewModel:class
     {
         private readonly ObjectRepository _objectRepository;
-        private readonly Func<T, U> _convert;
+        private readonly Func<TModel, TViewModel> _convert;
 
-        protected ObjectRepositoryControllerBase(ObjectRepository objectRepository, Func<T, U> convert)
+        protected ObjectRepositoryControllerBase(ObjectRepository objectRepository, Func<TModel, TViewModel> convert)
         {
             _convert = convert;
             _objectRepository = objectRepository;
         }
 
-        public IEnumerable<U> List() => _objectRepository.Set<T>().Select(_convert).ToList();
+        public IEnumerable<TViewModel> List() => _objectRepository.Set<TModel>().Select(_convert).ToList();
 
-        public U Find(Guid id) => _convert(_objectRepository.Set<T>().Find(id));
+        public TViewModel Find(Guid id)
+        {
+            var obj = _objectRepository.Set<TModel>().Find(id);
+            return obj == null ? null : _convert(obj);
+        }
+
+        public OkResult Delete(Guid id)
+        {
+            var set = _objectRepository.Set<TModel>();
+            var found = set.Find(id);
+            _objectRepository.Remove(found);
+            return Ok();
+        }
     }
 
     public class MoneyColumnMetadataModelController : ObjectRepositoryControllerBase<MoneyColumnMetadataModel,
