@@ -9,7 +9,6 @@ using Microsoft.CodeAnalysis.Scripting;
 
 namespace BudgetTracker.Controllers
 {
-    [Authorize, AjaxOnlyActions]
     public class ScriptService
     {
         private readonly ObjectRepository _objectRepository;
