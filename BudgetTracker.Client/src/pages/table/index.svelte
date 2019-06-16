@@ -72,7 +72,7 @@
 											<span class="fe fe-trending-up"></span>
 										</a>
 										{#if showControls}
-											<Link href="/Metadata/MetadataEdit/{p.id}">
+											<Link href="/Metadata/Edit/{p.id}">
 												<span class="fe fe-edit-2"></span>
 											</Link>
 										{/if}
