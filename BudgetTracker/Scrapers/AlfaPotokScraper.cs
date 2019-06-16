@@ -104,12 +104,12 @@ namespace BudgetTracker.Scrapers
                 var v = rows[index];
                 var cells = v.FindElements(By.TagName("td"));
 
-                var status = cells[10].Text;
+                var status = cells[11].Text;
                 if (status.ToLower() == "выплачено")
                     continue;
 
                 var when = cells[1].Text;
-                var duration = cells[9].Text;
+                var duration = cells[10].Text;
 
                 when = new String(when.TakeWhile(s => s != '\n').Where(s => char.IsDigit(s) || s == '.').ToArray());
                 
@@ -118,11 +118,11 @@ namespace BudgetTracker.Scrapers
 
                 var expirationDate = whenDate.AddDays(durationDays);
 
-                var agreedPercentage = cells[2].Text;
+                var agreedPercentage = cells[3].Text;
 
-                var invested = cells[3].Text;
-                var returned = cells[4].Text;
-                var returnedBody = cells[5].Text;
+                var invested = cells[4].Text;
+                var returned = cells[5].Text;
+                var returnedBody = cells[6].Text;
 
                 var agreedPercentageDouble = ParseDouble(agreedPercentage);
                 
