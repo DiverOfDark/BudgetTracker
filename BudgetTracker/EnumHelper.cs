@@ -35,7 +35,7 @@ namespace BudgetTracker
     {
         public static string GetDisplayName<T>(this T enumValue)
         {
-            return typeof(T).GetMember(enumValue.ToString())?[0]?.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? enumValue.ToString();
+            return enumValue.GetType().GetMember(enumValue.ToString())?[0]?.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? enumValue.ToString();
         }
 
         public static IEnumerable<SelectListItem> GetSelectList(this Type enumType, object enumValue = null)

@@ -76,4 +76,12 @@ namespace BudgetTracker.Controllers
         {
         }
     }
+
+    [Obsolete]
+    public class WidgetViewModelController : ObjectRepositoryControllerBase<WidgetModel, WidgetJsViewModel>
+    {
+        public WidgetViewModelController(ObjectRepository repository) : base(repository, from => new WidgetJsViewModel(from))
+        {
+        }
+    }
 }

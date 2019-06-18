@@ -89,13 +89,13 @@ namespace BudgetTracker.Controllers
             return View(vm);
         }
 
-        public IActionResult DeleteMoney(Guid id)
+        public OkResult DeleteMoney(Guid id)
         {
             _objectRepository.Remove<MoneyStateModel>(x => x.Id == id);
             return Ok();
         }
 
-        public IActionResult CopyFromPrevious(Guid headerid, string date)
+        public OkResult CopyFromPrevious(Guid headerid, string date)
         {
             var realDate = DateTime.ParseExact(date, "dd.MM.yyyy", CultureInfo.CurrentCulture, DateTimeStyles.AssumeUniversal);
 
@@ -117,7 +117,7 @@ namespace BudgetTracker.Controllers
             return Ok();
         }
 
-        public IActionResult MarkAsOk(Guid headerid, string date)
+        public OkResult MarkAsOk(Guid headerid, string date)
         {
             var realDate = DateTime.ParseExact(date, "dd.MM.yyyy", CultureInfo.CurrentCulture, DateTimeStyles.AssumeUniversal);
 

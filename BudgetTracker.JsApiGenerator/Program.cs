@@ -11,6 +11,7 @@ using BudgetTracker.JsModel;
 using BudgetTracker.JsModel.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.WindowsAzure.Storage.File.Protocol;
 using Newtonsoft.Json;
 
 namespace BudgetTracker.JsApiGenerator
@@ -34,6 +35,12 @@ import './services/Rest';
             
             var types = typeof(Startup).Assembly.GetTypes();
             var exportableTypes = types.Where(v => v.GetCustomAttribute<ExportJsModelAttribute>() != null).ToList();
+
+            foreach (var type in types.Where(v => v.IsEnum).OrderBy(v => v.Name))
+            {
+                GenerateEnum(type);
+            }
+            
             foreach (var type in exportableTypes.OrderBy(v=>v.Name))
             {
                 GenerateType(type, exportableTypes);
@@ -43,6 +50,37 @@ import './services/Rest';
             foreach (var controller in controllers.OrderBy(v=>v.Name))
             {
                 GenerateController(controller, exportableTypes);
+            }
+        }
+
+        private static void GenerateEnum(Type type)
+        {
+            using(var fileWriter = File.AppendText(_fileName))
+            {
+                fileWriter.WriteLine($"export class {type.Name}Enum {{\n" +
+                                     $"    id: number;\n" +
+                                     $"    constructor(id: number) {{\n" +
+                                     $"        this.id = id;\n" +
+                                     $"    }}\n");
+
+                var getName = "    getName() {\n";
+                var getLabel = "    getLabel() {\n";
+                
+                foreach (var v in Enum.GetValues(type))
+                {
+                    getName += $"        if (this.id === {(int)v}) return \"{v}\";\n";
+                    getLabel += $"        if (this.id === {(int)v}) return \"{v.GetDisplayName()}\";\n";
+                }
+
+                getName += "        return this.id;\n";
+                getLabel += "        return this.id;\n";
+                getName += "    }\n";
+                getLabel += "    }\n";
+
+                    
+                fileWriter.WriteLine(getName);
+                fileWriter.WriteLine(getLabel);
+                fileWriter.WriteLine("}\n");
             }
         }
 
@@ -220,13 +258,21 @@ import './services/Rest';
 
             return type;
         } 
-
-        private static string GetTypescriptType(Type type, IEnumerable<Type> knownTypes = null, [CallerLineNumber] int ln = 0, [CallerMemberName] string who = null)
+        
+      private static string GetTypescriptType(Type type, IEnumerable<Type> knownTypes = null, [CallerLineNumber] int ln = 0, [CallerMemberName] string who = null)
         {
             type = ExpandType(type);
             
             bool array = false;
-            if (typeof(IEnumerable).IsAssignableFrom(type) && type != typeof(string))
+
+            if (typeof(IDictionary<,>).IsSubTypeOfRawGeneric(type))
+            {
+                return "object";
+                var ga = type.GetGenericArguments();
+                return "Map<" + GetTypescriptType(ga[0]) + "," + GetTypescriptType(ga[1]) + ">";
+            }
+            
+            if (typeof(IEnumerable<>).IsSubTypeOfRawGeneric(type) && type != typeof(string))
             {
                 type = type.GetGenericArguments()[0];
                 array = true;
@@ -265,6 +311,44 @@ import './services/Rest';
 
             return result;
 
+        }
+    }
+
+    internal static class Helpers
+    {
+        public static bool IsSubTypeOfRawGeneric(this Type toCheck, Type type)
+        {
+            if (toCheck.IsInterface)
+            {
+                if (toCheck.IsInterface && toCheck.GetGenericTypeDefinition() == type)
+                    return true;
+
+                var interfaceTypes = type.GetInterfaces().ToList();
+                if (type.IsInterface)
+                {
+                    interfaceTypes.Add(type);
+                }
+                foreach (var interfaceType in interfaceTypes)
+                {
+                    var current = interfaceType.GetTypeInfo().IsGenericType
+                        ? interfaceType.GetGenericTypeDefinition()
+                        : interfaceType;
+
+                    if (current == toCheck)
+                        return true;
+                }
+                
+                return false;
+            }
+
+            while (type != null && type != typeof(object)) {
+                var cur = type.IsGenericType ? type.GetGenericTypeDefinition() : type;
+                if (toCheck == cur) {
+                    return true;
+                }
+                type = type.BaseType;
+            }
+            return false;
         }
     }
 }
