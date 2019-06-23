@@ -101,16 +101,14 @@ namespace BudgetTracker.Controllers
 
             var column = _objectRepository.Set<MoneyColumnMetadataModel>().First(v => v.Id == headerid);
 
-            var previous = _objectRepository.Set<MoneyStateModel>().Where(v =>
-                    v.AccountName == column.AccountName && v.Provider == column.Provider && v.When < realDate)
+            var previous = _objectRepository.Set<MoneyStateModel>().Where(v => v.Column == column && v.When < realDate)
                 .OrderByDescending(v => v.When).First();
             
             _objectRepository.Add(new MoneyStateModel
             {
-                AccountName = column.AccountName,
+                Column = column,
                 Amount = previous.Amount,
                 When = realDate,
-                Provider = column.Provider,
                 Ccy = previous.Ccy
             });
 
@@ -125,10 +123,9 @@ namespace BudgetTracker.Controllers
 
             _objectRepository.Add(new MoneyStateModel
             {
-                AccountName = column.AccountName,
+                Column = column,
                 Amount = double.NaN,
-                When = realDate,
-                Provider = column.Provider
+                When = realDate
             });
 
             return Ok();

@@ -95,14 +95,28 @@ namespace BudgetTracker.Scrapers
             return elements;
         }
 
-        protected MoneyStateModel Money(string account, double amount, string ccy) => new MoneyStateModel
+        protected MoneyStateModel Money(String account, double amount, string ccy)
         {
-            Provider = ProviderName,
-            AccountName = account,
-            When = DateTime.UtcNow.Date,
-            Ccy = ccy,
-            Amount = amount
-        };
+            var existing = Repository.Set<MoneyColumnMetadataModel>()
+                .FirstOrDefault(v => v.Provider == ProviderName && v.AccountName == account);
+
+            if (existing == null)
+            {
+                existing = new MoneyColumnMetadataModel(ProviderName, account)
+                {
+                    UserFriendlyName = account
+                };
+                Repository.Add(existing);
+            }
+
+            return new MoneyStateModel
+            {
+                Column = existing,
+                When = DateTime.UtcNow.Date,
+                Ccy = ccy,
+                Amount = amount
+            };
+        }
 
         protected PaymentModel Statement(DateTime when, string account, string what, double amount, PaymentKind kind, string ccy,
             string statementReference)

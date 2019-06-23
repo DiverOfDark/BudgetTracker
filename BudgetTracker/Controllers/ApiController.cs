@@ -157,10 +157,21 @@ namespace BudgetTracker.Controllers
                     };
                 }
                 
+                var existing = _objectRepository.Set<MoneyColumnMetadataModel>()
+                    .FirstOrDefault(v => v.Provider == "API" && v.AccountName == name);
+
+                if (existing == null)
+                {
+                    existing = new MoneyColumnMetadataModel("API", name)
+                    {
+                        UserFriendlyName = name
+                    };
+                    _objectRepository.Add(existing);
+                }
+                
                 _objectRepository.Add(new MoneyStateModel
                 {
-                    AccountName = name,
-                    Provider = "API",
+                    Column = existing,
                     Ccy = ccy,
                     Amount = valueParsed,
                     When = DateTime.UtcNow

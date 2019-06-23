@@ -12,6 +12,8 @@ namespace BudgetTracker.JsModel
         private readonly ObjectRepository _repository;
         private readonly MoneyColumnMetadataModel _model;
 
+        internal MoneyColumnMetadataModel Column => _model;
+        
         public  MoneyColumnMetadataJsModel(ObjectRepository repository, MoneyColumnMetadataModel model)
         {
             _repository = repository;
@@ -33,8 +35,7 @@ namespace BudgetTracker.JsModel
         public bool AutogenerateStatements => _model.AutogenerateStatements;
  
         public bool CanDelete => _model.IsComputed || _repository.Set<MoneyStateModel>()
-                                     .All(s => s.AccountName != _model.AccountName && s.Provider != _model.Provider)
-                                 && _repository.Set<PaymentModel>().All(s => s.Column != _model);
+                                     .All(s => s.Column != _model) && _repository.Set<PaymentModel>().All(s => s.Column != _model);
 
         public Guid Id => _model.Id;
     }

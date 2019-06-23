@@ -84,7 +84,7 @@ namespace BudgetTracker.Services
                     .ToList();
 
                 var models = _objectRepository.Set<MoneyStateModel>()
-                    .Where(v => v.Provider == column.Provider && v.AccountName == column.AccountName)
+                    .Where(v => v.Column == column)
                     .OrderBy(v => v.When)
                     .ToList();
 
@@ -94,8 +94,7 @@ namespace BudgetTracker.Services
                     {
                         Amount = 0,
                         Ccy = models.First().Ccy,
-                        AccountName = models.First().AccountName,
-                        Provider = models.First().Provider,
+                        Column = models.First().Column,
                         When = models.First().When.AddDays(-1)
                     };
                     models.Insert(0, emptyModel);
@@ -137,22 +136,6 @@ namespace BudgetTracker.Services
 
                         return b;
                     });
-                }
-            }
-
-            foreach(var item in _objectRepository.Set<MoneyStateModel>().GroupBy(v => v.Provider, v => v.AccountName))
-            foreach (var sub in item.Distinct())
-            {
-                var existing = _objectRepository.Set<MoneyColumnMetadataModel>()
-                    .FirstOrDefault(v => v.Provider == item.Key && v.AccountName == sub);
-
-                if (existing == null)
-                {
-                    existing = new MoneyColumnMetadataModel(item.Key, sub)
-                    {
-                        UserFriendlyName = sub
-                    };
-                    _objectRepository.Add(existing);
                 }
             }
         }
@@ -260,13 +243,13 @@ namespace BudgetTracker.Services
             var currentState = _objectRepository.Set<MoneyStateModel>();
 
             var accountCount = currentState.Where(s =>
-                    s.Provider == scraper.ProviderName && s.When.Date == DateTime.UtcNow.Date.AddDays(-1))
-                .Select(s => s.AccountName).Distinct()
+                    s.Column.Provider == scraper.ProviderName && s.When.Date == DateTime.UtcNow.Date.AddDays(-1))
+                .Select(s => s.Column.AccountName).Distinct()
                 .ToList();
 
             var todayState = currentState.Where(s =>
-                    s.Provider == scraper.ProviderName && s.When.Date == DateTime.UtcNow.Date)
-                .Select(s => s.AccountName).Distinct()
+                    s.Column.Provider == scraper.ProviderName && s.When.Date == DateTime.UtcNow.Date)
+                .Select(s => s.Column.AccountName).Distinct()
                 .ToList();
 
             var toScrape = accountCount.Count == 0 || accountCount.Except(todayState).Any();
@@ -282,10 +265,10 @@ namespace BudgetTracker.Services
                 foreach (var item in items)
                 {
                     _logger.LogInformation(
-                        $" - {item.Provider} / {item.AccountName}: {item.Amount} ({item.Ccy})");
-                    if (!string.IsNullOrWhiteSpace(item.Provider))
+                        $" - {item.Column.Provider} / {item.Column.AccountName}: {item.Amount} ({item.Ccy})");
+                    if (!string.IsNullOrWhiteSpace(item.Column.Provider))
                     {
-                        if (todayState.Contains(item.AccountName))
+                        if (todayState.Contains(item.Column.AccountName))
                             continue;
 
                         _objectRepository.Add(item);

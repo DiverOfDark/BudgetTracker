@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using OutCode.EscapeTeams.ObjectRepository;
 using OutCode.EscapeTeams.ObjectRepository.AzureTableStorage;
 
@@ -8,6 +9,8 @@ namespace BudgetTracker.Model
     {
         public class MoneyStateEntity : BaseEntity
         {
+            public Guid? ColumnId { get; set; }
+            
             public string Provider { get; set; }
             public string AccountName { get; set; }
             public double Amount { get; set; }
@@ -34,16 +37,22 @@ namespace BudgetTracker.Model
 
         protected override BaseEntity Entity => _entity;
 
-        public string Provider
+        internal void MigrateColumn()
         {
-            get => _entity.Provider;
-            set => UpdateProperty(() => _entity.Provider, value);
+            if (_entity.ColumnId == null && !string.IsNullOrWhiteSpace(_entity.Provider) &&
+                !string.IsNullOrWhiteSpace(_entity.AccountName))
+            {
+                Column = ObjectRepository.Set<MoneyColumnMetadataModel>().First(v =>
+                    v.Provider == _entity.Provider && v.AccountName == _entity.AccountName);
+                UpdateProperty(() => _entity.Provider, null);
+                UpdateProperty(() => _entity.AccountName, null);
+            }
         }
-
-        public string AccountName
+        
+        public MoneyColumnMetadataModel Column
         {
-            get => _entity.AccountName;
-            set => UpdateProperty(() => _entity.AccountName, value);
+            get => Single<MoneyColumnMetadataModel>(_entity.ColumnId);
+            set => UpdateProperty(() => _entity.ColumnId, value.Id);
         }
 
         public double Amount
@@ -64,6 +73,6 @@ namespace BudgetTracker.Model
             set => UpdateProperty(() => _entity.When, value);
         }
 
-        public override string ToString() => $"@{When.ToShortDateString()}: {Provider}/{AccountName}: {Amount} {Ccy}";
+        public override string ToString() => $"@{When.ToShortDateString()}: {Column.Provider}/{Column.UserFriendlyName}: {Amount} {Ccy}";
     }
 }
