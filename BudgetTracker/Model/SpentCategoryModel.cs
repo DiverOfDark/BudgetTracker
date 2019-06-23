@@ -52,6 +52,6 @@ namespace BudgetTracker.Model
             set => UpdateProperty(() => _entity.Kind, (int) value);
         }
 
-        public IEnumerable<PaymentModel> Payments => Multiple<PaymentModel>(v => v.CategoryId);
+        public IEnumerable<PaymentModel> Payments => Multiple<PaymentModel>(() => v => v.CategoryId);
     }
 }

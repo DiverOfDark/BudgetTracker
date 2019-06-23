@@ -38,6 +38,6 @@ namespace BudgetTracker.Model
         public string RegexSender => _entity.RegexSender;
         public string RegexText => _entity.RegexText;
         
-        public IEnumerable<SmsModel> Smses => Multiple<SmsModel>(x => x.AppliedRuleId);
+        public IEnumerable<SmsModel> Smses => Multiple<SmsModel>(() => x => x.AppliedRuleId);
     }
 }

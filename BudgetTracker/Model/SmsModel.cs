@@ -58,6 +58,6 @@ namespace BudgetTracker.Model
 
         public DateTime When => _entity.When;
         
-        public IEnumerable<PaymentModel> Payments => Multiple<PaymentModel>(v => v.SmsId);
+        public IEnumerable<PaymentModel> Payments => Multiple<PaymentModel>(() => v => v.SmsId);
     }
 }
