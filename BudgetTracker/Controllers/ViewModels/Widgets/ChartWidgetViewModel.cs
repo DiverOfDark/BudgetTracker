@@ -83,9 +83,11 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             var names = chartItems.Select(v => v.Name).Distinct().ToList();
             Dates = chartItems.Select(v => v.When).Distinct().ToList();
 
+            var ci = chartItems.GroupBy(v => v.Name).ToDictionary(v => v.Key, v => v.ToDictionary(s => s.When, s => s));
+
             Values = names
                 .SelectMany(name => Dates.Select(date => (name, date)))
-                .Select(s => (s.name, s.date, chartItems.FirstOrDefault(v => v.Name == s.name && v.When == s.date)))
+                .Select(s => (s.name, s.date, ci.GetValueOrDefault(s.name)?.GetValueOrDefault(s.date)))
                 .GroupBy(v => v.name)
                 .ToDictionary(v => v.Key, v => v.Select(s => s.Item3).Where(s => s != null).ToList());
         }

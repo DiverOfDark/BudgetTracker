@@ -15,7 +15,11 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         public TableRowViewModel(IList<MoneyStateModel> item, List<MoneyColumnMetadataJsModel> headers, Dictionary<string, MoneyColumnMetadataJsModel> headersCached, Dictionary<MoneyColumnMetadataJsModel, Dictionary<DateTime, double>> paymentsToExempt)
         {
             When = item.Select(v => v.When).Max();
-            Cells = new List<CalculatedResult>(); 
+            Cells = new List<CalculatedResult>();
+
+            var grouped = item.GroupBy(v => v.Provider).ToDictionary(v => v.Key,
+                v => v.GroupBy(t => t.AccountName)
+                    .ToDictionary(s => s.Key, s => s.OrderByDescending(t => t.When).First()));
             
             CalculatedCells = new Dictionary<MoneyColumnMetadataJsModel, CalculatedResult>();
             foreach (var h in headers)
@@ -27,7 +31,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                 }
                 else
                 {
-                    var money = item.Where(v => v.Provider == h.Provider && v.AccountName == h.AccountName).OrderByDescending(v=>v.When).FirstOrDefault();
+                    var money = grouped.GetValueOrDefault(h.Provider)?.GetValueOrDefault(h.AccountName);
                     if (money != null)
                     {
                         var adj = paymentsToExempt.GetValueOrDefault(h)?.GetValueOrDefault(money.When.Date.AddDays(-1)) ?? 0;
