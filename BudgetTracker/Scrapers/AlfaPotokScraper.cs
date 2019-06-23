@@ -36,11 +36,15 @@ namespace BudgetTracker.Scrapers
             chrome.SendKeys(configuration.Password);
             chrome.SendKeys(Keys.Return);
 
-            var modal = GetElement(driver, By.ClassName("modal-content"));
-            if (modal != null)
-            {
-                var closeBtn = modal.FindElement(By.TagName("button"));
-                closeBtn.Click();
+            try {
+                var modal = GetElement(driver, By.ClassName("modal-content"));
+                if (modal != null)
+                {
+                    var closeBtn = modal.FindElement(By.TagName("button"));
+                    closeBtn.Click();
+                }
+            } catch (Exception ex) {
+                Logger.LogWarning(ex, "Failed to close modal");
             }
 
             var result = new List<MoneyStateModel>();
