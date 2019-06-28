@@ -20,6 +20,7 @@ namespace BudgetTracker.Model
         }
         
         private readonly MoneyStateEntity _entity;
+        private MoneyColumnMetadataModel _lastColumn;
 
         public MoneyStateModel(MoneyStateEntity entity)
         {
@@ -51,8 +52,12 @@ namespace BudgetTracker.Model
         
         public MoneyColumnMetadataModel Column
         {
-            get => Single<MoneyColumnMetadataModel>(_entity.ColumnId);
-            set => UpdateProperty(() => _entity.ColumnId, value.Id);
+            get => ObjectRepository == null ? _lastColumn : Single<MoneyColumnMetadataModel>(_entity.ColumnId);
+            set
+            {
+                _lastColumn = value;
+                UpdateProperty(() => _entity.ColumnId, value.Id); 
+            }
         }
 
         public double Amount
