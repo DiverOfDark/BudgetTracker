@@ -14,7 +14,9 @@ namespace BudgetTracker.Controllers.ViewModels.Table
     {
         public TableRowViewModel(IList<MoneyStateModel> item, List<MoneyColumnMetadataJsModel> headers, Dictionary<string, MoneyColumnMetadataJsModel> headersCached, Dictionary<MoneyColumnMetadataJsModel, Dictionary<DateTime, double>> paymentsToExempt)
         {
-            When = item.Select(v => v.When).Max();
+            var minDate = item.Select(v => v.When).Min();
+            var maxDate = item.Select(v => v.When).Max();
+            When = minDate.AddSeconds((maxDate - minDate).TotalSeconds / 2);
             Cells = new List<CalculatedResult>();
 
             var grouped = item.GroupBy(v => v.Column).ToDictionary(v => v.Key,
