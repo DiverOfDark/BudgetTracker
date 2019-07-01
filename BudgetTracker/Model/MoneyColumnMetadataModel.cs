@@ -11,7 +11,8 @@ namespace BudgetTracker.Model
     {
         public static IEnumerable<MoneyColumnMetadataModel> SortColumns(this IEnumerable<MoneyColumnMetadataModel> self)
         {
-            return self.OrderByDescending(v=>v.IsComputed).ThenBy(v => v.Provider).ThenBy(v => v.Order).ThenBy(v => v.AccountName);
+            return self.OrderByDescending(v => v.IsComputed).ThenBy(v => v.Provider).ThenBy(v => v.Order)
+                .ThenBy(v => v.AccountName);
         }
     }
 
@@ -57,19 +58,19 @@ namespace BudgetTracker.Model
         public string UserFriendlyName
         {
             get => _entity.UserFriendlyName;
-            set => UpdateProperty(() => _entity.UserFriendlyName, value);
+            set => UpdateProperty(() => () => _entity.UserFriendlyName, value);
         }
 
         public bool AutogenerateStatements
         {
             get => _entity.AutogenerateStatements;
-            set => UpdateProperty(() => _entity.AutogenerateStatements, value);
+            set => UpdateProperty(() => () => _entity.AutogenerateStatements, value);
         }
 
         public int Order
         {
             get => _entity.Order;
-            set => UpdateProperty(() => _entity.Order, value);
+            set => UpdateProperty(() => () => _entity.Order, value);
         }
 
         public bool IsComputed => Provider == ComputedProdiver;
@@ -77,7 +78,7 @@ namespace BudgetTracker.Model
         public string Function
         {
             get => _entity.Function;
-            set => UpdateProperty(() => _entity.Function, value);
+            set => UpdateProperty(() => () => _entity.Function, value);
         }
 
         public IEnumerable<string> ChartList

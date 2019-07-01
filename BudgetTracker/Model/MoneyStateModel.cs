@@ -45,8 +45,8 @@ namespace BudgetTracker.Model
             {
                 Column = ObjectRepository.Set<MoneyColumnMetadataModel>().First(v =>
                     v.Provider == _entity.Provider && v.AccountName == _entity.AccountName);
-                UpdateProperty(() => _entity.Provider, null);
-                UpdateProperty(() => _entity.AccountName, null);
+                UpdateProperty<string>(() => () => _entity.Provider, null);
+                UpdateProperty<string>(() => () => _entity.AccountName, null);
             }
         }
         
@@ -56,26 +56,26 @@ namespace BudgetTracker.Model
             set
             {
                 _lastColumn = value;
-                UpdateProperty(() => _entity.ColumnId, value.Id); 
+                UpdateProperty(() => () => _entity.ColumnId, (Guid?)value.Id); 
             }
         }
 
         public double Amount
         {
             get => _entity.Amount;
-            set => UpdateProperty(() => _entity.Amount, value);
+            set => UpdateProperty(() => () => _entity.Amount, value);
         }
 
         public string Ccy
         {
             get => _entity.Ccy;
-            set => UpdateProperty(() => _entity.Ccy, CurrencyExtensions.NormalizeCcy(value));
+            set => UpdateProperty(() => () => _entity.Ccy, CurrencyExtensions.NormalizeCcy(value));
         }
 
         public DateTime When
         {
             get => _entity.When;
-            set => UpdateProperty(() => _entity.When, value);
+            set => UpdateProperty(() => () => _entity.When, value);
         }
 
         public override string ToString() => $"@{When.ToShortDateString()}: {Column.Provider}/{Column.UserFriendlyName}: {Amount} {Ccy}";

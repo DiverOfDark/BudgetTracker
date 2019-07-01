@@ -53,13 +53,13 @@ namespace BudgetTracker.Model
         public int Order
         {
             get => _entity.Order;
-            set => UpdateProperty(() => _entity.Order, value);
+            set => UpdateProperty(() => () => _entity.Order, value);
         }
 
         public string Title
         {
             get => _entity.Title;
-            set => UpdateProperty(() => _entity.Title, value);
+            set => UpdateProperty(() => () => _entity.Title, value);
         }
 
         public ReadOnlyDictionary<string, string> Properties
@@ -76,16 +76,13 @@ namespace BudgetTracker.Model
                     return new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
                 }             
             }
+            set { UpdateProperty(() => () => _entity.Properties, JsonConvert.SerializeObject(value)); }
         }
 
         public WidgetKind Kind
         {
             get => (WidgetKind) _entity.WidgetKind;
-            set => UpdateProperty(() => _entity.WidgetKind, (int)value);
+            set => UpdateProperty(() => () => _entity.WidgetKind, (int)value);
         }
-
-        public void SetProperties(Dictionary<string, string> properties) =>
-            UpdateProperty(() => _entity.Properties, JsonConvert.SerializeObject(properties));
-
     }
 }

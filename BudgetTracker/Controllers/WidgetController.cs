@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using BudgetTracker.Controllers.ViewModels;
 using BudgetTracker.Controllers.ViewModels.Table;
@@ -65,7 +67,7 @@ namespace BudgetTracker.Controllers
             
             existingModel.Kind = editWidgetViewModel.Kind;
             existingModel.Title = editWidgetViewModel.Title;
-            existingModel.SetProperties(editWidgetViewModel.Properties);
+            existingModel.Properties = new ReadOnlyDictionary<string, string>(editWidgetViewModel.Properties);
             
             return View(editWidgetViewModel);
         }

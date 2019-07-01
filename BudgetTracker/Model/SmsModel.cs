@@ -41,19 +41,19 @@ namespace BudgetTracker.Model
         public RuleModel AppliedRule
         {
             get => Single<RuleModel>(_entity.AppliedRule);
-            set => UpdateProperty(() => _entity.AppliedRule, value?.Id);
+            set => UpdateProperty(() => () => _entity.AppliedRule, value?.Id);
         }
 
         public string From
         {
             get => _entity.From;
-            set => UpdateProperty(() => _entity.From, value);
+            set => UpdateProperty(() => () => _entity.From, value);
         }
 
         public string Message
         {
             get => _entity.Message;
-            set => UpdateProperty(() => _entity.Message, value);
+            set => UpdateProperty(() => () => _entity.Message, value);
         }
 
         public DateTime When => _entity.When;

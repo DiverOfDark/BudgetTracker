@@ -14,12 +14,12 @@ namespace BudgetTracker.Model
         public class ScraperConfigurationEntity : BaseEntity
         {
             public string ScraperName { get; set; }
-            
+
             public string Login { get; set; }
             public string Password { get; set; }
-            
+
             public string Properties { get; set; }
-            
+
             public DateTime LastSuccessfulBalanceScraping { get; set; }
             public DateTime LastSuccessfulStatementScraping { get; set; }
         }
@@ -41,7 +41,7 @@ namespace BudgetTracker.Model
         protected override BaseEntity Entity => _entity;
 
         public string ScraperName => _entity.ScraperName;
-        
+
         public ReadOnlyDictionary<string, string> Properties
         {
             get
@@ -54,35 +54,35 @@ namespace BudgetTracker.Model
                 catch
                 {
                     return new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
-                }             
+                }
             }
         }
-        
+
         public void SetProperties(Dictionary<string, string> properties) =>
-            UpdateProperty(() => _entity.Properties, JsonConvert.SerializeObject(properties));
+            UpdateProperty(() => () => _entity.Properties, JsonConvert.SerializeObject(properties));
 
         public string Login
         {
             get => _entity.Login;
-            set => UpdateProperty(() => _entity.Login, value);
+            set => UpdateProperty(() => () => _entity.Login, value);
         }
-        
+
         public string Password
         {
             get => _entity.Password;
-            set => UpdateProperty(() => _entity.Password, value);
+            set => UpdateProperty(() => () => _entity.Password, value);
         }
 
         public DateTime LastSuccessfulBalanceScraping
         {
             get => _entity.LastSuccessfulBalanceScraping;
-            set => UpdateProperty(()=>_entity.LastSuccessfulBalanceScraping, value);
+            set => UpdateProperty(() => () => _entity.LastSuccessfulBalanceScraping, value);
         }
 
         public DateTime LastSuccessfulStatementScraping
         {
             get => _entity.LastSuccessfulStatementScraping;
-            set => UpdateProperty(()=>_entity.LastSuccessfulStatementScraping, value);
+            set => UpdateProperty(() => () => _entity.LastSuccessfulStatementScraping, value);
         }
     }
 }
