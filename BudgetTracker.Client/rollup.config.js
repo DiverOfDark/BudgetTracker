@@ -3,7 +3,7 @@ import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
-import { preprocess, createEnv, readConfigFile } from "svelte-ts-preprocess";
+import { preprocess, createEnv, readConfigFile } from "@pyoner/svelte-ts-preprocess";
 import typescript from "rollup-plugin-typescript2";
 
 const production = !process.env.ROLLUP_WATCH;
@@ -19,7 +19,7 @@ const opts = {
 };
 
 export default {
-	input: 'src/main.ts',
+	input: 'src/main.js',
 	output: {
 		sourcemap: true,
 		format: 'iife',

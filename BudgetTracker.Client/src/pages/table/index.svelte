@@ -68,7 +68,7 @@
 								{#each vm.headers as p}
 									<th title="{p.accountName}">
 										{p.userFriendlyName}
-										<a href="/Chart?provider={p.provider}&account={p.accountName}{p.userFriendlyName}">
+										<a href="/Table/Chart?provider={p.provider}&account={p.accountName || ''}{p.userFriendlyName || ''}">
 											<span class="fe fe-trending-up"></span>
 										</a>
 										{#if showControls}
