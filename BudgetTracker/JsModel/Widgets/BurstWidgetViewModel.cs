@@ -4,6 +4,7 @@ using BudgetTracker.Controllers.ViewModels.Table;
 using BudgetTracker.JsModel;
 using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BudgetTracker.Controllers.ViewModels.Widgets
 {
@@ -77,7 +78,6 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             };
         }
 
-        public override string TemplateName => WidgetExtensions.AsPath("~/Views/Widget/Widgets/BurstWidget.cshtml");
         public override int Columns => 12;
         public override int Rows => 4;
 

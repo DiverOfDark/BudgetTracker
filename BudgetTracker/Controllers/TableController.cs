@@ -14,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BudgetTracker.Controllers
 {
-    [Authorize]
+    [Authorize, AjaxOnlyActions]
     public class TableController : Controller
     {
         public const string BadOption = nameof(BadOption);
@@ -73,20 +73,20 @@ namespace BudgetTracker.Controllers
             return new TableJsModel(vm, provider2, providers);
         }
 
-        public IActionResult Chart(string provider, string account, bool exemptTransfers = false)
+        public ChartWidgetViewModel Chart(string provider, string account, bool exemptTransfers = false)
         {
             var table = HttpContext.RequestServices.GetRequiredService<TableViewModelFactory>();
             var vm = new ChartWidgetViewModel(provider, account, ChartKind.Linear, table.GetVM(), exemptTransfers);
 
-            return View(vm);
+            return vm;
         }
 
-        public IActionResult Burst(string provider, string account, bool exemptTransfers = false)
+        public BurstWidgetViewModel Burst(string provider, string account, bool exemptTransfers = false)
         {
             var table = HttpContext.RequestServices.GetRequiredService<TableViewModelFactory>();
             var vm = new BurstWidgetViewModel(provider, account, table.GetVM(), exemptTransfers);
 
-            return View(vm);
+            return vm;
         }
 
         public OkResult DeleteMoney(Guid id)

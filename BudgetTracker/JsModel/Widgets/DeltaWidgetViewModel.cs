@@ -72,7 +72,6 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         }
 
         public DeltaWidgetSettings DeltaWidgetSettings { get; set; }
-        public override string TemplateName => WidgetExtensions.AsPath("~/Views/Widget/Widgets/DeltaWidget.cshtml");
         public override int Columns => 4;
         public bool IncompleteData { get; private set; }
         

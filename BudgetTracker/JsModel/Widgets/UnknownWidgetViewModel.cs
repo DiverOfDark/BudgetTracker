@@ -8,8 +8,6 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         {
         }
 
-        public override string TemplateName => WidgetExtensions.AsPath("~/Views/Widget/Widgets/UnknownWidget.cshtml");
-
         public override int Columns => 3;
     }
 }

@@ -12,43 +12,35 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BudgetTracker.Controllers
 {
-    [Authorize]
+    [Authorize, AjaxOnlyActions]
     public class WidgetController : Controller
     {
         private readonly ObjectRepository _objectRepository;
 
         public WidgetController(ObjectRepository objectRepository) => _objectRepository = objectRepository;
 
-        public IActionResult Index(bool? showButtons, int? period = 0)
+        public DashboardViewModel Index(int? period = 0)
         {
-            var showButtons2 = this.TryGetLastValue(showButtons, nameof(WidgetController) + nameof(showButtons)) ?? false;
             var period2 = this.TryGetLastValue(period, nameof(WidgetController) + nameof(period)) ?? 1;
             
-            return View(new DashboardViewModel(_objectRepository, showButtons2, period2, HttpContext.RequestServices.GetRequiredService<TableViewModelFactory>()));
+            return new DashboardViewModel(_objectRepository, period2, HttpContext.RequestServices.GetRequiredService<TableViewModelFactory>());
         }
 
-        public IActionResult Error(int statusCode = 0) => View(statusCode);
-
-        public IActionResult DeleteWidget(Guid id)
+        public OkResult DeleteWidget(Guid id)
         {
             _objectRepository.Remove<WidgetModel>(v=>v.Id == id);
-            return RedirectToAction(nameof(Index));
-        }
-
-        public IActionResult AddWidget()
-        {
-            return View("EditWidget", new EditWidgetViewModel());
+            return Ok();
         }
 
         [HttpGet]
-        public IActionResult EditWidget(Guid id)
+        public EditWidgetViewModel EditWidget(Guid id)
         {
             var widget = _objectRepository.Set<WidgetModel>().First(v => v.Id == id);
-            return View(new EditWidgetViewModel(widget));
+            return new EditWidgetViewModel(widget);
         }
 
         [HttpPost]
-        public IActionResult EditWidget(EditWidgetViewModel editWidgetViewModel)
+        public OkResult EditWidget(EditWidgetViewModel editWidgetViewModel)
         {
             WidgetModel existingModel;
 
@@ -69,10 +61,10 @@ namespace BudgetTracker.Controllers
             existingModel.Title = editWidgetViewModel.Title;
             existingModel.Properties = new ReadOnlyDictionary<string, string>(editWidgetViewModel.Properties);
             
-            return View(editWidgetViewModel);
+            return Ok();
         }
 
-        public IActionResult MoveWidgetLeft(Guid id)
+        public OkResult MoveWidgetLeft(Guid id)
         {
             var widgets = _objectRepository.Set<WidgetModel>().OrderBy(v=>v.Order).ToList();
             var matchingWidget = widgets.First(v => v.Id == id);
@@ -87,10 +79,10 @@ namespace BudgetTracker.Controllers
                 w.Order = widgets.IndexOf(w);
             }
 
-            return RedirectToAction(nameof(Index));
+            return Ok();
         }
 
-        public IActionResult MoveWidgetRight(Guid id)
+        public OkResult MoveWidgetRight(Guid id)
         {
             var widgets = _objectRepository.Set<WidgetModel>().OrderBy(v=>v.Order).ToList();
             var matchingWidget = widgets.First(v => v.Id == id);
@@ -104,8 +96,8 @@ namespace BudgetTracker.Controllers
             {
                 w.Order = widgets.IndexOf(w);
             }
-            
-            return RedirectToAction(nameof(Index));
+
+            return Ok();
         }
     }
 }

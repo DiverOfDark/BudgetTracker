@@ -23,7 +23,6 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 
         public IEnumerable<PaymentViewModel> Payments { get; }
 
-        public override string TemplateName => WidgetExtensions.AsPath("~/Views/Widget/Widgets/ExpensesWidget.cshtml");
         public override int Columns => 8;
         public override int Rows => 2;
         public int Period { get; set; }

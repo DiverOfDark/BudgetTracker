@@ -1,26 +1,21 @@
 export class RestCache {
-  cache: any;
-
-  memoize(method: any) : any {
-    let func = async function(this: any) {
-      let args = JSON.stringify(arguments);
-
-      window.rest.cache = window.rest.cache || {};
-      window.rest.cache[args] = window.rest.cache[args] || method.apply(this, arguments);
-
-      return window.rest.cache[args];
-    };
-
-    return func;
-  }
+  cache: any = {};
 
   cachedQuery(uri: string, method: string, hasResponse: boolean, shouldDeserialize: boolean) : Promise<any> {
-    return window.rest.memoize(window.rest.query)(uri, method, hasResponse, shouldDeserialize);
+    let self = this;
+    let func = async function(uri: string, method: string, hasResponse: boolean, shouldDeserialize: boolean) {
+      let args = JSON.stringify(arguments);
+
+      self.cache[args] = self.cache[args] || self.query(uri, method, hasResponse, shouldDeserialize);
+
+      return self.cache[args];
+    };
+
+    return func(uri, method, hasResponse, shouldDeserialize);
   }
 
   async query(uri: string, method: string, hasResponse: boolean, shouldDeserialize: boolean) : Promise<any> {
     let fetched: Response;
-
     if (!method) {
       method = "GET";
     }
@@ -36,8 +31,6 @@ export class RestCache {
   }
 };
 
-declare global {
-  interface Window { rest: RestCache; }
-}
+const Instance = new RestCache();
 
-window.rest = window.rest || new RestCache()
+export default Instance;

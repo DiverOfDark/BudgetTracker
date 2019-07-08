@@ -16,8 +16,6 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 
         public string Detailed => _exception?.ToString();
 
-        public override string TemplateName => WidgetExtensions.AsPath("~/Views/Widget/Widgets/ExceptionWidget.cshtml");
-
         public override int Columns => 4;
     }
 }

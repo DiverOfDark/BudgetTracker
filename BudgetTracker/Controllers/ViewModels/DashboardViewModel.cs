@@ -14,12 +14,10 @@ namespace BudgetTracker.Controllers.ViewModels
         private readonly ObjectRepository _objectRepository;
         private readonly TableViewModelFactory _vm;
 
-        public DashboardViewModel(ObjectRepository objectRepository, bool showButtons, int? period,
-            TableViewModelFactory vm)
+        public DashboardViewModel(ObjectRepository objectRepository, int? period, TableViewModelFactory vm)
         {
             _objectRepository = objectRepository;
             _vm = vm;
-            ShowButtons = showButtons;
             Period = period;
             
             var widgetViewModels = CreateWidgetViewModels();

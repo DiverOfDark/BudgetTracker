@@ -28,7 +28,7 @@
 		<Nav />
 		<div class="page-content">
             <Router>
-                <Route path="*" component={NotFound} />
+                <Route path="/" component={WidgetIndex} />
                 <Route path="/Table" component={TableIndex} />
                 <Route path="/Metadata" component={MetadataIndex} />
                 <Route path="/Metadata/Edit" component={MetadataEdit} />
@@ -48,6 +48,7 @@
                 <Route path="/Utility/Tasks" component={UtilityTasks} />
                 <Route path="/Utility/ScriptConsole" component={UtilityScriptConsole} />
                 <Route path="/Utility/Screenshot" component={UtilityScreenshot} />
+                <Route path="*" component={NotFound} />
             </Router>
 		</div>
 	</div>

@@ -160,7 +160,6 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             return value.ToString();
         }
 
-        public override String TemplateName => WidgetExtensions.AsPath("~/Views/Widget/Widgets/LastValueWidget.cshtml");
         public override int Columns => IsCompact ? 2 : 4;
 
         public GraphKind GraphKind => _settings.GraphKind;

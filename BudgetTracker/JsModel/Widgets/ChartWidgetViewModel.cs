@@ -95,7 +95,6 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         public List<DateTime> Dates { get; set; }
         public Dictionary<string, List<ChartItem>> Values { get; set; }
 
-        public override string TemplateName => WidgetExtensions.AsPath("~/Views/Widget/Widgets/ChartWidget.cshtml");
         public override int Columns => 4;
         public override int Rows => 2;
     }
