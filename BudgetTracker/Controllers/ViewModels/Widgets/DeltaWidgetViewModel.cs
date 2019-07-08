@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BudgetTracker.Controllers.ViewModels.Table;
 using BudgetTracker.JsModel;
+using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels.Widgets
@@ -61,7 +62,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 
                 if (dT != null && !double.IsNaN(dT.Value) && !double.IsInfinity(dT.Value))
                 {
-                    Deltas.Add((name, dT.Value));
+                    Deltas.Add(new Pair{ Name = name, Value = dT.Value});
                 }
                 else
                 {
@@ -77,6 +78,13 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         
         public string Ccy { get; private set; }
         
-        public List<(string, double)> Deltas { get; } = new List<(string, double)>(); 
+        public List<Pair> Deltas { get; } = new List<Pair>();
+
+        [ExportJsModel]
+        public class Pair
+        {
+            public string Name { get; set; }
+            public double Value { get; set; }
+        }
     }
 }

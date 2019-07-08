@@ -2,6 +2,7 @@
 using System.Linq;
 using BudgetTracker.Controllers.ViewModels.Table;
 using BudgetTracker.JsModel;
+using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels.Widgets
@@ -80,6 +81,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         public override int Columns => 12;
         public override int Rows => 4;
 
+        [ExportJsModel]
         public class Node
         {
             public string Title { get; set; }

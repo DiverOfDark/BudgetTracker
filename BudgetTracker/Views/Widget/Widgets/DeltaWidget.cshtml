@@ -10,7 +10,7 @@
     <div class="h3 @styleSuffix">
         @foreach (var item in Model.Deltas)
         {
-            var value = Math.Round(item.Item2, 2);
+            var value = Math.Round(item.Value, 2);
 
             var prefix = value > 0 ? "+" : "";
             
@@ -18,7 +18,7 @@
             var direction = value > 0 ? "fe-chevrons-up" : Math.Abs(value) < 0.01 ? "fe-code" : "fe-chevrons-down";  
             
             <div class="text-nowrap">
-                <span class="text-muted-dark">&Delta; @item.Item1: </span>
+                <span class="text-muted-dark">&Delta; @item.Name: </span>
                 <span class="@color">@prefix@value.ToString("N2")</span>&nbsp;<span class="text-muted-dark">@Model.Ccy</span>
                 <span class="fe @color fe @direction"></span>
             </div>

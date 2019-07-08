@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using BudgetTracker.Controllers.ViewModels.Table;
 using BudgetTracker.Controllers.ViewModels.Widgets;
+using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels
 {
+    [ExportJsModel]
     public class DashboardViewModel
     {
         private readonly ObjectRepository _objectRepository;
@@ -140,6 +142,7 @@ namespace BudgetTracker.Controllers.ViewModels
         }
     }
 
+    [ExportJsModel]
     public class BootstrapColumnViewModel
     {
         public int Columns { get; set; }

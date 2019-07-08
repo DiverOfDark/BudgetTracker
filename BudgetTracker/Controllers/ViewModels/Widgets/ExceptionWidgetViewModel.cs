@@ -5,12 +5,16 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 {
     public class ExceptionWidgetViewModel : WidgetViewModel
     {
+        private readonly Exception _exception;
+
         public ExceptionWidgetViewModel(WidgetModel model, Exception ex) : base(model, null)
         {
-            Exception = ex;
+            _exception = ex;
         }
-        
-        public Exception Exception { get; }
+
+        public string Message => _exception?.Message;
+
+        public string Detailed => _exception?.ToString();
 
         public override string TemplateName => WidgetExtensions.AsPath("~/Views/Widget/Widgets/ExceptionWidget.cshtml");
 
