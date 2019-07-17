@@ -14,6 +14,7 @@
   import PaymentEdit from './pages/payment/editPayment.svelte';
   import PaymentCategory from './pages/payment/spentCategories.svelte';
   import PaymentCategoryEdit from './pages/payment/editCategory.svelte';
+  import WidgetIndex from './pages/widget/index.svelte'
   import Debt from './pages/debt/index.svelte';
   import DebtAdd from './pages/debt/add.svelte';
   import Settings from './pages/Settings.svelte';

@@ -16,6 +16,8 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         {
             _model = model;
         }
+
+        public String Kind => GetType().Name;
         
         protected string GetPropertyFromModel([CallerMemberName] string propertyName = null)
         {

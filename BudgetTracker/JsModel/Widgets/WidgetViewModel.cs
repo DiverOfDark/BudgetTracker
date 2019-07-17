@@ -27,7 +27,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             return argWhen.AddMonths(period.Value) > DateTime.Now;
         }
 
-        protected WidgetSettings Settings { get; }
+        public WidgetSettings Settings { get; }
 
         public string Title { get; protected set; }
         public Guid? Id {get; protected set; }
