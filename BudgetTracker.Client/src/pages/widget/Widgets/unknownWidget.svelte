@@ -1,6 +1,3 @@
-@using Controllers.ViewModels.Widgets
-@model UnknownWidgetViewModel
-
 <div class="card-body">
     <div class="row">
         <div class="col-12">

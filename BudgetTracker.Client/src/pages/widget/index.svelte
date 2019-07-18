@@ -3,7 +3,8 @@
 </svelte:head>
 
 <script lang="ts">
-    import { WidgetController } from '../../generated-types';
+    import { WidgetController, WidgetJsViewModel } from '../../generated-types';
+    import unknownWidget from './Widgets/unknownWidget.svelte';
 
     let showButtons = false;
     let period = 0;
@@ -13,29 +14,37 @@
         return month + " месяцев";
     }
 
-    let loadData = async (month:number) => {
-        period = month;
-        model = await WidgetController.index(month);
+    let loadData = async () => {
+        model = await WidgetController.index(period);
     }
 
     let createWidget = function() {
-
+        // TODO;
     }
 
-    let editWidget = function() {
-
-    }
-    
-    let deleteWidget = function() {
-        
-    }
-
-    let moveLeft = function() {
-        
+    let editWidget = async function(id: string) {
+        id; // TODO
     }
     
-    let moveRight = function() {
-        
+    let deleteWidget = async function(id: string) {
+        await WidgetController.deleteWidget(id);
+        await loadData();
+    }
+
+    let moveLeft = async function(id: string) {
+        await WidgetController.moveWidgetLeft(id);
+        await loadData();
+    }
+    
+    let moveRight = async function(id: string) {
+        await WidgetController.moveWidgetRight(id);
+        await loadData();
+    }
+
+    let createComponent = function(widget: WidgetJsViewModel):any {
+        widget;
+        // TODO 
+        return unknownWidget;
     }
     
     let model;
@@ -43,10 +52,10 @@
     
     $: periodFriendly = format(period);
 
-    loadData(0);
+    loadData();
 
     // used implicitly
-    showButtons; period; moveLeft; moveRight; deleteWidget; createWidget; editWidget; model; periodFriendly;
+    showButtons; period; moveLeft; moveRight; deleteWidget; createWidget; editWidget; model; periodFriendly; createComponent;
 </script>
 
 <div class="container">
@@ -79,7 +88,7 @@
     <div class="row card-columns">
         {#each model.widgets as column}
         <div class="col-lg-{column.columns} col-md-{Math.min(column.columns * 2, 12)} col-sm-12">
-            {#each column.rows as widget}
+            {#each column.rows as widget, idx2 (widget.id)}
                 <div class="card">
                     {#if showButtons}
                         <div class="card-header">
@@ -98,10 +107,7 @@
                         </div>
                     {/if}
                     <div style="height: {widget.rows * 12 * 14 + (widget.rows - 1) * 12 * 2}px">
-                        {widget.settings.kind}
-<!--
-                        @{ await Html.RenderPartialAsync(widget.TemplateName, widget); }
-    -->
+                        <svelte:component this={createComponent(widget)} />
                     </div>
 
                     {#if showButtons}

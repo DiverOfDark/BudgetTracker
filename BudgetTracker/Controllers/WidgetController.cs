@@ -26,6 +26,7 @@ namespace BudgetTracker.Controllers
             return new DashboardViewModel(_objectRepository, period2, HttpContext.RequestServices.GetRequiredService<TableViewModelFactory>());
         }
 
+        [HttpPost]
         public OkResult DeleteWidget(Guid id)
         {
             _objectRepository.Remove<WidgetModel>(v=>v.Id == id);
@@ -64,6 +65,7 @@ namespace BudgetTracker.Controllers
             return Ok();
         }
 
+        [HttpPost]
         public OkResult MoveWidgetLeft(Guid id)
         {
             var widgets = _objectRepository.Set<WidgetModel>().OrderBy(v=>v.Order).ToList();
@@ -82,6 +84,7 @@ namespace BudgetTracker.Controllers
             return Ok();
         }
 
+        [HttpPost]
         public OkResult MoveWidgetRight(Guid id)
         {
             var widgets = _objectRepository.Set<WidgetModel>().OrderBy(v=>v.Order).ToList();

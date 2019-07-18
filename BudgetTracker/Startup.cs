@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -235,15 +236,14 @@ namespace BudgetTracker
             app.UseHangfireServer();
 
             app.UseMvc(routes => routes.MapRoute(
-                    name: "not_so_default",
-                    template: "{controller=Widget}/{action=Index}")
-                .MapRoute(name: "default",
-                    template: "Error",
-                    defaults: new
-                    {
-                        controller = "System",
-                        action = "Svelte"
-                    }));
+                name: "not_so_default",
+                template: "{controller}/{action}")
+            );
+
+            app.Use(async (a, b) =>
+            {
+                await a.Response.WriteAsync(File.ReadAllText("wwwroot/index.html"));
+            });
 
             RegisterJobs(app.ApplicationServices);
 

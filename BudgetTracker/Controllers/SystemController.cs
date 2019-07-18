@@ -25,8 +25,5 @@ namespace BudgetTracker.Controllers
         {
             return await SystemInfo.Create(_updateService, _objectRepository);
         } 
-        
-        [HideFromRest]
-        public ActionResult Svelte() => View("Svelte");
     }
 }
