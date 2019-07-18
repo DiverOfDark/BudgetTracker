@@ -1,18 +1,14 @@
-Exception!
-<!--
-@using System.Globalization
-@using Controllers.ViewModels.Widgets
-@model ExceptionWidgetViewModel
+<script>
+    export let model;
+</script>
 
 <div class="card-status bg-red"></div>
 <div class="card-body bg-red-lighter" style="height:168px">
-    @if (Model.Detailed != null)
-    {
-        <div class="m-0" title="@Model.Detailed">
+    {#if (model.detailed != null)}
+        <div class="m-0" title="{model.detailed}">
             <b>Ошибка:</b>
             <br/>
-            <i>@Model.Message</i>
+            <i>{model.message}</i>
         </div>
-    }
+    {/if}
 </div>
--->

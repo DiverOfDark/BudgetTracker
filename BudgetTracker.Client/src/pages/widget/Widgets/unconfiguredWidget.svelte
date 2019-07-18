@@ -1,9 +1,3 @@
-Unconfigured!
-<!--
-
-@using Controllers.ViewModels.Widgets
-@model UnconfiguredWidgetViewModel
-
 <div class="card-body">
     <div class="row">
         <div class="col-12">
@@ -11,5 +5,3 @@ Unconfigured!
         </div>
     </div>
 </div>
-
--->
