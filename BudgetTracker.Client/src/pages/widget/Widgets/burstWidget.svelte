@@ -1,3 +1,5 @@
+Burst!!!
+<!--
 @using System.Globalization
 @using Controllers.ViewModels.Widgets
 @model BurstWidgetViewModel
@@ -178,3 +180,4 @@
         })();
     </script>
 }
+-->

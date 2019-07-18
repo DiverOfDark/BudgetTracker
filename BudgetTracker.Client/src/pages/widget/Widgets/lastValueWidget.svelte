@@ -1,3 +1,5 @@
+TODO: last value widget
+<!--
 @using System.Globalization
 @using Controllers.ViewModels.Widgets
 @model LastValueWidgetViewModel
@@ -185,3 +187,4 @@ else
 		})();
 	</script>
 }
+-->

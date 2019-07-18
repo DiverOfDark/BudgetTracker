@@ -3,16 +3,18 @@
 </svelte:head>
 
 <script lang="ts">
-    import { WidgetController, WidgetJsViewModel } from '../../generated-types';
+    import { WidgetController, WidgetViewModel } from '../../generated-types';
+    import burstWidget from './Widgets/burstWidget.svelte';
+    import chartWidget from './Widgets/chartWidget.svelte';
+    import deltaWidget from './Widgets/deltaWidget.svelte';
+    import exceptionWidget from './Widgets/exceptionWidget.svelte';
+    import expensesWidget from './Widgets/expensesWidget.svelte';
+    import lastValueWidget from './Widgets/lastValueWidget.svelte';
+    import unconfiguredWidget from './Widgets/unconfiguredWidget.svelte';
     import unknownWidget from './Widgets/unknownWidget.svelte';
 
     let showButtons = false;
     let period = 0;
-
-    let format = (month:number) => {
-        if (month == 0) return "всё время";
-        return month + " месяцев";
-    }
 
     let loadData = async () => {
         model = await WidgetController.index(period);
@@ -41,16 +43,35 @@
         await loadData();
     }
 
-    let createComponent = function(widget: WidgetJsViewModel):any {
-        widget;
-        // TODO 
-        return unknownWidget;
+    let createComponent = function(widget: WidgetViewModel):any {
+        switch(widget.kind) {
+            case "LastValueWidgetViewModel":
+                return lastValueWidget;
+            case "ExpensesWidgetViewModel":
+                return expensesWidget;
+            case "DeltaWidgetViewModel":
+                return deltaWidget;
+            case "ChartWidgetViewModel":
+                return chartWidget;
+            case "BurstWidgetViewModel":
+                return burstWidget;
+            case "ExceptionWidgetViewModel":
+                return exceptionWidget;
+            case "UnconfiguredWidgetViewModel":
+                return unconfiguredWidget;
+            default:
+                console.log("Unsupported widget kind: " + widget.kind);
+                return unknownWidget;
+        }
     }
     
     let model;
     let periodFriendly;
     
-    $: periodFriendly = format(period);
+    $: {
+        if (period == 0) periodFriendly = "всё время";
+        else periodFriendly = period + " месяцев";
+    }
 
     loadData();
 
@@ -107,7 +128,7 @@
                         </div>
                     {/if}
                     <div style="height: {widget.rows * 12 * 14 + (widget.rows - 1) * 12 * 2}px">
-                        <svelte:component this={createComponent(widget)} />
+                        <svelte:component this={createComponent(widget)} model={widget} />
                     </div>
 
                     {#if showButtons}

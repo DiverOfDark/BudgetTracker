@@ -1,3 +1,5 @@
+Exception!
+<!--
 @using System.Globalization
 @using Controllers.ViewModels.Widgets
 @model ExceptionWidgetViewModel
@@ -13,3 +15,4 @@
         </div>
     }
 </div>
+-->

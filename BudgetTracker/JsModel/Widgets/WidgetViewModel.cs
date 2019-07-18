@@ -1,6 +1,7 @@
 ﻿using System;
 using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
+using JetBrains.Annotations;
 
 namespace BudgetTracker.Controllers.ViewModels.Widgets
 {
@@ -29,8 +30,10 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 
         public WidgetSettings Settings { get; }
 
+        [UsedImplicitly]
+        public string Kind => GetType().Name;
         public string Title { get; protected set; }
-        public Guid? Id {get; protected set; }
+        public Guid? Id {get; }
         public abstract int Columns {get;}
         public virtual int Rows => 1;
     }

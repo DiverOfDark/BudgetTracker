@@ -1,3 +1,6 @@
+Unconfigured!
+<!--
+
 @using Controllers.ViewModels.Widgets
 @model UnconfiguredWidgetViewModel
 
@@ -8,3 +11,5 @@
         </div>
     </div>
 </div>
+
+-->

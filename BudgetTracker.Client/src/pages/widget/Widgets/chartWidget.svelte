@@ -1,3 +1,5 @@
+Chart!
+<!--
 @using System.Globalization
 @using Controllers.ViewModels.Widgets
 @model ChartWidgetViewModel
@@ -148,3 +150,4 @@ else
 		})();
 	</script>
 }
+-->

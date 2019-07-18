@@ -17,8 +17,6 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             _model = model;
         }
 
-        public String Kind => GetType().Name;
-        
         protected string GetPropertyFromModel([CallerMemberName] string propertyName = null)
         {
             _model.TryGetValue(propertyName, out var value);
@@ -38,18 +36,5 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         protected void SetPropertyFromModel(string value, [CallerMemberName] string propertyName = null) => _model[propertyName] = value;
 
         protected void SetEnumPropertyFromModel<T>(T value, [CallerMemberName] string propertyName = null) => SetPropertyFromModel(value.ToString(), propertyName);
-        
-        
-        public IEnumerable<string> GetProviders(ObjectRepository objectRepository) => objectRepository.Set<MoneyColumnMetadataModel>()
-            .Select(v => v.Provider).Distinct()
-            .OrderBy(v => v)
-            .ToList();
-
-        public IEnumerable<string> GetAccounts(ObjectRepository objectRepository, string providerName) => objectRepository.Set<MoneyColumnMetadataModel>()
-            .Where(v => v.Provider == providerName)
-            .Select(v => v.UserFriendlyName)
-            .Distinct()
-            .OrderBy(v => v)
-            .ToList();
     }
 }
