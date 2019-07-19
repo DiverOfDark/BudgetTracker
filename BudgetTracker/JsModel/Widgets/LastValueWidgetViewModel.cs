@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using BudgetTracker.Controllers.ViewModels.Table;
+using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels.Widgets
 {
+    [ExportJsModel]
     public class LastValueWidgetViewModel : WidgetViewModel
     {
         private class PercentageCalculator
@@ -68,6 +70,8 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             }
         }
         
+        protected const string MiddleDash = "—";
+
         private readonly LastValueWidgetSettings _settings;
 
         public LastValueWidgetViewModel(WidgetModel model, ObjectRepository repo, TableViewModelFactory vmf,
@@ -123,6 +127,8 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 
         public double? CurrentValue { get; set; }
 
+        public string CurrentValueFormatted => FormatValue(CurrentValue);
+
         private static (String color, String delta) SetDiffPercenage(double? cell)
         {
             string color, delta;
@@ -147,8 +153,6 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 
             return (color, delta);
         }
-
-        public string FormatDate(DateTime dt) => dt.ToLocalTime().TimeOfDay == TimeSpan.Zero ? dt.ToLocalTime().ToString("d") : dt.ToLocalTime().ToString("g");
 
         public string FormatValue(double? value)
         {

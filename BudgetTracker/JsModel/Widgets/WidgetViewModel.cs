@@ -8,8 +8,6 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
     [ExportJsModel]
     public abstract class WidgetViewModel
     {
-        protected const string MiddleDash = "—";
-        
         private readonly WidgetModel _model;
 
         public WidgetViewModel(WidgetModel model, WidgetSettings settings)

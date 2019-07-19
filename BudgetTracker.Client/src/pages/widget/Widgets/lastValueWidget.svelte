@@ -1,60 +1,88 @@
-TODO: last value widget
-<!--
-@using System.Globalization
-@using Controllers.ViewModels.Widgets
-@model LastValueWidgetViewModel
+<script lang="ts">
+	import { LastValueWidgetViewModel } from './../../../generated-types';
+    import { formatMoney, formatDate } from './../../../services/Shared';
 
-@{
-	var chartId = Guid.NewGuid().ToString("N");
-	var colorSuffix = Model.IncompleteData ? "bg-gray-dark-darkest" : ""; 
+	export let model: LastValueWidgetViewModel = {
+		account: '',
+		color: '',
+		colorYear: '',
+		currentDate: '',
+		currentValue: 0,
+		currentValueFormatted: '',
+		delta: '',
+		deltaYear: '',
+		description: '',
+		exemptTransfers: false,
+		graphKind: '',
+		incompleteData: false,
+		isCompact: false,
+		provider: '',
+		id: '',
+		values: [],
+		columns: 0,
+		kind: '',
+		rows: 0,
+		settings: {},
+		title: ''
+	};
 
-	var hexColor = "#000000";
+	let colorSuffix = "";
+	$: { colorSuffix = model.incompleteData ? "bg-gray-dark-darkest" : ""; }
 
-	var trend = "fe-trending-up";
+	let hexColor = "#000000";
+
+	let trend = "fe-trending-up";
 	
-	switch (Model.ColorYear)
-	{
-		case "red":
-			hexColor = "#e74c3c";
-			trend = "fe-trending-down";
-			break;
-		case "green":
-			hexColor = "#5eba00";
-			break;
-		case "yellow":
-			hexColor = "#f1c40f";
-			trend = "fe-activity";
-			break;
-		case "blue":
-			hexColor = "#467fcf";
-			trend = "fe-trending-down";
-			break;
+	$: {
+		switch (model.colorYear) {
+			case "red":
+				hexColor = "#e74c3c";
+				trend = "fe-trending-down";
+				break;
+			case "green":
+				hexColor = "#5eba00";
+				break;
+			case "yellow":
+				hexColor = "#f1c40f";
+				trend = "fe-activity";
+				break;
+			case "blue":
+				hexColor = "#467fcf";
+				trend = "fe-trending-down";
+				break;
+		}
 	}
-}
 
-@if (Model.IsCompact)
-{
-	<div class="card-body p-3 text-center @colorSuffix" style="height:100%">
+	if (!model.isCompact) {
+
+	}
+
+	hexColor; trend; colorSuffix; formatDate; 
+</script>
+
+{#if model.isCompact}
+	<div class="card-body p-3 text-center {colorSuffix}" style="height:100%">
 		<div class="h1 mt-5">
-			@Model.FormatValue(Model.CurrentValue)
+			{model.currentValueFormatted}
 		</div>
         <div class="text-muted">
-            @Model.Title
-	        <a href="@Url.Action("Chart", "Table", new {provider = Model.Provider, account = Model.Account, exemptTransfers = Model.ExemptTransfers })">
-		        <span class="fe @trend"></span>
+            {model.title}
+	        <a href="/Table/Chart?provider={model.provider}&account={model.account}&exemptTransfers={model.exemptTransfers}">
+		        <span class="fe {trend}"></span>
 	        </a>
-	        <a href="@Url.Action("Burst", "Table", new {provider = Model.Provider, account = Model.Account })">
+	        <a href="/Table/Burst?provider={model.provider}&account={model.account}">
 		        <span class="fe fe-zoom-in"></span>
 	        </a>
             <br/>
             <small>
-                @Model.FormatDate(Model.CurrentDate.ToLocalTime().Date)
+				{formatDate(model.currentDate)}
             </small>
         </div>
     </div>
-}
-else
-{
+{:else}
+TODO: last value widget
+{/if}
+<!--
 	var goodItems = Model.Values.OrderByDescending(v => v.Key).Where(v => v.Value.HasValue).ToList();
 	var chartItems = goodItems.Select(v=>v.Value.Value).ToList();
 	var datesItems = goodItems.Select(v => v.Key).ToList();
@@ -186,5 +214,4 @@ else
 			};
 		})();
 	</script>
-}
 -->
