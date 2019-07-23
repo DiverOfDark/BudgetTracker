@@ -80,7 +80,7 @@
 			yMin -= diff;
 			yMax += diff;
 
-			var values = chartItems.map(formatMoney);
+			var values = chartItems;
 			var dates = datesItems.map(formatDateJs);
 
 			var columns = [
@@ -88,7 +88,7 @@
 						['x', ...dates]
 					];
 
-			c3.generate({
+			var chart = c3.generate({
 				bindto: chartDiv,
 				padding: {
 					bottom: -10,
@@ -146,7 +146,11 @@
 					pattern: [hexColor]
 				}
 			});
+			chart.flush();
+
+			return chart.unload;
 		}
+		return ()=>{};
 	});
 
 	hexColor; trend; colorSuffix; formatDate; formatMoney;
