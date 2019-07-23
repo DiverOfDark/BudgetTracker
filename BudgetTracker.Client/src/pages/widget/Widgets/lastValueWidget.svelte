@@ -26,6 +26,8 @@
 		title: ''
 	};
 
+	let chartDiv;
+
 	let colorSuffix = "";
 	$: { colorSuffix = model.incompleteData ? "bg-gray-dark-darkest" : ""; }
 
@@ -54,35 +56,7 @@
 	}
 
 	if (!model.isCompact) {
-
-	}
-
-	hexColor; trend; colorSuffix; formatDate; 
-</script>
-
-{#if model.isCompact}
-	<div class="card-body p-3 text-center {colorSuffix}" style="height:100%">
-		<div class="h1 mt-5">
-			{model.currentValueFormatted}
-		</div>
-        <div class="text-muted">
-            {model.title}
-	        <a href="/Table/Chart?provider={model.provider}&account={model.account}&exemptTransfers={model.exemptTransfers}">
-		        <span class="fe {trend}"></span>
-	        </a>
-	        <a href="/Table/Burst?provider={model.provider}&account={model.account}">
-		        <span class="fe fe-zoom-in"></span>
-	        </a>
-            <br/>
-            <small>
-				{formatDate(model.currentDate)}
-            </small>
-        </div>
-    </div>
-{:else}
-TODO: last value widget
-{/if}
-<!--
+/*
 	var goodItems = Model.Values.OrderByDescending(v => v.Key).Where(v => v.Value.HasValue).ToList();
 	var chartItems = goodItems.Select(v=>v.Value.Value).ToList();
 	var datesItems = goodItems.Select(v => v.Key).ToList();
@@ -107,38 +81,7 @@ TODO: last value widget
 	var values = string.Join(", ", chartItems.Select(v => Math.Round(v, 4).ToString(CultureInfo.InvariantCulture)));
 	var dates = string.Join(", ", datesItems.Select(v => $"'{v:yyyy-MM-dd}'"));
 
-	<div class="card-status bg-@Model.ColorYear"></div>
-    <div class="card-body @colorSuffix">
-        <div class="float-right" alt="@Model.Description" title="@Model.Description" data-toggle="tooltip">
-	        <div class="card-value text-@Model.ColorYear">
-		        @Model.DeltaYear
-	        </div>
-	        <div class="h6 text-right text-@Model.Color">
-		        @Model.Delta <sub>/d</sub>
-	        </div>
-        </div>
-        <h3 class="mb-1 text-nowrap">
-            @Model.FormatValue(Model.CurrentValue)
-        </h3>
-        <div class="text-muted text-nowrap">
-            @Model.Title
-	        <a href="@Url.Action("Chart", "Table", new {provider = Model.Provider, account = Model.Account })">
-		        <span class="fe @trend"></span>
-	        </a>
-	        <a href="@Url.Action("Burst", "Table", new {provider = Model.Provider, account = Model.Account })">
-		        <span class="fe fe-zoom-in"></span>
-	        </a>
-        </div>
-        <h4 class="m-0">
-            <small class="text-muted">
-                @Model.FormatDate(Model.CurrentDate.ToLocalTime().Date)
-            </small>
-        </h4>
-    </div>
-	<div class="card-chart-bg @colorSuffix">
-		<div id="chart-@chartId" style="height: 100%"></div>
-	</div>
-	<script>
+
 		(function() {
 
 			var columns = [
@@ -213,5 +156,61 @@ TODO: last value widget
 				});
 			};
 		})();
-	</script>
--->
+*/
+	}
+
+	hexColor; trend; colorSuffix; formatDate; formatMoney; chartDiv;
+</script>
+
+{#if model.isCompact}
+	<div class="card-body p-3 text-center {colorSuffix}" style="height:100%">
+		<div class="h1 mt-5">
+			{model.currentValueFormatted}
+		</div>
+        <div class="text-muted">
+            {model.title}
+	        <a href="/Table/Chart?provider={model.provider}&account={model.account}&exemptTransfers={model.exemptTransfers}">
+		        <span class="fe {trend}"></span>
+	        </a>
+	        <a href="/Table/Burst?provider={model.provider}&account={model.account}">
+		        <span class="fe fe-zoom-in"></span>
+	        </a>
+            <br/>
+            <small>
+				{formatDate(model.currentDate)}
+            </small>
+        </div>
+    </div>
+{:else}
+	<div class="card-status bg-{model.colorYear}"></div>
+    <div class="card-body {colorSuffix}">
+        <div class="float-right" alt="{model.description}" title="{model.description}" data-toggle="tooltip">
+	        <div class="card-value text-{model.colorYear}">
+		        {model.deltaYear}
+	        </div>
+	        <div class="h6 text-right text-{model.color}">
+		        {model.delta} <sub>/d</sub>
+	        </div>
+        </div>
+        <h3 class="mb-1 text-nowrap">
+			{model.currentValueFormatted}
+        </h3>
+        <div class="text-muted text-nowrap">
+            {model.title}
+	        <a href="/Table/Chart?provider={model.provider}&account={model.account}">
+		        <span class="fe @trend"></span>
+	        </a>
+	        <a href="/Table/Burst?provider={model.provider}&account={model.account}">
+		        <span class="fe fe-zoom-in"></span>
+	        </a>
+        </div>
+        <h4 class="m-0">
+            <small class="text-muted">
+				{formatDate(model.currentDate)}	
+            </small>
+        </h4>
+    </div>
+	<div class="card-chart-bg {colorSuffix}">
+		<div bind:this="{chartDiv}" style="height: 100%"></div>
+	</div>
+{/if}

@@ -5,8 +5,15 @@
     export let model: DeltaWidgetViewModel = {
         ccy: '',
         deltas: [],
-        deltaWidgetSettings: {},
-        incompleteData:false
+        deltaWidgetSettings: {
+            accountName: '',
+            providerName: ''
+        },
+        incompleteData:false,
+        columns: 2,
+        id: '',
+        kind: '',
+        rows: 2
     };
     let colorSuffix;
     let styleSuffix;
