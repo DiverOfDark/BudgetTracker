@@ -18,6 +18,14 @@ const opts = {
   }
 };
 
+const onwarn = warning => {
+	if (warning.code === 'CIRCULAR_DEPENDENCY') {
+	  return
+	}
+  
+	console.warn(`(!) ${warning.message}`)
+  }
+
 export default {
 	input: 'src/main.js',
 	output: {
@@ -26,6 +34,7 @@ export default {
 		name: 'app',
 		file: '../BudgetTracker/wwwroot/js/bundle.js'
 	},
+	onwarn,
 	plugins: [
 		svelte({
 			// enable run-time checks when not in production

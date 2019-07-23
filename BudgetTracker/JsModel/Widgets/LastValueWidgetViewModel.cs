@@ -119,6 +119,11 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             p.Finalize(this);
 
             IncompleteData |= _settings.NotifyStaleData && Values.Select(v => v.Key).Max() < DateTime.Now.AddHours(-36);
+
+            if (IsCompact)
+            {
+                Values = null;
+            }
         }
 
         public bool ExemptTransfers => _settings.ExemptTransfers;

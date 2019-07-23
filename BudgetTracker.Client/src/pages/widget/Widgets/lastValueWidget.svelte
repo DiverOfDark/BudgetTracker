@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { LastValueWidgetViewModel } from './../../../generated-types';
     import { formatMoney, formatDate } from './../../../services/Shared';
+	import { onMount } from 'svelte';
+	import {compare} from './../../../services/Shared'
+	import c3 from 'c3';
 
 	export let model: LastValueWidgetViewModel = {
 		account: '',
@@ -26,7 +29,7 @@
 		title: ''
 	};
 
-	let chartDiv;
+	let chartDiv: HTMLElement;
 
 	let colorSuffix = "";
 	$: { colorSuffix = model.incompleteData ? "bg-gray-dark-darkest" : ""; }
@@ -55,42 +58,42 @@
 		}
 	}
 
-	if (!model.isCompact) {
-/*
-	var goodItems = Model.Values.OrderByDescending(v => v.Key).Where(v => v.Value.HasValue).ToList();
-	var chartItems = goodItems.Select(v=>v.Value.Value).ToList();
-	var datesItems = goodItems.Select(v => v.Key).ToList();
+	onMount(() => {
+		debugger;
+		if (!model.isCompact) {
+			var goodItems = Object.entries(model.values).sort((a,b)=>compare(a[0], b[0])).filter(v=>v[1]);
+			var chartItems = goodItems.map(v => v[1]);
+			var datesItems = goodItems.map(v => v[0]);
 
-	if (Model.GraphKind == GraphKind.Differential)
-	{
-		chartItems = chartItems.Skip(1).Zip(chartItems, (x, y) => y - x).ToList();
-		datesItems = datesItems.Skip(1).ToList();
-	}
-	else if (Model.GraphKind == GraphKind.CumulativeFromTimePeriod)
-	{
-		var fod = chartItems.LastOrDefault();
-		chartItems = chartItems.Select(v => v - fod).ToList();
-	}
-	
-	var yMin = chartItems.Min();
-	var yMax = chartItems.Max();
-	var diff = (yMax - yMin) * 0.1;
-	yMin -= diff;
-	yMax += diff;
-	
-	var values = string.Join(", ", chartItems.Select(v => Math.Round(v, 4).ToString(CultureInfo.InvariantCulture)));
-	var dates = string.Join(", ", datesItems.Select(v => $"'{v:yyyy-MM-dd}'"));
+			if (model.graphKind == 'Differential')
+			{
+				chartItems = chartItems.map((a,b) => b == 0 ? a : a - chartItems[b-1]);
+				datesItems.slice(1);
+			}
+			else if (model.graphKind == 'CumulativeFromTimePeriod')
+			{
+				chartItems = chartItems.map(a => a - chartItems[0]);
+			}
 
+			var yMin = chartItems.reduce((a,b) => a < b ? a : b);
+			var yMax = chartItems.reduce((a,b) => a > b ? a : b);
 
-		(function() {
+			var diff = (yMax - yMin) * 0.1;
+			yMin -= diff;
+			yMax += diff;
 
-			var columns = [
-				['data1', @Html.Raw(values)],
-				['x', @Html.Raw(dates)]
-			];
-			
-			var chart = c3.generate({
-				bindto: '#chart-@chartId',
+			var values = chartItems.map(formatMoney);
+			var dates = datesItems.map(formatDate);
+
+			var columns: any;
+
+			columns = [
+						['data1', values],
+						['x', dates]
+					];
+
+			c3.generate({
+				bindto: chartDiv,
 				padding: {
 					bottom: -10,
 					left: -1,
@@ -102,7 +105,7 @@
 				data: {
 					x: 'x',
 					names: {
-						'data1': '@Model.Title'
+						'data1': model.title
 					},
 					columns: columns,
 					type: 'area-spline'
@@ -119,9 +122,7 @@
 				tooltip: {
 					show: true,
 					format: {
-						value: function (value) {
-							return d3.format(',.2f')(value);
-						}
+						value: formatMoney
 					}
 				},
 				axis: {
@@ -133,8 +134,8 @@
 						tick: {
 							outer: true
 						},
-						max: @yMax.ToString(CultureInfo.InvariantCulture),
-						min: @yMin.ToString(CultureInfo.InvariantCulture)
+						max: yMax,
+						min: yMin
 					},
 					x: {
 						type: 'timeseries',
@@ -146,20 +147,13 @@
 					}
 				},
 				color: {
-					pattern: ['@hexColor']
+					pattern: [hexColor]
 				}
 			});
-			
-			window.onfocus = function() {
-				chart.load({
-					columns: columns
-				});
-			};
-		})();
-*/
-	}
+		}
+	});
 
-	hexColor; trend; colorSuffix; formatDate; formatMoney; chartDiv;
+	hexColor; trend; colorSuffix; formatDate; formatMoney;
 </script>
 
 {#if model.isCompact}

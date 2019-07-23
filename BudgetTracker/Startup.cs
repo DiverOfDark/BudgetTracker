@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -125,6 +126,7 @@ namespace BudgetTracker
                 options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                 options.SerializerSettings.ContractResolver = ShouldSerializeContractResolver.Instance;
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                options.SerializerSettings.Formatting = IsProduction ? Formatting.None : Formatting.Indented;
             });
             services.AddSingleton<Chrome>();
             services.AddSingleton<ScrapeService>();

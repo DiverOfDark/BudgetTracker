@@ -7,8 +7,11 @@
         deltas: [],
         deltaWidgetSettings: {
             accountName: '',
-            providerName: ''
+            providerName: '',
+            deltaInterval: '0'
         },
+        settings: {},
+        title: '',
         incompleteData:false,
         columns: 2,
         id: '',
