@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { LastValueWidgetViewModel } from './../../../generated-types';
-    import { formatMoney, formatDate } from './../../../services/Shared';
+    import { formatMoney, formatDate, formatDateJs } from './../../../services/Shared';
 	import { onMount } from 'svelte';
 	import {compare} from './../../../services/Shared'
 	import c3 from 'c3';
@@ -57,9 +57,7 @@
 				break;
 		}
 	}
-
 	onMount(() => {
-		debugger;
 		if (!model.isCompact) {
 			var goodItems = Object.entries(model.values).sort((a,b)=>compare(a[0], b[0])).filter(v=>v[1]);
 			var chartItems = goodItems.map(v => v[1]);
@@ -83,13 +81,11 @@
 			yMax += diff;
 
 			var values = chartItems.map(formatMoney);
-			var dates = datesItems.map(formatDate);
+			var dates = datesItems.map(formatDateJs);
 
-			var columns: any;
-
-			columns = [
-						['data1', values],
-						['x', dates]
+			var columns = [
+						['data1', ...values],
+						['x', ...dates]
 					];
 
 			c3.generate({
