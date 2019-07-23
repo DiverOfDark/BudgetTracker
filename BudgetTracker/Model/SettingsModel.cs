@@ -31,7 +31,7 @@ namespace BudgetTracker.Model
         public string Password
         {
             get => _entity.Password;
-            set => UpdateProperty(() => () => _entity.Password, value);
+            set => UpdateProperty(_entity, () => x => x.Password, value);
         }
     }
 }

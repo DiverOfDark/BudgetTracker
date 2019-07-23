@@ -43,7 +43,7 @@ namespace BudgetTracker.Model
         public string Description
         {
             get => _entity.Description;
-            set => UpdateProperty(() => () => _entity.Description, value);
+            set => UpdateProperty(_entity, () => x => x.Description, value);
         }
 
         public IEnumerable<PaymentModel> Payments => Multiple<PaymentModel>(() => x => x.DebtId);
@@ -51,37 +51,37 @@ namespace BudgetTracker.Model
         public double Amount
         {
             get => _entity.Amount;
-            set => UpdateProperty(() => () => _entity.Amount, value);
+            set => UpdateProperty(_entity, () => x => x.Amount, value);
         }
 
         public DateTime When
         {
             get => _entity.When;
-            set => UpdateProperty(() => () => _entity.When, value);
+            set => UpdateProperty(_entity, () => x => x.When, value);
         }
 
         public int DaysCount
         {
             get => _entity.DaysCount;
-            set => UpdateProperty(() => () => _entity.DaysCount, value);
+            set => UpdateProperty(_entity, () => x => x.DaysCount, value);
         }
 
         public double Percentage
         {
             get => _entity.Percentage;
-            set => UpdateProperty(() => () => _entity.Percentage, value);
+            set => UpdateProperty(_entity, () => x => x.Percentage, value);
         }
 
         public string Ccy
         {
             get => _entity.Ccy;
-            set => UpdateProperty(() => () => _entity.Ccy, value);
+            set => UpdateProperty(_entity, () => x => x.Ccy, value);
         }
 
         public string RegexForTransfer
         {
             get => _entity.RegexForTransfer;
-            set => UpdateProperty(() => () => _entity.RegexForTransfer, value);
+            set => UpdateProperty(_entity, () => x => x.RegexForTransfer, value);
         }
     }
 }

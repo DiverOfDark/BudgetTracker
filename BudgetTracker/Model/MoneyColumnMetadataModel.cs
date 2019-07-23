@@ -58,19 +58,19 @@ namespace BudgetTracker.Model
         public string UserFriendlyName
         {
             get => _entity.UserFriendlyName;
-            set => UpdateProperty(() => () => _entity.UserFriendlyName, value);
+            set => UpdateProperty(_entity, () => x => x.UserFriendlyName, value);
         }
 
         public bool AutogenerateStatements
         {
             get => _entity.AutogenerateStatements;
-            set => UpdateProperty(() => () => _entity.AutogenerateStatements, value);
+            set => UpdateProperty(_entity, () => x => x.AutogenerateStatements, value);
         }
 
         public int Order
         {
             get => _entity.Order;
-            set => UpdateProperty(() => () => _entity.Order, value);
+            set => UpdateProperty(_entity, () => x => x.Order, value);
         }
 
         public bool IsComputed => Provider == ComputedProdiver;
@@ -78,7 +78,7 @@ namespace BudgetTracker.Model
         public string Function
         {
             get => _entity.Function;
-            set => UpdateProperty(() => () => _entity.Function, value);
+            set => UpdateProperty(_entity, () => x => x.Function, value);
         }
 
         public IEnumerable<string> ChartList

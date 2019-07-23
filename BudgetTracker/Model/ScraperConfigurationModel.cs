@@ -59,30 +59,30 @@ namespace BudgetTracker.Model
         }
 
         public void SetProperties(Dictionary<string, string> properties) =>
-            UpdateProperty(() => () => _entity.Properties, JsonConvert.SerializeObject(properties));
+            UpdateProperty(_entity, () => x => x.Properties, JsonConvert.SerializeObject(properties));
 
         public string Login
         {
             get => _entity.Login;
-            set => UpdateProperty(() => () => _entity.Login, value);
+            set => UpdateProperty(_entity, () => x => x.Login, value);
         }
 
         public string Password
         {
             get => _entity.Password;
-            set => UpdateProperty(() => () => _entity.Password, value);
+            set => UpdateProperty(_entity, () => x => x.Password, value);
         }
 
         public DateTime LastSuccessfulBalanceScraping
         {
             get => _entity.LastSuccessfulBalanceScraping;
-            set => UpdateProperty(() => () => _entity.LastSuccessfulBalanceScraping, value);
+            set => UpdateProperty(_entity, () => x => x.LastSuccessfulBalanceScraping, value);
         }
 
         public DateTime LastSuccessfulStatementScraping
         {
             get => _entity.LastSuccessfulStatementScraping;
-            set => UpdateProperty(() => () => _entity.LastSuccessfulStatementScraping, value);
+            set => UpdateProperty(_entity, () => x => x.LastSuccessfulStatementScraping, value);
         }
     }
 }
