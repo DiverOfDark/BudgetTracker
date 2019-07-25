@@ -25,7 +25,12 @@ const onwarn = warning => {
 	if (warning.code === 'CIRCULAR_DEPENDENCY') {
 	  return
 	}
-	console.warn(`(!) ${warning.message} (${warning.loc.file}:${warning.loc.line}:${warning.loc.column})`)
+	
+	var cwd = process.cwd() + "/";
+
+	var fileName = warning.loc.file.replace(cwd, "");
+
+	console.warn(`(!) ${warning.message} (${fileName}:${warning.loc.line}:${warning.loc.column}):\n${warning.frame}\n\n`)
   }
 
 export default {
