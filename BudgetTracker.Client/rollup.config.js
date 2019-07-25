@@ -6,6 +6,7 @@ import { terser } from 'rollup-plugin-terser';
 import { preprocess, createEnv, readConfigFile } from "@pyoner/svelte-ts-preprocess";
 import typescript from "rollup-plugin-typescript2";
 import progress from 'rollup-plugin-progress';
+import babel from 'rollup-plugin-babel';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -61,6 +62,9 @@ export default {
 		// Watch the `public` directory and refresh the
 		// browser on changes when not in production
 		!production && livereload('public'),
+		babel({
+			exclude: 'node_modules/**' // only transpile our source code
+		  }),
 
 		// If we're building for production (npm run build
 		// instead of npm run dev), minify
