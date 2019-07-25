@@ -7,6 +7,7 @@ import { preprocess, createEnv, readConfigFile } from "@pyoner/svelte-ts-preproc
 import typescript from "rollup-plugin-typescript2";
 import progress from 'rollup-plugin-progress';
 import babel from 'rollup-plugin-babel';
+import { sizeSnapshot } from "rollup-plugin-size-snapshot";
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -24,8 +25,7 @@ const onwarn = warning => {
 	if (warning.code === 'CIRCULAR_DEPENDENCY') {
 	  return
 	}
-  
-	console.warn(`(!) ${warning.message}`)
+	console.warn(`(!) ${warning.message} (${warning.loc.file}:${warning.loc.line}:${warning.loc.column})`)
   }
 
 export default {
@@ -39,6 +39,7 @@ export default {
 	onwarn,
 	plugins: [
 		progress(),
+		sizeSnapshot(), 
 		svelte({
 			// enable run-time checks when not in production
 			dev: !production,
