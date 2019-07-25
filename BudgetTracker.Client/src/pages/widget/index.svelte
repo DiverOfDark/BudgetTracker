@@ -91,16 +91,16 @@
             <button class="btn btn-sm btn-secondary ml-1" on:click="{() => createWidget()}">
                 <span class="fe fe-plus"></span>
             </button>
-            <button class="btn btn-sm btn-secondary ml-1" on:click="{() => loadData(1)}">
+            <button class="btn btn-sm btn-secondary ml-1" on:click="{() => { period = 1; loadData() }}">
                 <span class="fe fe-calendar">1M</span>
             </button>
-            <button class="btn btn-sm btn-secondary ml-1" on:click="{() => loadData(3)}">
+            <button class="btn btn-sm btn-secondary ml-1" on:click="{() => { period = 3; loadData() }}">
                 <span class="fe fe-calendar">3M</span>
             </button>
-            <button class="btn btn-sm btn-secondary ml-1" on:click="{() => loadData(6)}">
+            <button class="btn btn-sm btn-secondary ml-1" on:click="{() => { period = 6; loadData() }}">
                 <span class="fe fe-calendar">6M</span>
             </button>
-            <button class="btn btn-sm btn-secondary ml-1" on:click="{() => loadData(0)}">
+            <button class="btn btn-sm btn-secondary ml-1" on:click="{() => { period = 0; loadData() }}">
                 <span class="fe fe-calendar">Всё</span>
             </button>
         </div>

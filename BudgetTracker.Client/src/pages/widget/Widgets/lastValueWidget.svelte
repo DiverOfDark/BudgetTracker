@@ -57,7 +57,8 @@
 				break;
 		}
 	}
-	onMount(() => {
+
+	let refresh = function() {
 		if (!model.isCompact) {
 			var goodItems = Object.entries(model.values).sort((a,b)=>compare(a[0], b[0])).filter(v=>v[1]);
 			var chartItems = goodItems.map(v => v[1]);
@@ -151,7 +152,11 @@
 			return chart.unload;
 		}
 		return ()=>{};
-	});
+	}
+	
+	$: { model && refresh(); }
+
+	onMount(() => refresh());
 
 	hexColor; trend; colorSuffix; formatDate; formatMoney;
 </script>
