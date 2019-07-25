@@ -8,6 +8,7 @@ import typescript from "rollup-plugin-typescript2";
 import progress from 'rollup-plugin-progress';
 import babel from 'rollup-plugin-babel';
 import { sizeSnapshot } from "rollup-plugin-size-snapshot";
+import sizes from "rollup-plugin-sizes";
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -28,10 +29,17 @@ const onwarn = warning => {
 	
 	var cwd = process.cwd() + "/";
 
-	var fileName = warning.loc.file.replace(cwd, "");
+	if (warning.loc) {
+		var fileName = warning.loc.file.replace(cwd, "");
 
-	console.warn(`(!) ${warning.message} (${fileName}:${warning.loc.line}:${warning.loc.column}):\n${warning.frame}\n\n`)
-  }
+		console.warn(`(!) ${warning.message} (${fileName}:${warning.loc.line}:${warning.loc.column}):\n${warning.frame}\n\n`)
+	}
+	else {
+		console.warn(`(!) ${warning.message}`)
+	}
+
+}	
+
 
 export default {
 	input: 'src/main.js',
@@ -45,6 +53,7 @@ export default {
 	plugins: [
 		progress(),
 		sizeSnapshot(), 
+		sizes(),
 		svelte({
 			// enable run-time checks when not in production
 			dev: !production,
