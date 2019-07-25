@@ -5,6 +5,7 @@ import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import { preprocess, createEnv, readConfigFile } from "@pyoner/svelte-ts-preprocess";
 import typescript from "rollup-plugin-typescript2";
+import progress from 'rollup-plugin-progress';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -36,6 +37,7 @@ export default {
 	},
 	onwarn,
 	plugins: [
+		progress(),
 		svelte({
 			// enable run-time checks when not in production
 			dev: !production,
