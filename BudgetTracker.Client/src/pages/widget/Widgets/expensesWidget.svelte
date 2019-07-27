@@ -1,51 +1,56 @@
-Expenses!!
-<!--
-@using System.Globalization
-@using Controllers.ViewModels.Payment
-@using Controllers.ViewModels.Widgets
-@model ExpensesWidgetViewModel
+<script lang="ts">
+	import { ExpensesWidgetViewModel } from './../../../generated-types';
+    import { formatMoney } from './../../../services/Shared';
+	import { onMount } from 'svelte';
+	// import {compare} from './../../../services/Shared'
+	import c3 from 'c3';
 
-@{
-    var columnsData = values.Select((v, i) => $"['col{i}', {v.ToString(CultureInfo.InvariantCulture)}]");
-    var namesData = names.Select((v, i) => $"'col{i}': '{v.Replace("\'","\\'")}'");
-}
+	export let model: ExpensesWidgetViewModel = {
+        title: '',
+        period: 0,
+        names: [],
+        values: [],
+        columns: 0,
+        expenseSettings: {
+            currency: ''
+        },
+        id: '',
+        kind: '',
+        rows: 0,
+        settings: {}
+    };
 
-<div class="card-body">
-    <div class="h4 text-muted-dark text-center">
-        @Model.Title (@Model.Period месяц)
-    </div>
-    <div id="chart-@id" class="pie-chart" style="height: 100%;"></div>
-</div>
+	let chartDiv: HTMLElement;
 
-<script>
-    $(document).ready(function() {
+    let refresh = function() {
+        let columnsData = model.values.map((t,i)=> [ 'col' + i, t  ])
+        let namesData : any = {};
+        for(var i =0;i<model.names.length; i++) {
+            namesData['col' + i] = model.names[i];
+        }
 
-        var columns = [
-            @Html.Raw(string.Join(",", columnsData))
-        ];
+        var valuesSum = model.values.reduce((a,b) => a+b);
+    
+        var columns = [...columnsData];
         
         var chart = c3.generate({
-            bindto: '#chart-@id',
+            bindto: chartDiv,
             data: {
                 columns: columns,
                 type: 'donut',
                 order: null,
-                names: {
-                    @Html.Raw(string.Join(",", namesData))
-                }
+                names: namesData
             },
             donut: {
-                title: d3.format(',.2f')(@values.Sum()) + " @Model.ExpenseSettings.Currency",
+                title: formatMoney(valuesSum) + " " + model.expenseSettings.currency,
                 label: {
-                    format: function (value) {
-                        return d3.format(',.2f')(value);
-                    }
+                    format: formatMoney
                 }
             },
             tooltip: {
                 format: {
                     value: function (value) {
-                        return d3.format(',.2f')(value) + " @Model.ExpenseSettings.Currency";
+                        return formatMoney(value) + " " + model.expenseSettings.currency;
                     }
                 }
             },
@@ -63,12 +68,17 @@ Expenses!!
                 top: 0
             }
         });
-        
-        window.onfocus = function() {
-            chart.load({
-                columns: columns
-            });
-        };
-    });
+
+        return chart.unload;
+    }
+
+    $: { model && refresh(); }
+	onMount(() => refresh());
 </script>
--->
+
+<div class="card-body">
+    <div class="h4 text-muted-dark text-center">
+        {model.title} ({model.period} месяц)
+    </div>
+    <div bind:this="{chartDiv}" class="pie-chart" style="height: 100%;"></div>
+</div>
