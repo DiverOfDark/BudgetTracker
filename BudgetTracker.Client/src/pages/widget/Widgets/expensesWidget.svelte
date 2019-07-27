@@ -6,33 +6,6 @@ Expenses!!
 @model ExpensesWidgetViewModel
 
 @{
-    var id = Guid.NewGuid().ToString("N");
-
-    var data = Model.Payments.OrderByDescending(v => -v.Amount).ToList();
-
-    var toRemove = data.Skip(11).ToList();
-    data = data.Take(11).ToList();
-
-    if (toRemove.Any())
-    {
-        toRemove.ForEach(x => data.Remove(x));
-    }
-    
-    var values = data.Select(v => (int)-v.Amount).ToList();
-    var names = data.Select(v =>
-    {
-        if (v == data.Last())
-            return "Остальное";
-        
-        if (!string.IsNullOrWhiteSpace(v.Category))
-            return v.Category;
-        if (!string.IsNullOrWhiteSpace(v.Debt))
-            return v.Debt;
-        if (v.What.Length > 32)
-            return v.What.Remove(31) + "...";
-        return v.What;
-    }).ToList();
-
     var columnsData = values.Select((v, i) => $"['col{i}', {v.ToString(CultureInfo.InvariantCulture)}]");
     var namesData = names.Select((v, i) => $"'col{i}': '{v.Replace("\'","\\'")}'");
 }
