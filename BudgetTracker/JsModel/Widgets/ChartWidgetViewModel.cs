@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BudgetTracker.Controllers.ViewModels.Table;
 using BudgetTracker.JsModel;
+using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels.Widgets
@@ -89,16 +90,30 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                 .SelectMany(name => Dates.Select(date => (name, date)))
                 .Select(s => (s.name, s.date, ci.GetValueOrDefault(s.name)?.GetValueOrDefault(s.date)))
                 .GroupBy(v => v.name)
-                .ToDictionary(v => v.Key, v => v.Select(s => s.Item3).Where(s => s != null).ToList());
+                .ToDictionary(v => v.Key, v => v.Select(s => s.Item3).Where(s => s != null).ToList())
+                .Select(v=>new ChartValue
+                {
+                    Label = v.Key,
+                    Values = v.Value
+                }).ToList();
         }
 
         public List<DateTime> Dates { get; set; }
-        public Dictionary<string, List<ChartItem>> Values { get; set; }
+        public List<ChartValue> Values { get; set; }
 
         public override int Columns => 4;
         public override int Rows => 2;
     }
 
+    [ExportJsModel]
+    public class ChartValue
+    {
+        public string Label { get; set; }
+
+        public List<ChartItem> Values { get; set; }
+    }
+
+    [ExportJsModel]
     public class ChartItem
     {
         public DateTime When { get; set; }

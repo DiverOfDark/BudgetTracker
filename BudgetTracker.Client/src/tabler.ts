@@ -1,4 +1,4 @@
-window.tabler = {
+export default {
     colors: {
         'blue': '#467fcf',
         'blue-darkest': '#0e1929',
@@ -91,7 +91,7 @@ window.tabler = {
         'gray-light': '#aab0b6',
         'gray-lighter': '#dbdde0',
         'gray-lightest': '#f3f4f5',
-        'gray-dark': '#343a40',
+//        'gray-dark': '#343a40',
         'gray-dark-darkest': '#0a0c0d',
         'gray-dark-darker': '#15171a',
         'gray-dark-dark': '#2a2e33',
@@ -100,54 +100,3 @@ window.tabler = {
         'gray-dark-lightest': '#ebebec'
     }
 };
-var hexToRgba = function (hex, opacity) {
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    var rgb = result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-    } : null;
-
-    return 'rgba(' + rgb.r + ', ' + rgb.g + ', ' + rgb.b + ', ' + opacity + ')';
-};
-
-$(document).ready(function () {
-    // Initialize tooltips
-    $('[data-toggle="tooltip"]').tooltip({ placement: 'right', viewport: { selector: 'body', padding: 0 } });
-    $('[data-toggle="top-tooltip"]').tooltip({ placement: 'top', viewport: { selector: 'body', padding: 0 } });
-
-    // Initialize popovers
-    $('[data-toggle="popover"]').popover({
-        html: true
-    });
-
-    // Function for remove card
-    $('[data-toggle="card-remove"]').on('click', function (e) {
-        var $card = $(this).closest('div.card');
-        $card.remove();
-
-        e.preventDefault();
-        return false;
-    });
-
-    // Function for collapse card
-    $('[data-toggle="card-collapse"]').on('click', function (e) {
-        var $this = $(this),
-            $card = $this.closest('div.card');
-
-        $card.toggleClass('card-collapsed');
-
-        e.preventDefault();
-        return false;
-    });
-
-    // Function for fullscreen card
-    $('[data-toggle="card-fullscreen"]').on('click', function (e) {
-        var $card = $(this).closest('div.card');
-
-        $card.toggleClass('card-fullscreen').removeClass('card-collapsed');
-
-        e.preventDefault();
-        return false;
-    });
-});

@@ -1,153 +1,154 @@
-Chart!
-<!--
-@using System.Globalization
-@using Controllers.ViewModels.Widgets
-@model ChartWidgetViewModel
+<script lang="ts">
+	import { ChartWidgetViewModel } from './../../../generated-types';
+	import { formatMoney, formatDate } from './../../../services/Shared';
+	import { ChartConfiguration } from 'c3';
+	import tabler from './../../../tabler';
+	import { onMount } from 'svelte';
+	import c3 from 'c3';
+	import {compare} from './../../../services/Shared'
 
-@{
-	string chartItems;
-	string dates;
-	var chartNames = string.Join(",\n ", Model.Values.Select((v, i) => $"'data{i}': '{v.Key}'"));
-	var chartGroups = string.Join(", ", Model.Values.Select((v, i) => $"'data{i}'"));
+	export let model: ChartWidgetViewModel = {
+        title: '',
+        period: 0,
+        values: [],
+        columns: 0,
+        id: '',
+        kind: '',
+        rows: 0,
+		settings: {},
+		chartKind: '',
+		dates: [],
+		exemptTransfers: false
+	};
 	
-	var height = 300;
+	export let fullScreen = false;
 
-	string sum = "";
-	string chartClass = "";
-	string type;
-	string showLegend = "true";
-	bool showAxis = false;
-	
-	if (Model.ChartKind == ChartKind.Donut)
-	{
-		/*
-		 *         columns: [
-            ['data1', 30],
-            ['data2', 120],
-        ],
-        type : 'donut',
-		 */
-		type = "donut";
-		chartClass = "pie-chart";
-		showLegend = "false";
-		chartItems = string.Join(",\n ", Model.Values.Select((v, i) => $"['data{i}', " + v.Value.OrderByDescending(s=>s.When).First().Value.ToString("0.00", CultureInfo.InvariantCulture) + "]"));
-		sum = Model.Values.Sum(v => v.Value.OrderByDescending(s => s.When).First().Value).ToString(CultureInfo.InvariantCulture);
-		dates = Model.Dates.OrderByDescending(v=>v).Select(v => $"'{v:yyyy-MM-dd}'").FirstOrDefault();
-	}	
-	else if (Model.ChartKind == ChartKind.Linear)
-	{
-		type = "area";
-		chartItems = string.Join(",\n ", Model.Values.Select((v, i) => $"['data{i}', " + string.Join(", ", v.Value.Select(s => s == null ? "null" : s.Value.ToString("0.00", CultureInfo.InvariantCulture))) + "]"));
-		dates = string.Join(", ", Model.Dates.Select(v => $"'{v:yyyy-MM-dd}'"));
-	}
-	else
-	{
-		throw new NotImplementedException();
-	}
-	var chartId = Guid.NewGuid().ToString("N");
+	let chartDiv: HTMLElement;
 
-	if (ViewBag.FullScreen == true)
-	{
-		height = 700;
-		showAxis = true;
-	}
-	
-	<div class="card-body">
-		<div class="h4 text-muted-dark text-center">
-			@Model.Title
-		</div>
-	</div>
-	<div class="card-chart-bg" style="height: 100%">
-		<div id="chart-@chartId" class="@chartClass"></div>
-	</div>
-	<script>
-		(function() {
+	let formatPercentage = function(value: number) { return Math.floor(value * 100) / 100 + '%'; }
 
-			var names = {
-				@Html.Raw(chartNames)
-			};
+	let chartClass = '';
+	let height = fullScreen ? 700 : 300;
+	let showAxis = fullScreen;
 
-			var columns = [
-				@Html.Raw(chartItems),
-				['x', @Html.Raw(dates)]
-			];
+	let refresh = function() {
+		let chartNames : any = {};
+		for(var i =0; i < model.values.length; i++) {
+			chartNames['data' + i] = model.values[i];
+		}
+		let chartGroups = model.values.map((_,i)=>'data' + i);
+		let sum = 0;
+		let type = "";
+		let showLegend = true;
+
+		var names = chartNames;
+
+		var chartItems: any[] = [];
+		var dates: any[] = [];
+
+		if (model.chartKind == "donut") {
+			type = "donut";
+			chartClass = "pie-chart";
+			showLegend = false;
+			chartItems = model.values.map((v,i) => ['data' + i, v.values.sort((a,b)=>compare(a.value,b.value))[0] ]);
+			sum = model.values.map(s=>s.values.sort((a,b)=>compare(a.value,b.value))[0]).map(s=>s.value).reduce((a,b) => a+b);
+			dates = model.dates.sort((a,b)=>compare(a,b)).map(x=>[formatDate(x)])[0];
+		}
+		if (model.chartKind == 'linear') {
+			type = "area";
+			chartItems = model.values.map((v,i) => ['data' + i, ...v.values.map(t=>formatMoney(t.value))]);
+			dates = model.dates.map(formatDate);
+		}
 			
-			var chart = c3.generate({
-                  			bindto: '#chart-@chartId',
-                  			data: {
-				                columns: columns,
-                  				type: '@(type)', // default type of chart
-                  				groups: [
-                  					[ @Html.Raw(chartGroups) ]
-                  				],
-                  				colors: {
-                  					'data1': tabler.colors["blue"]
-                  				},
-				                x: 'x',
-				                names: names
-                  			},
-@if (Model.ChartKind == ChartKind.Linear)
-{
-                        <text>
-                            point: {
+		var columns = [
+			...chartItems,
+			['x', ...dates]
+		];
+
+		var params: ChartConfiguration;
+
+		params = {
+			bindto: chartDiv,
+			data: {
+				columns: columns,
+				type: type, // default type of chart
+				groups: [ chartGroups ],
+				colors: {
+					'data1': tabler.colors["blue"]
+				},
+				x: 'x',
+				names: chartNames
+			},
+			size: {
+				height: height
+			},
+			padding: {
+				bottom: -10
+			},
+			legend: {
+				position: 'inset',
+				padding: 0,
+				show: showLegend,
+				inset: {
+					anchor: 'top-left',
+					x: 5,
+					y: 0,
+					step: 999
+				}
+			},
+			tooltip: {
+					format: {
+						value: function (value: number, ratio: number) {
+							return formatMoney(value) + " (" + formatPercentage(ratio) + ")";
+						}
+					}
+			}
+		};
+
+		if (model.chartKind == 'linear')
+		{
+			params.point = {
                                 show: true
-                            },
-	                        axis: {
+							};
+			params.axis = {
 		                        y: {
-			                        show: @showAxis.ToString().ToLower()
+			                        show: showAxis
 		                        },
 		                        x: {
 			                        type: 'timeseries',
-			                        show: @showAxis.ToString().ToLower()
+			                        show: showAxis
 		                        }
-	                        },
-                        </text>
-}
-else
-{
-                        <Text>
-			                donut: {
-				                title: d3.format(',.2f')(@sum),
+	                        };
+		} else {
+			params.donut = {
+				                title: formatMoney(sum),
 				                label: {
-					               format: function (value, ratio, id) {
+					               format: function (_: number, ratio: number, id: string) {
 										var trimmed = names[id].length > 16 ? names[id].substring(0, 15) + "…" : names[id];
-						                return trimmed + " (" + d3.format(',.1f')(ratio*100) + "%)";
+						                return trimmed + " (" + formatPercentage(ratio) + ")";
 					               }
 				                }
-			                },</text>
-}
-                           size: {
-                               height: @height
-                           },
-                           padding: {
-                               bottom: -10
-                           },
-                  			legend: {
-                  				position: 'inset',
-                  				padding: 0,
-				                show: @showLegend,
-                  				inset: {
-                                   anchor: 'top-left',
-                  					x: 5,
-                  					y: 0,
-                  					step: 999
-                  				}
-                  			},
-                  			tooltip: {
-				                  format: {
-					                  value: function (value, ratio, id) {
-						                  return d3.format(',.2f')(value) + " (" + d3.format(',.1f')(ratio*100) + "%)";
-					                  }
-				                  }
-                  			}
-                  		});
+			                }
+		}
 
-			window.onfocus = function() {
-				chart.load({
-					columns: columns
-				});
-			};
-		})();
-	</script>
-}
--->
+		console.log(params);
+
+		var chart = c3.generate(params)
+
+		return chart.unload;
+	}
+
+	$: { model && refresh(); }
+	onMount(() => refresh());
+
+	chartClass;
+</script>
+
+<div class="card-body">
+	<div class="h4 text-muted-dark text-center">
+		{model.title}
+	</div>
+</div>
+<div class="card-chart-bg" style="height: 100%">
+	<div bind:this="{chartDiv}" class="{chartClass}"></div>
+</div>

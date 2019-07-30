@@ -2,7 +2,6 @@
 	import { ExpensesWidgetViewModel } from './../../../generated-types';
     import { formatMoney } from './../../../services/Shared';
 	import { onMount } from 'svelte';
-	// import {compare} from './../../../services/Shared'
 	import c3 from 'c3';
 
 	export let model: ExpensesWidgetViewModel = {
