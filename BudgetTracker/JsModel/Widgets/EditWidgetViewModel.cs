@@ -38,8 +38,10 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                 {
                     case WidgetKind.LastValue:
                         return new LastValueWidgetSettings(Properties);
-                    case WidgetKind.Chart:
-                        return new ChartWidgetSettings(Properties);
+                    case WidgetKind.Donut:
+                        return new DonutWidgetSettings(Properties);
+                    case WidgetKind.LinearChart:
+                        return new LinearChartWidgetSettings(Properties);
                     case WidgetKind.Expenses:
                         return new ExpensesWidgetSettings(Properties);
                     case WidgetKind.Delta:

@@ -93,8 +93,11 @@ namespace BudgetTracker.Controllers.ViewModels
                         case var wi when w.Kind == WidgetKind.Expenses:
                             widgetViewModels.Add(new ExpensesWidgetViewModel(wi, _objectRepository, Period));
                             break;
-                        case var wi when w.Kind == WidgetKind.Chart:
-                            widgetViewModels.Add(new ChartWidgetViewModel(wi, Period, _vm.GetVM()));
+                        case var wi when w.Kind == WidgetKind.Donut:
+                            widgetViewModels.Add(new DonutWidgetViewModel(wi, Period, _vm.GetVM()));
+                            break;
+                        case var wi when w.Kind == WidgetKind.LinearChart:
+                            widgetViewModels.Add(new LinearChartWidgetViewModel(wi, Period, _vm.GetVM()));
                             break;
                         case var wi when w.Kind == WidgetKind.Delta:
                             widgetViewModels.Add(new DeltaWidgetViewModel(wi, _objectRepository, _vm.GetVM()));

@@ -3,15 +3,7 @@ using System.ComponentModel;
 
 namespace BudgetTracker.Controllers.ViewModels.Widgets
 {
-    public enum ChartKind
-    {
-        [DisplayName("Линия")]
-        Linear,
-        [DisplayName("Пончик")]
-        Donut
-    }
-
-    public class ChartWidgetSettings : WidgetSettings
+    public class DonutWidgetSettings : WidgetSettings
     {
         public string ProviderName
         {
@@ -25,13 +17,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             set => SetPropertyFromModel(value);
         }
         
-        public ChartKind ChartKind
-        {
-            get => GetEnumPropertyFromModel<ChartKind>();
-            set => SetEnumPropertyFromModel(value);
-        }
-        
-        public ChartWidgetSettings(Dictionary<string,string> model) : base(model)
+        public DonutWidgetSettings(Dictionary<string,string> model) : base(model)
         {
         }
     }

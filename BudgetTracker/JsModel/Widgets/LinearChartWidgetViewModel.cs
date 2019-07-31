@@ -1,31 +1,27 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using BudgetTracker.Controllers.ViewModels.Table;
 using BudgetTracker.JsModel;
-using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels.Widgets
 {
-    public class ChartWidgetViewModel : WidgetViewModel
+    public class LinearChartWidgetViewModel : WidgetViewModel
     {
-        public ChartWidgetViewModel(string providerName, string accountName,
-            ChartKind kind,
+        public LinearChartWidgetViewModel(string providerName, string accountName,
             TableViewModel vm, bool exemptTransfers) : base(null, null)
         {
-            ChartKind = kind;
             ExemptTransfers = exemptTransfers;
             Title = accountName;
             LoadData(vm, providerName, accountName);
         }
 
-        public ChartWidgetViewModel(WidgetModel model, int? period, TableViewModel vm) :
-            base(model, new ChartWidgetSettings(model.Properties.ToDictionary(v => v.Key, v => v.Value)))
+        public LinearChartWidgetViewModel(WidgetModel model, int? period, TableViewModel vm) :
+            base(model, new DonutWidgetSettings(model.Properties.ToDictionary(v => v.Key, v => v.Value)))
         {
-            var chartWidgetSettings = (ChartWidgetSettings) Settings;
+            var chartWidgetSettings = (DonutWidgetSettings) Settings;
 
-            ChartKind = chartWidgetSettings.ChartKind;
             Title = Title ?? chartWidgetSettings.AccountName;
             Period = period;
 
@@ -34,7 +30,6 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 
         public int? Period { get; set; }
 
-        public ChartKind ChartKind { get; set; }
         public bool ExemptTransfers { get; }
 
         private void LoadData(TableViewModel vm, string providerName, string accountName)
@@ -52,10 +47,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                     column.ChartList.Contains(v.Provider + "/" + v.AccountName) ||
                     column.ChartList.Contains(v.UserFriendlyName)).ToList();
 
-                if (ChartKind == ChartKind.Linear)
-                {
-                    columnsToChart.Add(column);
-                }
+                columnsToChart.Add(column);
             }
 
             var chartItems = new List<ChartItem>();
@@ -103,22 +95,5 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 
         public override int Columns => 4;
         public override int Rows => 2;
-    }
-
-    [ExportJsModel]
-    public class ChartValue
-    {
-        public string Label { get; set; }
-
-        public List<ChartItem> Values { get; set; }
-    }
-
-    [ExportJsModel]
-    public class ChartItem
-    {
-        public DateTime When { get; set; }
-        public string Name { get; set; }
-        public double Value { get; set; }
-        public string Ccy { get; set; }
     }
 }

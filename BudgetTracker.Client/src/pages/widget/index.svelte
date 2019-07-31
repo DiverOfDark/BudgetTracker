@@ -5,7 +5,8 @@
 <script lang="ts">
     import { WidgetController, WidgetViewModel } from '../../generated-types';
     import burstWidget from './Widgets/burstWidget.svelte';
-    import chartWidget from './Widgets/chartWidget.svelte';
+    import donutWidget from './Widgets/donutWidget.svelte';
+    import linearChartWidget from './Widgets/linearChartWidget.svelte';
     import deltaWidget from './Widgets/deltaWidget.svelte';
     import exceptionWidget from './Widgets/exceptionWidget.svelte';
     import expensesWidget from './Widgets/expensesWidget.svelte';
@@ -51,8 +52,10 @@
                 return expensesWidget;
             case "DeltaWidgetViewModel":
                 return deltaWidget;
-            case "ChartWidgetViewModel":
-                return chartWidget;
+            case "DonutWidgetViewModel":
+                return donutWidget;
+            case "LinearChartWidgetViewModel":
+                return linearChartWidget;
             case "BurstWidgetViewModel":
                 return burstWidget;
             case "ExceptionWidgetViewModel":

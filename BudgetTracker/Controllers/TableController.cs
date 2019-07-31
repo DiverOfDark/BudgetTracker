@@ -73,10 +73,10 @@ namespace BudgetTracker.Controllers
             return new TableJsModel(vm, provider2, providers);
         }
 
-        public ChartWidgetViewModel Chart(string provider, string account, bool exemptTransfers = false)
+        public LinearChartWidgetViewModel Chart(string provider, string account, bool exemptTransfers = false)
         {
             var table = HttpContext.RequestServices.GetRequiredService<TableViewModelFactory>();
-            var vm = new ChartWidgetViewModel(provider, account, ChartKind.Linear, table.GetVM(), exemptTransfers);
+            var vm = new LinearChartWidgetViewModel(provider, account, table.GetVM(), exemptTransfers);
 
             return vm;
         }
