@@ -59,7 +59,7 @@
 	}
 
 	let refresh = function() {
-		if (!model.isCompact) {
+		if (!model.isCompact && chartDiv) {
 			var goodItems = Object.entries(model.values).sort((a,b)=>compare(a[0], b[0])).filter(v=>v[1]);
 			var chartItems = goodItems.map(v => v[1]);
 			var datesItems = goodItems.map(v => v[0]);

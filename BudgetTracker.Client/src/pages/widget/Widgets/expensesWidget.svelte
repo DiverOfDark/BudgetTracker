@@ -22,6 +22,10 @@
 	let chartDiv: HTMLElement;
 
     let refresh = function() {
+        if (!chartDiv) {
+            return () => {}
+        }
+
         let columnsData = model.values.map((t,i)=> [ 'col' + i, t  ])
         let namesData : any = {};
         for(var i =0;i<model.names.length; i++) {

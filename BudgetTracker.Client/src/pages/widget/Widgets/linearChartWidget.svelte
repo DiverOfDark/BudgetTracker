@@ -97,7 +97,7 @@
 			}
 		};
 
-		var chart = c3.generate(params)
+		let chart = c3.generate(params)
 
 		return chart.unload;
 	}
