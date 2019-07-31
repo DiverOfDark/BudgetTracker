@@ -15,7 +15,6 @@ namespace BudgetTracker.Model
         [DisplayName("Траты за месяц")] Expenses,
         [DisplayName("Пончик")] Donut,
         [DisplayName("Дельта")] Delta,
-        [DisplayName("Карта")] Burst,
         [DisplayName("График")] LinearChart
     }
         

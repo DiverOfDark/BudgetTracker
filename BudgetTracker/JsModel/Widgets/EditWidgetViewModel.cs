@@ -46,8 +46,6 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                         return new ExpensesWidgetSettings(Properties);
                     case WidgetKind.Delta:
                         return new DeltaWidgetSettings(Properties);
-                    case WidgetKind.Burst:
-                        return new BurstWidgetSettings(Properties);
                     default:
                         return null;
                 }

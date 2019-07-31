@@ -171,9 +171,6 @@
 	        <a href="/Table/Chart?provider={model.provider}&account={model.account}&exemptTransfers={model.exemptTransfers}">
 		        <span class="fe {trend}"></span>
 	        </a>
-	        <a href="/Table/Burst?provider={model.provider}&account={model.account}">
-		        <span class="fe fe-zoom-in"></span>
-	        </a>
             <br/>
             <small>
 				{formatDate(model.currentDate)}
@@ -198,9 +195,6 @@
             {model.title}
 	        <a href="/Table/Chart?provider={model.provider}&account={model.account}">
 		        <span class="fe @trend"></span>
-	        </a>
-	        <a href="/Table/Burst?provider={model.provider}&account={model.account}">
-		        <span class="fe fe-zoom-in"></span>
 	        </a>
         </div>
         <h4 class="m-0">

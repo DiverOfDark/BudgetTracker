@@ -178,31 +178,6 @@
                                             </div>
                                         </div>
                                     }
-                                    else if (Model?.Settings is BurstWidgetSettings s5)
-                                    {
-                                        <div class="form-group">
-                                            <label class="control-label">Провайдер данных</label>
-                                            <div control-labelstyle="padding-top: 7px;">
-                                                <select id="Properties[ProviderName]" name="Properties[ProviderName]" class="form-control">
-                                                    @foreach (var item in s5.GetProviders(ObjectRepository))
-                                                    {
-                                                        @Html.Raw($"<option value=\"{item}\" {(item.Equals(s5.ProviderName) ? "selected": "")}>{item}</option>")
-                                                    }
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="control-label">Аккаунт</label>
-                                            <div control-labelstyle="padding-top: 7px;">
-                                                <select id="Properties[AccountName]" name="Properties[AccountName]" class="form-control">
-                                                    @foreach (var item in s5.GetAccounts(ObjectRepository, s5.ProviderName))
-                                                    {
-                                                        @Html.Raw($"<option value=\"{item}\" {(item.Equals(s5.AccountName) ? "selected": "")}>{item}</option>")
-                                                    }
-                                                </select>
-                                            </div>
-                                        </div>
-                                    }
                                     else if (Model == null) { }
                                     else
                                     {

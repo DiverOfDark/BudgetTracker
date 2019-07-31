@@ -102,9 +102,6 @@ namespace BudgetTracker.Controllers.ViewModels
                         case var wi when w.Kind == WidgetKind.Delta:
                             widgetViewModels.Add(new DeltaWidgetViewModel(wi, _objectRepository, _vm.GetVM()));
                             break;
-                        case var wi when w.Kind == WidgetKind.Burst:
-                            widgetViewModels.Add(new BurstWidgetViewModel(wi, _vm.GetVM()));
-                            break;
                         default:
                             widgetViewModels.Add(new UnknownWidgetViewModel(w));
                             break;
