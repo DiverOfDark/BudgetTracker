@@ -57,14 +57,14 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                 Values = new List<double>()
             });
 
-            Dates = new List<DateTime>();
+            Dates = new List<string>();
             Values = values.Values.ToList(); 
 
             foreach (var row in vm.Values.Where(v => IsApplicable(v.When, Period)))
             {
                 var when = row.When.Date;
 
-                Dates.Add(when);
+                Dates.Add(when.ToString("yyyy-MM-dd"));
                 
                 foreach (var header in columnsToChart)
                 {
@@ -78,7 +78,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             }
         }
 
-        public List<DateTime> Dates { get; set; }
+        public List<string> Dates { get; set; }
         public List<ChartValue> Values { get; set; }
 
         public override int Columns => 4;

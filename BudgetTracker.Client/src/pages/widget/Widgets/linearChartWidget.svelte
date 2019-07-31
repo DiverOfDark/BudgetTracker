@@ -5,7 +5,6 @@
 	import tabler from './../../../tabler';
 	import { onMount } from 'svelte';
 	import c3 from 'c3';
-	import moment from 'moment';
 
 	export let model: LinearChartWidgetViewModel = {
         title: '',
@@ -43,15 +42,14 @@
 
 		var prefilter = (a:any) : number => a !== "NaN" ? a : NaN;
 
-		var chartItems = model.values.map((v,i) => ['data' + i, ...v.values.map(t=>formatMoney(prefilter(t)))]);
-		var dates = model.dates.map(x=>moment(x).toDate());
+		var chartItems = model.values.map((v,i) => ['data' + i, ...v.values.map(t=>prefilter(t))]);
 
 		var params: ChartConfiguration = {
 			bindto: chartDiv,
 			data: {
 				columns: [
 					...chartItems,
-					['x', ...dates]
+					['x', ...model.dates]
 				],
 				type: "area", // default type of chart
 				groups: [ chartGroups ],
@@ -98,8 +96,6 @@
 					}
 			}
 		};
-
-		console.log(params)
 
 		var chart = c3.generate(params)
 
