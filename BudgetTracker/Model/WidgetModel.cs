@@ -14,9 +14,9 @@ namespace BudgetTracker.Model
         [DisplayName("Последнее значение")] LastValue,
         [DisplayName("Траты за месяц")] Expenses,
         [DisplayName("Пончик")] Donut,
-        [DisplayName("График")] LinearChart,
         [DisplayName("Дельта")] Delta,
-        [DisplayName("Карта")] Burst
+        [DisplayName("Карта")] Burst,
+        [DisplayName("График")] LinearChart
     }
         
     public sealed class WidgetModel : ModelBase

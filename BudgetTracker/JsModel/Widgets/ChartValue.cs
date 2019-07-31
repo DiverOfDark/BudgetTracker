@@ -8,6 +8,6 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
     {
         public string Label { get; set; }
 
-        public List<ChartItem> Values { get; set; }
+        public List<double> Values { get; set; }
     }
 }

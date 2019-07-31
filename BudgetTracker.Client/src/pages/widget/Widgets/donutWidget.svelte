@@ -31,9 +31,6 @@
 			return () => {};
 		}
 
-		console.log("Donut:");
-		console.log(model);
-
 		let chartNames : any = {};
 		for(var i =0; i < model.values.length; i++) {
 			chartNames['data' + i] = model.names[i];
@@ -103,6 +100,6 @@
 		{model.title}
 	</div>
 </div>
-<div class="card-chart-bg" style="height: 100%; max-height: {height}">
+<div class="card-chart-bg" style="height: 100%; max-height: {height}px">
 	<div bind:this="{chartDiv}" class="pie-chart"></div>
 </div>

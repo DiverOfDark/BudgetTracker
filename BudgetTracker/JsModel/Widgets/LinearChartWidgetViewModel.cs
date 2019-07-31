@@ -50,44 +50,32 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                 columnsToChart.Add(column);
             }
 
-            var chartItems = new List<ChartItem>();
+            var values = columnsToChart.ToDictionary(v => v, header => new ChartValue
+            {
+                Label = (header.IsComputed ? "" : (header.Provider + "/")) +
+                        (header.UserFriendlyName ?? header.AccountName),
+                Values = new List<double>()
+            });
+
+            Dates = new List<DateTime>();
+            Values = values.Values.ToList(); 
 
             foreach (var row in vm.Values.Where(v => IsApplicable(v.When, Period)))
             {
+                var when = row.When.Date;
+
+                Dates.Add(when);
+                
                 foreach (var header in columnsToChart)
                 {
                     var item = row.CalculatedCells.GetValueOrDefault(header);
 
-                    var value = ExemptTransfers ? item?.AdjustedValue : item?.Value;
-                    if (value == null)
-                        continue;
+                    var chartItem = values[header];
 
-                    chartItems.Add(new ChartItem
-                    {
-                        When = row.When,
-                        Name = (header.IsComputed ? "" : (header.Provider + "/")) +
-                               (header.UserFriendlyName ?? header.AccountName),
-                        Value = value.Value,
-                        Ccy = item.Ccy
-                    });
+                    var value = ExemptTransfers ? item?.AdjustedValue : item?.Value;
+                    chartItem.Values.Add(value ?? double.NaN);
                 }
             }
-
-            var names = chartItems.Select(v => v.Name).Distinct().ToList();
-            Dates = chartItems.Select(v => v.When).Distinct().ToList();
-
-            var ci = chartItems.GroupBy(v => v.Name).ToDictionary(v => v.Key, v => v.ToDictionary(s => s.When, s => s));
-
-            Values = names
-                .SelectMany(name => Dates.Select(date => (name, date)))
-                .Select(s => (s.name, s.date, ci.GetValueOrDefault(s.name)?.GetValueOrDefault(s.date)))
-                .GroupBy(v => v.name)
-                .ToDictionary(v => v.Key, v => v.Select(s => s.Item3).Where(s => s != null).ToList())
-                .Select(v=>new ChartValue
-                {
-                    Label = v.Key,
-                    Values = v.Value
-                }).ToList();
         }
 
         public List<DateTime> Dates { get; set; }

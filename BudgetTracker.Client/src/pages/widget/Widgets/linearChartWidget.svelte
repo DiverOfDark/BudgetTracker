@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { LinearChartWidgetViewModel } from './../../../generated-types';
-	import { formatMoney, formatDate } from './../../../services/Shared';
+	import { formatMoney } from './../../../services/Shared';
 	import { ChartConfiguration } from 'c3';
 	import tabler from './../../../tabler';
 	import { onMount } from 'svelte';
 	import c3 from 'c3';
+	import moment from 'moment';
 
 	export let model: LinearChartWidgetViewModel = {
         title: '',
@@ -33,9 +34,6 @@
 			return () => {};
 		}
 
-		console.log("Donut:");
-		console.log(model);
-
 		let chartNames : any = {};
 		for(var i =0; i < model.values.length; i++) {
 			chartNames['data' + i] = model.values[i].label;
@@ -43,10 +41,10 @@
 		
 		let chartGroups = model.values.map((_,i)=>'data' + i);
 
-		var prefilter = (a:any) : number => a !== "NaN" ? a : 0;
+		var prefilter = (a:any) : number => a !== "NaN" ? a : NaN;
 
-		var chartItems = model.values.map((v,i) => ['data' + i, ...v.values.map(t=>formatMoney(prefilter(t.value)))]);
-		var dates = model.dates.map(formatDate);
+		var chartItems = model.values.map((v,i) => ['data' + i, ...v.values.map(t=>formatMoney(prefilter(t)))]);
+		var dates = model.dates.map(x=>moment(x).toDate());
 
 		var params: ChartConfiguration = {
 			bindto: chartDiv,
@@ -101,6 +99,8 @@
 			}
 		};
 
+		console.log(params)
+
 		var chart = c3.generate(params)
 
 		return chart.unload;
@@ -115,6 +115,6 @@
 		{model.title}
 	</div>
 </div>
-<div class="card-chart-bg" style="height: 100%; max-height: {height}">
+<div class="card-chart-bg" style="height: 100%; max-height: {height}px">
 	<div bind:this="{chartDiv}"></div>
 </div>
