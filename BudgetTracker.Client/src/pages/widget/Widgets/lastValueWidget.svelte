@@ -194,7 +194,7 @@
         <div class="text-muted text-nowrap">
             {model.title}
 	        <a href="/Table/Chart?provider={model.provider}&account={model.account}">
-		        <span class="fe @trend"></span>
+		        <span class="fe {trend}"></span>
 	        </a>
         </div>
         <h4 class="m-0">
