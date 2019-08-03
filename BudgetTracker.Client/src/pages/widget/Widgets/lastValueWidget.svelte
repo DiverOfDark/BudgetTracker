@@ -170,7 +170,7 @@
 		</div>
         <div class="text-muted">
             {model.title}
-			<Link href="/Chart/{model.provider}/{model.account}/{model.exemptTransfers}">
+			<Link href="/Chart/{encodeURIComponent(model.provider)}/{encodeURIComponent(model.account)}/{encodeURIComponent(model.exemptTransfers)}">
 		        <span class="fe {trend}"></span>
 	        </Link>
             <br/>
@@ -195,7 +195,7 @@
         </h3>
         <div class="text-muted text-nowrap">
             {model.title}
-	        <Link href="/Chart/{model.provider}/{model.account}">
+	        <Link href="/Chart/{encodeURIComponent(model.provider)}/{encodeURIComponent(model.account)}">
 		        <span class="fe {trend}"></span>
 	        </Link>
         </div>

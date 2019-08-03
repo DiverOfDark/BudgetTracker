@@ -68,7 +68,7 @@
 								{#each vm.headers as p}
 									<th title="{p.accountName}">
 										{p.userFriendlyName}
-										<Link href="/Chart/{p.provider}/{p.accountName || ''}{p.userFriendlyName || ''}">
+										<Link href="/Chart/{encodeURIComponent(p.provider)}/{encodeURIComponent(p.accountName || '')}{encodeURIComponent(p.userFriendlyName || '')}">
 											<span class="fe fe-trending-up"></span>
 										</Link>
 										{#if showControls}
