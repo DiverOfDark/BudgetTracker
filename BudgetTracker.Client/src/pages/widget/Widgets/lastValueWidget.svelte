@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { LastValueWidgetViewModel } from './../../../generated-types';
+    // @ts-ignore
+    import { Link } from 'svero';
     import { formatMoney, formatDate, formatDateJs } from './../../../services/Shared';
 	import { onMount } from 'svelte';
 	import {compare} from './../../../services/Shared'
@@ -158,7 +160,7 @@
 
 	onMount(() => refresh());
 
-	hexColor; trend; colorSuffix; formatDate; formatMoney;
+	hexColor; trend; colorSuffix; formatDate; formatMoney; Link;
 </script>
 
 {#if model.isCompact}
@@ -168,9 +170,9 @@
 		</div>
         <div class="text-muted">
             {model.title}
-	        <a href="/Table/Chart?provider={model.provider}&account={model.account}&exemptTransfers={model.exemptTransfers}">
+			<Link href="/Chart/{model.provider}/{model.account}/{model.exemptTransfers}">
 		        <span class="fe {trend}"></span>
-	        </a>
+	        </Link>
             <br/>
             <small>
 				{formatDate(model.currentDate)}
@@ -193,9 +195,9 @@
         </h3>
         <div class="text-muted text-nowrap">
             {model.title}
-	        <a href="/Table/Chart?provider={model.provider}&account={model.account}">
+	        <Link href="/Chart/{model.provider}/{model.account}">
 		        <span class="fe {trend}"></span>
-	        </a>
+	        </Link>
         </div>
         <h4 class="m-0">
             <small class="text-muted">

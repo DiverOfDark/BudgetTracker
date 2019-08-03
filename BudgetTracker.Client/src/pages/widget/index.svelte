@@ -3,6 +3,9 @@
 </svelte:head>
 
 <script lang="ts">
+    // @ts-ignore
+    import { Link } from 'svero';
+
     import { WidgetController, WidgetViewModel } from '../../generated-types';
     import donutWidget from './Widgets/donutWidget.svelte';
     import linearChartWidget from './Widgets/linearChartWidget.svelte';
