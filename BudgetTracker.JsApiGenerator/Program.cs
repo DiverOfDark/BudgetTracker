@@ -54,27 +54,40 @@ import rest from './services/Rest';
         {
             using(var fileWriter = File.AppendText(_fileName))
             {
-                fileWriter.WriteLine($"export class {type.Name}Enum {{\n" +
-                                     $"    id: number;\n" +
-                                     $"    constructor(id: number) {{\n" +
-                                     $"        this.id = id;\n" +
-                                     $"    }}\n");
+                fileWriter.Write($"export class {type.Name}Enum {{\n");
 
+                var staticMembers = "";
                 var getName = "    getName() {\n";
                 var getLabel = "    getLabel() {\n";
+                var getItems = "    static getEnums() {\n";
+                getItems += "        return [\n";
                 
                 foreach (var v in Enum.GetValues(type))
                 {
                     getName += $"        if (this.id === {(int)v}) return \"{v}\";\n";
                     getLabel += $"        if (this.id === {(int)v}) return \"{v.GetDisplayName()}\";\n";
+                    staticMembers += $"    static {v} = new {type.Name}Enum({(int) v});\n";
+                    getItems += $"            {type.Name}Enum.{v},\n";
                 }
+
+                getItems = getItems.TrimEnd(',', '\n');
+                getItems += "\n        ];\n";
 
                 getName += "        return this.id;\n";
                 getLabel += "        return this.id;\n";
                 getName += "    }\n";
                 getLabel += "    }\n";
+                getItems += "    }\n";
 
                     
+                fileWriter.Write(staticMembers);
+                fileWriter.WriteLine(getItems);
+                fileWriter.WriteLine($"    id: number;\n\n" +
+                                     $"    constructor(id: number) {{\n" +
+                                     $"        this.id = id;\n" +
+                                     $"    }}\n\n" +
+                                     $"    getId(): number {{ return this.id; }}\n");
+
                 fileWriter.WriteLine(getName);
                 fileWriter.WriteLine(getLabel);
                 fileWriter.WriteLine("}\n");
@@ -116,27 +129,36 @@ import rest from './services/Rest';
 
                 foreach (var method in methods)
                 {
-                    var jsMethod = method.GetCustomAttribute<CacheableRestAttribute>() == null
-                        ? "query"
-                        : "cachedQuery";
-
-                    var httpMethod = "\"GET\"";
-
-                    if (method.GetCustomAttribute<HttpGetAttribute>() != null)
-                    {
-                        httpMethod = "\"GET\"";
-                    }
+                    var jsMethod = "get";
 
                     if (method.GetCustomAttribute<HttpPostAttribute>() != null)
                     {
-                        httpMethod = "\"POST\"";
+                        jsMethod = "post";
                     }
 
                     bool hasResponse = GetTypescriptType(method.ReturnType, knownTypes) != "void";
 
-                    fileWrite.WriteLine($"    static async {GetMethodSignature(method)}: Promise<{GetTypescriptType(method.ReturnType, knownTypes)}> {{ ");
-                    fileWrite.WriteLine($"      return rest.{jsMethod}({GetMethodQuery(method, controllerName)}, {httpMethod}, {hasResponse.ToString().ToLower()}, {ShouldDeserialize(method.ReturnType).ToString().ToLower()}); ");
-                    fileWrite.WriteLine( "    };");
+                    if (jsMethod == "get")
+                    {
+                        fileWrite.WriteLine($"    static async {GetMethodSignature(method)}: Promise<{GetTypescriptType(method.ReturnType, knownTypes)}> {{ ");
+                        fileWrite.WriteLine($"      return rest.{jsMethod}({GetMethodQuery(method, controllerName)}, {hasResponse.ToString().ToLower()}, {ShouldDeserialize(method.ReturnType).ToString().ToLower()}); ");
+                        fileWrite.WriteLine("    };");
+                    }
+                    else
+                    {
+                        var endpoint = $"`/{controllerName}/{method.Name}`";
+                        
+                        fileWrite.WriteLine($"    static async {GetMethodSignature(method, knownTypes)}: Promise<{GetTypescriptType(method.ReturnType, knownTypes)}> {{ ");
+                        var enumerable = method.GetParameters().Select(v => FilterKeywords(v.Name)).ToList();
+                        fileWrite.WriteLine($"      let data = {{");
+                        foreach (var v in enumerable)
+                        {
+                            fileWrite.WriteLine($"          {v}: {v},");
+                        }
+                        fileWrite.WriteLine($"      }}");
+                        fileWrite.WriteLine($"      return rest.{jsMethod}({endpoint}, data, {hasResponse.ToString().ToLower()}, {ShouldDeserialize(method.ReturnType).ToString().ToLower()}); ");
+                        fileWrite.WriteLine("    };");
+                    }
                 }
 
                 if (navigations.Any() && methods.Any())
@@ -159,9 +181,9 @@ import rest from './services/Rest';
             return !type.IsPrimitive && type != typeof(string);
         }
         
-        private static string GetMethodSignature(MethodInfo method)
+        private static string GetMethodSignature(MethodInfo method, IEnumerable<Type> knownTypes = null)
         {
-            var args = method.GetParameters().Select(v => FilterKeywords(v.Name) + ": " + GetTypescriptType(v.ParameterType))
+            var args = method.GetParameters().Select(v => FilterKeywords(v.Name) + ": " + GetTypescriptType(v.ParameterType, knownTypes))
                 .Join(", ");
             return $"{CamelCase(method.Name)}({args})";
         }
@@ -277,7 +299,7 @@ import rest from './services/Rest';
 
             if (typeof(IDictionary<,>).IsSubTypeOfRawGeneric(type))
             {
-                return "object";
+                return "any";
                 var ga = type.GetGenericArguments();
                 return "Map<" + GetTypescriptType(ga[0]) + "," + GetTypescriptType(ga[1]) + ">";
             }

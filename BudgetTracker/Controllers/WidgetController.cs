@@ -5,6 +5,7 @@ using System.Linq;
 using BudgetTracker.Controllers.ViewModels;
 using BudgetTracker.Controllers.ViewModels.Table;
 using BudgetTracker.Controllers.ViewModels.Widgets;
+using BudgetTracker.JsModel;
 using BudgetTracker.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -33,34 +34,25 @@ namespace BudgetTracker.Controllers
             return Ok();
         }
 
-        [HttpGet]
-        public EditWidgetViewModel EditWidget(Guid id)
-        {
-            var widget = _objectRepository.Set<WidgetModel>().First(v => v.Id == id);
-            return new EditWidgetViewModel(widget);
-        }
-
         [HttpPost]
-        public OkResult EditWidget(EditWidgetViewModel editWidgetViewModel)
+        public OkResult EditWidget(Guid id, string title, WidgetKind kind, Dictionary<string, string> properties)
         {
             WidgetModel existingModel;
 
-            if (editWidgetViewModel.Id == Guid.Empty)
+            if (id == Guid.Empty)
             {
                 var maxOrder = _objectRepository.Set<WidgetModel>().Count();
-                existingModel = new WidgetModel(maxOrder, editWidgetViewModel.Title, editWidgetViewModel.Kind);
+                existingModel = new WidgetModel(maxOrder, title, kind);
                 _objectRepository.Add(existingModel);
             }
             else
             {
-                existingModel = _objectRepository.Set<WidgetModel>().First(v => v.Id == editWidgetViewModel.Id);
+                existingModel = _objectRepository.Set<WidgetModel>().First(v => v.Id == id);
             }
 
-            editWidgetViewModel.Id = existingModel.Id;
-            
-            existingModel.Kind = editWidgetViewModel.Kind;
-            existingModel.Title = editWidgetViewModel.Title;
-            existingModel.Properties = new ReadOnlyDictionary<string, string>(editWidgetViewModel.Properties);
+            existingModel.Kind = kind;
+            existingModel.Title = title;
+            existingModel.Properties = new ReadOnlyDictionary<string, string>(properties);
             
             return Ok();
         }

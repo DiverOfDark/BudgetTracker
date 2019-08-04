@@ -15,6 +15,7 @@
   import PaymentCategory from './pages/payment/spentCategories.svelte';
   import PaymentCategoryEdit from './pages/payment/editCategory.svelte';
   import WidgetIndex from './pages/widget/index.svelte'
+  import WidgetEdit from './pages/widget/edit.svelte'
   import WidgetChart from './pages/widget/chart.svelte'
   import Debt from './pages/debt/index.svelte';
   import DebtAdd from './pages/debt/add.svelte';
@@ -32,6 +33,8 @@
             <Router>
                 <Route path="/" component={WidgetIndex} />
                 <Route path="/Table" component={TableIndex} />
+                <Route path="/Widget/Edit" component={WidgetEdit} />
+                <Route path="/Widget/Edit/:id" component={WidgetEdit} />
                 <Route path="/Chart/:provider/:account" component={WidgetChart} />
                 <Route path="/Chart/:provider/:account/:exemptTransfers" component={WidgetChart} />
                 <Route path="/Metadata" component={MetadataIndex} />

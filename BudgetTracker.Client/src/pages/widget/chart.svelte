@@ -1,13 +1,24 @@
 ﻿
-<script>
+<script lang="ts">
     import LinearChartWidget from './Widgets/linearChartWidget.svelte';
     import { TableController, LinearChartWidgetViewModel } from '../../generated-types';
 
-    export let router = {};
+    export let router: any = {};
 
-    let widgetModel;
+	let widgetModel: LinearChartWidgetViewModel = {
+        title: '',
+        period: 0,
+        values: [],
+        columns: 0,
+        id: '',
+        kind: '',
+        rows: 0,
+		settings: {},
+		dates: [],
+		exemptTransfers: false
+	};
 
-    let loadData = async function(provider, account, exemptTransfers) {
+    let loadData = async function(provider: string, account: string, exemptTransfers: boolean) {
         widgetModel = await TableController.chart(provider, account, exemptTransfers)
     }
 
@@ -20,9 +31,13 @@
             loadData(provider, account, exemptTransfers);
         }
     }
+
+    LinearChartWidget; widgetModel;
 </script>
 
-
+<svelte:head>
+    <title>BudgetTracker - {widgetModel.title}</title>
+</svelte:head>
 
 <div class="container">
     <div class="row row-cards row-deck">

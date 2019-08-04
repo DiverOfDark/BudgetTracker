@@ -4,7 +4,7 @@
 
 <script lang="ts">
     // @ts-ignore
-    import { Link } from 'svero';
+    import { Link, navigateTo } from 'svero';
 
     import { WidgetController, WidgetViewModel } from '../../generated-types';
     import donutWidget from './Widgets/donutWidget.svelte';
@@ -24,11 +24,11 @@
     }
 
     let createWidget = function() {
-        // TODO;
+        navigateTo('/Widget/Edit');
     }
 
-    let editWidget = async function(id: string) {
-        id; // TODO
+    let editWidget = function(id: string) {
+        navigateTo('/Widget/Edit/' + id);
     }
     
     let deleteWidget = async function(id: string) {

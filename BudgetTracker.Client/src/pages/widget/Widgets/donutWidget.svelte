@@ -31,6 +31,14 @@
 			return () => {};
 		}
 
+		if (!model.names) {
+			model.names = [];
+		}
+
+		if (!model.values) {
+			model.values = [];
+		}
+
 		let chartNames : any = {};
 		for(var i =0; i < model.values.length; i++) {
 			chartNames['data' + i] = model.names[i];
@@ -38,7 +46,7 @@
 		let chartGroups = model.values.map((_,i)=>'data' + i);
 
 		let chartItems = model.values.map((v,i) => ['data' + i, v ]);
-		let sum = model.values.reduce((a,b) => a+b);
+		let sum = model.values.reduce((a,b) => a+b, 0);
 		
 		var params: ChartConfiguration = {
 			bindto: chartDiv,

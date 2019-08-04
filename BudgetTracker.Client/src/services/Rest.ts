@@ -1,26 +1,10 @@
 export class RestCache {
   cache: any = {};
 
-  cachedQuery(uri: string, method: string, hasResponse: boolean, shouldDeserialize: boolean) : Promise<any> {
-    let self = this;
-    let func = async function(uri: string, method: string, hasResponse: boolean, shouldDeserialize: boolean) {
-      let args = JSON.stringify(arguments);
-
-      self.cache[args] = self.cache[args] || self.query(uri, method, hasResponse, shouldDeserialize);
-
-      return self.cache[args];
-    };
-
-    return func(uri, method, hasResponse, shouldDeserialize);
-  }
-
-  async query(uri: string, method: string, hasResponse: boolean, shouldDeserialize: boolean) : Promise<any> {
+  async get(uri: string, hasResponse: boolean, shouldDeserialize: boolean) : Promise<any> {
     let fetched: Response;
-    if (!method) {
-      method = "GET";
-    }
 
-    fetched = await fetch(uri, {method: method, headers: { "X-Requested-With": "XMLHttpRequest" }});
+    fetched = await fetch(uri, {method: "GET", headers: { "X-Requested-With": "XMLHttpRequest" }});
 
     if (hasResponse) {
       if (!shouldDeserialize) {
@@ -29,7 +13,20 @@ export class RestCache {
       return await fetched.json();
     }
   }
-};
+
+  async post(uri: string, data:any, hasResponse: boolean, shouldDeserialize: boolean) {
+    let fetched: Response;
+
+    fetched = await fetch(uri, {method: "POST", headers: { "X-Requested-With": "XMLHttpRequest"}, body: JSON.stringify(data)});
+
+    if (hasResponse) {
+      if (!shouldDeserialize) {
+        return await fetched.text();
+      }
+      return await fetched.json();
+    }
+  }
+}
 
 const Instance = new RestCache();
 
