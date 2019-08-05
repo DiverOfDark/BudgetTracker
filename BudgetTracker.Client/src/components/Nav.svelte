@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { SystemController } from '../generated-types'
+    import { SystemController, AuthController } from '../generated-types'
+    import { AuthService } from '../services/AuthService'
     import { readable } from 'svelte/store';
     
     //@ts-ignore
@@ -17,8 +18,13 @@
       return () => clearInterval(interval);
     });
 
+    let logout = async function() {
+        await AuthController.logout();
+        AuthService.logoff();
+    }
+
     // used in template
-    NavLink; info; time;
+    NavLink; info; time; logout;
 </script>
 
 <nav>
@@ -33,7 +39,7 @@
                         </div>
                     </div>
                     <div class="nav-item">
-                        <a href="/Auth/Logout" class="btn btn-sm btn-outline-primary">Выход</a>
+                        <button on:click="{() => logout()}" class="btn btn-sm btn-outline-primary">Выход</button>
                     </div>
                 </div>
                 <a href="/" onclick="return false;" class="header-toggler d-lg-none ml-3 ml-lg-0" data-toggle="collapse" data-target="#headerMenuCollapse">

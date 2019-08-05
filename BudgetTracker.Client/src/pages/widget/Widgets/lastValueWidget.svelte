@@ -63,8 +63,8 @@
 	let refresh = function() {
 		if (!model.isCompact && chartDiv) {
 			var goodItems = Object.entries(model.values).sort((a,b)=>compare(a[0], b[0])).filter(v=>v[1]);
-			var chartItems = goodItems.map(v => v[1]);
-			var datesItems = goodItems.map(v => v[0]);
+			var chartItems : number[] = goodItems.map(v => <number> v[1]);
+			var datesItems : string[] = goodItems.map(v => <string> v[0]);
 
 			if (model.graphKind == 'Differential')
 			{

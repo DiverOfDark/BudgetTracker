@@ -12,24 +12,8 @@ namespace BudgetTracker.Controllers
 {
     public class AuthController : Controller
     {
-        public IActionResult Index(string returnUrl = null)
-        {
-            if (HttpContext.User.Identity.IsAuthenticated)
-            {
-                returnUrl = ValidateReturnUrl(returnUrl);
-                if (!string.IsNullOrEmpty(returnUrl))
-                {
-                    return Redirect(returnUrl);
-                }
-
-                return RedirectToAction("Index", "Widget");
-            }
-            
-            ViewData["RenderBody"] = false;
-            return View();
-        }
-
-        public async Task<IActionResult> Login(string password, string returnUrl)
+        [HttpPost]
+        public async Task<bool> Login(string password)
         {
             if (string.Equals(Startup.GlobalSettings.Password ?? string.Empty, password ?? string.Empty))
             {
@@ -43,37 +27,18 @@ namespace BudgetTracker.Controllers
 
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
-                returnUrl = ValidateReturnUrl(returnUrl);
-                
-                if (!string.IsNullOrEmpty(returnUrl))
-                {
-                    return Redirect(returnUrl);
-                }
-
-                return RedirectToAction("Index", "Widget");
+                return true;
             }
 
-            ViewData["RenderBody"] = false;
-            ViewData["Error"] = "Неверный пароль!";
-            return View(nameof(Index));
+            return false;
         }
 
-        private string ValidateReturnUrl(string url)
-        {
-            if (string.IsNullOrEmpty(url))
-                return url;
-            
-            if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out var uri) && uri.IsAbsoluteUri)
-                return null;
-            
-            return url;
-        }
-
-        [Authorize]
-        public async Task<IActionResult> Logout()
+        [Authorize, HttpPost]
+        public async Task<OkResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction(nameof(Index));
+            return Ok();
         }
+
     }
 }

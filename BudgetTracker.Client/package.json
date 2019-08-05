@@ -20,7 +20,7 @@
     "rollup-plugin-terser": "^5.1.1",
     "rollup-plugin-typescript2": "^0.21.2",
     "sirv-cli": "^0.4.4",
-    "svelte": "^3.6.5",
+    "svelte": "^3.7.0",
     "typescript": "^3.5.2"
   },
   "scripts": {
@@ -36,6 +36,6 @@
     "@types/d3": "^5.7.2",
     "c3": "^0.7.2",
     "moment": "^2.24.0",
-    "svero": "^0.5.0"
+    "svero": "^1.0.0"
   }
 }

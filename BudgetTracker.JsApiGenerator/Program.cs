@@ -102,7 +102,7 @@ import rest from './services/Rest';
                 controllerName = controllerName.Substring(0, controllerName.IndexOf("Controller"));
             }
 
-            var whiteList = new[] {typeof(OkResult)};
+            var whiteList = new[] {typeof(OkResult), typeof(StatusCodeResult)};
 
             var methodInfos = type.GetMethods(BindingFlags.Instance | BindingFlags.Public)
                 .Where(v => v.GetCustomAttribute<HideFromRestAttribute>() == null && !v.DeclaringType.IsAssignableFrom(typeof(Controller)))
@@ -110,13 +110,13 @@ import rest from './services/Rest';
                 .ToList();
             
             var methods = methodInfos
-                .Where(v => !typeof(IActionResult).IsAssignableFrom(ExpandType(v.ReturnType)) || whiteList.Contains(v.ReturnType))
+                .Where(v => !typeof(IActionResult).IsAssignableFrom(ExpandType(v.ReturnType)) || whiteList.Contains(ExpandType(v.ReturnType)))
                 .GroupBy(v => v.Name)
                 .Select(v => v.OrderByDescending(s => s.GetParameters().Length).First())
                 .ToList();
             
             var navigations = methodInfos
-                .Where(v => typeof(IActionResult).IsAssignableFrom(ExpandType(v.ReturnType)) || whiteList.Contains(v.ReturnType))
+                .Where(v => typeof(IActionResult).IsAssignableFrom(ExpandType(v.ReturnType)) && !whiteList.Contains(ExpandType(v.ReturnType)))
                 .Where(v => v.GetParameters().Length == 0)
                 .ToList(); 
 
@@ -324,7 +324,7 @@ import rest from './services/Rest';
                 result = "boolean";
             else if (type == typeof(DateTime))
                 result = "string";
-            else if (type == typeof(OkResult))
+            else if (type == typeof(OkResult) || type == typeof(StatusCodeResult))
             {
                 result = "void";
             } else {

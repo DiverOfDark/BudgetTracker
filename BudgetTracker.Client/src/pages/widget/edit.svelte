@@ -192,6 +192,7 @@
                                         </div>
                                     </div>
                                 {:else if model.kindId == WidgetKindEnum.LinearChart.getId()} 
+                                    <!-- No properties for this -->
                                 {:else if model.kindId == WidgetKindEnum.Donut.getId()} 
                                     <!-- No properties for this -->
                                 {:else if model.kindId == WidgetKindEnum.Delta.getId()} 
