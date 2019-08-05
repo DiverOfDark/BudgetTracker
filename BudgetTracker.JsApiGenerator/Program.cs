@@ -138,10 +138,14 @@ import rest from './services/Rest';
 
                     bool hasResponse = GetTypescriptType(method.ReturnType, knownTypes) != "void";
 
+                    bool isBoolResponse = ExpandType(method.ReturnType) == typeof(bool);
+
+                    var boolPrefix = isBoolResponse ? "\"true\" == await " : "";
+                    
                     if (jsMethod == "get")
                     {
                         fileWrite.WriteLine($"    static async {GetMethodSignature(method)}: Promise<{GetTypescriptType(method.ReturnType, knownTypes)}> {{ ");
-                        fileWrite.WriteLine($"      return rest.{jsMethod}({GetMethodQuery(method, controllerName)}, {hasResponse.ToString().ToLower()}, {ShouldDeserialize(method.ReturnType).ToString().ToLower()}); ");
+                        fileWrite.WriteLine($"      return {boolPrefix}rest.{jsMethod}({GetMethodQuery(method, controllerName)}, {hasResponse.ToString().ToLower()}, {ShouldDeserialize(method.ReturnType).ToString().ToLower()}); ");
                         fileWrite.WriteLine("    };");
                     }
                     else
@@ -156,7 +160,7 @@ import rest from './services/Rest';
                             fileWrite.WriteLine($"          {v}: {v},");
                         }
                         fileWrite.WriteLine($"      }}");
-                        fileWrite.WriteLine($"      return rest.{jsMethod}({endpoint}, data, {hasResponse.ToString().ToLower()}, {ShouldDeserialize(method.ReturnType).ToString().ToLower()}); ");
+                        fileWrite.WriteLine($"      return {boolPrefix}rest.{jsMethod}({endpoint}, data, {hasResponse.ToString().ToLower()}, {ShouldDeserialize(method.ReturnType).ToString().ToLower()}); ");
                         fileWrite.WriteLine("    };");
                     }
                 }
