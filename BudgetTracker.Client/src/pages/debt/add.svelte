@@ -4,7 +4,7 @@
 
 <script>
     //@ts-ignore
-    import {navigateTo} from 'svero';
+    import {navigateTo} from '/svero/main';
     import { DebtController } from '../../generated-types';
     import moment from 'moment';
 

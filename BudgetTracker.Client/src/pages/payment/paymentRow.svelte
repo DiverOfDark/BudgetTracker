@@ -8,7 +8,7 @@
 
     import moment from 'moment'
 
-    import { Link } from 'svero';
+    import { Link } from '/svero/main';
     import {formatMoney} from '../../services/Shared';
     import {tooltip} from '../../services/Tooltip';
 

@@ -2,7 +2,7 @@
     import {MetadataController, MoneyColumnMetadataJsModel} from '../../generated-types';
     
     // @ts-ignore
-    import { Link } from 'svero';
+    import { Link } from '/svero/main';
 
     let columns: MoneyColumnMetadataJsModel[] = [];
 

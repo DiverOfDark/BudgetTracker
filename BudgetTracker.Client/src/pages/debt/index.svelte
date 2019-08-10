@@ -4,7 +4,7 @@
 
 <script lang="ts">
     //@ts-ignore
-    import {Link} from 'svero';
+    import {Link} from '/svero/main';
     import {DebtController, DebtJsViewModel} from '../../generated-types'
     import {formatMoney} from '../../services/Shared'
 

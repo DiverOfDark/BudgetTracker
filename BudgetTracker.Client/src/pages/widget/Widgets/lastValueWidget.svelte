@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { LastValueWidgetViewModel } from './../../../generated-types';
     // @ts-ignore
-    import { Link } from 'svero';
+    import { Link } from '/svero/main';
     import { formatMoney, formatDate, formatDateJs } from './../../../services/Shared';
 	import { onMount } from 'svelte';
 	import {compare} from './../../../services/Shared'

@@ -1,5 +1,5 @@
 <script>
-  import { Router, Route } from 'svero';
+  import { Router, Route } from '/svero/main';
   import AuthService from './services/AuthService';
 
   import TableIndex from './pages/table/index.svelte';

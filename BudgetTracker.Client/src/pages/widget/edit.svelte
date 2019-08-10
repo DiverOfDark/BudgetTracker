@@ -1,6 +1,6 @@
 ﻿ <script lang="ts">
     //@ts-ignore
-    import {navigateTo} from 'svero';
+    import {navigateTo} from '/svero/main';
     import { WidgetController, WidgetViewModelController, WidgetJsViewModel, WidgetKindEnum, GraphKindEnum, DeltaIntervalEnum, MoneyColumnMetadataModelController } from '../../generated-types';
 
     export let router: any = {};

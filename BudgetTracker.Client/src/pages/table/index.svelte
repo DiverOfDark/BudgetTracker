@@ -156,7 +156,7 @@
 	import moment from 'moment'
 	import { tooltip } from '../../services/Tooltip'
     // @ts-ignore
-    import { Link } from 'svero';
+    import { Link } from '/svero/main';
 	import { TableController } from '../../generated-types.ts'
 	import { formatMoney, formatDate } from '../../services/Shared'
 

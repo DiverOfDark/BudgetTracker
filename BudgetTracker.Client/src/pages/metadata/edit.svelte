@@ -3,7 +3,7 @@
     import AutoComplete from '../../components/Autocomplete.svelte'
 
     //@ts-ignore
-    import {navigateTo} from 'svero';
+    import {navigateTo} from '/svero/main';
 
     export let router = {};
     

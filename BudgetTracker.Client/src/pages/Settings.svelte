@@ -1,6 +1,6 @@
 <script>
     import {SettingsController, UtilityController } from '../generated-types';
-    import { Link } from 'svero';
+    import { Link } from '/svero/main';
 
 
     let newPassword = '';

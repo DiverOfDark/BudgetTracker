@@ -3,7 +3,7 @@
 </svelte:head>
 
 <script>
-    import {navigateTo} from 'svero';
+    import {navigateTo} from '/svero/main';
     import {PaymentController, SpentCategoryModelController} from '../../generated-types';
     
     export let router;

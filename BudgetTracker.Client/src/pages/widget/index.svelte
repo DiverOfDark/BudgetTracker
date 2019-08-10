@@ -4,7 +4,7 @@
 
 <script lang="ts">
     // @ts-ignore
-    import { Link, navigateTo } from 'svero';
+    import { Link, navigateTo } from '/svero/main';
 
     import { WidgetController, WidgetViewModel } from '../../generated-types';
     import donutWidget from './Widgets/donutWidget.svelte';

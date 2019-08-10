@@ -13,7 +13,7 @@
 </style>
 
 <script>
-    import { Link } from 'svero';
+    import { Link } from '/svero/main';
 
     import { SmsListController } from '../../generated-types';
 
