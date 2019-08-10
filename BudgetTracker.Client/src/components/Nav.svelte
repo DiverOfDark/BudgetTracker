@@ -1,6 +1,6 @@
 <script lang="ts">
     import { SystemController, AuthController } from '../generated-types'
-    import { AuthService } from '../services/AuthService'
+    import AuthService from '../services/AuthService'
     import { readable } from 'svelte/store';
     
     //@ts-ignore

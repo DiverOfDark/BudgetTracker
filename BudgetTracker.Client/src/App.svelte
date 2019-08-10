@@ -32,9 +32,11 @@
 </script>
 
 <div class="page">
+{$authorized}
   <Router>
-    <Route path="*" component={Auth} condition="{!$authorized}" />
-    <Route path="*" condition="{$authorized}">
+  {#if !$authorized}
+      <Auth />
+  {:else}
       <div class="page-main">
         <Nav />
         <div class="page-content">
@@ -65,8 +67,8 @@
               <Route path="*" component={NotFound} />
         </div>
       </div>
-    </Route>
-    </Router>
-	<Footer /> 
+    	<Footer /> 
+  {/if}
+  </Router>
   <Tooltip />
 </div>

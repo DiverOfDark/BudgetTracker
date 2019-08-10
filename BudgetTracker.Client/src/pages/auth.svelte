@@ -33,18 +33,20 @@
                         </div>
                     {/if}
                     <div class="card">
-                        <div class="card-body p-6">
-                            <div class="card-title">Вход в BudgetTracker</div>
-                            <div class="form-group">
-                                <label class="form-label">
-                                    Пароль
-                                </label>
-                                <input type="password" bind:value="{password}" class="form-control" placeholder="Пароль">
+                        <form on:submit|preventDefault="{() => login()}">
+                            <div class="card-body p-6">
+                                <div class="card-title">Вход в BudgetTracker</div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Пароль
+                                    </label>
+                                    <input type="password" bind:value="{password}" class="form-control" placeholder="Пароль">
+                                </div>
+                                <div class="form-footer">
+                                    <button type="submit" class="btn btn-primary btn-block">Вход</button>
+                                </div>
                             </div>
-                            <div class="form-footer">
-                                <button on:click="{() => login()}" class="btn btn-primary btn-block">Вход</button>
-                            </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
