@@ -3,8 +3,7 @@
 </svelte:head>
 
 <script>
-    //@ts-ignore
-    import {navigateTo} from '/svero/main';
+    import {navigateTo} from '../../svero/utils';
     import { DebtController } from '../../generated-types';
     import moment from 'moment';
 

@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { LinearChartWidgetViewModel } from './../../../generated-types';
 	import { formatMoney } from './../../../services/Shared';
-	import { ChartConfiguration } from 'c3';
+
 	import tabler from './../../../tabler';
 	import { onMount } from 'svelte';
+	
+	// @ts-ignore
 	import c3 from 'c3';
 
 	export let model: LinearChartWidgetViewModel = {
@@ -44,7 +46,7 @@
 
 		var chartItems = model.values.map((v,i) => ['data' + i, ...v.values.map(t=>prefilter(t))]);
 
-		var params: ChartConfiguration = {
+		var params = {
 			bindto: chartDiv,
 			data: {
 				columns: [

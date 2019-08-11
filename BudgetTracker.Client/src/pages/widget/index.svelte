@@ -3,8 +3,8 @@
 </svelte:head>
 
 <script lang="ts">
-    // @ts-ignore
-    import { Link, navigateTo } from '/svero/main';
+    import Link from '../../svero/Link.svelte';
+    import { navigateTo } from '../../svero/utils';
 
     import { WidgetController, WidgetViewModel } from '../../generated-types';
     import donutWidget from './Widgets/donutWidget.svelte';
@@ -79,7 +79,7 @@
     loadData();
 
     // used implicitly
-    showButtons; period; moveLeft; moveRight; deleteWidget; createWidget; editWidget; model; periodFriendly; createComponent;
+    showButtons; period; moveLeft; moveRight; deleteWidget; createWidget; editWidget; model; periodFriendly; createComponent; Link;
 </script>
 
 <div class="container">

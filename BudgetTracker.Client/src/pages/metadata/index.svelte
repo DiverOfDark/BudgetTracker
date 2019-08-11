@@ -1,8 +1,7 @@
 <script lang="ts">
     import {MetadataController, MoneyColumnMetadataJsModel} from '../../generated-types';
     
-    // @ts-ignore
-    import { Link } from '/svero/main';
+    import Link from '../../svero/Link.svelte';
 
     let columns: MoneyColumnMetadataJsModel[] = [];
 

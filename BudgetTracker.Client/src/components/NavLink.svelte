@@ -1,5 +1,5 @@
 <script>
-    import { Link } from '/svero/main';
+    import Link from '../svero/Link.svelte';
 
     import { writable, get } from 'svelte/store';
     import { onMount, onDestroy } from 'svelte';

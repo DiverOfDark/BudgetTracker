@@ -3,7 +3,7 @@
 </svelte:head>
 
 <script>
-    import {Link} from '/svero/main';
+    import Link from '../../svero/Link.svelte';
     import moment from 'moment';
 
     import {PaymentController, PaymentViewModelController } from '../../generated-types';

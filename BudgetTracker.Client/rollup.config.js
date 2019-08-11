@@ -9,7 +9,6 @@ import progress from 'rollup-plugin-progress';
 import babel from 'rollup-plugin-babel';
 import { sizeSnapshot } from "rollup-plugin-size-snapshot";
 import sizes from "rollup-plugin-sizes";
-import includePaths from 'rollup-plugin-includepaths';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -45,13 +44,6 @@ const onwarn = warning => {
 
 }	
 
-let includePathOptions = {
-    include: {},
-    paths: ['src' ],
-    external: [],
-    extensions: ['.js', '.ts', '.svelte', '.json', '.html']
-};
-
 export default {
 	input: 'src/main.js',
 	output: {
@@ -62,7 +54,6 @@ export default {
 	},
 	onwarn,
 	plugins: [
-		includePaths(includePathOptions),
 		progress(),
 		sizeSnapshot(), 
 		sizes(),

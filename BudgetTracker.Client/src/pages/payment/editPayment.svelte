@@ -5,7 +5,7 @@
 <script>
     import {PaymentController, PaymentViewModelController, DebtModelController, MoneyColumnMetadataModelController, SpentCategoryModelController} from '../../generated-types';
     import {compare} from '../../services/Shared'
-    import {navigateTo} from '/svero/main';
+    import { navigateTo } from '../../svero/utils';
     import moment from 'moment';
 
     export let router = {};

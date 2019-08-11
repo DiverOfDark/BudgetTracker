@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { LastValueWidgetViewModel } from './../../../generated-types';
-    // @ts-ignore
-    import { Link } from '/svero/main';
+	import Link from '../../../svero/Link.svelte';
     import { formatMoney, formatDate, formatDateJs } from './../../../services/Shared';
 	import { onMount } from 'svelte';
 	import {compare} from './../../../services/Shared'
+	//@ts-ignore
 	import c3 from 'c3';
 
 	export let model: LastValueWidgetViewModel = {
@@ -86,11 +86,6 @@
 			var values = chartItems;
 			var dates = datesItems.map(formatDateJs);
 
-			var columns = [
-						['data1', ...values],
-						['x', ...dates]
-					];
-
 			var chart = c3.generate({
 				bindto: chartDiv,
 				padding: {
@@ -106,7 +101,10 @@
 					names: {
 						'data1': model.title
 					},
-					columns: columns,
+					columns: [
+						['data1', ...values],
+						['x', ...dates]
+					],
 					type: 'area-spline'
 				},
 				legend: {

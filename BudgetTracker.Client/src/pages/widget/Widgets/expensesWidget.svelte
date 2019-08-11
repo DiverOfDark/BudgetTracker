@@ -2,6 +2,7 @@
 	import { ExpensesWidgetViewModel } from './../../../generated-types';
     import { formatMoney } from './../../../services/Shared';
 	import { onMount } from 'svelte';
+	//@ts-ignore
 	import c3 from 'c3';
 
 	export let model: ExpensesWidgetViewModel = {
@@ -34,12 +35,10 @@
 
         var valuesSum = model.values.reduce((a,b) => a+b);
     
-        var columns = [...columnsData];
-        
         var chart = c3.generate({
             bindto: chartDiv,
             data: {
-                columns: columns,
+                columns: [...columnsData],
                 type: 'donut',
                 order: null,
                 names: namesData
@@ -52,7 +51,7 @@
             },
             tooltip: {
                 format: {
-                    value: function (value) {
+                    value: function (value: number) {
                         return formatMoney(value) + " " + model.expenseSettings.currency;
                     }
                 }

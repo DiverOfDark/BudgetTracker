@@ -1,9 +1,7 @@
 <script>
     import {MetadataController} from '../../generated-types';
     import AutoComplete from '../../components/Autocomplete.svelte'
-
-    //@ts-ignore
-    import {navigateTo} from '/svero/main';
+    import { navigateTo } from '../../svero/utils';
 
     export let router = {};
     

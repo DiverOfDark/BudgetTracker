@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { DonutWidgetViewModel } from './../../../generated-types';
 	import { formatMoney } from './../../../services/Shared';
-	import { ChartConfiguration } from 'c3';
+
 	import tabler from './../../../tabler';
 	import { onMount } from 'svelte';
+
+	//@ts-ignore
 	import c3 from 'c3';
 
 	export let model: DonutWidgetViewModel = {
@@ -48,7 +50,7 @@
 		let chartItems = model.values.map((v,i) => ['data' + i, v ]);
 		let sum = model.values.reduce((a,b) => a+b, 0);
 		
-		var params: ChartConfiguration = {
+		var params = {
 			bindto: chartDiv,
 			data: {
 				columns: chartItems,

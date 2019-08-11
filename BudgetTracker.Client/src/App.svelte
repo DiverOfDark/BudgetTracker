@@ -1,5 +1,6 @@
 <script>
-  import { Router, Route } from '/svero/main';
+  import Router from './svero/Router.svelte';
+  import Route from './svero/Route.svelte';
   import AuthService from './services/AuthService';
 
   import TableIndex from './pages/table/index.svelte';
@@ -32,43 +33,42 @@
 </script>
 
 <div class="page">
-{$authorized}
-  <Router>
   {#if !$authorized}
-      <Auth />
+    <Auth />
   {:else}
-      <div class="page-main">
-        <Nav />
-        <div class="page-content">
-              <Route path="/" component={WidgetIndex} />
-              <Route path="/Table" component={TableIndex} />
-              <Route path="/Widget/Edit" component={WidgetEdit} />
-              <Route path="/Widget/Edit/:id" component={WidgetEdit} />
-              <Route path="/Chart/:provider/:account" component={WidgetChart} />
-              <Route path="/Chart/:provider/:account/:exemptTransfers" component={WidgetChart} />
-              <Route path="/Metadata" component={MetadataIndex} />
-              <Route path="/Metadata/Edit" component={MetadataEdit} />
-              <Route path="/Metadata/Edit/:id" component={MetadataEdit} />
-              <Route path="/SmsList" component={Sms} />
-              <Route path="/SmsList/SmsRules" component={SmsRules} />
-              <Route path="/Payment" component={Payment} />
-              <Route path="/Payment/Split/:id" component={PaymentSplit} />
-              <Route path="/Payment/Edit/:id" component={PaymentEdit} />
-              <Route path="/Payment/Category" component={PaymentCategory} />
-              <Route path="/Payment/Category/Edit" component={PaymentCategoryEdit} />
-              <Route path="/Payment/Category/Edit/:id" component={PaymentCategoryEdit} />
-              <Route path="/Debt" component={Debt} />
-              <Route path="/Debt/Edit" component={DebtAdd} />
-              <Route path="/Debt/Edit/:id" component={DebtAdd} />
-              <Route path="/Settings" component={Settings} />
-              <Route path="/Utility/Tasks" component={UtilityTasks} />
-              <Route path="/Utility/ScriptConsole" component={UtilityScriptConsole} />
-              <Route path="/Utility/Screenshot" component={UtilityScreenshot} />
-              <Route path="*" component={NotFound} />
-        </div>
+    <div class="page-main">
+      <Nav />
+      <div class="page-content">
+        <Router>
+            <Route path="/" component={WidgetIndex} />
+            <Route path="/Table" component={TableIndex} />
+            <Route path="/Widget/Edit" component={WidgetEdit} />
+            <Route path="/Widget/Edit/:id" component={WidgetEdit} />
+            <Route path="/Chart/:provider/:account" component={WidgetChart} />
+            <Route path="/Chart/:provider/:account/:exemptTransfers" component={WidgetChart} />
+            <Route path="/Metadata" component={MetadataIndex} />
+            <Route path="/Metadata/Edit" component={MetadataEdit} />
+            <Route path="/Metadata/Edit/:id" component={MetadataEdit} />
+            <Route path="/SmsList" component={Sms} />
+            <Route path="/SmsList/SmsRules" component={SmsRules} />
+            <Route path="/Payment" component={Payment} />
+            <Route path="/Payment/Split/:id" component={PaymentSplit} />
+            <Route path="/Payment/Edit/:id" component={PaymentEdit} />
+            <Route path="/Payment/Category" component={PaymentCategory} />
+            <Route path="/Payment/Category/Edit" component={PaymentCategoryEdit} />
+            <Route path="/Payment/Category/Edit/:id" component={PaymentCategoryEdit} />
+            <Route path="/Debt" component={Debt} />
+            <Route path="/Debt/Edit" component={DebtAdd} />
+            <Route path="/Debt/Edit/:id" component={DebtAdd} />
+            <Route path="/Settings" component={Settings} />
+            <Route path="/Utility/Tasks" component={UtilityTasks} />
+            <Route path="/Utility/ScriptConsole" component={UtilityScriptConsole} />
+            <Route path="/Utility/Screenshot" component={UtilityScreenshot} />
+            <Route path="*" component={NotFound} />
+        </Router>
       </div>
-    	<Footer /> 
+    </div>
+    <Footer /> 
   {/if}
-  </Router>
   <Tooltip />
 </div>
