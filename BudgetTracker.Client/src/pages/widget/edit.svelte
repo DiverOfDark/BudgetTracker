@@ -95,7 +95,6 @@
 <svelte:head>
     <title>BudgetTracker - {title}</title>
 </svelte:head>
-{JSON.stringify(model)}
 
 <div class="container">
     <div class="row row-cards row-deck">
