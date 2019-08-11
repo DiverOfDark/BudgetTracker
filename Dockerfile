@@ -1,13 +1,17 @@
-FROM microsoft/dotnet:2.2-sdk as net-builder
+FROM mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview7-disco as net-builder
 ARG IsProduction=false
 ARG CiCommitName=local
 ARG CiCommitHash=sha
 ARG SONAR_TOKEN=test
 
+RUN wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && \
+    dpkg -i packages-microsoft-prod.deb && \
+    rm -f packages-microsoft-prod.deb
+
 RUN dotnet tool install --global dotnet-sonarscanner
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
     apt -y update && \
-    apt -y install nodejs openjdk-8-jre libnss3 && \
+    apt -y install nodejs openjdk-8-jre libnss3 dotnet-sdk-2.2 && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
@@ -31,9 +35,9 @@ RUN /root/.dotnet/tools/dotnet-sonarscanner begin \
     dotnet build BudgetTracker.sln && \
     /root/.dotnet/tools/dotnet-sonarscanner end /d:sonar.login="$SONAR_TOKEN"
 
-RUN dotnet publish --output ../out/ --configuration Release --runtime linux-x64 BudgetTracker
+RUN dotnet publish --output out/ --configuration Release --runtime linux-x64 BudgetTracker /p:PublishSingleFile=true /p:PublishTrimmed=true
 
-FROM microsoft/dotnet:2.2-aspnetcore-runtime
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.0.0-preview7-disco
 ENV TZ=Europe/Moscow
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 

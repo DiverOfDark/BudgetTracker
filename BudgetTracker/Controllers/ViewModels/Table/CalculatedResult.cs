@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.Serialization;
 using BudgetTracker.JsModel;
 using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
-using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
 
 namespace BudgetTracker.Controllers.ViewModels.Table

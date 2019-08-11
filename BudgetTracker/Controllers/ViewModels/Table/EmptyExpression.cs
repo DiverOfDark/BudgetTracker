@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using BudgetTracker.JsModel;
-using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels.Table
 {

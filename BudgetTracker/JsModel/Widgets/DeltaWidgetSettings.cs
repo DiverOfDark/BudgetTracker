@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using BudgetTracker.JsModel.Attributes;
 
 namespace BudgetTracker.Controllers.ViewModels.Widgets
 {
     public enum DeltaInterval
     {
-        [DisplayName("24ч/48ч/Неделя/Месяц")]
+        [JsDisplayName("24ч/48ч/Неделя/Месяц")]
         Daily,
-        [DisplayName("Месяц/Квартал/Полгода/Год")]
+        [JsDisplayName("Месяц/Квартал/Полгода/Год")]
         Monthly
     }
 

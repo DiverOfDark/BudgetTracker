@@ -4,8 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using BudgetTracker.Controllers.ViewModels;
 using BudgetTracker.Controllers.ViewModels.Table;
-using BudgetTracker.Controllers.ViewModels.Widgets;
-using BudgetTracker.JsModel;
 using BudgetTracker.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

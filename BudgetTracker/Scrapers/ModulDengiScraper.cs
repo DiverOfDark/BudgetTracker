@@ -5,7 +5,6 @@ using BudgetTracker.Model;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
 
 namespace BudgetTracker.Scrapers
 {

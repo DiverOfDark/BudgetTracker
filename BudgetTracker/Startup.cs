@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -17,14 +16,13 @@ using BudgetTracker.Services;
 using Hangfire;
 using Hangfire.AspNetCore;
 using LiteDB;
-using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.WindowsAzure.Storage;
@@ -34,6 +32,7 @@ using OutCode.EscapeTeams.ObjectRepository;
 using OutCode.EscapeTeams.ObjectRepository.AzureTableStorage;
 using OutCode.EscapeTeams.ObjectRepository.Hangfire;
 using OutCode.EscapeTeams.ObjectRepository.LiteDB;
+using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace BudgetTracker
 {
@@ -96,14 +95,6 @@ namespace BudgetTracker
             IsProduction = Configuration["Properties:IsProduction"] == "true";
             CommmitHash = Configuration["Properties:CiCommitHash"];
             CommmitName = Configuration["Properties:CiCommitName"];
-
-            var instrumentationKey = Configuration["ApplicationInsights:InstrumentationKey"];
-
-            if (instrumentationKey != null)
-            {
-                TelemetryConfiguration.Active.InstrumentationKey = instrumentationKey;
-                TelemetryConfiguration.Active.DisableTelemetry = false;
-            }
         }
 
         public static string CommmitName { get; private set; }
@@ -121,7 +112,7 @@ namespace BudgetTracker
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             services.AddResponseCompression(x => x.EnableForHttps = true);
-            services.AddMvc().AddJsonOptions(options =>
+            services.AddMvc().AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                 options.SerializerSettings.ContractResolver = ShouldSerializeContractResolver.Instance;
@@ -176,12 +167,12 @@ namespace BudgetTracker
             services.AddSingleton<UpdateService>();
             services.AddLogging();
             services.AddSession();
+            services.AddControllers().AddNewtonsoftJson();
             services.AddHangfire(x=>{ });
             services.AddDataProtection().AddKeyManagementOptions(options =>
             {
                 options.XmlRepository = new ObjectRepositoryXmlStorage(objectRepository);
             });
-            services.AddNodeServices();
             services.AddAuthorization();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(x =>
             {
@@ -223,9 +214,10 @@ namespace BudgetTracker
             app.UseStatusCodePagesWithReExecute("/Error", "?statusCode={0}");
             app.UseExceptionHandler("/Error");
             app.UseStaticFiles();
-            
+            app.UseRouting();
             app.UseSession();
             app.UseAuthentication();
+            app.UseAuthorization();
             
             GlobalConfiguration.Configuration.UseHangfireStorage(app.ApplicationServices.GetService<ObjectRepository>());
             GlobalConfiguration.Configuration.UseActivator(new AspNetCoreJobActivator(new MyFactory(app.ApplicationServices)));
@@ -236,21 +228,17 @@ namespace BudgetTracker
                 AppPath = null
             });
             app.UseHangfireServer();
-
-            app.UseMvc(routes => routes.MapRoute(
-                name: "not_so_default",
-                template: "{controller}/{action}")
-            );
-
-            app.Use(async (a, b) =>
+            
+            app.UseEndpoints(routes =>
             {
-                await a.Response.WriteAsync(File.ReadAllText("wwwroot/index.html"));
+                routes.MapControllerRoute("not_so_default", "{controller}/{action}");
+                routes.MapFallbackToFile("index.html");
             });
 
             RegisterJobs(app.ApplicationServices);
 
             var storage = app.ApplicationServices.GetService<IStorage>();
-            app.ApplicationServices.GetService<IApplicationLifetime>().ApplicationStopping.Register(() => storage.SaveChanges().GetAwaiter().GetResult());
+            app.ApplicationServices.GetService<IHostApplicationLifetime>().ApplicationStopping.Register(() => storage.SaveChanges().GetAwaiter().GetResult());
             
             new Thread(()=>
             {

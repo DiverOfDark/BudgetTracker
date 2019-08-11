@@ -1,12 +1,13 @@
 ﻿using System.ComponentModel;
+using BudgetTracker.JsModel.Attributes;
 
 namespace BudgetTracker.Model
 {
     public enum RuleType
     {
-        [DisplayName("Игнорировать")]
+        [JsDisplayName("Игнорировать")]
         Ignore,
-        [DisplayName("Траты")]
+        [JsDisplayName("Траты")]
         Money
     }
 }

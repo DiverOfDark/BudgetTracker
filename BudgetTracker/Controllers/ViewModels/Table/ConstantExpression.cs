@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using BudgetTracker.JsModel;
-using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels.Table
 {
