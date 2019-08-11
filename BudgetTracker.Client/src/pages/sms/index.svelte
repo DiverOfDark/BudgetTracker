@@ -13,10 +13,8 @@
 </style>
 
 <script>
-    import { Link } from 'svero';
-
+    import Link from '../../svero/Link.svelte';
     import { SmsListController } from '../../generated-types';
-
     import { formatDate, formatDateTime, formatMonth } from '../../services/Shared'
 
     let reload = async function() {

@@ -2,19 +2,25 @@
   "name": "BudgetTracker.Client",
   "version": "1.0.0",
   "devDependencies": {
-    "@pyoner/svelte-ts-preprocess": "^1.1.0",
-    "eslint": "^6.0.1",
-    "eslint-plugin-svelte3": "^2.6.0",
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "@pyoner/svelte-ts-preprocess": "^1.2.0",
+    "eslint": "^6.1.0",
+    "eslint-plugin-svelte3": "^2.7.3",
     "npm-run-all": "^4.1.5",
-    "rollup": "^1.16.6",
-    "rollup-plugin-commonjs": "^10.0.1",
+    "rollup": "^1.19.4",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-commonjs": "^10.0.2",
     "rollup-plugin-livereload": "^1.0.1",
     "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-progress": "^1.1.1",
+    "rollup-plugin-size-snapshot": "^0.9.0",
+    "rollup-plugin-sizes": "^0.5.1",
     "rollup-plugin-svelte": "^5.1.0",
     "rollup-plugin-terser": "^5.1.1",
     "rollup-plugin-typescript2": "^0.21.2",
     "sirv-cli": "^0.4.4",
-    "svelte": "^3.6.5",
+    "svelte": "^3.7.1",
     "typescript": "^3.5.2"
   },
   "scripts": {
@@ -26,7 +32,8 @@
     "lint": "eslint src --plugin svelte3 --ext .svelte,.js --fix"
   },
   "dependencies": {
+    "c3": "^0.7.2",
     "moment": "^2.24.0",
-    "svero": "^0.5.0"
+    "path-parser": "^4.2.0"
   }
 }

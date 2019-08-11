@@ -68,9 +68,9 @@
 								{#each vm.headers as p}
 									<th title="{p.accountName}">
 										{p.userFriendlyName}
-										<a href="/Table/Chart?provider={p.provider}&account={p.accountName || ''}{p.userFriendlyName || ''}">
+										<Link href="/Chart/{encodeURIComponent(p.provider)}/{encodeURIComponent(p.accountName || '')}{encodeURIComponent(p.userFriendlyName || '')}">
 											<span class="fe fe-trending-up"></span>
-										</a>
+										</Link>
 										{#if showControls}
 											<Link href="/Metadata/Edit/{p.id}">
 												<span class="fe fe-edit-2"></span>
@@ -155,7 +155,7 @@
 <script>
 	import moment from 'moment'
 	import { tooltip } from '../../services/Tooltip'
-	import { Link } from 'svero';
+    import Link from '../../svero/Link.svelte';
 	import { TableController } from '../../generated-types.ts'
 	import { formatMoney, formatDate } from '../../services/Shared'
 

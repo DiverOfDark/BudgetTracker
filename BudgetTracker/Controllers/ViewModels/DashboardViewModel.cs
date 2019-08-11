@@ -3,21 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using BudgetTracker.Controllers.ViewModels.Table;
 using BudgetTracker.Controllers.ViewModels.Widgets;
+using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
 
 namespace BudgetTracker.Controllers.ViewModels
 {
+    [ExportJsModel]
     public class DashboardViewModel
     {
         private readonly ObjectRepository _objectRepository;
         private readonly TableViewModelFactory _vm;
 
-        public DashboardViewModel(ObjectRepository objectRepository, bool showButtons, int? period,
-            TableViewModelFactory vm)
+        public DashboardViewModel(ObjectRepository objectRepository, int? period, TableViewModelFactory vm)
         {
             _objectRepository = objectRepository;
             _vm = vm;
-            ShowButtons = showButtons;
             Period = period;
             
             var widgetViewModels = CreateWidgetViewModels();
@@ -93,14 +93,14 @@ namespace BudgetTracker.Controllers.ViewModels
                         case var wi when w.Kind == WidgetKind.Expenses:
                             widgetViewModels.Add(new ExpensesWidgetViewModel(wi, _objectRepository, Period));
                             break;
-                        case var wi when w.Kind == WidgetKind.Chart:
-                            widgetViewModels.Add(new ChartWidgetViewModel(wi, Period, _vm.GetVM()));
+                        case var wi when w.Kind == WidgetKind.Donut:
+                            widgetViewModels.Add(new DonutWidgetViewModel(wi, Period, _vm.GetVM()));
+                            break;
+                        case var wi when w.Kind == WidgetKind.LinearChart:
+                            widgetViewModels.Add(new LinearChartWidgetViewModel(wi, Period, _vm.GetVM()));
                             break;
                         case var wi when w.Kind == WidgetKind.Delta:
                             widgetViewModels.Add(new DeltaWidgetViewModel(wi, _objectRepository, _vm.GetVM()));
-                            break;
-                        case var wi when w.Kind == WidgetKind.Burst:
-                            widgetViewModels.Add(new BurstWidgetViewModel(wi, _vm.GetVM()));
                             break;
                         default:
                             widgetViewModels.Add(new UnknownWidgetViewModel(w));
@@ -140,6 +140,7 @@ namespace BudgetTracker.Controllers.ViewModels
         }
     }
 
+    [ExportJsModel]
     public class BootstrapColumnViewModel
     {
         public int Columns { get; set; }

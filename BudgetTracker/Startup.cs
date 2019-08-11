@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -124,6 +126,7 @@ namespace BudgetTracker
                 options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                 options.SerializerSettings.ContractResolver = ShouldSerializeContractResolver.Instance;
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                options.SerializerSettings.Formatting = IsProduction ? Formatting.None : Formatting.Indented;
             });
             services.AddSingleton<Chrome>();
             services.AddSingleton<ScrapeService>();
@@ -235,15 +238,14 @@ namespace BudgetTracker
             app.UseHangfireServer();
 
             app.UseMvc(routes => routes.MapRoute(
-                    name: "not_so_default",
-                    template: "{controller=Widget}/{action=Index}")
-                .MapRoute(name: "default",
-                    template: "Error",
-                    defaults: new
-                    {
-                        controller = "System",
-                        action = "Svelte"
-                    }));
+                name: "not_so_default",
+                template: "{controller}/{action}")
+            );
+
+            app.Use(async (a, b) =>
+            {
+                await a.Response.WriteAsync(File.ReadAllText("wwwroot/index.html"));
+            });
 
             RegisterJobs(app.ApplicationServices);
 

@@ -14,6 +14,10 @@ export function formatDate(from: string) {
     return moment(from).format("DD.MM.YYYY");
 }
 
+export function formatDateJs(from: string) {
+    return moment(from).format("YYYY-MM-DD");
+}
+
 export function formatDateTime(from: string) {
     return moment(from).format("DD.MM.YYYY HH:mm:ss");
 }

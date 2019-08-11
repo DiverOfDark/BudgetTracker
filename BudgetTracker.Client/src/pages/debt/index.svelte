@@ -3,8 +3,7 @@
 </svelte:head>
 
 <script lang="ts">
-    //@ts-ignore
-    import {Link} from 'svero';
+    import Link from '../../svero/Link.svelte';
     import {DebtController, DebtJsViewModel} from '../../generated-types'
     import {formatMoney} from '../../services/Shared'
 

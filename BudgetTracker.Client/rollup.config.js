@@ -5,6 +5,10 @@ import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import { preprocess, createEnv, readConfigFile } from "@pyoner/svelte-ts-preprocess";
 import typescript from "rollup-plugin-typescript2";
+import progress from 'rollup-plugin-progress';
+import babel from 'rollup-plugin-babel';
+import { sizeSnapshot } from "rollup-plugin-size-snapshot";
+import sizes from "rollup-plugin-sizes";
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -18,6 +22,28 @@ const opts = {
   }
 };
 
+const onwarn = warning => {
+	if (warning.code === 'CIRCULAR_DEPENDENCY') {
+	  return
+	}
+
+	if (warning.message.indexOf('Non-existent export') == 0) {
+		return
+	}
+	
+	var cwd = process.cwd() + "/";
+
+	if (warning.loc) {
+		var fileName = warning.loc.file.replace(cwd, "");
+
+		console.warn(`(!) ${warning.message} (${fileName}:${warning.loc.line}:${warning.loc.column}):\n${warning.frame}\n\n`)
+	}
+	else {
+		console.warn(`(!) ${warning.message}`)
+	}
+
+}	
+
 export default {
 	input: 'src/main.js',
 	output: {
@@ -26,7 +52,11 @@ export default {
 		name: 'app',
 		file: '../BudgetTracker/wwwroot/js/bundle.js'
 	},
+	onwarn,
 	plugins: [
+		progress(),
+		sizeSnapshot(), 
+		sizes(),
 		svelte({
 			// enable run-time checks when not in production
 			dev: !production,
@@ -50,12 +80,15 @@ export default {
 		// Watch the `public` directory and refresh the
 		// browser on changes when not in production
 		!production && livereload('public'),
+		babel({
+			exclude: 'node_modules/**' // only transpile our source code
+		  }),
 
 		// If we're building for production (npm run build
 		// instead of npm run dev), minify
 		production && terser()
 	],
 	watch: {
-		clearScreen: false
+		clearScreen: true
 	}
 };

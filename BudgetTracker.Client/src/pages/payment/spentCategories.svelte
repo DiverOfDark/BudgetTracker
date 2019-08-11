@@ -5,7 +5,7 @@
 <script>
     import {SpentCategoryModelController, PaymentController } from '../../generated-types';
     import {compare} from '../../services/Shared';
-    import {navigateTo} from 'svero';
+    import { navigateTo } from '../../svero/utils';
 
     let categories = [];
 
