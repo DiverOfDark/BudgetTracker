@@ -19,10 +19,10 @@ using LiteDB;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.WindowsAzure.Storage;
@@ -32,6 +32,7 @@ using OutCode.EscapeTeams.ObjectRepository;
 using OutCode.EscapeTeams.ObjectRepository.AzureTableStorage;
 using OutCode.EscapeTeams.ObjectRepository.Hangfire;
 using OutCode.EscapeTeams.ObjectRepository.LiteDB;
+using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace BudgetTracker
 {
@@ -166,6 +167,7 @@ namespace BudgetTracker
             services.AddSingleton<UpdateService>();
             services.AddLogging();
             services.AddSession();
+            services.AddControllers().AddNewtonsoftJson();
             services.AddHangfire(x=>{ });
             services.AddDataProtection().AddKeyManagementOptions(options =>
             {
@@ -212,9 +214,10 @@ namespace BudgetTracker
             app.UseStatusCodePagesWithReExecute("/Error", "?statusCode={0}");
             app.UseExceptionHandler("/Error");
             app.UseStaticFiles();
-            
+            app.UseRouting();
             app.UseSession();
             app.UseAuthentication();
+            app.UseAuthorization();
             
             GlobalConfiguration.Configuration.UseHangfireStorage(app.ApplicationServices.GetService<ObjectRepository>());
             GlobalConfiguration.Configuration.UseActivator(new AspNetCoreJobActivator(new MyFactory(app.ApplicationServices)));
@@ -225,21 +228,17 @@ namespace BudgetTracker
                 AppPath = null
             });
             app.UseHangfireServer();
-
-            app.UseMvc(routes => routes.MapRoute(
-                name: "not_so_default",
-                template: "{controller}/{action}")
-            );
-
-            app.Use(async (a, b) =>
+            
+            app.UseEndpoints(routes =>
             {
-                await a.Response.WriteAsync(File.ReadAllText("wwwroot/index.html"));
+                routes.MapControllerRoute("not_so_default", "{controller}/{action}");
+                routes.MapFallbackToFile("index.html");
             });
 
             RegisterJobs(app.ApplicationServices);
 
             var storage = app.ApplicationServices.GetService<IStorage>();
-            app.ApplicationServices.GetService<IApplicationLifetime>().ApplicationStopping.Register(() => storage.SaveChanges().GetAwaiter().GetResult());
+            app.ApplicationServices.GetService<IHostApplicationLifetime>().ApplicationStopping.Register(() => storage.SaveChanges().GetAwaiter().GetResult());
             
             new Thread(()=>
             {
