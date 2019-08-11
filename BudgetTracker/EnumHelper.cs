@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using BudgetTracker.JsModel.Attributes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -35,22 +36,7 @@ namespace BudgetTracker
     {
         public static string GetDisplayName<T>(this T enumValue)
         {
-            return enumValue.GetType().GetMember(enumValue.ToString())?[0]?.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? enumValue.ToString();
-        }
-
-        public static IEnumerable<SelectListItem> GetSelectList(this Type enumType, object enumValue = null)
-        {
-            return Enum.GetNames(enumType).Select(v =>
-            {
-                var attribute = enumType.GetMember(v)[0].GetCustomAttribute<DisplayNameAttribute>();
-
-                return new SelectListItem
-                {
-                    Selected = Equals(enumValue?.ToString(), v),
-                    Text = attribute?.DisplayName ?? v,
-                    Value = v
-                };
-            }).ToList();
+            return enumValue.GetType().GetMember(enumValue.ToString())?[0]?.GetCustomAttribute<JsDisplayNameAttribute>()?.Name ?? enumValue.ToString();
         }
     }
 }

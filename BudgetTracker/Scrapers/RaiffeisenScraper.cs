@@ -10,7 +10,6 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
 using OutCode.EscapeTeams.ObjectRepository;
 
 namespace BudgetTracker.Scrapers

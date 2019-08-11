@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using OutCode.EscapeTeams.ObjectRepository;
-using OutCode.EscapeTeams.ObjectRepository.AzureTableStorage;
 
 namespace BudgetTracker.Model
 {

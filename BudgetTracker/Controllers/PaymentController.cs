@@ -2,15 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using BudgetTracker.Controllers.ViewModels.Payment;
 using BudgetTracker.JsModel;
 using BudgetTracker.Model;
 using BudgetTracker.Services;
-using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OpenQA.Selenium;
-using SQLitePCL;
 
 namespace BudgetTracker.Controllers
 {

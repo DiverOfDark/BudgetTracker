@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
 

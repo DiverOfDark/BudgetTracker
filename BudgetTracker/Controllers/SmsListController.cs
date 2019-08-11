@@ -7,7 +7,6 @@ using BudgetTracker.Model;
 using BudgetTracker.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace BudgetTracker.Controllers
 {

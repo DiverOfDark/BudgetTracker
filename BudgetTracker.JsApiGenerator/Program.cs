@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using BudgetTracker.JsModel.Attributes;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
 
 namespace BudgetTracker.JsApiGenerator

@@ -6,7 +6,6 @@ using System.Text;
 using BudgetTracker.Model;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using OpenQA.Selenium.Chrome;
 
 namespace BudgetTracker.Scrapers
 {

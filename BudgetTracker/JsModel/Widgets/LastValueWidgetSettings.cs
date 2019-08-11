@@ -6,11 +6,11 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 {
     public enum GraphKind
     {
-        [DisplayName("Разница с предыдущим днём")]
+        [JsDisplayName("Разница с предыдущим днём")]
         Differential,
-        [DisplayName("Накопительный с начала графика")]
+        [JsDisplayName("Накопительный с начала графика")]
         CumulativeFromTimePeriod,
-        [DisplayName("Накопительный от нуля")]
+        [JsDisplayName("Накопительный от нуля")]
         CumulativeFromBeginning
     }
     

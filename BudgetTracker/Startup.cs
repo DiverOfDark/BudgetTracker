@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -17,7 +16,6 @@ using BudgetTracker.Services;
 using Hangfire;
 using Hangfire.AspNetCore;
 using LiteDB;
-using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -96,14 +94,6 @@ namespace BudgetTracker
             IsProduction = Configuration["Properties:IsProduction"] == "true";
             CommmitHash = Configuration["Properties:CiCommitHash"];
             CommmitName = Configuration["Properties:CiCommitName"];
-
-            var instrumentationKey = Configuration["ApplicationInsights:InstrumentationKey"];
-
-            if (instrumentationKey != null)
-            {
-                TelemetryConfiguration.Active.InstrumentationKey = instrumentationKey;
-                TelemetryConfiguration.Active.DisableTelemetry = false;
-            }
         }
 
         public static string CommmitName { get; private set; }
@@ -121,7 +111,7 @@ namespace BudgetTracker
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             services.AddResponseCompression(x => x.EnableForHttps = true);
-            services.AddMvc().AddJsonOptions(options =>
+            services.AddMvc().AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                 options.SerializerSettings.ContractResolver = ShouldSerializeContractResolver.Instance;
@@ -181,7 +171,6 @@ namespace BudgetTracker
             {
                 options.XmlRepository = new ObjectRepositoryXmlStorage(objectRepository);
             });
-            services.AddNodeServices();
             services.AddAuthorization();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(x =>
             {

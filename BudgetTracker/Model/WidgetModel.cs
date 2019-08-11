@@ -2,20 +2,20 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using BudgetTracker.JsModel.Attributes;
 using Newtonsoft.Json;
 using OutCode.EscapeTeams.ObjectRepository;
-using OutCode.EscapeTeams.ObjectRepository.AzureTableStorage;
 
 namespace BudgetTracker.Model
 {
     public enum WidgetKind
     {
-        [DisplayName("Не задан")] Unknown,
-        [DisplayName("Последнее значение")] LastValue,
-        [DisplayName("Траты за месяц")] Expenses,
-        [DisplayName("Пончик")] Donut,
-        [DisplayName("Дельта")] Delta,
-        [DisplayName("График")] LinearChart
+        [JsDisplayName("Не задан")] Unknown,
+        [JsDisplayName("Последнее значение")] LastValue,
+        [JsDisplayName("Траты за месяц")] Expenses,
+        [JsDisplayName("Пончик")] Donut,
+        [JsDisplayName("Дельта")] Delta,
+        [JsDisplayName("График")] LinearChart
     }
         
     public sealed class WidgetModel : ModelBase

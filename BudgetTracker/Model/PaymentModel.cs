@@ -3,8 +3,8 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using BudgetTracker.JsModel.Attributes;
 using OutCode.EscapeTeams.ObjectRepository;
-using OutCode.EscapeTeams.ObjectRepository.AzureTableStorage;
 
 namespace BudgetTracker.Model
 {
@@ -26,13 +26,13 @@ namespace BudgetTracker.Model
     
     public enum PaymentKind
     {
-        [DisplayName("Трата")]
+        [JsDisplayName("Трата")]
         Expense = 0,
-        [DisplayName("Доход")]
+        [JsDisplayName("Доход")]
         Income = 1,
-        [DisplayName("Перевод")]
+        [JsDisplayName("Перевод")]
         Transfer = 2,
-        [DisplayName("Неизвестно")]
+        [JsDisplayName("Неизвестно")]
         Unknown = -1
     }
     
@@ -83,7 +83,7 @@ namespace BudgetTracker.Model
         {
             var matches = Regex.Match(sms.Message, rule.RegexText);
 
-            var amount = matches.Groups.First(v => v.Name == "sum").Value;
+            var amount = matches.Groups.OfType<Group>().First(v => v.Name == "sum").Value;
 
             amount = new string(amount.Replace(",", ".").Where(v=>char.IsDigit(v) || v == '.').ToArray());
 
@@ -99,8 +99,8 @@ namespace BudgetTracker.Model
             {
                 NumberDecimalSeparator = "."
             });
-            What = matches.Groups.First(v => v.Name == "what").Value;
-            Ccy = matches.Groups.First(v => v.Name == "ccy").Value;
+            What = matches.Groups.OfType<Group>().First(v => v.Name == "what").Value;
+            Ccy = matches.Groups.OfType<Group>().First(v => v.Name == "ccy").Value;
         }
 
         protected override BaseEntity Entity => _entity;
