@@ -35,7 +35,7 @@ RUN /root/.dotnet/tools/dotnet-sonarscanner begin \
     dotnet build BudgetTracker.sln && \
     /root/.dotnet/tools/dotnet-sonarscanner end /d:sonar.login="$SONAR_TOKEN"
 
-RUN dotnet publish --output ../out/ --configuration Release --runtime linux-x64 BudgetTracker
+RUN dotnet publish --output out/ --configuration Release --runtime linux-x64 BudgetTracker /p:PublishSingleFile=true /p:PublishTrimmed=true
 
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.0.0-preview7-disco
 ENV TZ=Europe/Moscow
