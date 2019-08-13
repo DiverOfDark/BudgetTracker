@@ -13,7 +13,6 @@
   });
 
   onDestroy(() => {
-    console.log(path);
     unassignRoute(path);
   });
 </script>
