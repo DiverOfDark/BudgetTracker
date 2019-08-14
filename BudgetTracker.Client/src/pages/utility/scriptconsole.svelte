@@ -46,7 +46,9 @@
                     </div>
                 </div>
                 <div class="card-footer">
-                    {@html result}
+                    <pre>
+                        {@html result}
+                    </pre>
                 </div>
             </div>
         </div>

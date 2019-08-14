@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Xml.Linq;
+using System.Xml.XPath;
 using BudgetTracker.Model;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.WebUtilities;
@@ -67,14 +69,14 @@ namespace BudgetTracker.Scrapers
 
             var accounts = GetElements(driver, By.TagName("c-select-option-account"));
 
-            var link = GetElements(driver, By.TagName("a")).First(v => v.GetAttribute("href")?.Contains("/transaction.csv?") == true);
+            var link = GetElements(driver, By.TagName("a")).First(v => v.GetAttribute("href")?.Contains("/transaction.ofx?") == true);
             var linkText = link.GetAttribute("href");
             
             var build = new Uri(linkText);
 
             var result = new List<PaymentModel>();
                 
-            var urlFormat = @"https://online.raiffeisen.ru/rest/account/{accountId}/transaction.csv?from={from}&to={to}&sort=date&order=desc&access_token={token}";
+            var urlFormat = @"https://online.raiffeisen.ru/rest/account/{accountId}/transaction.ofx?from={from}&to={to}&sort=date&order=desc&access_token={token}";
 
             var originalQuery = QueryHelpers.ParseQuery(build.Query);
 
@@ -115,27 +117,39 @@ namespace BudgetTracker.Scrapers
                 var files = chrome.GetDownloads();
                 if (files.Count == 1)
                 {
-                    var csvFile = files.First();
-                    var csvContent = File.ReadAllLines(csvFile.FullName, Encoding.GetEncoding(1251)).Skip(1).Select(v=>new RaiffeisenStatement(v)).ToList();
-                    var payments = csvContent.Select(v =>
-                        Statement(v.When, accountName, v.What, v.Amount, v.Kind, v.Ccy, v.Reference)).ToList();
+                    var ofxFile = files.First();
 
-                    foreach (var group in payments.GroupBy(v => v.StatementReference).Where(v => v.Count() > 1))
+                    var doc = File.ReadAllText(ofxFile.FullName);
+
+                    var xdoc = XDocument.Parse(doc);
+                    
+                    var statements = xdoc.XPathSelectElements("OFX/BANKMSGSRSV1/STMTTRNRS/STMTRS/BANKTRANLIST/STMTTRN");
+
+                    var ccyNode = xdoc.XPathSelectElement("OFX/BANKMSGSRSV1/STMTTRNRS/STMTRS/CURDEF");
+
+                    var ccy = ccyNode.Value;
+                    
+                    var payments = new List<PaymentModel>();
+            
+                    foreach (var st in statements)
                     {
-                        var list = group.ToList();
-                        for (var index  = 0; index < list.Count; index++)
-                        {
-                            list[index].StatementReference += "." + index;
-                        }
-                    }                    
+                        var timeStr = st.Element("DTPOSTED").Value;
+                        var time = DateTime.ParseExact(timeStr, "yyyyMMddhhmmss", CultureInfo.CurrentCulture);
+                        var amount = double.Parse(st.Element("TRNAMT").Value, new NumberFormatInfo {NumberDecimalSeparator = "."});
+                        var name = st.Element("MEMO").Value;
+                        var id = st.Element("FITID").Value;
+
+                        var kind = amount < 0 ? PaymentKind.Expense : PaymentKind.Income; 
+                        
+                        payments.Add(Statement(time, accountName, name, amount, kind, ccy, id));
+                    }
                     
                     Logger.LogInformation($"Got {payments.Count} payments from {url}");
-
                     result.AddRange(payments);
-                    csvFile.Delete();
+                    ofxFile.Delete();
                 }
-
             }
+
             return result;
         }
 
@@ -154,26 +168,5 @@ namespace BudgetTracker.Scrapers
             
             WaitForPageLoad(driver, 5);
         }
-    }
-
-    internal class RaiffeisenStatement
-    {
-        public RaiffeisenStatement(string s)
-        {
-            var values = s.Split(";");
-            When = DateTime.ParseExact(values[0], "dd.MM.yyyy HH:mm", CultureInfo.CurrentCulture);
-            What = values[1];
-            Ccy = values[2];
-            Amount = double.Parse(values[3].Replace(" ", "").Replace(".", ","),
-                new NumberFormatInfo() {NumberDecimalSeparator = ","});
-        }
-        
-        public DateTime When { get; }
-        public string What { get; }
-        public string Ccy { get; }
-        public double Amount { get; }
-
-        public string Reference => (When.Ticks + What + Ccy + Amount).ToMD5();
-        public PaymentKind Kind => Amount < 0 ? PaymentKind.Expense : PaymentKind.Income;
     }
 }

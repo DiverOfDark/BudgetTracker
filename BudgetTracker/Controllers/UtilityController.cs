@@ -1,9 +1,12 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using OutCode.EscapeTeams.ObjectRepository;
 
 namespace BudgetTracker.Controllers
@@ -49,7 +52,7 @@ namespace BudgetTracker.Controllers
 
                 if (result != null)
                 {
-                    return result.GetPropertiesAsRawData();
+                    return SerializeObject(result,1);
                 }
             }
             catch (Exception ex)
@@ -68,6 +71,61 @@ namespace BudgetTracker.Controllers
             {
                 var contents = reader.ReadBytes((int) fs.Length);
                 return File(contents, "application/octet-stream", Path.GetFileName(Startup.DbFileName));
+            }
+        }
+        
+        private static string SerializeObject(object obj, int maxDepth)
+        {
+            using (var strWriter = new StringWriter())
+            {
+                using (var jsonWriter = new CustomJsonTextWriter(strWriter))
+                {
+                    var resolver = new CustomContractResolver(() => jsonWriter.CurrentDepth <= maxDepth);
+                    var serializer = new JsonSerializer {ContractResolver = resolver, ReferenceLoopHandling = ReferenceLoopHandling.Ignore, Formatting = Formatting.Indented};
+                    serializer.Serialize(jsonWriter, obj);
+                }
+                return strWriter.ToString();
+            }
+        }
+        
+        public class CustomJsonTextWriter : JsonTextWriter
+        {
+            public CustomJsonTextWriter(TextWriter textWriter) : base(textWriter) {}
+
+            public int CurrentDepth { get; private set; }
+
+            public override void WriteStartObject()
+            {
+                CurrentDepth++;
+                base.WriteStartObject();
+            }
+
+            public override void WriteEndObject()
+            {
+                CurrentDepth--;
+                base.WriteEndObject();
+            }
+        }
+        
+        public class CustomContractResolver : DefaultContractResolver
+        {
+            private readonly Func<bool> _includeProperty;
+
+            public CustomContractResolver(Func<bool> includeProperty)
+            {
+                _includeProperty = includeProperty;
+            }
+
+            protected override JsonProperty CreateProperty(
+                MemberInfo member, MemberSerialization memberSerialization)
+            {
+                var property = base.CreateProperty(member, memberSerialization);
+
+                var shouldSerialize = property.ShouldSerialize;
+                property.ShouldSerialize = obj => _includeProperty() &&
+                                                  (shouldSerialize == null ||
+                                                   shouldSerialize(obj));
+                return property;
             }
         }
     }
