@@ -112,7 +112,7 @@ namespace BudgetTracker
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             services.AddResponseCompression(x => x.EnableForHttps = true);
-            services.AddMvc().AddJsonOptions(options =>
+            services.AddMvc().AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                 options.SerializerSettings.ContractResolver = ShouldSerializeContractResolver.Instance;
@@ -167,9 +167,7 @@ namespace BudgetTracker
             services.AddSingleton<UpdateService>();
             services.AddLogging();
             services.AddSession();
-            /* 3.0
             services.AddControllers().AddNewtonsoftJson();
-            */
             services.AddHangfire(x=>{ });
             services.AddDataProtection().AddKeyManagementOptions(options =>
             {
@@ -216,10 +214,10 @@ namespace BudgetTracker
             app.UseStatusCodePagesWithReExecute("/Error", "?statusCode={0}");
             app.UseExceptionHandler("/Error");
             app.UseStaticFiles();
-            // app.UseRouting(); 3.0
+            app.UseRouting();
             app.UseSession();
             app.UseAuthentication();
-            // app.UseAuthorization(); 3.0
+            app.UseAuthorization();
             
             GlobalConfiguration.Configuration.UseHangfireStorage(app.ApplicationServices.GetService<ObjectRepository>());
             GlobalConfiguration.Configuration.UseActivator(new AspNetCoreJobActivator(new MyFactory(app.ApplicationServices)));
@@ -231,18 +229,16 @@ namespace BudgetTracker
             });
             app.UseHangfireServer();
             
-            app.UseRouter(routes => 
+            app.UseEndpoints(routes =>
             {
-                routes.MapRoute("not_so_default", "{controller}/{action}");
-                // routes.MapFallbackToFile("index.html");
+                routes.MapControllerRoute("not_so_default", "{controller}/{action}");
+                routes.MapFallbackToFile("index.html");
             });
-
-            app.Use((a, b) => a.Response.WriteAsync(File.ReadAllText("wwwroot/index.html")));
 
             RegisterJobs(app.ApplicationServices);
 
             var storage = app.ApplicationServices.GetService<IStorage>();
-            app.ApplicationServices.GetService<IApplicationLifetime>().ApplicationStopping.Register(() => storage.SaveChanges().GetAwaiter().GetResult());
+            app.ApplicationServices.GetService<IHostApplicationLifetime>().ApplicationStopping.Register(() => storage.SaveChanges().GetAwaiter().GetResult());
             
             new Thread(()=>
             {
