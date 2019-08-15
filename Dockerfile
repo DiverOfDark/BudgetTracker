@@ -46,7 +46,7 @@ RUN apt-get -yqq update && \
     apt-get -yqq install unzip gnupg2 procps htop && \
     rm -rf /var/lib/apt/lists/*
 
-RUN CHROMEDRIVER_VERSION=74.0.3729.6 && \
+RUN CHROMEDRIVER_VERSION=76.0.3809.68 && \
     mkdir -p /opt/chromedriver-$CHROMEDRIVER_VERSION && \
     curl -sS -o /tmp/chromedriver_linux64.zip http://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip && \
     unzip -qq /tmp/chromedriver_linux64.zip -d /opt/chromedriver-$CHROMEDRIVER_VERSION && \
