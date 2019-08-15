@@ -41,12 +41,16 @@ FROM mcr.microsoft.com/dotnet/core/sdk:3.0.100-preview7-disco
 ENV TZ=Europe/Moscow
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Install Chrome WebDriver
-RUN apt-get -yqq update && \
-    apt-get -yqq install unzip gnupg2 procps htop && \
+# Install Google Chrome
+RUN curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
+    echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list && \
+    apt-get -yqq update && \
+    apt-get -yqq install google-chrome-stable unzip gnupg2 procps htop && \
     rm -rf /var/lib/apt/lists/*
 
-RUN CHROMEDRIVER_VERSION=76.0.3809.68 && \
+RUN INSTALLED_VERSION=`google-chrome --version | sed "s/[A-Za-z\ ]*\([0-9]*\).*/\1/"` && \
+    CHROMEDRIVER_VERSION=`curl "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$INSTALLED_VERSION"` && \
+    echo "Detected version $CHROMEDRIVER_VERSION" && \
     mkdir -p /opt/chromedriver-$CHROMEDRIVER_VERSION && \
     curl -sS -o /tmp/chromedriver_linux64.zip http://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip && \
     unzip -qq /tmp/chromedriver_linux64.zip -d /opt/chromedriver-$CHROMEDRIVER_VERSION && \
@@ -54,12 +58,6 @@ RUN CHROMEDRIVER_VERSION=76.0.3809.68 && \
     chmod +x /opt/chromedriver-$CHROMEDRIVER_VERSION/chromedriver && \
     ln -fs /opt/chromedriver-$CHROMEDRIVER_VERSION/chromedriver /usr/local/bin/chromedriver
 
-# Install Google Chrome
-RUN curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
-    echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list && \
-    apt-get -yqq update && \
-    apt-get -yqq install google-chrome-stable && \
-    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY --from=net-builder /build/out ./net
