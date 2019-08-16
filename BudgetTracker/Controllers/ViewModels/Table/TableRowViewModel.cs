@@ -40,6 +40,11 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                     }
                 }
 
+                if (cell == null)
+                {
+                    cell = CalculatedResult.Missing(h);
+                }
+
                 Cells.Add(cell);
 
                 if (cell != null)

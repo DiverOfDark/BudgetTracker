@@ -33,12 +33,7 @@ namespace BudgetTracker.Controllers
             {
                 foreach (var header in vm.Headers.ToList())
                 {
-                    bool toRemove = header.IsComputed || vm.Values.All(s =>
-                                                          s.CalculatedCells.Any(c =>
-                                                              c.Key == header && c.Value != null &&
-                                                              c.Value?.FailedToResolve.Any() == false))
-                                                      || vm.Values.All(s =>
-                                                          s.CalculatedCells.All(c => c.Key == header && c.Value == null));
+                    bool toRemove = header.IsComputed || vm.Values.All(s => s.Cells.First(t => t.Column == header).IsOk);
 
                     if (toRemove)
                     {
@@ -48,6 +43,18 @@ namespace BudgetTracker.Controllers
                         {
                             row.Cells.RemoveAt(idx);
                         }
+                    }
+                }
+
+                var sortedRows = vm.Values.OrderBy(v=>v.When).ToList();
+                for (int i = 0; i < sortedRows.Count - 2; i++)
+                {
+                    var yesterdayRow = sortedRows[i];
+                    var todayRow = sortedRows[i+1];
+
+                    if (todayRow.Cells.All(s => s.IsOk) && yesterdayRow.Cells.All(t => t.IsOk))
+                    {
+                        vm.Values.Remove(yesterdayRow);
                     }
                 }
             }

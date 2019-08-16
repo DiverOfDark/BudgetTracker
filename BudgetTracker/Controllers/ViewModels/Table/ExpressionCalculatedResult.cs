@@ -70,6 +70,10 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             }
         }
 
+        public override bool IsOk => !FailedToResolve.Any();
+
+        public override bool IsMarkedAsOk => false;
+
         private static CalculateExpression Parse(Dictionary<string, MoneyColumnMetadataJsModel> columns, MoneyColumnMetadataJsModel column, string function)
         {
             CalculateExpression currentExpression = new EmptyExpression(column);

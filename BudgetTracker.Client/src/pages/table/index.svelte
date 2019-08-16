@@ -86,7 +86,6 @@
 									</th>
 									{#each item.cells as cell, idx}
 										<td class="{cellIsOk(vm.values, rowIdx, idx)}">
-											{#if (cell)}
 												{#if typeof getValue(cell, exemptTransfers) !== 'undefined'}
 													<div use:tooltip="{cell.tooltip}">
 														{#if (cell.value === 'NaN')}
@@ -121,12 +120,7 @@
 																<span class="fe fe-x-circle"></span>
 															</button>
 														{/if}
-													</div>
-												{:else}
-													<div alt="{cell.tooltip}" title="{cell.tooltip}">
-														&mdash;
-													</div>
-												{/if}
+												</div>
 											{:else}
 												&mdash;
 												{#if showControls && hasPreviousCell(vm.values, rowIdx, idx, item.when)}
@@ -221,26 +215,11 @@
 	let cellIsOk = function(vmValues, rowIdx, cellIdx) {
 			    let cell = vmValues[rowIdx].cells[cellIdx];
 			    
-  if (cell && cell.failedToResolve) {
-    return 'table-dark'; 
-  }
-			    
-			    if (cell) { 
-			        return '';
-  }
-                
-  for(var rowId = rowIdx + 1; rowId < vmValues.length; rowId++) {
-    let previousCell = vmValues[rowId].cells[cellIdx];
-                    
-    if (previousCell && previousCell.value === 'NaN') {
-      return '';
-    }
-    if (previousCell) {
-      return 'table-dark';
-    }
-  }
-			        
-  return '';
+		if (cell && cell.failedToResolve) {
+			return 'table-dark'; 
+		}
+
+		return cell.isOk ? '' : 'table-dark';
 	};
 	let hasPreviousCell = function(values, rowIdx, idx, when) {
 	  let row = values[rowIdx + 1];

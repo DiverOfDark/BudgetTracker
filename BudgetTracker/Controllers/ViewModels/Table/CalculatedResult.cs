@@ -32,6 +32,12 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             _tooltip = $"{(money.Amount).ToString(CultureInfo.CurrentCulture)}({money.Amount.ToString(CultureInfo.CurrentCulture)} + {adjustment.ToString(CultureInfo.CurrentCulture)})"
         };
 
+        public static CalculatedResult Missing(MoneyColumnMetadataJsModel item) => new CalculatedResult(item)
+        {
+            _ccy = null,
+            _value = null
+        };
+        
         public static CalculatedResult Empty(MoneyColumnMetadataJsModel item) => new CalculatedResult(item)
         {
             _ccy = null,
@@ -83,7 +89,11 @@ namespace BudgetTracker.Controllers.ViewModels.Table
 
         [JsonIgnore]
         public CalculatedResult PreviousValue { get; set; }
+        
+        public virtual bool IsMarkedAsOk => (Value.HasValue && double.IsNaN(Value.Value)) || PreviousValue == null || (Value == null && PreviousValue.IsMarkedAsOk);
 
+        public virtual bool IsOk => Value.HasValue && !double.IsNaN(Value.Value) || IsMarkedAsOk;
+        
         public double? DiffValue => AdjustedValue - PreviousValue?.AdjustedValue;
 
         public double? DiffPercentage => DiffValue / PreviousValue?.AdjustedValue;

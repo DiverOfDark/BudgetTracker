@@ -22,9 +22,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
 
                 dependencies.TryGetValue(_column, out var matchedDependency);
 
-                Value = matchedDependency?.Value == null
-                        ? CalculatedResult.ResolutionFail(_column, _column.Provider + "/" + _column.AccountName)
-                        : matchedDependency;
+                Value = matchedDependency.IsOk ? matchedDependency : CalculatedResult.ResolutionFail(_column, _column.Provider + "/" + _column.AccountName);
             }
         }
         
