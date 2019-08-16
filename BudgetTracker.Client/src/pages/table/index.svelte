@@ -189,17 +189,17 @@
 	}
 
 	let deleteMoney = async function(id) {
-	  const response = await fetch("/Table/DeleteMoney?id=" + id);
+	  const response = await TableController.deleteMoney(id);
 	  fetchData(provider, null);
 	};
 
 	let copyFromPrevious = async function(header,date) {
-	  const response = await fetch("/Table/CopyFromPrevious?headerId=" + header + "&date=" + formatDate(date));
+	  const response = await TableController.copyFromPrevious(header, formatDate(date));
 	  fetchData(provider, null);
 	};
 
 	let markAsOk = async function(header, date) {
-	  const response = await fetch("/Table/MarkAsOk?headerId=" + header + "&date=" + formatDate(date));
+	  const response = await TableController.markAsOk(header, formatDate(date));
 	  fetchData(provider, null);
 	};
 	
