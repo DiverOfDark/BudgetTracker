@@ -48,11 +48,11 @@ RUN INSTALLED_VERSION=`google-chrome --version | sed "s/[A-Za-z\ ]*\([0-9]*\).*/
     chmod +x /opt/chromedriver-$CHROMEDRIVER_VERSION/chromedriver && \
     ln -fs /opt/chromedriver-$CHROMEDRIVER_VERSION/chromedriver /usr/local/bin/chromedriver
 
-RUN ln -fs /usr/local/bin/chromedriver /app/net/chromedriver
-RUN ln -fs /opt/google/chrome/chrome /usr/bin/chrome
-
 WORKDIR /app
 COPY --from=net-builder /build/out ./net
+
+RUN ln -fs /usr/local/bin/chromedriver /app/net/chromedriver
+RUN ln -fs /opt/google/chrome/chrome /usr/bin/chrome
 
 ADD run.sh .
 RUN chmod +x run.sh
