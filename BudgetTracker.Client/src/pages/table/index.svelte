@@ -100,7 +100,11 @@
 																	&mdash;
 																{/if}
 															{:else}
-																<span>{formatPrice(getValue(cell, exemptTransfers))}</span>
+																{#if getValue(cell, exemptTransfers)}
+																	<span>{formatPrice(getValue(cell, exemptTransfers))}</span>
+																{:else}
+																	<span>&mdash;</span>
+																{/if}
 															{/if}
 
 															{#if cell.ccy}
@@ -215,11 +219,7 @@
 	let cellIsOk = function(vmValues, rowIdx, cellIdx) {
 			    let cell = vmValues[rowIdx].cells[cellIdx];
 			    
-		if (cell && cell.failedToResolve) {
-			return 'table-dark'; 
-		}
-
-		return cell.isOk ? '' : 'table-dark';
+		return cell && cell.isOk ? '' : 'table-dark';
 	};
 	let hasPreviousCell = function(values, rowIdx, idx, when) {
 	  let row = values[rowIdx + 1];
