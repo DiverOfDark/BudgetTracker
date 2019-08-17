@@ -1,4 +1,4 @@
-FROM diverofdar/budgettracker-builder:master
+FROM diverofdark/budgettracker-builder:master
 ARG IsProduction=false
 ARG CiCommitName=local
 ARG CiCommitHash=sha
