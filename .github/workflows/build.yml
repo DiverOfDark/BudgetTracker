@@ -1,0 +1,21 @@
+name: Docker Image CI
+
+on: 
+  push:
+    branches:
+      - *
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build the Docker image
+      run: |
+        export MASTER_CACHE=diverofdark/budgettracker:master
+        export BRANCH_NAME=`echo $GITHUB_REF | sed "s/refs\/heads\///"`
+        export CACHE_IMAGE=diverofdark/budgettracker:`echo $BRANCH_NAME | tr '/' '_'  | tr '@' '_'`
+        docker pull $MASTER_CACHE || true
+        docker build --cache-from $MASTER_CACHE --build-arg SONAR_TOKEN=$SONAR_TOKEN --build-arg CiCommitName=$BRANCH_NAME --build-arg CiCommitHash=$GITHUB_SHA --build-arg IsProduction=true  -t $CACHE_IMAGE .
+        if [[ master == $BRANCH_NAME ]]; then docker push $CACHE_IMAGE; fi;
+
