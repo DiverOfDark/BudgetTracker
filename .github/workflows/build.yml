@@ -27,7 +27,7 @@ jobs:
       env: 
         DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      run: 
+      run: |
         export BUILDER_CACHE=diverofdark/budgettracker-builder:master
         export BRANCH_NAME=`echo $GITHUB_REF | sed "s/refs\/heads\///"`
 
