@@ -9,6 +9,8 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Build the Docker image
+      env: 
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
         export MASTER_CACHE=diverofdark/budgettracker:master
         export BRANCH_NAME=`echo $GITHUB_REF | sed "s/refs\/heads\///"`
