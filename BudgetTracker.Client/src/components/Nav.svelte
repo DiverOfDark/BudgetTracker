@@ -28,7 +28,7 @@
 <nav>
     <div class="header py-4">
         <div class="container">
-            <div class="d-flex">
+            <div class="d-flex row">
                 <NavLink title="{"BudgetTracker" + (info && !info.isProduction ? "[ReadOnly]" : "")}" class="navbar-brand" />
                 <div class="ml-auto d-flex order-lg-2">
                     <div class="nav-item">
