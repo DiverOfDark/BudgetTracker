@@ -8,39 +8,50 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Prepare variables
+
+    - name: Pulling caches
       run: |
         export BUILDER_CACHE=diverofdark/budgettracker-builder:master
         export MASTER_CACHE=diverofdark/budgettracker:master
 
-        export BRANCH_NAME=`echo $GITHUB_REF | sed "s/refs\/heads\///"`
-        export CACHE_IMAGE=diverofdark/budgettracker:`echo $BRANCH_NAME | tr '/' '_'  | tr '@' '_'`
-
-        echo "BRANCH_NAME: $BRANCH_NAME"
-        echo "CACHE_IMAGE: $CACHE_IMAGE"
-        echo "GITHUB_SHA: $GITHUB_SHA"
-
-    - name: Pulling caches
-      run: |
         docker pull $BUILDER_CACHE || true
         docker pull $MASTER_CACHE || true
 
     - name: Build the Builder image
-      run: docker build --cache-from $BUILDER_CACHE -t $BUILDER_CACHE . -f Dockerfile.builder
+      run: |
+        export BUILDER_CACHE=diverofdark/budgettracker-builder:master
+
+        docker build --cache-from $BUILDER_CACHE -t $BUILDER_CACHE . -f Dockerfile.builder
 
     - name: Push the Builder image
       env: 
         DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      run: if [[ master == $BRANCH_NAME ]]; then docker login --username="$DOCKER_LOGIN" --password="$DOCKER_PASSWORD" && docker push $BUILDER_CACHE; fi;
+      run: 
+        export BUILDER_CACHE=diverofdark/budgettracker-builder:master
+        export BRANCH_NAME=`echo $GITHUB_REF | sed "s/refs\/heads\///"`
+
+        if [[ master == $BRANCH_NAME ]]; then docker login --username="$DOCKER_LOGIN" --password="$DOCKER_PASSWORD" && docker push $BUILDER_CACHE; fi;
 
     - name: Build the BudgetTracker image
       env: 
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: docker build --cache-from $MASTER_CACHE --build-arg SONAR_TOKEN=$SONAR_TOKEN --build-arg CiCommitName=$BRANCH_NAME --build-arg CiCommitHash=$GITHUB_SHA --build-arg IsProduction=true -t $CACHE_IMAGE .
+      run: | 
+        export MASTER_CACHE=diverofdark/budgettracker:master
+        export BRANCH_NAME=`echo $GITHUB_REF | sed "s/refs\/heads\///"`
+        export CACHE_IMAGE=diverofdark/budgettracker:`echo $BRANCH_NAME | tr '/' '_'  | tr '@' '_'`
+
+        echo "BRANCH_NAME: $BRANCH_NAME"
+        echo "GITHUB_SHA: $GITHUB_SHA"
+
+        docker build --cache-from $MASTER_CACHE --build-arg SONAR_TOKEN=$SONAR_TOKEN --build-arg CiCommitName=$BRANCH_NAME --build-arg CiCommitHash=$GITHUB_SHA --build-arg IsProduction=true -t $CACHE_IMAGE .
 
     - name: Push the BudgetTracker image
       env: 
         DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      run: if [[ master == $BRANCH_NAME ]]; then docker login --username="$DOCKER_LOGIN" --password="$DOCKER_PASSWORD" && docker push $CACHE_IMAGE; fi;
+      run: |
+        export BRANCH_NAME=`echo $GITHUB_REF | sed "s/refs\/heads\///"`
+        export CACHE_IMAGE=diverofdark/budgettracker:`echo $BRANCH_NAME | tr '/' '_'  | tr '@' '_'`
+
+        if [[ master == $BRANCH_NAME ]]; then docker login --username="$DOCKER_LOGIN" --password="$DOCKER_PASSWORD" && docker push $CACHE_IMAGE; fi;
