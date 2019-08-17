@@ -11,11 +11,23 @@ jobs:
     - name: Build the Docker image
       env: 
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       run: |
         export MASTER_CACHE=diverofdark/budgettracker:master
         export BRANCH_NAME=`echo $GITHUB_REF | sed "s/refs\/heads\///"`
         export CACHE_IMAGE=diverofdark/budgettracker:`echo $BRANCH_NAME | tr '/' '_'  | tr '@' '_'`
         docker pull $MASTER_CACHE || true
         docker build --cache-from $MASTER_CACHE --build-arg SONAR_TOKEN=$SONAR_TOKEN --build-arg CiCommitName=$BRANCH_NAME --build-arg CiCommitHash=$GITHUB_SHA --build-arg IsProduction=true  -t $CACHE_IMAGE .
-        if [[ master == $BRANCH_NAME ]]; then docker push $CACHE_IMAGE; fi;
+        if [[ master == $BRANCH_NAME ]]; then docker login --username="$DOCKER_LOGIN" --password="$DOCKER_PASSWORD" && docker push $CACHE_IMAGE; fi;
 
+  sonarCloud:
+    name: SonarCloud Trigger
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: SonarCloud Scan
+      uses: sonarsource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
