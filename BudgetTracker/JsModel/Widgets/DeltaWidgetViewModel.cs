@@ -10,7 +10,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 {
     public class DeltaWidgetViewModel : WidgetViewModel
     {
-        public DeltaWidgetViewModel(WidgetModel model, ObjectRepository repository, TableViewModel vm) : base(model,
+        public DeltaWidgetViewModel(WidgetModel model, TableViewModel vm) : base(model,
             new DeltaWidgetSettings(model.Properties.ToDictionary(v => v.Key, v => v.Value)))
         {
             DeltaWidgetSettings = (DeltaWidgetSettings) Settings;
@@ -79,11 +79,13 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
         
         public List<Pair> Deltas { get; } = new List<Pair>();
 
-        [ExportJsModel]
-        public class Pair
-        {
-            public string Name { get; set; }
-            public double Value { get; set; }
-        }
     }
+
+    [ExportJsModel]
+    public class Pair
+    {
+        public string Name { get; set; }
+        public double Value { get; set; }
+    }
+
 }

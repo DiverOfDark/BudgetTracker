@@ -100,7 +100,7 @@ namespace BudgetTracker.Controllers.ViewModels
                             widgetViewModels.Add(new LinearChartWidgetViewModel(wi, Period, _vm.GetVM()));
                             break;
                         case var wi when w.Kind == WidgetKind.Delta:
-                            widgetViewModels.Add(new DeltaWidgetViewModel(wi, _objectRepository, _vm.GetVM()));
+                            widgetViewModels.Add(new DeltaWidgetViewModel(wi, _vm.GetVM()));
                             break;
                         default:
                             widgetViewModels.Add(new UnknownWidgetViewModel(w));

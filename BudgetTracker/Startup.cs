@@ -38,47 +38,6 @@ namespace BudgetTracker
 {
     public class Startup
     {
-        private class ShouldSerializeContractResolver : CamelCasePropertyNamesContractResolver
-        {
-            public static readonly ShouldSerializeContractResolver Instance = new ShouldSerializeContractResolver();
-
-            protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
-            {
-                JsonProperty property = base.CreateProperty(member, memberSerialization);
-
-                if (property.PropertyType != typeof(string) &&
-                    typeof(IEnumerable).IsAssignableFrom(property.PropertyType))
-                {
-                    property.ShouldSerialize = instance =>
-                    {
-                        IEnumerable enumerable = null;
-                        // this value could be in a public field or public property
-                        switch (member.MemberType)
-                        {
-                            case MemberTypes.Property:
-                                enumerable = instance
-                                    .GetType()
-                                    .GetProperty(member.Name)
-                                    ?.GetValue(instance, null) as IEnumerable;
-                                break;
-                            case MemberTypes.Field:
-                                enumerable = instance
-                                    .GetType()
-                                    .GetField(member.Name)
-                                    .GetValue(instance) as IEnumerable;
-                                break;
-                        }
-
-                        return enumerable == null ||
-                               enumerable.GetEnumerator().MoveNext();
-                        // if the list is null, we defer the decision to NullValueHandling
-                    };
-                }
-
-                return property;
-            }
-        }
-        
         private static readonly CultureInfo RussianCulture = new CultureInfo("ru-RU");
 
         public Startup(IConfiguration configuration)
@@ -114,8 +73,7 @@ namespace BudgetTracker
             services.AddResponseCompression(x => x.EnableForHttps = true);
             services.AddMvc().AddNewtonsoftJson(options =>
             {
-                options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-                options.SerializerSettings.ContractResolver = ShouldSerializeContractResolver.Instance;
+                options.SerializerSettings.NullValueHandling = NullValueHandling.Include;
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 options.SerializerSettings.Formatting = IsProduction ? Formatting.None : Formatting.Indented;
             });

@@ -76,8 +76,8 @@
 				chartItems = chartItems.map(a => a - chartItems[0]);
 			}
 
-			var yMin = chartItems.reduce((a,b) => a < b ? a : b);
-			var yMax = chartItems.reduce((a,b) => a > b ? a : b);
+			var yMin = chartItems.reduce((a,b) => a < b ? a : b, 0);
+			var yMax = chartItems.reduce((a,b) => a > b ? a : b, 0);
 
 			var diff = (yMax - yMin) * 0.1;
 			yMin -= diff;
