@@ -85,47 +85,8 @@
 										{formatDate(item.when)}
 									</th>
 									{#each item.cells as cell, idx}
-										<td class="{cellIsOk(vm.values, rowIdx, idx)}">
-												{#if typeof getValue(cell, exemptTransfers) !== 'undefined'}
-													<div use:tooltip="{cell.tooltip}">
-														{#if (cell.value === 'NaN')}
-															<span class="fe fe-check"></span>
-														{:else}
-															{#if showDelta}
-																{#if cell.diffValue}
-																	<span class="{cell.diffValue > 0 ? 'text-success' : 'text-danger'}">
-																		{formatDiff(cell)}
-																	</span>
-																{:else}
-																	&mdash;
-																{/if}
-															{:else}
-																{#if getValue(cell, exemptTransfers)}
-																	<span>{formatPrice(getValue(cell, exemptTransfers))}</span>
-																{:else}
-																	<span>&mdash;</span>
-																{/if}
-															{/if}
-
-															{#if cell.ccy}
-																<span style="font-size: x-small; color: gray;">
-																	<i>{cell.ccy}</i>
-																</span>
-															{/if}
-															{#if hasPercentage(cell.diffPercentage)}
-																<span style="font-size: 0.7em" class="{cell.diffPercentage > 0 ? 'text-success': 'text-danger'}">
-																	{formatPercentage(cell.diffPercentage)}
-																</span>
-															{/if}
-														{/if}
-
-														{#if showControls && cell.moneyId}
-															<button class="btn btn-sm btn-link btn-anchor" style="position: relative; right: 0;" on:click="{() => deleteMoney(cell.moneyId)}">
-																<span class="fe fe-x-circle"></span>
-															</button>
-														{/if}
-												</div>
-											{:else}
+										<td class="{cell.isOk ? '' : 'table-dark'}">
+											{#if canBeCopied(cell, idx)}
 												&mdash;
 												{#if showControls && hasPreviousCell(vm.values, rowIdx, idx, item.when)}
 													<button on:click="{() => copyFromPrevious(vm.headers[idx].id, item.when)}" class="btn btn-sm btn-link btn-anchor">
@@ -135,6 +96,45 @@
 														<span class="fe fe-check"></span>
 													</button>
 												{/if}
+											{:else}
+												<div use:tooltip="{cell.tooltip}">
+													{#if (cell.value === 'NaN')}
+														<span class="fe fe-check"></span>
+													{:else}
+														{#if showDelta}
+															{#if cell.diffValue}
+																<span class="{cell.diffValue > 0 ? 'text-success' : 'text-danger'}">
+																	{formatDiff(cell)}
+																</span>
+															{:else}
+																&mdash;
+															{/if}
+														{:else}
+															{#if getValue(cell, exemptTransfers)}
+																<span>{formatPrice(getValue(cell, exemptTransfers))}</span>
+															{:else}
+																<span>&mdash;</span>
+															{/if}
+														{/if}
+
+														{#if cell.ccy}
+															<span style="font-size: x-small; color: gray;">
+																<i>{cell.ccy}</i>
+															</span>
+														{/if}
+														{#if hasPercentage(cell.diffPercentage)}
+															<span style="font-size: 0.7em" class="{cell.diffPercentage > 0 ? 'text-success': 'text-danger'}">
+																{formatPercentage(cell.diffPercentage)}
+															</span>
+														{/if}
+													{/if}
+
+													{#if showControls && cell.moneyId}
+														<button class="btn btn-sm btn-link btn-anchor" style="position: relative; right: 0;" on:click="{() => deleteMoney(cell.moneyId)}">
+															<span class="fe fe-x-circle"></span>
+														</button>
+													{/if}
+												</div>
 											{/if}
 										</td>
 									{/each}
@@ -216,17 +216,13 @@
 	  return Object.keys(grouped).map(function(key){ return { "name": key, "count": grouped[key] }; });;
 	};
 	
-	let cellIsOk = function(vmValues, rowIdx, cellIdx) {
-			    let cell = vmValues[rowIdx].cells[cellIdx];
-			    
-		return cell && cell.isOk ? '' : 'table-dark';
-	};
 	let hasPreviousCell = function(values, rowIdx, idx, when) {
 	  let row = values[rowIdx + 1];
 	  if (row && row.cells) {
 	    let cell = row.cells[idx];
 	    if (cell) {
-	      return typeof cell.value !== 'undefined' && cell.value !== 'NaN';
+		  let val = getValue(cell, false);
+	      return val != null && val !== 'NaN';
 	    }
 	  }
 	  return false;
@@ -237,6 +233,9 @@
 	  }
 	  return cell.value;
 	};
+	let canBeCopied = function(cell, idx) {
+		return getValue(cell, false) == null && !vm.headers[idx].isComputed;
+	}
 	let formatPrice = function(value) {
 	  if (!(typeof(value) === 'string' || value instanceof String)) {
 	    return formatMoney(value);
