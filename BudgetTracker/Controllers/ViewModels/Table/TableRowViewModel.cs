@@ -16,6 +16,9 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             var minDate = item.Select(v => v.When).Min();
             var maxDate = item.Select(v => v.When).Max();
             When = minDate.AddSeconds((maxDate - minDate).TotalSeconds / 2);
+            
+            When = When.Date.AddHours(12);
+
             Cells = new List<CalculatedResult>();
 
             var grouped = item.GroupBy(v => v.Column).ToDictionary(v => v.Key,
