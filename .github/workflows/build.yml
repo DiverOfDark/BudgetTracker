@@ -24,6 +24,7 @@ jobs:
         docker build --cache-from $BUILDER_CACHE -t $BUILDER_CACHE . -f Dockerfile.builder
 
     - name: Push the Builder image
+      if: github.ref == 'refs/heads/master'
       env: 
         DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
@@ -31,7 +32,8 @@ jobs:
         export BUILDER_CACHE=diverofdark/budgettracker-builder:master
         export BRANCH_NAME=`echo $GITHUB_REF | sed "s/refs\/heads\///"`
 
-        if [[ master == $BRANCH_NAME ]]; then docker login --username="$DOCKER_LOGIN" --password="$DOCKER_PASSWORD" && docker push $BUILDER_CACHE; fi;
+        docker login --username="$DOCKER_LOGIN" --password="$DOCKER_PASSWORD"
+        docker push $BUILDER_CACHE
 
     - name: Build the BudgetTracker image
       env: 
@@ -47,6 +49,7 @@ jobs:
         docker build --cache-from $MASTER_CACHE --build-arg SONAR_TOKEN=$SONAR_TOKEN --build-arg CiCommitName=$BRANCH_NAME --build-arg CiCommitHash=$GITHUB_SHA --build-arg IsProduction=true -t $CACHE_IMAGE .
 
     - name: Push the BudgetTracker image
+      if: github.ref == 'refs/heads/master'
       env: 
         DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
@@ -54,4 +57,5 @@ jobs:
         export BRANCH_NAME=`echo $GITHUB_REF | sed "s/refs\/heads\///"`
         export CACHE_IMAGE=diverofdark/budgettracker:`echo $BRANCH_NAME | tr '/' '_'  | tr '@' '_'`
 
-        if [[ master == $BRANCH_NAME ]]; then docker login --username="$DOCKER_LOGIN" --password="$DOCKER_PASSWORD" && docker push $CACHE_IMAGE; fi;
+        docker login --username="$DOCKER_LOGIN" --password="$DOCKER_PASSWORD"
+        docker push $CACHE_IMAGE
