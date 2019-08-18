@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -46,7 +47,14 @@ namespace BudgetTracker.Controllers
 
             try
             {
-                var data = await new HttpRequestStreamReader(HttpContext.Request.Body, Encoding.UTF8).ReadToEndAsync();
+                string data;
+                using (var ms = new MemoryStream())
+                {
+                    await HttpContext.Request.Body.CopyToAsync(ms);
+                    ms.Position = 0;
+                    data = await new HttpRequestStreamReader(ms, Encoding.UTF8).ReadToEndAsync();
+                }
+                
                 _logger.LogInformation(data);
                 var items = JObject.Parse(data);
                 var from = items["from"].Value<string>();
@@ -91,7 +99,13 @@ namespace BudgetTracker.Controllers
         {
             try
             {
-                var data = await new HttpRequestStreamReader(HttpContext.Request.Body, Encoding.UTF8).ReadToEndAsync();
+                string data;
+                using (var ms = new MemoryStream())
+                {
+                    await HttpContext.Request.Body.CopyToAsync(ms);
+                    ms.Position = 0;
+                    data = await new HttpRequestStreamReader(ms, Encoding.UTF8).ReadToEndAsync();
+                }
                 data = HttpUtility.UrlDecode(data);
                 if (data == null)
                 {
