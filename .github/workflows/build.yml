@@ -23,7 +23,7 @@ jobs:
         docker build --cache-from $BUILDER_CACHE -t $BUILDER_CACHE . -f Dockerfile.builder
 
     - name: Push the Builder image
-      if: github.ref == 'refs/heads/master'
+      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
       env: 
         DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
@@ -48,7 +48,7 @@ jobs:
         docker build --cache-from $MASTER_CACHE --build-arg SONAR_TOKEN=$SONAR_TOKEN --build-arg CiCommitName=$BRANCH_NAME --build-arg CiCommitHash=$GITHUB_SHA --build-arg IsProduction=true -t $CACHE_IMAGE .
 
     - name: Push the BudgetTracker image
-      if: github.ref == 'refs/heads/master'
+      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
       env: 
         DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
