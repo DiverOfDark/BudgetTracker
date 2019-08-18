@@ -172,6 +172,18 @@ namespace BudgetTracker
             app.UseStatusCodePagesWithReExecute("/Error", "?statusCode={0}");
             app.UseExceptionHandler("/Error");
             app.UseStaticFiles();
+            
+            app.Use(async (context, next) =>
+            {
+                context.Response.GetTypedHeaders().CacheControl = 
+                    new Microsoft.Net.Http.Headers.CacheControlHeaderValue
+                    {
+                        NoCache = true
+                    };
+
+                await next();
+            });
+            
             app.UseRouting();
             app.UseSession();
             app.UseAuthentication();
