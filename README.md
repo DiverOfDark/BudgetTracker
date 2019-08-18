@@ -1,6 +1,5 @@
 # BudgetTracker
 
-[![Build Status](https://semaphoreci.com/api/v1/diverofdark/budgettracker/branches/master/shields_badge.svg)](https://semaphoreci.com/diverofdark/budgettracker)
 [![Docker Pulls](https://img.shields.io/docker/pulls/diverofdark/budgettracker.svg)](https://hub.docker.com/r/diverofdark/budgettracker)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FDiverOfDark%2FBudgetTracker.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FDiverOfDark%2FBudgetTracker?ref=badge_shield)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DiverOfDark_BudgetTracker&metric=alert_status)](https://sonarcloud.io/dashboard?id=DiverOfDark_BudgetTracker)
