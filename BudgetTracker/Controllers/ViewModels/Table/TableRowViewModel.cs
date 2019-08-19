@@ -4,6 +4,7 @@ using System.Linq;
 using BudgetTracker.JsModel;
 using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace BudgetTracker.Controllers.ViewModels.Table
@@ -18,8 +19,6 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             When = minDate.AddSeconds((maxDate - minDate).TotalSeconds / 2);
             
             When = When.Date.AddHours(12);
-
-            Cells = new List<CalculatedResult>();
 
             var grouped = item.GroupBy(v => v.Column).ToDictionary(v => v.Key,
                     s => s.OrderByDescending(t => t.When).First());
@@ -48,8 +47,6 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                     cell = CalculatedResult.Missing(h);
                 }
 
-                Cells.Add(cell);
-
                 if (cell != null)
                 {
                     CalculatedCells[h] = cell;
@@ -61,7 +58,8 @@ namespace BudgetTracker.Controllers.ViewModels.Table
 
         [JsonIgnore] public Dictionary<MoneyColumnMetadataJsModel, CalculatedResult> CalculatedCells { get; }
 
-        public List<CalculatedResult> Cells {get; }
+        [UsedImplicitly, Obsolete("Should be used by js only", true)]
+        public IEnumerable<CalculatedResult> Cells => CalculatedCells.Values;
         
         [JsonIgnore]
         public TableRowViewModel Previous { get; set; }

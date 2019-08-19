@@ -33,15 +33,14 @@ namespace BudgetTracker.Controllers
             {
                 foreach (var header in vm.Headers.ToList())
                 {
-                    bool toRemove = header.IsComputed || vm.Values.All(s => s.Cells.First(t => t.Column == header).IsOk);
+                    bool toRemove = header.IsComputed || vm.Values.All(s => s.CalculatedCells[header].IsOk);
 
                     if (toRemove)
                     {
-                        var idx = vm.Headers.IndexOf(header);
-                        vm.Headers.RemoveAt(idx);
+                        vm.Headers.Remove(header);
                         foreach (var row in vm.Values)
                         {
-                            row.Cells.RemoveAt(idx);
+                            row.CalculatedCells.Remove(header);
                         }
                     }
                 }
@@ -52,7 +51,7 @@ namespace BudgetTracker.Controllers
                     var yesterdayRow = sortedRows[i];
                     var todayRow = sortedRows[i+1];
 
-                    if (todayRow.Cells.All(s => s.IsOk) && yesterdayRow.Cells.All(t => t.IsOk))
+                    if (todayRow.CalculatedCells.Values.All(s => s.IsOk) && yesterdayRow.CalculatedCells.Values.All(t => t.IsOk))
                     {
                         vm.Values.Remove(yesterdayRow);
                     }
@@ -64,11 +63,10 @@ namespace BudgetTracker.Controllers
                 {
                     if (item.Provider != provider2)
                     {
-                        var idx = vm.Headers.IndexOf(item);
-                        vm.Headers.RemoveAt(idx);
+                        vm.Headers.Remove(item);
                         foreach (var row in vm.Values)
                         {
-                            row.Cells.RemoveAt(idx);
+                            row.CalculatedCells.Remove(item);
                         }
                     }
                 }
