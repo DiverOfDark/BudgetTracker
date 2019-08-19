@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BudgetTracker.Controllers.ViewModels.Table;
 using BudgetTracker.JsModel;
@@ -39,6 +40,18 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 
             Names = new List<string>();
             Values = new List<double>();
+
+            var newTitle = Title;
+
+            while (vm.Values.Count > 0 && columnsToChart.Any(s => !vm.Values[0].CalculatedCells[s].IsOk))
+            {
+                vm.Values.RemoveAt(0);
+
+                newTitle = Title + " - " + vm.Values[0].When.ToString("dd.MM.yyyy");
+            }
+
+            Title = newTitle;
+            
             foreach (var header in columnsToChart)
             {
                 var cell = vm.Values.OrderByDescending(v => v.When).First(v => IsApplicable(v.When, Period));

@@ -74,27 +74,27 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                     adjustment = leftValueAdj?.Adjustment ?? rightValueAdj?.Adjustment ?? 0; 
                     break;
                 case "+":
-                    value = leftValue + rightValue;
+                    value = leftValue ?? 0 + rightValue ?? 0;
                     ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
                     adjustment = (leftValueAdj?.Adjustment ?? 0) + (rightValueAdj?.Adjustment ?? 0);
                     break;
                 case "-":
-                    value = leftValue - rightValue;
+                    value = leftValue ?? 0 - rightValue ?? 0;
                     ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
                     adjustment = (leftValueAdj?.Adjustment ?? 0) - (rightValueAdj?.Adjustment ?? 0);
                     break;
                 
                 case "*":
-                    value = leftValue * rightValue;
+                    value = leftValue ?? 0 * rightValue ?? 0;
                     adjustment = (leftValueAdj?.Adjustment ?? 0) * (rightValueAdj?.Adjustment ?? 0);
-                    ccy = Left.Value.Ccy;
+                    ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
 
                     // TODO ccy?
                     break;
                 case "/":
-                    value = leftValue / rightValue;
+                    value = leftValue ?? 0 / rightValue ?? 0;
                     adjustment = (leftValueAdj?.Adjustment ?? 0) / (rightValueAdj?.Adjustment ?? 0);
-                    ccy = Left.Value.Ccy;
+                    ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
 
                     // TODO ccy?
                     break;

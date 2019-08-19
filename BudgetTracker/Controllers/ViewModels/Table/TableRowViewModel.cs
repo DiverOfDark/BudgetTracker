@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using BudgetTracker.JsModel;
 using BudgetTracker.JsModel.Attributes;
 using BudgetTracker.Model;
@@ -42,16 +43,11 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                     }
                 }
 
-                if (cell == null)
-                {
-                    cell = CalculatedResult.Missing(h);
-                }
-
-                if (cell != null)
-                {
-                    CalculatedCells[h] = cell;
-                }
+                CalculatedCells[h] = cell ?? CalculatedResult.Missing(h);
             }
+
+            // make a copy of dictionary to make it editable and to not lost references to dependencies
+            CalculatedCells = CalculatedCells.ToDictionary(v => v.Key, v => v.Value);
         }
         
         public DateTime When { get; }
