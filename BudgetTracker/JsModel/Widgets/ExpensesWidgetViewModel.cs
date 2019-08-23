@@ -19,7 +19,24 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                 .ToList();
             
             
-            var data = payments.OrderByDescending(v => -v.Amount).ToList();
+            var data = payments.OrderByDescending(v => -v.Amount).Select(v =>
+            {
+                var value = (int) -v.Amount;
+
+                var name = "";
+                if (!string.IsNullOrWhiteSpace(v.Category))
+                    name = v.Category;
+                else if (!string.IsNullOrWhiteSpace(v.Debt))
+                    name = v.Debt;
+                else
+                {
+                    name = v.What;
+                    if (name.Length > 32)
+                        name = name.Remove(31) + "…";
+                }
+
+                return new {name, value};
+            }).ToList();
 
             var toRemove = data.Skip(11).ToList();
             data = data.Take(11).ToList();
@@ -28,20 +45,14 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             {
                 toRemove.ForEach(x => data.Remove(x));
             }
-    
-            var values = data.Select(v => (int)-v.Amount).ToList();
+            
+            var values = data.Select(v => v.value).ToList();
             var names = data.Select(v =>
             {
                 if (v == data.Last())
                     return "Остальное";
-        
-                if (!string.IsNullOrWhiteSpace(v.Category))
-                    return v.Category;
-                if (!string.IsNullOrWhiteSpace(v.Debt))
-                    return v.Debt;
-                if (v.What.Length > 32)
-                    return v.What.Remove(31) + "...";
-                return v.What;
+
+                return v.name;
             }).ToList();
 
             Values = values;
