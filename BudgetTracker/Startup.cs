@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.StaticFiles.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -202,6 +203,17 @@ namespace BudgetTracker
             app.UseEndpoints(routes =>
             {
                 routes.MapControllerRoute("not_so_default", "{controller}/{action}");
+                app.Use(async (a, b) =>
+                {
+                    if (a.Response.StatusCode != 200)
+                    {
+                        await a.Response.WriteAsync("Response " + a.Response.StatusCode);
+                    }
+                    else
+                    {
+                        await b();
+                    }
+                });
                 routes.MapFallbackToFile("index.html");
             });
 
