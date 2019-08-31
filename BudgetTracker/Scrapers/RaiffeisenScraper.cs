@@ -38,23 +38,30 @@ namespace BudgetTracker.Scrapers
             
             foreach (var acc in accounts)
             {
-                var titleElement = acc.FindElement(By.ClassName("product-header-title__name-text"));
-                var text = titleElement.Text;
-                
-                var amountWait = acc.FindElement(By.ClassName("product-header-info__value"));
-            
-                var amount = amountWait.Text;
-                var amountClear = new string(amount.Where(v=>char.IsDigit(v) || v == ',').ToArray());
-
-                var amountNumber = double.Parse(amountClear, new NumberFormatInfo()
+                try
                 {
-                    NumberDecimalSeparator = ","
-                });
+                    var titleElement = acc.FindElement(By.ClassName("product-header-title__name-text"));
+                    var text = titleElement.GetAttribute("textContent");
 
-                var ccySign = acc.FindElement(By.ClassName("amount__symbol"));
-                var ccyText = ccySign.Text;
-                
-                result.Add(Money(text, amountNumber, ccyText));
+                    var amountWait = acc.FindElement(By.ClassName("product-header-info__value"));
+
+                    var amount = amountWait.GetAttribute("textContent");
+                    var amountClear = new string(amount.Where(v => char.IsDigit(v) || v == ',').ToArray());
+
+                    var amountNumber = double.Parse(amountClear, new NumberFormatInfo()
+                    {
+                        NumberDecimalSeparator = ","
+                    });
+
+                    var ccySign = acc.FindElement(By.ClassName("amount__symbol"));
+                    var ccyText = ccySign.GetAttribute("textContent");
+
+                    result.Add(Money(text, amountNumber, ccyText));
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to parse row, continue", ex);
+                } 
             }
 
             return result;
