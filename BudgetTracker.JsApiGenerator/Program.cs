@@ -152,11 +152,11 @@ import rest from './services/Rest';
                         var endpoint = $"`/{controllerName}/{method.Name}`";
                         
                         fileWrite.WriteLine($"    static async {GetMethodSignature(method, knownTypes)}: Promise<{GetTypescriptType(method.ReturnType, knownTypes)}> {{ ");
-                        var enumerable = method.GetParameters().Select(v => FilterKeywords(v.Name)).ToList();
+                        var enumerable = method.GetParameters().Select(v => new { original = v, filtered = FilterKeywords(v.Name)}).ToList();
                         fileWrite.WriteLine($"      let data = {{");
                         foreach (var v in enumerable)
                         {
-                            fileWrite.WriteLine($"          {v}: {v},");
+                            fileWrite.WriteLine($"          {v.original.Name}: {v.filtered},");
                         }
                         fileWrite.WriteLine($"      }}");
                         fileWrite.WriteLine($"      return {boolPrefix}rest.{jsMethod}({endpoint}, data, {hasResponse.ToString().ToLower()}, {ShouldDeserialize(method.ReturnType).ToString().ToLower()}); ");
