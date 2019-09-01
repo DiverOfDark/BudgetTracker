@@ -113,7 +113,7 @@ export let close = function (index = -1) {
     color: #7a7a7a;
     list-style: none;
     text-align: left;
-    height: 2rem;
+    min-height: 2rem;
     padding: 0.25rem 0.5rem;
     cursor: pointer;
   }
