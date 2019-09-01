@@ -44,6 +44,9 @@ jobs:
         echo "BRANCH_NAME: $BRANCH_NAME"
         echo "GITHUB_SHA: $GITHUB_SHA"
 
+        echo $BRANCH_NAME >> branch.txt
+        echo $GITHUB_SAH >> hash.txt
+
         docker build --cache-from $MASTER_CACHE --build-arg SONAR_TOKEN=$SONAR_TOKEN --build-arg "CiCommitName=$BRANCH_NAME" --build-arg "CiCommitHash=$GITHUB_SHA" --build-arg IsProduction=true -t $CACHE_IMAGE .
 
     - name: Push the BudgetTracker image
