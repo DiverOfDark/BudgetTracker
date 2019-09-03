@@ -65,6 +65,4 @@ ENV Properties__CiCommitName=$CiCommitName
 ENV Properties__CiCommitHash=$CiCommitHash
 ENV ASPNETCORE_ENVIRONMENT=Production
 
-ADD *.txt ./
-
 ENTRYPOINT ["/app/run.sh"]
