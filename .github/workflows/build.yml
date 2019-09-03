@@ -45,7 +45,7 @@ jobs:
         echo "GITHUB_SHA: $GITHUB_SHA"
 
         echo $BRANCH_NAME >> branch.txt
-        echo $GITHUB_SAH >> hash.txt
+        echo $GITHUB_SHA >> hash.txt
 
         docker build --cache-from $MASTER_CACHE --build-arg SONAR_TOKEN=$SONAR_TOKEN --build-arg "CiCommitName=$BRANCH_NAME" --build-arg "CiCommitHash=$GITHUB_SHA" --build-arg IsProduction=true -t $CACHE_IMAGE .
 
