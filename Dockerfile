@@ -57,6 +57,9 @@ RUN ln -fs /opt/google/chrome/chrome /usr/bin/chrome
 ADD run.sh .
 RUN chmod +x run.sh
 
+ARG CiCommitName=local
+ARG CiCommitHash=sha
+ARG IsProduction=false
 ENV Properties__IsProduction=$IsProduction
 ENV Properties__CiCommitName=$CiCommitName
 ENV Properties__CiCommitHash=$CiCommitHash
