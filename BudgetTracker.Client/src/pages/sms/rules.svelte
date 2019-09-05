@@ -58,7 +58,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {#each rules as rule}
+                            {#each rules as rule, idx}
                                 <tr>
                                     <td>{rule.ruleType}</td>
                                     <td>{rule.sender || ""}</td>

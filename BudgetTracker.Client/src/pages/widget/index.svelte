@@ -110,7 +110,7 @@
     </div>    
     {#if model && model.widgets}
     <div class="row card-columns">
-        {#each model.widgets as column}
+        {#each model.widgets as column, idx3}
         <div class="col-lg-{column.columns} col-md-{Math.min(column.columns * 2, 12)} col-sm-12">
             {#each column.rows as widget, idx2 (widget.id)}
                 <div class="card">

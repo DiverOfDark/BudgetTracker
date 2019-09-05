@@ -3,10 +3,9 @@
 	import { formatMoney } from './../../../services/Shared';
 
 	import tabler from './../../../tabler';
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	
-	// @ts-ignore
-	import c3 from 'c3';
+	import Chart from 'chart.js';
 
 	export let model: LinearChartWidgetViewModel = {
         title: '',
@@ -23,89 +22,99 @@
 	
 	export let fullScreen = false;
 
-	let chartDiv: HTMLElement;
+	let currentChart: Chart;
+
+	let chartCanvas: HTMLCanvasElement;
 
 	let formatPercentage = function(value: number) { return Math.floor(value * 10000) / 100 + '%'; }
 
-	let height = fullScreen ? 700 : 300;
+	let height = fullScreen ? 700 : 308;
 	let showAxis = fullScreen;
 
 	let refresh = function() {
-		if (!chartDiv) {
-			return () => {};
+		if (!chartCanvas) {
+			return;
 		}
 
-		let chartNames : any = {};
-		for(var i =0; i < model.values.length; i++) {
-			chartNames['data' + i] = model.values[i].label;
+		let datasets = model.values.map((x,i) => { return {
+						label: x.label,
+						data: x.values.reverse().map(s=>Number.isFinite(s) ? s : NaN),
+						pointRadius: 0,
+						borderColor: tabler.getNiceColor(i),
+						backgroundColor: tabler.getNiceColor(i)
+					}
+				});
+
+		if (currentChart) {
+			currentChart.destroy()
 		}
-		
-		let chartGroups = model.values.map((_,i)=>'data' + i);
 
-		var prefilter = (a:any) : number => a !== "NaN" ? a : NaN;
-
-		var chartItems = model.values.map((v,i) => ['data' + i, ...v.values.map(t=>prefilter(t))]);
-
-		var params = {
-			bindto: chartDiv,
+		currentChart = new Chart(chartCanvas, {
+			type: 'line',
 			data: {
-				columns: [
-					...chartItems,
-					['x', ...model.dates]
-				],
-				type: "area", // default type of chart
-				groups: [ chartGroups ],
-				colors: {
-					'data1': tabler.colors["blue"]
+				labels: model.dates.reverse(),
+				datasets: datasets
+			}, 
+			options: {
+				maintainAspectRatio: false,
+				legend: {
+					display: true
 				},
-				x: 'x',
-				names: chartNames
-			},
-			size: {
-				height: height
-			},
-			padding: {
-				bottom: -10
-			},
-			legend: {
-				position: 'inset',
-				padding: 0,
-				show: true,
-				inset: {
-					anchor: 'top-left',
-					x: 5,
-					y: 0,
-					step: 999
-				}
-			},
-			point: {
-				show: true
-			},
-			axis: {
-				y: {
-					show: showAxis
+				elements: {
+            		line: { tension: 0 }
 				},
-				x: {
-					type: 'timeseries',
-					show: showAxis
-				}
-			},
-			tooltip: {
-					format: {
-						value: function (value: number, ratio: number) {
-							return formatMoney(value) + " (" + formatPercentage(ratio) + ")";
+				plugins: {
+					datalabels: {
+						display: false,
+					},
+				},
+				responsive: true,
+				scales: {
+					xAxes: [{
+						display: false,
+						scaleLabel: {
+							display: false
+						}
+					}],
+					yAxes: [{
+						display: showAxis,
+						stacked: true,
+						scaleLabel: {
+							display: showAxis
+						}
+					}]
+				},
+				hover: {
+					mode: 'index'
+				},
+				tooltips: {
+					mode: 'index',
+					intersect: false,
+					callbacks: {
+						label: (tooltipItem: any, data: any) => {
+							var title = data.datasets[tooltipItem.datasetIndex].label;
+							var value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+							
+							var sum = data.datasets.map((s: any)=>s.data[tooltipItem.index]).filter(Number.isFinite).reduce((a: number,b: number)=>a+b, 0)
+
+							var ratio = sum == 0 ? 0 : value / sum
+							
+							var label = formatMoney(value) + " (" + formatPercentage(ratio) + ")";
+
+							return title+": " + label;
 						}
 					}
+				}
 			}
-		};
-
-		let chart = c3.generate(params)
-
-		return chart.unload;
+		})
 	}
 
 	$: { model && refresh(); }
 	onMount(() => refresh());
+	onDestroy(() => currentChart && currentChart.destroy());
+
+	// used implicitly
+	height;
 </script>
 
 <div class="card-body">
@@ -113,6 +122,6 @@
 		{model.title}
 	</div>
 </div>
-<div class="card-chart-bg" style="height: 100%; max-height: {height}px">
-	<div bind:this="{chartDiv}"></div>
+<div class="card-chart-bg" style="height: {height}px">
+	<canvas bind:this="{chartCanvas}"></canvas>
 </div>

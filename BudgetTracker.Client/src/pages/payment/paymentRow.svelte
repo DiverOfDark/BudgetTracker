@@ -79,7 +79,7 @@
     </tr>
 
     {#if payment.expanded}
-        {#each payment.group as childPayment}
+        {#each payment.group as childPayment, idx}
             <svelte:self useItalic="true" payment={childPayment} {hideCategorized} {deletePayment} />
         {/each}
         <tr>

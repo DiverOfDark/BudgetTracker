@@ -225,7 +225,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {#each keys as monthKey}
+                        {#each keys as monthKey, idx}
 
                             {#if (showHeader(months[monthKey], hideCategorized))}
                             <tr>
@@ -246,7 +246,7 @@
                             {/if}
 
                             {#if !months[monthKey].collapsed}
-                                {#each months[monthKey].values as payment}
+                                {#each months[monthKey].values as payment, idx}
                                     <PaymentRow {payment} {hideCategorized} {deletePayment} />
                                 {/each}
                             {/if}

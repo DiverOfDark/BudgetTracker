@@ -46,7 +46,7 @@ namespace BudgetTracker.Controllers
                 existingModel = _objectRepository.Set<MoneyColumnMetadataModel>().First(v => v.Id == id);
             }
 
-            existingModel.Function = function;
+            existingModel.Function = function ?? "";
             existingModel.UserFriendlyName = userFriendlyName;
             existingModel.AutogenerateStatements = autogenerateStatements;
 

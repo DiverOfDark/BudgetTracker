@@ -2,10 +2,10 @@
 	import { LastValueWidgetViewModel } from './../../../generated-types';
 	import Link from '../../../svero/Link.svelte';
     import { formatMoney, formatDate, formatDateJs } from './../../../services/Shared';
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import {compare} from './../../../services/Shared'
-	//@ts-ignore
-	import c3 from 'c3';
+	import tabler from './../../../tabler';
+	import Chart from 'chart.js';
 
 	export let model: LastValueWidgetViewModel = {
 		account: '',
@@ -31,7 +31,8 @@
 		title: ''
 	};
 
-	let chartDiv: HTMLElement;
+	let currentChart: Chart;
+	let chartCanvas: HTMLCanvasElement;
 
 	let colorSuffix = "";
 	$: { colorSuffix = model.incompleteData ? "bg-gray-dark-darkest" : ""; }
@@ -61,7 +62,7 @@
 	}
 
 	let refresh = function() {
-		if (!model.isCompact && chartDiv) {
+		if (!model.isCompact && chartCanvas) {
 			var goodItems = Object.entries(model.values).sort((a,b)=>compare(a[0], b[0])).filter(v=>v[1]);
 			var chartItems : number[] = goodItems.map(v => <number> v[1]);
 			var datesItems : string[] = goodItems.map(v => <string> v[0]);
@@ -86,77 +87,76 @@
 			var values = chartItems;
 			var dates = datesItems.map(formatDateJs);
 
-			var chart = c3.generate({
-				bindto: chartDiv,
-				padding: {
-					bottom: -10,
-					left: -1,
-					right: -1
-				},
-				size: {
-					height: 64
-				},
-				data: {
-					x: 'x',
-					names: {
-						'data1': model.title
-					},
-					columns: [
-						['data1', ...values],
-						['x', ...dates]
-					],
-					type: 'area-spline'
-				},
-				legend: {
-					show: false
-				},
-				transition: {
-					duration: 0
-				},
-				point: {
-					show: true
-				},
-				tooltip: {
-					show: true,
-					format: {
-						value: formatMoney
-					}
-				},
-				axis: {
-					y: {
-						padding: {
-							bottom: 0
-						},
-						show: false,
-						tick: {
-							outer: true
-						},
-						max: yMax,
-						min: yMin
-					},
-					x: {
-						type: 'timeseries',
-						padding: {
-							left: 0,
-							right: 0
-						},
-						show: false
-					}
-				},
-				color: {
-					pattern: [hexColor]
-				}
-			});
-			chart.flush();
+			if (currentChart) {
+				currentChart.destroy();
+			}
 
-			return chart.unload;
+			currentChart = new Chart(chartCanvas, {
+				type: 'line',
+				data: {
+					labels: dates,
+					datasets: [{
+						label: model.title,
+						data: values,
+						pointRadius: 0,
+						borderColor: tabler.getNiceColor(0),
+						backgroundColor: tabler.getNiceColor(0)
+					}]
+				}, 
+				options: {
+					maintainAspectRatio: false,
+					legend: {
+						display: false
+					},
+					elements: {
+						line: { tension: 0 }
+					},
+					plugins: {
+						datalabels: {
+							display: false,
+						},
+					},
+					responsive: true,
+					scales: {
+						xAxes: [{
+							display: false,
+							scaleLabel: {
+								display: false
+							}
+						}],
+						yAxes: [{
+							display: false,
+							stacked: true,
+							scaleLabel: {
+								display: false
+							}
+						}]
+					},
+					hover: {
+						mode: 'index'
+					},
+					tooltips: {
+						mode: 'index',
+						intersect: false,
+						callbacks: {
+							label: (tooltipItem: any, data: any) => {
+								var title = data.datasets[tooltipItem.datasetIndex].label;
+								var value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+								var label = formatMoney(value);
+
+								return title+": " + label;
+							}
+						}
+					}
+				}
+			})
 		}
-		return ()=>{};
 	}
 	
 	$: { model && refresh(); }
 
 	onMount(() => refresh());
+	onDestroy(() => currentChart && currentChart.destroy());
 
 	hexColor; trend; colorSuffix; formatDate; formatMoney; Link;
 </script>
@@ -204,6 +204,6 @@
         </h4>
     </div>
 	<div class="card-chart-bg {colorSuffix}">
-		<div bind:this="{chartDiv}" style="height: 100%"></div>
+		<canvas bind:this="{chartCanvas}"></canvas>
 	</div>
 {/if}

@@ -55,7 +55,7 @@
                                 </Link>
                             </th>
                         </tr>
-                        {#each columns as meta}
+                        {#each columns as meta, i}
                             <tr>
                                 <td class="text-nowrap">
                                     {#if meta != columns[0]}

@@ -38,9 +38,6 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                     column.ChartList.Contains(v.UserFriendlyName)).ToList();
             }
 
-            Names = new List<string>();
-            Values = new List<double>();
-
             var newTitle = Title;
 
             while (vm.Values.Count > 0 && columnsToChart.Any(s => !vm.Values[0].CalculatedCells[s].IsOk))
@@ -51,6 +48,8 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
             }
 
             Title = newTitle;
+            
+            var items = new Dictionary<string, double>();
             
             foreach (var header in columnsToChart)
             {
@@ -66,9 +65,12 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                            (header.UserFriendlyName ?? header.AccountName);
 
                 var realValue = value.Value;
-                Names.Add(name);
-                Values.Add(realValue);
+                items[name] = realValue;
             }
+
+            var sorted = items.OrderByDescending(v => v.Value).ToList();
+            Names = sorted.Select(v => v.Key).ToList();
+            Values = sorted.Select(v => v.Value).ToList();
         }
 
         public List<string> Names { get; set; }

@@ -58,7 +58,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {#each categories as category}
+                                {#each categories as category, idx}
                                 <tr>
                                     <td>{category.category}</td>
                                     <td>{category.kind}</td>

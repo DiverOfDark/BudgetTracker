@@ -67,7 +67,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {#each months as month}
+                            {#each months as month, idx}
                                 <tr>
                                     <th colspan="4">
                                         <span class="card-title">
@@ -79,7 +79,7 @@
                                     </th>
                                 </tr>
                                 {#if !month.collapsed}
-                                    {#each month.sms as sms}
+                                    {#each month.sms as sms, idx}
                                         {#if !sms.isHidden || showHidden}
                                             <tr>
                                                 <td class="text-nowrap">{formatDateTime(sms.when)}</td>

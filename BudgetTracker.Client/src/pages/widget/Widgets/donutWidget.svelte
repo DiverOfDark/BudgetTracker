@@ -3,10 +3,13 @@
 	import { formatMoney } from './../../../services/Shared';
 
 	import tabler from './../../../tabler';
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
+	import Chart from 'chart.js';
 
 	//@ts-ignore
-	import c3 from 'c3';
+	import ChartDataLabels from 'chartjs-plugin-datalabels';
+	//@ts-ignore
+	import ChartDoughnutLabel from 'chartjs-plugin-doughnutlabel';
 
 	export let model: DonutWidgetViewModel = {
         title: '',
@@ -22,87 +25,88 @@
 	
 	export let fullScreen = false;
 
-	let chartDiv: HTMLElement;
+	let currentChart: Chart;
+
+	let canvas: HTMLCanvasElement;
 
 	let formatPercentage = function(value: number) { return Math.floor(value * 10000) / 100 + '%'; }
 
 	let height = fullScreen ? 700 : 300;
 
 	let refresh = function() {
-		if (!chartDiv) {
-			return () => {};
+		if (!canvas) {
+			return
 		}
 
-		if (!model.names) {
-			model.names = [];
+		if (currentChart) {
+			currentChart.destroy();
 		}
 
-		if (!model.values) {
-			model.values = [];
-		}
-
-		let chartNames : any = {};
-		for(var i =0; i < model.values.length; i++) {
-			chartNames['data' + i] = model.names[i];
-		}
-		let chartGroups = model.values.map((_,i)=>'data' + i);
-
-		let chartItems = model.values.map((v,i) => ['data' + i, v ]);
-		let sum = model.values.reduce((a,b) => a+b, 0);
-		
-		var params = {
-			bindto: chartDiv,
+		currentChart = new Chart(canvas, {
+			type: 'doughnut',
+		    plugins: [ChartDataLabels, ChartDoughnutLabel],
 			data: {
-				columns: chartItems,
-				type: "donut",
-				groups: [ chartGroups ],
-				colors: {
-					'data1': tabler.colors["blue"]
+				datasets: [{
+					data: model.values || [],
+					backgroundColor: tabler.getNiceColors()
+				}],
+				labels: model.names || []
+			},
+			options: {
+				maintainAspectRatio: false,
+				legend: {
+					display: false
 				},
-				names: chartNames
-			},
-			size: {
-				height: height
-			},
-			padding: {
-				bottom: -10
-			},
-			legend: {
-				position: 'inset',
-				padding: 0,
-				show: false,
-				inset: {
-					anchor: 'top-left',
-					x: 5,
-					y: 0,
-					step: 999
-				}
-			},
-			donut: {
-				title: formatMoney(sum),
-				label: {
-					format: function (_: number, ratio: number, id: string) {
-						var trimmed = chartNames[id].length > 16 ? chartNames[id].substring(0, 15) + "…" : chartNames[id];
-						return trimmed + " (" + formatPercentage(ratio) + ")";
-					}
-				}
-			},
-			tooltip: {
-					format: {
-						value: function (value: number, ratio: number) {
-							return formatMoney(value) + " (" + formatPercentage(ratio) + ")";
+				plugins: {
+					doughnutlabel: {
+						labels: [
+						{
+							text: formatMoney((model.values || []).reduce((a,b)=>a+b,0)),
+							font: {
+								size: '16'
+							}
+						}]
+					},
+					datalabels: {
+						color: 'white',
+						font: {
+							weight: 'bold'
+						},
+						formatter: (value: any, context: any) => {
+							var ratio = value / context.dataset.data.reduce((a: number,b: number)=>a+b, 0)
+							if (ratio > 0.04) {
+								return formatPercentage(ratio)
+							}
+							return "";
 						}
 					}
+				},
+				tooltips: {
+					callbacks: {
+						label: (tooltipItem: any, data: any) => {
+							var title = data.labels[tooltipItem.index] || '';
+							return title;
+						},
+						footer: (tooltipItems: any, data: any) => {
+							var tooltipItem = tooltipItems[0];
+							var value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+							var ratio = value / data.datasets[tooltipItem.datasetIndex].data.reduce((a: number,b: number)=>a+b, 0)
+							var label = formatMoney(value) + " (" + formatPercentage(ratio) + ")";
+
+							return label;
+						}
+					}
+				}
 			}
-		};
-
-		var chart = c3.generate(params)
-
-		return chart.unload;
+		});
 	}
 
 	$: { model && refresh(); }
 	onMount(() => refresh());
+	onDestroy(() => currentChart && currentChart.destroy());
+
+	// used implicitly
+	height;
 </script>
 
 <div class="card-body">
@@ -111,5 +115,5 @@
 	</div>
 </div>
 <div class="card-chart-bg" style="height: 100%; max-height: {height}px">
-	<div bind:this="{chartDiv}" class="pie-chart"></div>
+	<canvas bind:this="{canvas}"></canvas>
 </div>

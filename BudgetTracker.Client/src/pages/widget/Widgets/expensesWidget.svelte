@@ -1,9 +1,15 @@
 <script lang="ts">
 	import { ExpensesWidgetViewModel } from './../../../generated-types';
     import { formatMoney } from './../../../services/Shared';
-	import { onMount } from 'svelte';
+	import tabler from './../../../tabler';
+	import { onMount, onDestroy } from 'svelte';
+
+	import Chart from 'chart.js';
+
 	//@ts-ignore
-	import c3 from 'c3';
+	import ChartDataLabels from 'chartjs-plugin-datalabels';
+	//@ts-ignore
+	import ChartDoughnutLabel from 'chartjs-plugin-doughnutlabel';
 
 	export let model: ExpensesWidgetViewModel = {
         title: '',
@@ -20,67 +26,86 @@
         settings: {}
     };
 
-	let chartDiv: HTMLElement;
+    let currentChart: Chart;
+	let chartCanvas: HTMLCanvasElement;
 
     let refresh = function() {
-        if (!chartDiv) {
-            return () => {}
+        if (!chartCanvas) {
+            return;
         }
 
-        let columnsData = model.values.map((t,i)=> [ 'col' + i, t  ])
-        let namesData : any = {};
-        for(var i =0;i<model.names.length; i++) {
-            namesData['col' + i] = model.names[i];
+        if (currentChart) {
+            currentChart.destroy();
         }
 
-        var valuesSum = model.values.reduce((a,b) => a+b);
-    
-        var chart = c3.generate({
-            bindto: chartDiv,
+        currentChart = new Chart(chartCanvas, {
+            type: 'doughnut',
+            plugins: [ChartDataLabels, ChartDoughnutLabel],
             data: {
-                columns: [...columnsData],
-                type: 'donut',
-                order: null,
-                names: namesData
+                datasets: [{
+                    data: model.values || [],
+                    backgroundColor: tabler.getNiceColors()
+                }],
+                labels: model.names || []
             },
-            donut: {
-                title: formatMoney(valuesSum) + " " + model.expenseSettings.currency,
-                label: {
-                    format: formatMoney
-                }
-            },
-            tooltip: {
-                format: {
-                    value: function (value: number) {
-                        return formatMoney(value) + " " + model.expenseSettings.currency;
+            options: {
+                maintainAspectRatio: false,
+                legend: {
+                    display: true,
+                    position: "right"
+                },
+                plugins: {
+                    doughnutlabel: {
+                        labels: [
+                        {
+                            text: formatMoney((model.values || []).reduce((a,b)=>a+b,0)),
+                            font: {
+                                size: '16'
+                            }
+                        }]
+                    },
+                    datalabels: {
+                        color: 'white',
+                        font: {
+                            weight: 'bold'
+                        },
+                        formatter: (value: any, _: any) => {
+                            if (value < model.values.reduce((a,b) => a+b, 0) * 0.05) {
+                                return "";
+                            }
+                            return formatMoney(value)
+                        }
+                    }
+                },
+                tooltips: {
+                    callbacks: {
+                        label: (tooltipItem: any, data: any) => {
+                            var title = data.labels[tooltipItem.index] || '';
+                            return title;
+                        },
+                        footer: (tooltipItems: any, data: any) => {
+                            var tooltipItem = tooltipItems[0];
+                            var value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                            var label = formatMoney(value) + " " + model.expenseSettings.currency;
+
+                            return label;
+                        }
                     }
                 }
-            },
-            size: {
-                height: 300
-            },
-            axis: {
-            },
-            legend: {
-                show: true,
-                position: 'right'
-            },
-            padding: {
-                bottom: 0,
-                top: 0
             }
         });
-
-        return chart.unload;
     }
 
     $: { model && refresh(); }
-	onMount(() => refresh());
+    onMount(() => refresh());
+   	onDestroy(() => currentChart && currentChart.destroy());
 </script>
 
 <div class="card-body">
     <div class="h4 text-muted-dark text-center">
         {model.title} ({model.period} месяц)
     </div>
-    <div bind:this="{chartDiv}" class="pie-chart" style="height: 100%;"></div>
+    <div style="height: 300px">
+        <canvas bind:this="{chartCanvas}"></canvas>
+    </div>
 </div>
