@@ -85,11 +85,11 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
                 (v.AccountName == _settings.AccountName || v.UserFriendlyName == _settings.AccountName));
 
 
-            var tableRowViewModel = vm.Values.OrderByDescending(v => v.When).First(v=>v.CalculatedCells.ContainsKey(column));
+            var tableRowViewModel = vm.Values.OrderByDescending(v => v.When).FirstOrDefault(v=>v.CalculatedCells.GetValueOrDefault(column)?.IsOk == true);
 
-            var matchedCell = tableRowViewModel.CalculatedCells.GetValueOrDefault(column);
+            var matchedCell = tableRowViewModel?.CalculatedCells.GetValueOrDefault(column);
             CurrentValue = matchedCell?.Value;
-            CurrentDate = matchedCell?.Money?.When ?? tableRowViewModel.When.Date;
+            CurrentDate = matchedCell?.Money?.When ?? tableRowViewModel?.When.Date ?? DateTime.MinValue;
 
             var p = new PercentageCalculator();
             Values = new Dictionary<DateTime, double?>();

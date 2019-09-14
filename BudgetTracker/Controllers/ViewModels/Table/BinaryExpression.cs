@@ -93,7 +93,16 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                     break;
                 case "/":
                     value = (leftValue ?? 0) / (rightValue ?? 0);
-                    adjustment = (leftValueAdj?.Adjustment ?? 0) / (rightValueAdj?.Adjustment ?? 0);
+
+                    var leftAdj = leftValueAdj?.Adjustment ?? 0;
+                    var rightAdj = rightValueAdj?.Adjustment ?? 0;
+
+                    if (Math.Abs(rightAdj) < double.Epsilon)
+                    {   
+                        rightAdj = 1;
+                    }
+                    
+                    adjustment = leftAdj / rightAdj;
                     ccy = SelectCcy(Left.Value.Ccy, Right.Value.Ccy);
 
                     // TODO ccy?
