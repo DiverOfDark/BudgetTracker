@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using BudgetTracker.Model;
@@ -23,19 +24,21 @@ namespace BudgetTracker.Scrapers
             
             driver.Navigate().GoToUrl(@"https://my.alfacapital.ru/#/");
 
-            driver.Navigate().Refresh();
-            
-            GetElement(driver, By.Id("username")).Click();
-            
+            var inputs = GetElements(driver, By.TagName("input"));
+            var login = inputs.First(v => v.GetAttribute("name") == "alfa-login");
+            var password = inputs.First(v => v.GetAttribute("name") == "alfa-password");
+
+            login.Click();
             chrome.SendKeys(configuration.Login);
 
-            GetElement(driver, By.Id("password")).Click();
+            password.Click();
             chrome.SendKeys(configuration.Password);
             chrome.SendKeys(Keys.Return);
 
-            var smsModel = WaitForSms(() => GetElement(driver, By.Id("smsCode")).Click(),
-                s => s.Message.Contains("Код для входа:"));
+            var smsModel = WaitForSms(() => {}, s => s.Message.Contains("Код для входа:"));
 
+            GetElement(driver, By.TagName("input")).Click();
+            
             var code = new string(smsModel.Message.Where(char.IsDigit).ToArray());
             chrome.SendKeys(code);
             chrome.SendKeys(Keys.Return);
@@ -44,24 +47,29 @@ namespace BudgetTracker.Scrapers
 
             var result = new List<MoneyStateModel>();
 
-            var assetClasses = new[] {"fund-table-component", "am-table-component"};
-
-            foreach (var assetClass in assetClasses)
+            foreach (var tr in GetElements(driver, By.TagName("tr")))
             {
-                var fund = GetElement(driver, By.ClassName(assetClass));
-
-                foreach (var tr in fund.FindElements(By.TagName("tr")).ToList())
+                try
                 {
                     var tds = tr.FindElements(By.TagName("td")).ToList();
-                    var title = tds[0].Text;
-                    var value = tds[1].Text;
+                    var title = tds[1].Text;
+                    var value = tds[2].Text;
                     if (title.Contains("\n"))
                     {
                         title = title.Remove(title.IndexOf("\n")).Trim();
                     }
-                    var valueAmount = double.Parse(new string(value.Where(v=>char.IsDigit(v) || v == ',').ToArray()), new NumberFormatInfo{NumberDecimalSeparator = ","});
+
+                    if (title.Equals("Итого", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    var valueAmount = double.Parse(new string(value.Where(v => char.IsDigit(v) || v == ',').ToArray()),
+                        new NumberFormatInfo {NumberDecimalSeparator = ","});
                     result.Add(Money(title, valueAmount, CurrencyExtensions.RUB));
                 }
+                catch(Exception ex)
+                {}
             }
             
             return result;
