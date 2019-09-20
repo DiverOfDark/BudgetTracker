@@ -39,6 +39,8 @@ namespace BudgetTracker.Scrapers
             var code = new string(sms.Message.Where(char.IsDigit).ToArray());
             chrome.SendKeys(code);
             
+            WaitForPageLoad(driver);
+            
             var pass = GetElement(driver, By.Name("password"));
             pass.Click();
             chrome.SendKeys(configuration.Password);
