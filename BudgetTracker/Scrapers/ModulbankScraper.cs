@@ -24,26 +24,26 @@ namespace BudgetTracker.Scrapers
         {
             var driver = chrome.Driver;
             driver.Navigate().GoToUrl(@"https://my.modulbank.ru/");
-            var name = GetElement(driver, By.Name("tel"));
-            var pass = GetElement(driver, By.Name("password"));
+            var name = GetElement(driver, By.Name("login"));
             name.Click();
             foreach (var k in configuration.Login) 
             {
                 chrome.SendKeys(k.ToString());
                 WaitForPageLoad(driver);
             }
-            pass.Click();
-            chrome.SendKeys(configuration.Password);
-
             chrome.SendKeys(Keys.Return);
 
-            var smsButton = GetElement(driver, By.Name("smsCode"));
-
-            var sms = WaitForSms(() => smsButton.Click(),
+            var sms = WaitForSms(() => { },
                 s => s.Message.Contains("Код подтверждения"));
             
             var code = new string(sms.Message.Where(char.IsDigit).ToArray());
             chrome.SendKeys(code);
+            
+            var pass = GetElement(driver, By.Name("password"));
+            pass.Click();
+            chrome.SendKeys(configuration.Password);
+
+            chrome.SendKeys(Keys.Return);
 
             WaitForPageLoad(driver, 15);
 
