@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 
 export class AuthService {
-    authorized = writable(true);;
+    authorized = writable(true);
 
     public getStore() {
         return this.authorized;
