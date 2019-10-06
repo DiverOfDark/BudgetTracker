@@ -52,8 +52,37 @@ networks:
 - **API** (POST-endpoint)
   Пример запроса:
   ```
+  # Статус на сегодня:
   POST /post-data
   name=Название+счета&value=1000.0&ccy=RUB
+
+  # Статус на 31 февраля 2019:
+  POST /post-data
+  name=Название+счета&value=1000.0&ccy=RUB&when=31.02.2019
+
+  # Добавление транзакций:
+  POST /post-payment
+  Content-Type: application/json
+
+  [
+    {
+      "id": "123abc",
+      "account": "test-account",
+      "when": "01.10.2019 12:00:00",
+      "amount": "5000",
+      "currency": "RUB",
+      "what": "Вернули долг"
+    },
+    {
+      "id": "124abc",
+      "account": "test-account",
+      "when": "02.10.2019 12:00:00",
+      "amount": "100",
+      "currency": "RUB",
+      "what": "Купил сникерс"
+    }
+  ]
+
   ```
 
 ## Табличное представление (история)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -152,8 +153,50 @@ namespace BudgetTracker.Controllers
             return new EmptyResult();
         }
 
+        [Route("post-payment")]
+        [HttpPost]
+        public IActionResult PostPayment([FromBody] IEnumerable<PaymentData> postData)
+        {
+            foreach (var statementData in postData)
+            {
+                if (!statementData.IsValid())
+                {
+                    _logger.LogError($"Failed to parse statement with id {statementData.Id}");
+                    return new ContentResult
+                    {
+                        Content = $"Failed to parse statement with id {statementData.Id}",
+                        StatusCode = 400
+                    };
+                }
+                
+                _objectRepository.Remove<PaymentModel>(v => v.StatementReference == statementData.Id);
+
+                var column = _objectRepository.Set<MoneyColumnMetadataModel>()
+                    .FirstOrDefault(v => v.Provider == "API" && v.AccountName == statementData.Account);
+
+                if (column == null)
+                {
+                    column = new MoneyColumnMetadataModel("API", statementData.Account);
+                    _objectRepository.Add(column);
+                }
+                
+                var kind = statementData.Amount > 0 ? PaymentKind.Income : PaymentKind.Expense;
+                var pm = new PaymentModel(statementData.When.Value, statementData.What, statementData.Amount, kind, 
+                    statementData.Currency, statementData.Id, column);
+
+                _objectRepository.Add(pm);
+            }
+
+            _logger.LogInformation($"Added {postData.Count()} payments from API");
+            return new ContentResult
+            {
+                Content = "OK",
+                StatusCode = 200
+            };
+        }
+        
         [Route("post-data")]
-        public IActionResult PostData([Bind] string name, [Bind] string value, [Bind] string ccy)
+        public IActionResult PostData([Bind] string name, [Bind] string value, [Bind] string ccy, [Bind] string when = null)
         {
             try
             {
@@ -169,6 +212,8 @@ namespace BudgetTracker.Controllers
                         StatusCode = 400
                     };
                 }
+
+                var whendt = when == null ? DateTime.UtcNow : DateTime.Parse(when);
                 
                 var existing = _objectRepository.Set<MoneyColumnMetadataModel>()
                     .FirstOrDefault(v => v.Provider == "API" && v.AccountName == name);
@@ -187,7 +232,7 @@ namespace BudgetTracker.Controllers
                     Column = existing,
                     Ccy = ccy,
                     Amount = valueParsed,
-                    When = DateTime.UtcNow
+                    When = whendt
                 });
                 
                 _logger.LogInformation($"Parsed post-data: {name} / {value} / {ccy}");
@@ -206,6 +251,28 @@ namespace BudgetTracker.Controllers
                     StatusCode = 500
                 };
             }
+        }
+    }
+
+    public class PaymentData
+    {
+        public string Id { get; set; }
+        
+        public string Account { get; set; }
+
+        public DateTime? When { get; set; }
+        
+        public double Amount { get; set; }
+        
+        public string Currency { get; set; }
+        
+        public string What { get; set; }
+
+        public bool IsValid()
+        {
+            return When != null && When != DateTime.MinValue && !double.IsNaN(Amount) && !double.IsInfinity(Amount) &&
+                   !string.IsNullOrWhiteSpace(Account) && !string.IsNullOrWhiteSpace(What) &&
+                   !string.IsNullOrWhiteSpace(Id) && !string.IsNullOrWhiteSpace(Currency);
         }
     }
 }
