@@ -108,54 +108,65 @@ namespace BudgetTracker.Scrapers
                     .Replace("{to}", DateTime.Now.ToString("yyyy-MM-ddTHH:mm"))
                     .Replace("{token}", accessToken);
                 
-                driver.Navigate().GoToUrl(url);
-                
-                Logger.LogInformation($"Getting statement for {account.name} at {url}");
-
-                int waited = 0;
-                while (chrome.GetDownloads().Count < 1 && waited < 300)
+                // Raiffeisen sometimes doesn't return all payments on first call
+                for (int i = 0; i < 3; i++)
                 {
-                    WaitForPageLoad(driver);
-                    waited++;
-                }
-                
-                Thread.Sleep(10000);
+                    driver.Navigate().GoToUrl(url);
 
-                var files = chrome.GetDownloads();
-                if (files.Count == 1)
-                {
-                    var ofxFile = files.First();
+                    Logger.LogInformation($"Getting statement for {account.name} at {url}, attempt {i}");
 
-                    var doc = File.ReadAllText(ofxFile.FullName);
-
-                    var xdoc = XDocument.Parse(doc);
-                    
-                    var statements = xdoc.XPathSelectElements("OFX/BANKMSGSRSV1/STMTTRNRS/STMTRS/BANKTRANLIST/STMTTRN");
-
-                    var ccyNode = xdoc.XPathSelectElement("OFX/BANKMSGSRSV1/STMTTRNRS/STMTRS/CURDEF");
-
-                    var ccy = ccyNode.Value;
-                    
-                    var payments = new List<PaymentModel>();
-            
-                    foreach (var st in statements)
+                    int waited = 0;
+                    while (chrome.GetDownloads().Count < 1 && waited < 300)
                     {
-                        var timeStr = st.Element("DTPOSTED").Value;
-                        var time = DateTime.ParseExact(timeStr, "yyyyMMddhhmmss", CultureInfo.CurrentCulture);
-                        var amount = double.Parse(st.Element("TRNAMT").Value, new NumberFormatInfo {NumberDecimalSeparator = "."});
-                        var name = st.Element("MEMO").Value;
-                        var id = st.Element("FITID").Value;
-
-                        var kind = amount < 0 ? PaymentKind.Expense : PaymentKind.Income; 
-                        
-                        payments.Add(Statement(time, accountName, name, amount, kind, ccy, id));
+                        WaitForPageLoad(driver);
+                        waited++;
                     }
-                    
-                    Logger.LogInformation($"Got {payments.Count} payments from {url}");
-                    result.AddRange(payments);
-                    ofxFile.Delete();
+
+                    Thread.Sleep(10000);
+
+                    var files = chrome.GetDownloads();
+                    if (files.Count == 1)
+                    {
+                        var ofxFile = files.First();
+
+                        var doc = File.ReadAllText(ofxFile.FullName);
+
+                        var xdoc = XDocument.Parse(doc);
+
+                        var statements =
+                            xdoc.XPathSelectElements("OFX/BANKMSGSRSV1/STMTTRNRS/STMTRS/BANKTRANLIST/STMTTRN");
+
+                        var ccyNode = xdoc.XPathSelectElement("OFX/BANKMSGSRSV1/STMTTRNRS/STMTRS/CURDEF");
+
+                        var ccy = ccyNode.Value;
+
+                        var payments = new List<PaymentModel>();
+
+                        foreach (var st in statements)
+                        {
+                            var timeStr = st.Element("DTPOSTED").Value;
+                            var time = DateTime.ParseExact(timeStr, "yyyyMMddhhmmss", CultureInfo.CurrentCulture);
+                            var amount = double.Parse(st.Element("TRNAMT").Value,
+                                new NumberFormatInfo {NumberDecimalSeparator = "."});
+                            var name = st.Element("MEMO").Value;
+                            var id = st.Element("FITID").Value;
+
+                            var kind = amount < 0 ? PaymentKind.Expense : PaymentKind.Income;
+
+                            var stmt = Statement(time, accountName, name, amount, kind, ccy, id);
+                            payments.Add(stmt);
+                        }
+
+                        Logger.LogInformation($"Got {payments.Count} payments from {url}, attempt {i}");
+                        result.AddRange(payments);
+                        ofxFile.Delete();
+                    }
                 }
             }
+
+            var oldCount = result.Count;
+            result = result.GroupBy(v => v.Id).Select(v => v.First()).ToList();
+            Logger.LogInformation($"Deduplicated payments {oldCount} -> {result.Count}");
 
             return result;
         }
