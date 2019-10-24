@@ -19,7 +19,7 @@
     "rollup-plugin-svelte": "^5.1.0",
     "rollup-plugin-terser": "^5.1.2",
     "rollup-plugin-typescript2": "^0.21.2",
-    "sirv-cli": "^0.4.4",
+    "sirv-cli": "^0.4.5",
     "svelte": "^3.12.1",
     "typescript": "^3.6.3"
   },
