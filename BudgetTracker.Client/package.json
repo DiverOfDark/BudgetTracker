@@ -32,7 +32,7 @@
     "lint": "eslint src --plugin svelte3 --ext .svelte,.js --fix"
   },
   "dependencies": {
-    "@types/chart.js": "^2.8.5",
+    "@types/chart.js": "^2.9.0",
     "chart.js": "^2.8.0",
     "chartjs-plugin-datalabels": "^0.6.0",
     "chartjs-plugin-doughnutlabel": "^2.0.3",
