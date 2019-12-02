@@ -165,7 +165,7 @@ namespace BudgetTracker.Scrapers
             }
 
             var oldCount = result.Count;
-            result = result.GroupBy(v => v.Id).Select(v => v.First()).ToList();
+            result = result.GroupBy(v => v.StatementReference).Select(v => v.First()).ToList();
             Logger.LogInformation($"Deduplicated payments {oldCount} -> {result.Count}");
 
             return result;
