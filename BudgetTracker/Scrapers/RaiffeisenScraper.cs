@@ -146,10 +146,18 @@ namespace BudgetTracker.Scrapers
                         {
                             var timeStr = st.Element("DTPOSTED").Value;
                             var time = DateTime.ParseExact(timeStr, "yyyyMMddhhmmss", CultureInfo.CurrentCulture);
-                            var amount = double.Parse(st.Element("TRNAMT").Value,
+                            var amountStr = st.Element("TRNAMT").Value;
+                            var amount = double.Parse(amountStr,
                                 new NumberFormatInfo {NumberDecimalSeparator = "."});
                             var name = st.Element("MEMO").Value;
-                            var id = st.Element("FITID").Value;
+                            
+                            var id = timeStr + amountStr + name;
+
+                            int counter = 0;
+                            while (payments.Any(j => j.StatementReference == id))
+                            {
+                                id = timeStr + amountStr + name + counter++;
+                            }
 
                             var kind = amount < 0 ? PaymentKind.Expense : PaymentKind.Income;
 
