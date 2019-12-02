@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using BudgetTracker.Model;
@@ -27,7 +28,7 @@ namespace BudgetTracker.Services
                     .Where(v => v.GroupBy(s => s.Category).Count() == 1)
                     .Aggregate(new Dictionary<string, PaymentModel>(), (a, b) =>
                     {
-                        a[b.Key] = b.First();
+                        a[b.Key.ToLower()] = b.First();
                         return a;
                     });
                 
@@ -42,7 +43,7 @@ namespace BudgetTracker.Services
                     foreach (var category in cats)
                     {
                         var stringContains = !string.IsNullOrWhiteSpace(category.Key.Pattern) && p.What.Contains(category.Key.Pattern);
-                        var categoryNameSameAsTransferDescription = string.Equals(category.Key.Category, p.What);
+                        var categoryNameSameAsTransferDescription = string.Equals(category.Key.Category, p.What, StringComparison.InvariantCultureIgnoreCase);
                         var regexMatch = category.Value.IsMatch(p.What);
                         if (stringContains || categoryNameSameAsTransferDescription || regexMatch)
                         {
@@ -68,12 +69,10 @@ namespace BudgetTracker.Services
                         }
                     }
                     
-                    if (matchedPayments.ContainsKey(p.What) && !string.IsNullOrWhiteSpace(p.What))
+                    if (matchedPayments.ContainsKey(p.What.ToLower()) && !string.IsNullOrWhiteSpace(p.What.ToLower()))
                     {
-                        p.Debt = matchedPayments[p.What].Debt;
-                        p.Category = matchedPayments[p.What].Category;
-                        
-                        continue;
+                        p.Debt = matchedPayments[p.What.ToLower()].Debt;
+                        p.Category = matchedPayments[p.What.ToLower()].Category;
                     }
                 }
             }
