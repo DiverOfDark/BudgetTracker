@@ -4,6 +4,8 @@
 
     export let deletePayment;
 
+    export let dragStart;
+
     export let useItalic = false;
 
     import moment from 'moment'
@@ -44,7 +46,16 @@
     <tr class="collapse-@month.Key collapse show" class:bold="{payment.expanded}" class:italic="{useItalic}">
         <td class="text-nowrap">{payment.whenMoment.format("DD.MM.YY H:mm:ss")}</td>
         <td class="text-nowrap">{payment.kind}</td>
-        <td class="text-nowrap">{(payment.category == null ? payment.debt : payment.category) || ''}</td>
+        <td class="text-nowrap">
+            {#if !!payment.grouped}
+                {(payment.category == null ? payment.debt : payment.category) || '???'}
+            {:else}
+                <span class="btn btn-sm btn-info p-1 m-1" style="cursor: grab"
+                    draggable={true} on:dragstart={event => dragStart(event, payment)}>
+                    {(payment.category == null ? payment.debt : payment.category) || '???'}
+                </span>
+            {/if}
+        </td>
         <td class="text-nowrap">{payment.provider}</td>
         <td class="text-nowrap">{payment.account}</td>
         <td class="text-nowrap">
@@ -80,7 +91,7 @@
 
     {#if payment.expanded}
         {#each payment.group as childPayment, idx}
-            <svelte:self useItalic="true" payment={childPayment} {hideCategorized} {deletePayment} />
+            <svelte:self useItalic="true" payment={childPayment} {hideCategorized} {deletePayment} {dragStart} />
         {/each}
         <tr>
             <td colspan="8">

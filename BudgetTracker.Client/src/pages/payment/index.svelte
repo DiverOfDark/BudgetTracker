@@ -6,7 +6,7 @@
     import Link from '../../svero/Link.svelte';
     import moment from 'moment';
 
-    import {PaymentController, PaymentViewModelController } from '../../generated-types';
+    import {PaymentController, PaymentViewModelController, SpentCategoryJsModel, DebtModelController } from '../../generated-types';
     import {compare, formatMoney} from '../../services/Shared';
     import { tooltip } from '../../services/Tooltip'
     import PaymentRow from './paymentRow.svelte';
@@ -17,6 +17,8 @@
 
     let months = [];
     let keys = [];
+
+    let categories = [];
 
     function groupBy(list, keyGetter) {
         const map = new Map();
@@ -48,6 +50,29 @@
                     }
                 })
             });
+        }
+
+        if (!categories.length) {
+            let categoriesModels = await PaymentController.spentCategories()
+            categoriesModels.forEach(s => {
+                if (!categories.find(t=>t.name == s.category)) {
+                    categories = [...categories, {
+                        name: s.category,
+                        id: s.id,
+                        isDebt: false
+                    }]
+                }
+            });
+            let debtModels = await DebtModelController.list()
+            debtModels.forEach(s => {
+                if (!categories.find(t=>t.name == s.description)) {
+                    categories = [...categories, {
+                        name: s.description,
+                        id: s.id,
+                        isDebt: true
+                    }]
+                }
+            })
         }
 
         let payments = await PaymentViewModelController.list();
@@ -163,6 +188,27 @@
         return month.values.filter(s=>!hideCategorized || s.category == null && s.debt == null).length > 0;
     }
 
+    let dragStart = function (ev, payment) {
+        ev.dataTransfer.setData("payment", JSON.stringify(payment));
+	}
+	let dragover = function (ev) {
+		ev.preventDefault();
+        ev.dataTransfer.dropEffect = 'move';
+	}
+    let drop = async function(ev, newCategory) {
+        ev.preventDefault();
+        var payment = JSON.parse(ev.dataTransfer.getData("payment"));
+        await PaymentController.editPayment(payment.id, payment.amount, payment.ccy, payment.what, newCategory.isDebt ? payment.categoryId : newCategory.id, payment.columnId,  newCategory.isDebt ? newCategory.id : payment.debtId, payment.kind);
+
+        if (newCategory.isDebt) {
+            payment.debt = newCategory.name;
+        } else {
+            payment.category = newCategory.name;
+        }
+
+        reload();
+    }
+
     $: resort(sorting);
 
     reload();
@@ -195,6 +241,13 @@
                             {hideCategorized ? "Показать все" : "Скрыть с категориями"}
                         </button>
                     </div>
+                </div>
+                <div class="card-header">
+                    {#each categories as category}
+                        <span on:drop={event => drop(event, category)} on:dragover={dragover} class="btn btn-sm {category.isDebt ? "btn-warning" : "btn-success"} p-1 m-1" style="cursor: no-drop">
+                            {category.name}
+                        </span>
+                    {/each}
                 </div>
                 <div class="table-responsive">
                     <table class="table card-table table-sm table-hover table-striped">
@@ -247,7 +300,7 @@
 
                             {#if !months[monthKey].collapsed}
                                 {#each months[monthKey].values as payment, idx}
-                                    <PaymentRow {payment} {hideCategorized} {deletePayment} />
+                                    <PaymentRow {payment} {hideCategorized} {deletePayment} {dragStart} />
                                 {/each}
                             {/if}
                         {/each}
