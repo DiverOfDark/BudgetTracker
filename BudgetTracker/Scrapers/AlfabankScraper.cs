@@ -212,6 +212,8 @@ namespace BudgetTracker.Scrapers
             pass.Click();
             chrome.SendKeys(configuration.Password);
             chrome.SendKeys(Keys.Return);
+            
+            WaitForPageLoad(chrome.Driver);
         }
     }
 }
