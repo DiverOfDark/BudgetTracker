@@ -2,7 +2,7 @@
   "name": "BudgetTracker.Client",
   "version": "1.0.0",
   "devDependencies": {
-    "@babel/core": "^7.6.2",
+    "@babel/core": "^7.7.7",
     "@babel/preset-env": "^7.6.2",
     "@pyoner/svelte-ts-preprocess": "^1.2.1",
     "eslint": "^6.5.1",
