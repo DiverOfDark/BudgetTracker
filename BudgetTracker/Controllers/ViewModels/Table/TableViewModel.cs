@@ -18,8 +18,9 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         
         public TableViewModel(ObjectRepository repository)
         {
-            Headers = repository.Set<MoneyColumnMetadataModel>().SortColumns()
-                .Select(v => new MoneyColumnMetadataJsModel(repository, v)).ToList();
+            var headersDictionary = repository.Set<MoneyColumnMetadataModel>().SortColumns()
+                .ToDictionary(v => new MoneyColumnMetadataJsModel(repository, v), v => v);
+            Headers = headersDictionary.Keys.ToList();
 
             var headersCached = new Dictionary<string, MoneyColumnMetadataJsModel>();
 
@@ -108,9 +109,28 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                     row.CalculatedCells.Add(item, CalculatedResult.Empty(item));
                 }
             }
+
+            foreach (var r in Values)
+            {
+                foreach (var cell in r.CalculatedCells.Values.OfType<ExpressionCalculatedResult>())
+                {
+                    if (cell.IsOk && cell.Value != null)
+                    {
+                        repository.Add(new MoneyStateModel
+                        {
+                            Amount = cell.Value.Value,
+                            Ccy = cell.Ccy,
+                            Column = headersDictionary[cell.Column],
+                            When = r.When,
+                            Description = cell.TooltipWithoutAdjustment
+                        });
+                    }
+                }
+            }
         }
 
-        public List<MoneyColumnMetadataJsModel> Headers { get; private set; }
+        public List<MoneyColumnMetadataJsModel> Headers { get; }
+
         public List<TableRowViewModel> Values { get; set; }
     }
 }

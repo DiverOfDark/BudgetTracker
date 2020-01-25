@@ -13,6 +13,9 @@ namespace BudgetTracker
 
         public static string NormalizeCcy(string value)
         {
+            if (value == null)
+                return null;
+            
             if (value.ToLower().Contains("rur") || 
                 value.ToLower().Contains("р") || 
                 value.Contains("₽"))

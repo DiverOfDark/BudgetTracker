@@ -28,10 +28,6 @@ namespace BudgetTracker.Model
             this.RegisterHangfireScheme();
             Initialize();
             WaitForInitialize().GetAwaiter().GetResult();
-            foreach (MoneyStateModel v in Set<MoneyStateModel>())
-            {
-                v.MigrateColumn();
-            }
         }
 
         public string ExportDiff()

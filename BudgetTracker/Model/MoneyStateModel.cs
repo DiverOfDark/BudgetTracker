@@ -10,16 +10,14 @@ namespace BudgetTracker.Model
         {
             public Guid? ColumnId { get; set; }
             
-            public string Provider { get; set; }
-            public string AccountName { get; set; }
             public double Amount { get; set; }
             public string Ccy { get; set; }
 
             public DateTime When { get; set; }
+            public string Description { get; set; }
         }
         
         private readonly MoneyStateEntity _entity;
-        private MoneyColumnMetadataModel _lastColumn;
 
         public MoneyStateModel(MoneyStateEntity entity)
         {
@@ -37,26 +35,10 @@ namespace BudgetTracker.Model
 
         protected override BaseEntity Entity => _entity;
 
-        internal void MigrateColumn()
-        {
-            if (_entity.ColumnId == null && !string.IsNullOrWhiteSpace(_entity.Provider) &&
-                !string.IsNullOrWhiteSpace(_entity.AccountName))
-            {
-                Column = ObjectRepository.Set<MoneyColumnMetadataModel>().First(v =>
-                    v.Provider == _entity.Provider && v.AccountName == _entity.AccountName);
-                UpdateProperty<string, MoneyStateEntity>(_entity, () => x => x.Provider, null);
-                UpdateProperty<string, MoneyStateEntity>(_entity, () => x => x.AccountName, null);
-            }
-        }
-        
         public MoneyColumnMetadataModel Column
         {
-            get => ObjectRepository == null ? _lastColumn : Single<MoneyColumnMetadataModel>(_entity.ColumnId);
-            set
-            {
-                _lastColumn = value;
-                UpdateProperty(_entity, () => x => x.ColumnId, (Guid?)value.Id); 
-            }
+            get => Single<MoneyColumnMetadataModel>(_entity.ColumnId);
+            set => UpdateProperty(_entity, () => x => x.ColumnId, (Guid?)value.Id);
         }
 
         public double Amount
@@ -75,6 +57,12 @@ namespace BudgetTracker.Model
         {
             get => _entity.When;
             set => UpdateProperty(_entity, () => x => x.When, value);
+        }
+
+        public string Description
+        {
+            get => _entity.Description;
+            set => UpdateProperty(_entity, () => x => x.Description, value);
         }
 
         public override string ToString() => $"@{When.ToShortDateString()}: {Column.Provider}/{Column.UserFriendlyName}: {Amount} {Ccy}";

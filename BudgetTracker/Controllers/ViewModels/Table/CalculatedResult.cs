@@ -29,7 +29,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             _ccy = money.Ccy,
             _adjustment = adjustment,
             _value = money.Amount,
-            _tooltip = $"{(money.Amount).ToString(CultureInfo.CurrentCulture)}({money.Amount.ToString(CultureInfo.CurrentCulture)} + {adjustment.ToString(CultureInfo.CurrentCulture)})"
+            _tooltip = money.Description != null ? $"{money.Description} + {adjustment.ToString(CultureInfo.CurrentCulture)}" : $"{(money.Amount).ToString(CultureInfo.CurrentCulture)}({money.Amount.ToString(CultureInfo.CurrentCulture)} + {adjustment.ToString(CultureInfo.CurrentCulture)})"
         };
 
         public static CalculatedResult Missing(MoneyColumnMetadataJsModel item) => new CalculatedResult(item)

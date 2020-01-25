@@ -15,6 +15,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         private double _adjustment;
         private string _ccy;
         private string _tooltip;
+        private string _tooltipWithoutAdjustment;
         private IEnumerable<string> _failedToResolve;
         
         public ExpressionCalculatedResult(Dictionary<string, MoneyColumnMetadataJsModel> columns, MoneyColumnMetadataJsModel h, Dictionary<MoneyColumnMetadataJsModel, CalculatedResult> deps) : base(h)
@@ -31,6 +32,15 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             {
                 EvalExpression();
                 return _tooltip;
+            }
+        }
+
+        public string TooltipWithoutAdjustment
+        {
+            get
+            {
+                EvalExpression();
+                return _tooltipWithoutAdjustment;
             }
         }
 
@@ -155,6 +165,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
                 _adjustment = _expression.Value.Adjustment;
                 
                 _tooltip += _expression + "\r\n => " + Value + " + " + Adjustment + " => " + (Value + Adjustment);
+                _tooltipWithoutAdjustment +=  _expression + "\r\n => " + Value;
                 if (FailedToResolve.Any())
                 {
                     _tooltip += "\r\n\r\nНет данных по: " + String.Join(",\r\n", FailedToResolve);

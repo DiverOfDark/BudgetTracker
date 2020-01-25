@@ -28,19 +28,17 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             foreach (var h in headers)
             {
                 CalculatedResult cell = null;
-                if (h.IsComputed)
+                var money = grouped.GetValueOrDefault(h.Column);
+
+                if (money == null && h.IsComputed)
                 {
                     cell = CalculatedResult.FromComputed(headersCached, h, CalculatedCells);
                 }
-                else
+                else if (money != null)
                 {
-                    var money = grouped.GetValueOrDefault(h.Column);
-                    if (money != null)
-                    {
-                        var adj = paymentsToExempt.GetValueOrDefault(h)?.GetValueOrDefault(money.When.Date.AddDays(-1)) ?? 0;
+                    var adj = paymentsToExempt.GetValueOrDefault(h)?.GetValueOrDefault(money.When.Date.AddDays(-1)) ?? 0;
 
-                        cell = CalculatedResult.FromMoney(h, money, adj);
-                    }
+                    cell = CalculatedResult.FromMoney(h, money, adj);
                 }
 
                 CalculatedCells[h] = cell ?? CalculatedResult.Missing(h);
