@@ -2,8 +2,8 @@
   "name": "BudgetTracker.Client",
   "version": "1.0.0",
   "devDependencies": {
-    "@babel/core": "^7.6.2",
-    "@babel/preset-env": "^7.6.2",
+    "@babel/core": "^7.8.4",
+    "@babel/preset-env": "^7.8.4",
     "@pyoner/svelte-ts-preprocess": "^1.2.1",
     "eslint": "^6.5.1",
     "eslint-plugin-svelte3": "^2.7.3",
@@ -11,17 +11,17 @@
     "rollup": "^1.22.0",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-livereload": "^1.0.3",
+    "rollup-plugin-livereload": "^1.0.4",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-progress": "^1.1.1",
     "rollup-plugin-size-snapshot": "^0.10.0",
     "rollup-plugin-sizes": "^0.5.1",
-    "rollup-plugin-svelte": "^5.1.0",
-    "rollup-plugin-terser": "^5.1.2",
+    "rollup-plugin-svelte": "^5.1.1",
+    "rollup-plugin-terser": "^5.2.0",
     "rollup-plugin-typescript2": "^0.21.2",
-    "sirv-cli": "^0.4.4",
-    "svelte": "^3.12.1",
-    "typescript": "^3.6.3"
+    "sirv-cli": "^0.4.5",
+    "svelte": "^3.18.1",
+    "typescript": "^3.7.5"
   },
   "scripts": {
     "build": "rollup -c",
@@ -32,8 +32,8 @@
     "lint": "eslint src --plugin svelte3 --ext .svelte,.js --fix"
   },
   "dependencies": {
-    "@types/chart.js": "^2.8.5",
-    "chart.js": "^2.8.0",
+    "@types/chart.js": "^2.9.13",
+    "chart.js": "^2.9.3",
     "chartjs-plugin-datalabels": "^0.6.0",
     "chartjs-plugin-doughnutlabel": "^2.0.3",
     "moment": "^2.24.0",
