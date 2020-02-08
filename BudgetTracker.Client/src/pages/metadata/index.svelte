@@ -9,6 +9,45 @@
       return columns.filter(s=> s != meta && s.function != null && (s.function.indexOf("[" + meta.userFriendlyName + "]") != -1 || s.function.indexOf("[" + meta.provider + "/" + meta.accountName + "]") != -1))
     }
 
+    let splitFunc = function(from: string): string[] {
+        var result = [];
+        var current = "";
+        for(var i = 0; i < from.length; i++) {
+            if (from[i] == '[')
+            {
+                result.push(current);
+                current = "";
+            }
+            current = current + from[i];
+            if (from[i] == ']')
+            {
+                result.push(current);
+                current = "";
+            }
+        }
+
+        result.push(current);
+        return result;
+    }
+
+    let getStyleForReference = function(from: string): string {
+        if (from[0] == '[' && from[from.length - 1] == ']') {
+            let reference = from.slice(1,-1).split("/");
+
+            let isComputed = reference.length == 1;
+
+            let provider = isComputed ? "Computed" : reference[0];
+            let accountName = isComputed ? reference : reference.slice(1).join("/");
+
+            var items = columns.filter(v=> v.provider == provider && (isComputed ? v.userFriendlyName == accountName : v.accountName == accountName)).length;
+            
+            if (items == 0) {
+                return "color: red; font-weight: bold;";
+            }
+        }
+        return "";
+    }
+
     MetadataController.indexJson().then(i=>columns = i);
 
     let deleteColumn = async function(id: string) {
@@ -22,7 +61,7 @@
     };
 
     // used in view
-    getUsedIn; deleteColumn; updateColumnOrder; Link;
+    getUsedIn; deleteColumn; updateColumnOrder; Link; splitFunc; getStyleForReference;
 </script>
 
 <style>
@@ -70,7 +109,15 @@
                                     {/if}
                                 </td>
                                 <td>{meta.provider}</td>
-                                <td>{!meta.isComputed ? meta.accountName : meta.function}</td>
+                                <td>
+                                    {#if meta.isComputed}
+                                        {#each splitFunc(meta.function) as step}
+                                            <span style="{getStyleForReference(step)}">{step}</span>
+                                        {/each}
+                                    {:else}
+                                        {meta.accountName}
+                                    {/if}
+                                </td>
                                 <td>{meta.userFriendlyName}</td>
                                 <td>
                                     {#each getUsedIn(meta) as usedIn}
@@ -81,11 +128,9 @@
                                     <Link className="btn btn-link btn-anchor" href="/Metadata/Edit/{meta.id}">
                                         <span class="fe fe-edit-2"></span>
                                     </Link>
-                                    {#if meta.canDelete}
-                                        <button on:click="{() => deleteColumn(meta.id)}" class="btn btn-link btn-anchor">
-                                            <span class="fe fe-x-circle"></span>
-                                        </button>
-                                    {/if}
+                                    <button on:click="{() => deleteColumn(meta.id)}" class="btn btn-link btn-anchor">
+                                        <span class="fe fe-x-circle"></span>
+                                    </button>
                                 </td>
                             </tr>
                         {/each}

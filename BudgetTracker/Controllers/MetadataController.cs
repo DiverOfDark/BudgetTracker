@@ -27,7 +27,11 @@ namespace BudgetTracker.Controllers
         [HttpPost]
         public OkResult MetadataDelete(Guid id)
         {
-            _objectRepository.Remove<MoneyColumnMetadataModel>(x => x.Id == id);
+            var mcmm = _objectRepository.Set<MoneyColumnMetadataModel>().Find(id);
+
+            _objectRepository.Remove<MoneyStateModel>(v => v.Column == mcmm);
+            _objectRepository.Remove<PaymentModel>(v=>v.Column == mcmm);
+            _objectRepository.Remove(mcmm);
             return Ok();
         }
 

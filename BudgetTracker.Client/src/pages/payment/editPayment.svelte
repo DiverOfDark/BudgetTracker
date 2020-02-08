@@ -73,7 +73,7 @@
 
 <div class="container">
     <div class="row row-cards row-deck">
-        <div class="col-6">
+        <div class="col-12">
             <div class="card">
                 <div class="card-header">
                     Редактировать оплату
