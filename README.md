@@ -20,7 +20,6 @@ services:
     restart: unless-stopped
     environment:
       Properties__IsProduction: 'true' # true если необходимо сохранять изменения в базу. false для локального запуска/отладки.
-      ConnectionStrings__AzureStorage: 'DefaultEndpointsProtocol=https;AccountName=...;AccountKey=ABC==;EndpointSuffix=core.windows.net' # Строка подключения к Azure Storage, если используется Azure Storage для подключения 
       ConnectionStrings__LiteDb: '/data/budgettracker.db' # Строка подключения к LiteDb, если используется локальный файл базы
     volumes:
       - /dev/shm:/dev/shm # Рекомендуется для использования скрэйпинга через Google Chrome
@@ -41,10 +40,7 @@ networks:
 - **АльфаБанк**
 - **АльфаДирект**
 - **АльфаКапитал** _требуется SMS-интеграция_
-- **АльфаПоток**
 - **Долги**: создание балансов из заведенных вручную долгов
-- **МодульДеньги**
-- **МодульБанк** _требуется SMS-интеграция_
 - **Райффайзен банк**
 - **FX**: Биржевые курсы валют USD/RUB, EUR/RUB, индекса S&P 500
 - **LiveCoin**

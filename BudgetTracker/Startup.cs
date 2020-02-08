@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
@@ -20,17 +17,13 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.StaticFiles.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.WindowsAzure.Storage;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using OutCode.EscapeTeams.ObjectRepository;
-using OutCode.EscapeTeams.ObjectRepository.AzureTableStorage;
 using OutCode.EscapeTeams.ObjectRepository.Hangfire;
 using OutCode.EscapeTeams.ObjectRepository.LiteDB;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
@@ -84,24 +77,18 @@ namespace BudgetTracker
             ObjectRepository objectRepository;
             {
                 var liteDb = Configuration.GetConnectionString("LiteDb");
-                var azureDb = Configuration.GetConnectionString("AzureStorage");
 
-                IStorage storage = null;
-                
-                if (!String.IsNullOrEmpty(liteDb))
+                if (String.IsNullOrEmpty(liteDb))
                 {
-                    var connectionString = new ConnectionString(liteDb);
-                    DbFileName = connectionString.Filename;
-                    var liteDbDatabase = new LiteDatabase(connectionString);
-                    liteDbDatabase.Engine.Shrink();
-                    storage = new LiteDbStorage(liteDbDatabase);
-                } else if (!String.IsNullOrEmpty(azureDb)) {
-                    var cloudStorageAccount = CloudStorageAccount.Parse(azureDb);
-                    storage = new AzureTableContext(cloudStorageAccount.CreateCloudTableClient());
-                } else {
-                    throw new Exception("Connection string for either 'AzureStorage' or 'LiteDb' should been specified.");
+                    throw new Exception("Connection string for 'LiteDb' should been specified.");
                 }
-                
+
+                var connectionString = new ConnectionString(liteDb);
+                DbFileName = connectionString.Filename;
+                var liteDbDatabase = new LiteDatabase(connectionString);
+                liteDbDatabase.Engine.Shrink();
+                IStorage storage = new LiteDbStorage(liteDbDatabase);
+
                 objectRepository = new ObjectRepository(storage, NullLoggerFactory.Instance);
 
                 services.AddSingleton(storage);

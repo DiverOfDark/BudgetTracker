@@ -2,7 +2,6 @@
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using OutCode.EscapeTeams.ObjectRepository;
-using OutCode.EscapeTeams.ObjectRepository.AzureTableStorage;
 using OutCode.EscapeTeams.ObjectRepository.Hangfire;
 using OutCode.EscapeTeams.ObjectRepository.LiteDB;
 
@@ -12,7 +11,7 @@ namespace BudgetTracker.Model
     {
         public ObjectRepository(IStorage storage, ILoggerFactory logger) : base(storage, logger.CreateLogger(nameof(ObjectRepository)))
         {
-            IsReadOnly = !Startup.IsProduction;
+            IsReadOnly = false;
             AddType((MoneyStateModel.MoneyStateEntity x) => new MoneyStateModel(x));
             AddType((XmlKeyModel.XmlKeyEntity x) => new XmlKeyModel(x));
             AddType((MoneyColumnMetadataModel.MoneyColumnMetadataEntity x) => new MoneyColumnMetadataModel(x));
@@ -30,20 +29,7 @@ namespace BudgetTracker.Model
             WaitForInitialize().GetAwaiter().GetResult();
         }
 
-        public string ExportDiff()
-        {
-            if (Storage is AzureTableContext)
-            {
-                return ((AzureTableContext) Storage).ExportStream();
-            }
-
-            if (Storage is LiteDbStorage)
-            {
-                return ((LiteDbStorage) Storage).ExportStream();
-            }
-
-            return null;
-        }
+        public string ExportDiff() => ((LiteDbStorage) Storage).ExportStream();
 
         public string Stats() => String.Join("\n", _sets.Select(v=>v.Key.Name + $" ({v.Value.Count()})"));
     }
