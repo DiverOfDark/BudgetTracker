@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
@@ -194,7 +195,20 @@ namespace BudgetTracker
             
             app.UseEndpoints(routes =>
             {
-                routes.MapGrpcService<StateOfTheWorldService>().EnableGrpcWeb();
+                var types = typeof(Startup).Assembly.GetTypes()
+                    .Where(v => v.GetCustomAttributes().Any(t => t is BindServiceMethodAttribute))
+                    .Where(v => !v.IsAbstract)
+                    .ToList();
+
+                foreach (var v in types)
+                {
+                    var method = typeof(GrpcEndpointRouteBuilderExtensions)
+                        .GetMethod(nameof(GrpcEndpointRouteBuilderExtensions.MapGrpcService))
+                        .MakeGenericMethod(v);
+                    var response = method.Invoke(null, new[] {routes}) as GrpcServiceEndpointConventionBuilder;
+                    response.EnableGrpcWeb();
+                }
+                
                 routes.MapControllerRoute("not_so_default", "{controller}/{action}");
                 app.Use(async (a, b) =>
                 {

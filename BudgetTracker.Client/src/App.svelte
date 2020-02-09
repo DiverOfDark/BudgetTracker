@@ -43,8 +43,8 @@
     if (value) {
       state = value.getTimestamp();
     }
-  }).on("error", err => console.log("err:" + err))
-  .on("status", st => console.log("st:" + st))
+  }).on("error", err => console.log("err:" + JSON.stringify(err)))
+  .on("status", st => console.log("st:" + JSON.stringify(st)))
   .on("end", e => console.log("e:" + e));
 
   state;
