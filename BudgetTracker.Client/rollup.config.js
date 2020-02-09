@@ -30,6 +30,10 @@ const onwarn = warning => {
 	if (warning.message.indexOf('Non-existent export') == 0) {
 		return
 	}
+
+	if (warning.message.indexOf('Use of eval') == 0) {
+		return;
+	}
 	
 	var cwd = process.cwd() + "/";
 

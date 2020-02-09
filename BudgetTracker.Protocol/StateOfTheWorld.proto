@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option csharp_namespace = "BudgetTracker";
+
+package Protos;
+
+service SoWService {
+  rpc GetState (Empty) returns (stream SoW);
+}
+
+message SoW {
+  string timestamp = 1;
+}
+
+message Empty { }

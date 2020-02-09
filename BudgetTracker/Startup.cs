@@ -5,11 +5,13 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using System.Threading;
+using System.Threading.Tasks;
 using BudgetTracker.Controllers;
 using BudgetTracker.Controllers.ViewModels.Table;
 using BudgetTracker.Model;
 using BudgetTracker.Scrapers;
 using BudgetTracker.Services;
+using Grpc.Core;
 using Hangfire;
 using Hangfire.AspNetCore;
 using LiteDB;
@@ -65,6 +67,8 @@ namespace BudgetTracker
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             services.AddResponseCompression(x => x.EnableForHttps = true);
+            services.AddGrpc();
+            services.AddGrpcWeb(x => x.GrpcWebEnabled = true);
             services.AddMvc().AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.NullValueHandling = NullValueHandling.Include;
@@ -173,6 +177,7 @@ namespace BudgetTracker
             });
             
             app.UseRouting();
+            app.UseGrpcWeb();
             app.UseSession();
             app.UseAuthentication();
             app.UseAuthorization();
@@ -189,6 +194,7 @@ namespace BudgetTracker
             
             app.UseEndpoints(routes =>
             {
+                routes.MapGrpcService<StateOfTheWorldService>().EnableGrpcWeb();
                 routes.MapControllerRoute("not_so_default", "{controller}/{action}");
                 app.Use(async (a, b) =>
                 {
@@ -235,6 +241,18 @@ namespace BudgetTracker
             RecurringJob.AddOrUpdate<RepositoryCleanupService>(x=>x.Run(), interval);
             RecurringJob.AddOrUpdate<SmsRuleProcessor>(x=>x.Process(), Cron.MinuteInterval(5));
             RecurringJob.AddOrUpdate<SpentCategoryProcessor>(x=>x.Process(), Cron.MinuteInterval(30));
+        }
+    }
+
+    public class StateOfTheWorldService : SoWService.SoWServiceBase
+    {
+        public override async Task GetState(Empty request, IServerStreamWriter<SoW> responseStream, ServerCallContext context)
+        {
+            for(int i = 0; i < 100; i++)
+            {
+                await responseStream.WriteAsync(new SoW() {Timestamp = Environment.TickCount.ToString()});
+                await Task.Delay(100);
+            }
         }
     }
 }

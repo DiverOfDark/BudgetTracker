@@ -30,9 +30,28 @@
   import Auth from './pages/auth.svelte';
 
   let authorized = AuthService.getStore();
+
+  import * as grpcWeb from 'grpc-web';
+  import proto from './generated/StateOfTheWorld_grpc_web_pb';
+  import message from './generated/StateOfTheWorld_pb';
+
+  let state = '';
+
+  const svc = new proto.SoWServiceClient(document.location.protocol + '//' + document.location.host, null, null);
+  svc.getState(new message.Empty(), undefined).on("data", (value) => {
+    console.log("data:" + value && value.getTimestamp());
+    if (value) {
+      state = value.getTimestamp();
+    }
+  }).on("error", err => console.log("err:" + err))
+  .on("status", st => console.log("st:" + st))
+  .on("end", e => console.log("e:" + e));
+
+  state;
 </script>
 
 <div class="page">
+  {state}
   {#if !$authorized}
     <Auth />
   {:else}
