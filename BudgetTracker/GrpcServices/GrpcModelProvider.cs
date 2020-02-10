@@ -9,8 +9,10 @@ namespace BudgetTracker.GrpcServices
 {
     public abstract class GrpcModelProvider<T>: ViewModelBase where T : IMessage<T>
     {
-        protected readonly AsyncManualResetEvent SendModelEvent = new AsyncManualResetEvent(true);
+        private readonly AsyncManualResetEvent _sendModelEvent = new AsyncManualResetEvent(true);
 
+        protected void SendUpdate() => _sendModelEvent.Set();
+        
         protected T Model { get; set; }
 
         protected virtual Task Init() => Task.CompletedTask;
@@ -20,13 +22,13 @@ namespace BudgetTracker.GrpcServices
             await Init();
             while (!context.CancellationToken.IsCancellationRequested)
             {
-                if (SendModelEvent.IsSet)
+                if (_sendModelEvent.IsSet)
                 {
-                    SendModelEvent.Reset();
+                    _sendModelEvent.Reset();
                     await writer.WriteAsync(Model);
                 }
 
-                await SendModelEvent.WaitAsync(context.CancellationToken);
+                await _sendModelEvent.WaitAsync(context.CancellationToken);
             }
         }
     }

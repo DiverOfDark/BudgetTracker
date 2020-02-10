@@ -74,6 +74,7 @@ namespace BudgetTracker
             }
             
             services.AddTransient<SystemInfoProvider>();
+            services.AddTransient<SettingsProvider>();
 
             services.AddTransient(x => new TableViewModelFactory(x.GetRequiredService<ObjectRepository>()));
             services.AddSingleton<ScriptService>();

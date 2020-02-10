@@ -39,13 +39,13 @@ namespace BudgetTracker.GrpcServices
         {
             Model.HasNewerVersion = _updateService.HasNewerVersion;
             Model.LatestVersion = _updateService.LatestVersion;
-            SendModelEvent.Set();
+            SendUpdate();
         }
 
         private void ObjectRepositoryChanged(ModelChangedEventArgs obj)
         {
             Model.Stats = _objectRepository.Stats();
-            SendModelEvent.Set();
+            SendUpdate();
         }
     }
 }
