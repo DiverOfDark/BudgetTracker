@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "@types/chart.js": "^2.9.13",
+    "@types/google-protobuf": "^3.7.2",
     "chart.js": "^2.9.3",
     "chartjs-plugin-datalabels": "^0.6.0",
     "chartjs-plugin-doughnutlabel": "^2.0.3",

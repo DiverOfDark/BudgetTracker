@@ -1,12 +1,11 @@
 <script lang="ts">
-    import { SystemController, AuthController } from '../generated-types'
+    import { AuthController } from '../generated-types'
     import AuthService from '../services/AuthService'
     import { readable } from 'svelte/store';
     import NavLink from './NavLink.svelte';
+    import SoWService from '../services/SoWService';
 
-    let info;
-
-    SystemController.siteInfo().then(i => info = i);
+    let info = SoWService.SystemInfo;
 
     const time = readable(new Date().toLocaleString(), set => {
       const interval = setInterval(() => {
@@ -29,7 +28,7 @@
     <div class="header py-4">
         <div class="container">
             <div class="d-flex row">
-                <NavLink title="{"BudgetTracker" + (info && !info.isProduction ? "[ReadOnly]" : "")}" class="navbar-brand" />
+                <NavLink title="{"BudgetTracker" + ($info && !$info.isProduction ? "[ReadOnly]" : "")}" class="navbar-brand" />
                 <div class="ml-auto d-flex order-lg-2">
                     <div class="nav-item">
                         <div class="btn btn-sm btn-outline-success">

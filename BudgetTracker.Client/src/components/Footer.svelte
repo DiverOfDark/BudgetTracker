@@ -1,19 +1,17 @@
 <script>
-    import { SystemController } from '../generated-types';
-	import { tooltip } from '../services/Tooltip';
+    import { tooltip } from '../services/Tooltip';
+    import SowService from '../services/SoWService';
 
-    let info;
-
-    SystemController.siteInfo().then(i => info = i);
+    let info = SowService.SystemInfo;
 </script>
 
 <footer class="footer">
     <div class="container">
         <div class="row align-items-center flex-row-reverse">
-            {#if info}
-            <div class="col-auto ml-auto" use:tooltip="{info.stats}">
+            {#if $info}
+            <div class="col-auto ml-auto" use:tooltip="{$info.stats}">
                 <p>
-                    {info.currentVersion}
+                    {$info.currentVersion}
                     
                     {#if info.hasNewerVersion}
                         <a href="https://github.com/DiverOfDark/BudgetTracker">
@@ -21,7 +19,7 @@
                         </a>
                     {/if}
                     @@ 
-                    {info.launchTime}
+                    {$info.launchTime}
                 </p>
             </div>
             {/if}

@@ -10,13 +10,13 @@ service SoWService {
 }
 
 message SystemInfo {
-  bool isProduction = 1;
-  string launchTime = 2;
+  bool is_production = 1;
+  string launch_time = 2;
   string stats = 3;
 
-  string currentVersion = 4;
-  string latestVersion = 5;
-  bool hasNewerVersion = 6;
+  string current_version = 4;
+  string latest_version = 5;
+  bool has_newer_version = 6;
 }
 
 message Empty { }
