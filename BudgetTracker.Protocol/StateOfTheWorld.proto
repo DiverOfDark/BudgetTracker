@@ -5,7 +5,7 @@ option csharp_namespace = "BudgetTracker";
 package Protos;
 
 service SoWService {
-  rpc GetSystemInfo (Empty) returns (SystemInfo);
+  rpc GetSystemInfo (Empty) returns (stream SystemInfo);
   //rpc GetState (Empty) returns (stream SoW);
 }
 

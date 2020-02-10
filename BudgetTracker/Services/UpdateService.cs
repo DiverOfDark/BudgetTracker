@@ -1,38 +1,39 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Octokit;
 
 namespace BudgetTracker.Services
 {
-    public class UpdateService
+    public class UpdateService : ViewModelBase
     {
         private readonly GitHubClient _gitHubClient;
-
-        private DateTime _lastFetchTime = DateTime.MinValue;
-        private string _masterSha;
 
         public UpdateService()
         {
             _gitHubClient = new GitHubClient(new ProductHeaderValue("DiverOfDark_BudgetTracker", Startup.CommmitHash));
+            var timer = new Timer(Init, null, TimeSpan.Zero, TimeSpan.FromHours(1));
+            
+            Anchors.Add(timer.Dispose);
         }
 
-        public async Task<String> GetLatestVersion()
+        private async void Init(object state)
         {
-            await RefreshVersions();
+            var readOnlyList = await _gitHubClient.Repository.Branch.Get("DiverOfDark", "BudgetTracker", "master");
+            var newVersion = readOnlyList.Commit.Sha;
 
-            return _masterSha;
-        }
-
-        private async Task RefreshVersions()
-        {
-            if (_masterSha == null || _lastFetchTime.AddHours(1) < DateTime.Now)
+            if (newVersion != LatestVersion)
             {
-                var readOnlyList = await _gitHubClient.Repository.Branch.Get("DiverOfDark", "BudgetTracker", "master");
-                _masterSha = readOnlyList.Commit.Sha;
-                _lastFetchTime = DateTime.Now;
+                LatestVersion = newVersion;
+                OnPropertyChanged(nameof(LatestVersion));
+                OnPropertyChanged(nameof(HasNewerVersion));
             }
         }
 
-        public async Task<bool> HasNewerVersion() => Startup.CommmitHash != await GetLatestVersion();
+        public String LatestVersion { get; private set; } = "Unknown";
+
+        public bool HasNewerVersion => LatestVersion != null && Startup.CommmitHash != LatestVersion;
     }
 }
