@@ -14,9 +14,6 @@ namespace BudgetTracker.GrpcServices
             _systemInfoProvider = systemInfoProvider;
         }
 
-        public override async Task GetSystemInfo(Empty request, IServerStreamWriter<SystemInfo> responseStream, ServerCallContext context)
-        {
-            await _systemInfoProvider.Send(responseStream, context);
-        }
+        public override async Task GetSystemInfo(Empty request, IServerStreamWriter<SystemInfo> responseStream, ServerCallContext context) => await _systemInfoProvider.Send(responseStream, context);
     }
 }

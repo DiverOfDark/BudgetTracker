@@ -4,21 +4,24 @@ import { writable } from 'svelte/store';
 
 export class SoWService {
     Empty = new message.Empty()
-
     SystemInfo = writable(<any>null);
 
-    constructor() {
-        const svc = new proto.SoWServiceClient(document.location.protocol + '//' + document.location.host, null, null);
-
-        svc.getSystemInfo(this.Empty, undefined, (err, response) => {
-            if (!err) {
-                let object = response.toObject(false)
-                this.SystemInfo.set(object);
-                console.log(object);
-            } else {
-                console.log(err);
-            }
+    getSystemInfo() {
+        var svc = new proto.SoWServiceClient(document.location.protocol + '//' + document.location.host, null, null);
+        svc.getSystemInfo(this.Empty, undefined)
+        .on("data", response => {
+            let object = response.toObject(false)
+            this.SystemInfo.set(object);
         })
+        .on("end", () => this.getSystemInfo())
+        .on("error", err => {
+            console.error(err);
+            setTimeout(() => this.getSystemInfo(), 1000);
+        })
+    }
+
+    constructor() {
+        this.getSystemInfo();
 /*
         svc.getState(new message.Empty(), undefined).on("data", (value) => {
             console.log("data:" + value && value.getTimestamp());

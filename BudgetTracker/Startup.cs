@@ -8,6 +8,7 @@ using System.Text.Unicode;
 using System.Threading;
 using BudgetTracker.Controllers;
 using BudgetTracker.Controllers.ViewModels.Table;
+using BudgetTracker.GrpcServices;
 using BudgetTracker.Model;
 using BudgetTracker.Scrapers;
 using BudgetTracker.Services;
@@ -63,6 +64,33 @@ namespace BudgetTracker
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<Chrome>();
+            services.AddSingleton<ScrapeService>();
+
+            var scrapers = GetType().Assembly.GetTypes().Where(v => v.IsSubclassOf(typeof(GenericScraper))).ToList();
+            foreach (var s in scrapers)
+            {
+                services.AddSingleton(typeof(GenericScraper), s);
+            }
+            
+            services.AddTransient<SystemInfoProvider>();
+
+            services.AddTransient(x => new TableViewModelFactory(x.GetRequiredService<ObjectRepository>()));
+            services.AddSingleton<ScriptService>();
+            services.AddSingleton<SmsRuleProcessor>();
+            services.AddSingleton<UpdateService>();
+            services.AddHangfire(x=>{ });
+
+            var objectRepository = ConfigureObjectRepository(services);
+            services.AddDataProtection().AddKeyManagementOptions(options =>
+            {
+                options.XmlRepository = new ObjectRepositoryXmlStorage(objectRepository);
+            });
+            ConfigureAspNet(services);
+        }
+
+        private void ConfigureAspNet(IServiceCollection services)
+        {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             services.AddResponseCompression(x => x.EnableForHttps = true);
@@ -74,54 +102,16 @@ namespace BudgetTracker
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 options.SerializerSettings.Formatting = IsProduction ? Formatting.None : Formatting.Indented;
             });
-            services.AddSingleton<Chrome>();
-            services.AddSingleton<ScrapeService>();
 
-            ObjectRepository objectRepository;
-            {
-                var liteDb = Configuration.GetConnectionString("LiteDb");
-
-                if (String.IsNullOrEmpty(liteDb))
-                {
-                    throw new Exception("Connection string for 'LiteDb' should been specified.");
-                }
-
-                var connectionString = new ConnectionString(liteDb);
-                DbFileName = connectionString.Filename;
-                var liteDbDatabase = new LiteDatabase(connectionString);
-                liteDbDatabase.Engine.Shrink();
-                IStorage storage = new LiteDbStorage(liteDbDatabase);
-
-                objectRepository = new ObjectRepository(storage, NullLoggerFactory.Instance);
-
-                services.AddSingleton(storage);
-                services.AddSingleton(objectRepository);
-            }
-            
-            var scrapers = GetType().Assembly.GetTypes().Where(v => v.IsSubclassOf(typeof(GenericScraper))).ToList();
-            foreach (var s in scrapers)
-            {
-                services.AddSingleton(typeof(GenericScraper), s);
-            }
-            
             services.AddWebEncoders(o =>
             {
                 var textEncoderSettings = new TextEncoderSettings();
                 textEncoderSettings.AllowRange(UnicodeRanges.All);
                 o.TextEncoderSettings = textEncoderSettings;
             });
-            services.AddTransient(x => new TableViewModelFactory(x.GetRequiredService<ObjectRepository>()));
-            services.AddSingleton<ScriptService>();
-            services.AddSingleton<SmsRuleProcessor>();
-            services.AddSingleton<UpdateService>();
             services.AddLogging();
             services.AddSession();
             services.AddControllers().AddNewtonsoftJson();
-            services.AddHangfire(x=>{ });
-            services.AddDataProtection().AddKeyManagementOptions(options =>
-            {
-                options.XmlRepository = new ObjectRepositoryXmlStorage(objectRepository);
-            });
             services.AddAuthorization();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(x =>
             {
@@ -129,6 +119,28 @@ namespace BudgetTracker
                 x.LoginPath = "/Auth";
                 x.LogoutPath = "/Auth/Logout";
             });
+        }
+
+        private ObjectRepository ConfigureObjectRepository(IServiceCollection services)
+        {
+            var liteDb = Configuration.GetConnectionString("LiteDb");
+
+            if (String.IsNullOrEmpty(liteDb))
+            {
+                throw new Exception("Connection string for 'LiteDb' should been specified.");
+            }
+
+            var connectionString = new ConnectionString(liteDb);
+            DbFileName = connectionString.Filename;
+            var liteDbDatabase = new LiteDatabase(connectionString);
+            liteDbDatabase.Engine.Shrink();
+            IStorage storage = new LiteDbStorage(liteDbDatabase);
+
+            var objectRepository = new ObjectRepository(storage, NullLoggerFactory.Instance);
+
+            services.AddSingleton(storage);
+            services.AddSingleton(objectRepository);
+            return objectRepository;
         }
 
         private class MyFactory : IServiceScopeFactory
