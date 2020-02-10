@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel;
 using BudgetTracker.JsModel.Attributes;
 
 namespace BudgetTracker.Controllers.ViewModels.Widgets

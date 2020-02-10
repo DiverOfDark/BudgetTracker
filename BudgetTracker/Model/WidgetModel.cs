@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using BudgetTracker.JsModel.Attributes;
 using Newtonsoft.Json;
 using OutCode.EscapeTeams.ObjectRepository;

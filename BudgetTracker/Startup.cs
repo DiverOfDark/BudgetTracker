@@ -6,7 +6,6 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using System.Threading;
-using System.Threading.Tasks;
 using BudgetTracker.Controllers;
 using BudgetTracker.Controllers.ViewModels.Table;
 using BudgetTracker.Model;
@@ -29,7 +28,6 @@ using Newtonsoft.Json;
 using OutCode.EscapeTeams.ObjectRepository;
 using OutCode.EscapeTeams.ObjectRepository.Hangfire;
 using OutCode.EscapeTeams.ObjectRepository.LiteDB;
-using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace BudgetTracker
 {
@@ -255,18 +253,6 @@ namespace BudgetTracker
             RecurringJob.AddOrUpdate<RepositoryCleanupService>(x=>x.Run(), interval);
             RecurringJob.AddOrUpdate<SmsRuleProcessor>(x=>x.Process(), Cron.MinuteInterval(5));
             RecurringJob.AddOrUpdate<SpentCategoryProcessor>(x=>x.Process(), Cron.MinuteInterval(30));
-        }
-    }
-
-    public class StateOfTheWorldService : SoWService.SoWServiceBase
-    {
-        public override async Task GetState(Empty request, IServerStreamWriter<SoW> responseStream, ServerCallContext context)
-        {
-            for(int i = 0; i < 100; i++)
-            {
-                await responseStream.WriteAsync(new SoW() {Timestamp = Environment.TickCount.ToString()});
-                await Task.Delay(100);
-            }
         }
     }
 }

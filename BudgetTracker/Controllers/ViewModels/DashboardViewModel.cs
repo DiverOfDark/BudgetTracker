@@ -88,7 +88,7 @@ namespace BudgetTracker.Controllers.ViewModels
                             widgetViewModels.Add(new UnconfiguredWidgetViewModel(wi));
                             break;
                         case var wi when w.Kind == WidgetKind.LastValue:
-                            widgetViewModels.Add(new LastValueWidgetViewModel(wi, _objectRepository, _vm, Period));
+                            widgetViewModels.Add(new LastValueWidgetViewModel(wi, _vm, Period));
                             break;
                         case var wi when w.Kind == WidgetKind.Expenses:
                             widgetViewModels.Add(new ExpensesWidgetViewModel(wi, _objectRepository, Period));

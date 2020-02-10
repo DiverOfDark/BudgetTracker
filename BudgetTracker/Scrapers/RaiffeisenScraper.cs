@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Xml.Linq;
 using System.Xml.XPath;
@@ -12,7 +11,6 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
-using OutCode.EscapeTeams.ObjectRepository;
 
 namespace BudgetTracker.Scrapers
 {
@@ -192,7 +190,7 @@ namespace BudgetTracker.Scrapers
             chrome.SendKeys(configuration.Password);
             chrome.SendKeys(Keys.Return);
             
-            WaitForPageLoad(driver, 5);
+            WaitForPageLoad(driver);
         }
     }
 }

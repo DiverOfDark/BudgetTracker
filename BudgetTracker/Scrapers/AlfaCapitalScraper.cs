@@ -43,7 +43,7 @@ namespace BudgetTracker.Scrapers
             chrome.SendKeys(code);
             chrome.SendKeys(Keys.Return);
 
-            WaitForPageLoad(driver, 5);
+            WaitForPageLoad(driver);
 
             var result = new List<MoneyStateModel>();
 

@@ -8,14 +8,11 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
     [ExportJsModel]
     public abstract class WidgetViewModel
     {
-        private readonly WidgetModel _model;
-
         public WidgetViewModel(WidgetModel model, WidgetSettings settings)
         {
             Settings = settings;
-            _model = model;
-            Title = _model?.Title;
-            Id = _model?.Id;
+            Title = model?.Title;
+            Id = model?.Id;
         }
         
         protected bool IsApplicable(DateTime argWhen, int? period)

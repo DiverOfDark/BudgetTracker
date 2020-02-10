@@ -20,7 +20,7 @@ namespace BudgetTracker.Controllers
 
         public IEnumerable<MoneyColumnMetadataJsModel> IndexJson()
         {
-            var models = _objectRepository.Set<MoneyColumnMetadataModel>().SortColumns().Select(v=>new MoneyColumnMetadataJsModel(_objectRepository, v)).ToList();
+            var models = _objectRepository.Set<MoneyColumnMetadataModel>().SortColumns().Select(v=>new MoneyColumnMetadataJsModel(v)).ToList();
             return models;
         }
 

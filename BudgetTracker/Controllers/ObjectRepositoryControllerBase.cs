@@ -45,7 +45,7 @@ namespace BudgetTracker.Controllers
     public class MoneyColumnMetadataModelController : ObjectRepositoryControllerBase<MoneyColumnMetadataModel,
             MoneyColumnMetadataJsModel>
     {
-        public MoneyColumnMetadataModelController(ObjectRepository objectRepository) : base(objectRepository, x => new MoneyColumnMetadataJsModel(objectRepository, x))
+        public MoneyColumnMetadataModelController(ObjectRepository objectRepository) : base(objectRepository, x => new MoneyColumnMetadataJsModel(x))
         {
         }
     }

@@ -5,11 +5,18 @@ option csharp_namespace = "BudgetTracker";
 package Protos;
 
 service SoWService {
-  rpc GetState (Empty) returns (stream SoW);
+  rpc GetSystemInfo (Empty) returns (SystemInfo);
+  //rpc GetState (Empty) returns (stream SoW);
 }
 
-message SoW {
-  string timestamp = 1;
+message SystemInfo {
+  bool isProduction = 1;
+  string launchTime = 2;
+  string stats = 3;
+
+  string currentVersion = 4;
+  string latestVersion = 5;
+  bool hasNewerVersion = 6;
 }
 
 message Empty { }

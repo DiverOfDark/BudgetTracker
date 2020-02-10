@@ -74,7 +74,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 
         private readonly LastValueWidgetSettings _settings;
 
-        public LastValueWidgetViewModel(WidgetModel model, ObjectRepository repo, TableViewModelFactory vmf,
+        public LastValueWidgetViewModel(WidgetModel model, TableViewModelFactory vmf,
             int? period) : base(model, new LastValueWidgetSettings(model.Properties.ToDictionary(v=>v.Key,v=>v.Value)))
         {
             _settings = (LastValueWidgetSettings) Settings;

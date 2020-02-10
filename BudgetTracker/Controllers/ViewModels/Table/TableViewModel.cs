@@ -19,7 +19,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
         public TableViewModel(ObjectRepository repository)
         {
             var headersDictionary = repository.Set<MoneyColumnMetadataModel>().SortColumns()
-                .ToDictionary(v => new MoneyColumnMetadataJsModel(repository, v), v => v);
+                .ToDictionary(v => new MoneyColumnMetadataJsModel(v), v => v);
             Headers = headersDictionary.Keys.ToList();
 
             var headersCached = new Dictionary<string, MoneyColumnMetadataJsModel>();
@@ -33,7 +33,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             }
 
             var paymentsToExempt = repository.Set<PaymentModel>().Where(v => v.Kind == PaymentKind.Transfer).ToList().GroupBy(v => v.Column)
-                .ToDictionary(v => new MoneyColumnMetadataJsModel(repository, v.Key), v =>
+                .ToDictionary(v => new MoneyColumnMetadataJsModel(v.Key), v =>
                 {
                     var d = new Dictionary<DateTime, double>();
                     foreach (var item in v)
