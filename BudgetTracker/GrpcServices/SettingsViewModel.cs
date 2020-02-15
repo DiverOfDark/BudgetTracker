@@ -8,12 +8,12 @@ using OutCode.EscapeTeams.ObjectRepository;
 
 namespace BudgetTracker.GrpcServices
 {
-    public class SettingsProvider : GrpcModelProvider<Settings>
+    public class SettingsViewModel : GrpcViewModelBase<Settings>
     {
         private readonly ObjectRepository _objectRepository;
         private readonly List<string> _scrapers;
 
-        public SettingsProvider(ObjectRepository objectRepository, IEnumerable<GenericScraper> scrapers)
+        public SettingsViewModel(ObjectRepository objectRepository, IEnumerable<GenericScraper> scrapers)
         {
             _objectRepository = objectRepository;
             _scrapers = scrapers.Select(v=>v.ProviderName).OrderBy(v=>v).ToList();

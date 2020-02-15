@@ -7,7 +7,7 @@ using Nito.AsyncEx;
 
 namespace BudgetTracker.GrpcServices
 {
-    public abstract class GrpcModelProvider<T>: ViewModelBase where T : IMessage<T>
+    public abstract class GrpcViewModelBase<T>: ViewModelBase where T : IMessage<T>
     {
         private readonly AsyncManualResetEvent _sendModelEvent = new AsyncManualResetEvent(true);
 

@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel;
 using System.Timers;
 using BudgetTracker.Model;
@@ -7,13 +6,13 @@ using OutCode.EscapeTeams.ObjectRepository;
 
 namespace BudgetTracker.GrpcServices
 {
-    public class SystemInfoProvider : GrpcModelProvider<SystemInfo>
+    public class SystemInfoViewModel : GrpcViewModelBase<SystemInfo>
     {
         private readonly UpdateService _updateService;
         private readonly ObjectRepository _objectRepository;
         private readonly Timer _timer;
 
-        public SystemInfoProvider(UpdateService updateService, ObjectRepository objectRepository)
+        public SystemInfoViewModel(UpdateService updateService, ObjectRepository objectRepository)
         {
             _updateService = updateService;
             _objectRepository = objectRepository;
@@ -37,8 +36,8 @@ namespace BudgetTracker.GrpcServices
                 _objectRepository.ModelChanged -= ObjectRepositoryChanged;
                 _updateService.PropertyChanged -= UpdateServiceChanged;
                 _timer.Elapsed -= SendStatsUpdate;
-                _timer.Dispose();
             });
+            Anchors.Add(_timer.Dispose);
         }
 
         private void SendStatsUpdate(object sender, ElapsedEventArgs e)
@@ -57,7 +56,7 @@ namespace BudgetTracker.GrpcServices
 
         private void ObjectRepositoryChanged(ModelChangedEventArgs obj)
         {
-            if ((obj.ChangeType == ChangeType.Add || obj.ChangeType == ChangeType.Remove) && obj.Entity.GetType().Assembly == typeof(SystemInfoProvider).Assembly)
+            if ((obj.ChangeType == ChangeType.Add || obj.ChangeType == ChangeType.Remove) && obj.Entity.GetType().Assembly == typeof(SystemInfoViewModel).Assembly)
             {
                 _timer.Enabled = true;
             }

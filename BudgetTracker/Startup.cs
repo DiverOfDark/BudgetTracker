@@ -73,8 +73,8 @@ namespace BudgetTracker
                 services.AddSingleton(typeof(GenericScraper), s);
             }
             
-            services.AddTransient<SystemInfoProvider>();
-            services.AddTransient<SettingsProvider>();
+            services.AddTransient<SystemInfoViewModel>();
+            services.AddTransient<SettingsViewModel>();
 
             services.AddTransient(x => new TableViewModelFactory(x.GetRequiredService<ObjectRepository>()));
             services.AddSingleton<ScriptService>();

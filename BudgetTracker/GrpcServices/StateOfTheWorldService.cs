@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Grpc.Core;
 using JetBrains.Annotations;
@@ -10,40 +9,40 @@ namespace BudgetTracker.GrpcServices
     {
         private static Task<Empty> Empty = Task.FromResult(new Empty());
         
-        private readonly SystemInfoProvider _systemInfoProvider;
-        private readonly SettingsProvider _settingsProvider;
+        private readonly SystemInfoViewModel _systemInfoViewModel;
+        private readonly SettingsViewModel _settingsViewModel;
 
-        public StateOfTheWorldService(SystemInfoProvider systemInfoProvider, SettingsProvider settingsProvider)
+        public StateOfTheWorldService(SystemInfoViewModel systemInfoViewModel, SettingsViewModel settingsViewModel)
         {
-            _systemInfoProvider = systemInfoProvider;
-            _settingsProvider = settingsProvider;
+            _systemInfoViewModel = systemInfoViewModel;
+            _settingsViewModel = settingsViewModel;
         }
 
-        public override async Task GetSystemInfo(Empty request, IServerStreamWriter<SystemInfo> responseStream, ServerCallContext context) => await _systemInfoProvider.Send(responseStream, context);
+        public override async Task GetSystemInfo(Empty request, IServerStreamWriter<SystemInfo> responseStream, ServerCallContext context) => await _systemInfoViewModel.Send(responseStream, context);
 
-        public override async Task GetSettings(Empty request, IServerStreamWriter<Settings> responseStream, ServerCallContext context) => await _settingsProvider.Send(responseStream, context);
+        public override async Task GetSettings(Empty request, IServerStreamWriter<Settings> responseStream, ServerCallContext context) => await _settingsViewModel.Send(responseStream, context);
 
         public override Task<Empty> AddScraper(AddScraperRequest request, ServerCallContext context)
         {
-            _settingsProvider.AddScraper(request.Name, request.Login, request.Password);
+            _settingsViewModel.AddScraper(request.Name, request.Login, request.Password);
             return Empty;
         }
 
         public override Task<Empty> DeleteConfig(UUID request, ServerCallContext context)
         {
-            _settingsProvider.DeleteConfig(request.ToGuid());
+            _settingsViewModel.DeleteConfig(request.ToGuid());
             return Empty;
         }
 
         public override Task<Empty> ClearLastSuccesful(UUID request, ServerCallContext context)
         {
-            _settingsProvider.ClearLastSuccessful(request.ToGuid());
+            _settingsViewModel.ClearLastSuccessful(request.ToGuid());
             return Empty;
         }
 
         public override Task<Empty> UpdateSettingsPassword(UpdatePasswordRequest request, ServerCallContext context)
         {
-            _settingsProvider.UpdatePassword(request.NewPassword);
+            _settingsViewModel.UpdatePassword(request.NewPassword);
             return Empty;
         }
     }
