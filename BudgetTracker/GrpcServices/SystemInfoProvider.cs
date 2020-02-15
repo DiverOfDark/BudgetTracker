@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Timers;
 using BudgetTracker.Model;
 using BudgetTracker.Services;
 using OutCode.EscapeTeams.ObjectRepository;
@@ -10,6 +11,7 @@ namespace BudgetTracker.GrpcServices
     {
         private readonly UpdateService _updateService;
         private readonly ObjectRepository _objectRepository;
+        private readonly Timer _timer;
 
         public SystemInfoProvider(UpdateService updateService, ObjectRepository objectRepository)
         {
@@ -27,12 +29,23 @@ namespace BudgetTracker.GrpcServices
 
             _objectRepository.ModelChanged += ObjectRepositoryChanged;
             _updateService.PropertyChanged += UpdateServiceChanged;
+            _timer = new Timer(0.5) {AutoReset = false};
+            _timer.Elapsed += SendStatsUpdate;
             
-            Anchors.Add(new Action(() =>
+            Anchors.Add(() =>
             {
                 _objectRepository.ModelChanged -= ObjectRepositoryChanged;
                 _updateService.PropertyChanged -= UpdateServiceChanged;
-            }));
+                _timer.Elapsed -= SendStatsUpdate;
+                _timer.Dispose();
+            });
+        }
+
+        private void SendStatsUpdate(object sender, ElapsedEventArgs e)
+        {
+            _timer.Enabled = false;
+            Model.Stats = _objectRepository.Stats();
+            SendUpdate();
         }
 
         private void UpdateServiceChanged(object sender, PropertyChangedEventArgs e)
@@ -44,10 +57,9 @@ namespace BudgetTracker.GrpcServices
 
         private void ObjectRepositoryChanged(ModelChangedEventArgs obj)
         {
-            if (obj.Entity.GetType().Assembly == GetType().Assembly && (obj.ChangeType == ChangeType.Add || obj.ChangeType == ChangeType.Remove))
+            if ((obj.ChangeType == ChangeType.Add || obj.ChangeType == ChangeType.Remove) && obj.Entity.GetType().Assembly == typeof(SystemInfoProvider).Assembly)
             {
-                Model.Stats = _objectRepository.Stats();
-                SendUpdate();
+                _timer.Enabled = true;
             }
         }
     }
