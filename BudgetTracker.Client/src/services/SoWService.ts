@@ -1,12 +1,13 @@
 import proto, { SoWServicePromiseClient } from '../generated/StateOfTheWorld_grpc_web_pb';
-import message from '../generated/StateOfTheWorld_pb';
+import protoSettings from '../generated/Settings_pb';
+import protoCommons from '../generated/Commons_pb';
 import { writable } from 'svelte/store';
 import { ClientReadableStream } from 'grpc-web';
 
 export class SoWService {
-    Empty = new message.Empty()
-    SystemInfo = writable(new message.SystemInfo().toObject());
-    Settings = writable(new message.Settings().toObject());
+    Empty = new protoCommons.Empty()
+    SystemInfo = writable(new protoSettings.SystemInfo().toObject());
+    Settings = writable(new protoSettings.Settings().toObject());
 
     SoWClient: proto.SoWServicePromiseClient;
 
@@ -23,25 +24,25 @@ export class SoWService {
     }
 
     async updateSettingsPassword(newPassword: string) {
-        const passwordUpdateRequest = new message.UpdatePasswordRequest();
+        const passwordUpdateRequest = new protoSettings.UpdatePasswordRequest();
         passwordUpdateRequest.setNewpassword(newPassword);
         await this.SoWClient.updateSettingsPassword(passwordUpdateRequest);
     }
 
-    async deleteConfig(uuid: message.UUID.AsObject) {
-        var id = new message.UUID();
+    async deleteConfig(uuid: protoCommons.UUID.AsObject) {
+        var id = new protoCommons.UUID();
         id.setValue(uuid.value);
         await this.SoWClient.deleteConfig(id)
     }
 
-    async clearLastSuccessful(uuid: message.UUID.AsObject) {
-        var id = new message.UUID();
+    async clearLastSuccessful(uuid: protoCommons.UUID.AsObject) {
+        var id = new protoCommons.UUID();
         id.setValue(uuid.value);
         await this.SoWClient.clearLastSuccesful(id);
     }
 
     async addConfig(scraperName: string, login: string, password: string) {
-        const req = new message.AddScraperRequest();
+        const req = new protoSettings.AddScraperRequest();
         req.setLogin(login);
         req.setPassword(password);
         req.setName(scraperName);
