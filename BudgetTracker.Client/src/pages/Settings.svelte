@@ -1,60 +1,15 @@
 <script>
-    import {SettingsController, UtilityController } from '../generated-types';
+    import SoWService from '../services/SoWService';
+    import { UtilityController } from '../generated-types';
     import Link from '../svero/Link.svelte';
 
+    let settings = SoWService.Settings;
     let newPassword = '';
 
-    let settings = {
-        configs:[]
-    };
-
-    let reload = async function() {
-        let response = await SettingsController.indexJson();
-        settings.canDownloadDbDump = response.canDownloadDbDump;
-        settings.configs = response.possibleScrapers.map(s=> {
-            let found = response.scraperConfigs.find(t=>t.scraperName == s);
-            if (found) {
-                found.new = false;
-                if (found.login == undefined) {
-                    found.login = "<не указан>";
-                }
-                if (found.password == undefined) {
-                    found.password = "<не указан>";
-                }
-                return found;
-            }
-
-            return {
-                new: true,
-                scraperName: s,
-                login: '',
-                password: '',
-                lastSuccessfulBalanceScraping: '',
-                lastSuccessfulStatementScraping: '',
-            };
-        })
+    async function updateSettingsPassword() {
+        await SoWService.updateSettingsPassword(newPassword);
+        newPassword = '';
     }
-
-    let updatePassword = async function() {
-        await SettingsController.updatePassword(newPassword);
-    }
-
-    let clearLastSuccessful = async function(id) {
-        await SettingsController.clearLastSuccessful(id);
-        await reload();
-    }
-
-    let addConfig = async function(name, login, password) {
-        await SettingsController.addScraper(name, login, password);
-        await reload();
-    }
-
-    let deleteConfig = async function(id) {
-        await SettingsController.deleteConfig(id);
-        await reload();
-    }
-
-    reload();
 </script>
 
 <svelte:head>
@@ -69,15 +24,17 @@
                     Общие настройки
                 </div>
                 <div class="card-body">
-                    <div class="form-group">
-                        <label class="form-label">
-                            Пароль для входа
-                        </label>
-                        <input type="password" autocomplete="new-password" class="form-control" bind:value="{newPassword}" placeholder="Пароль" />
-                    </div>
-                    <div class="form-footer">
-                        <button on:click="{() => updatePassword()}" class="btn btn-primary btn-block">Обновить</button>
-                    </div>
+                    <form on:submit|preventDefault="{() => updateSettingsPassword()}">
+                        <div class="form-group">
+                            <label class="form-label">
+                                Пароль для входа
+                            </label>
+                            <input type="password" autocomplete="new-password" class="form-control" bind:value="{newPassword}" placeholder="Пароль" />
+                        </div>
+                        <div class="form-footer">
+                            <input type="submit" value="Обновить" class="btn btn-primary btn-block" />
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -89,7 +46,7 @@
                 <div class="card-body">
                     <Link class="btn btn-pill btn-outline-info btn-sm mb-2" href="/Utility/Tasks">Фоновые&nbsp;задачи</Link>
                     <br/>
-                    {#if settings && settings.canDownloadDbDump}
+                    {#if $settings.canDownloadDbDump}
                         <a class="btn btn-pill btn-outline-info btn-sm mb-2" href="{UtilityController.downloadDump}">Скачать дамп базы</a>
                         <br/>
                     {/if}
@@ -117,21 +74,21 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {#each settings.configs as item}
+                    {#each $settings.scraperConfigsList as item}
                         <tr>
                             <td>{item.scraperName}</td>
-                            {#if !item.new}
+                            {#if item.enabled}
                                 <td class="text-muted">{item.login}</td>
                                 <td class="text-muted">{item.password}</td>
                                 <td>
                                     Баланс: <b>{item.lastSuccessfulBalanceScraping}</b><br/>
                                     Выписка: <b>{item.lastSuccessfulStatementScraping}</b>
                                     {#if item.lastSuccessfulBalanceScraping != "-" || item.lastSuccessfulStatementScraping != "-"}
-                                        <button on:click="{() => clearLastSuccessful(item.id)}" class="btn btn-anchor btn-link"><span class="fe fe-delete"></span></button>
+                                        <button on:click="{() => SoWService.clearLastSuccessful(item.id)}" class="btn btn-anchor btn-link"><span class="fe fe-delete"></span></button>
                                     {/if}
                                 </td>
                                 <td>
-                                    <button class="btn btn-anchor btn-link" on:click="{() => deleteConfig(item.id)}">
+                                    <button class="btn btn-anchor btn-link" on:click="{() => SoWService.deleteConfig(item.id)}">
                                         <span class="fe fe-x-circle"></span>
                                     </button>
                                 </td>
@@ -139,7 +96,7 @@
                                 <td><input type="text" bind:value="{item.login}" placeholder="Логин" class="form-control form-control-sm"/></td>
                                 <td><input type="text" bind:value="{item.password}" placeholder="Пароль" class="form-control form-control-sm"/></td>
                                 <td>&mdash;</td>
-                                <td><button type="submit" on:click="{() => addConfig(item.scraperName, item.login, item.password)}" class="form-control btn btn-secondary btn-sm">Включить</button></td>
+                                <td><button type="submit" on:click="{() => SoWService.addConfig(item.scraperName, item.login, item.password)}" class="form-control btn btn-secondary btn-sm">Включить</button></td>
                             {/if}
                         </tr>
                     {/each}

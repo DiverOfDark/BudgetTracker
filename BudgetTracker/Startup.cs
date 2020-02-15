@@ -153,7 +153,7 @@ namespace BudgetTracker
             public IServiceScope CreateScope() => _services.CreateScope();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostEnvironment env, ILoggerFactory loggerFactory)
         {
             app.UseResponseCompression();
             app.UseDeveloperExceptionPage();

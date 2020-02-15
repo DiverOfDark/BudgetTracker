@@ -44,8 +44,11 @@ namespace BudgetTracker.GrpcServices
 
         private void ObjectRepositoryChanged(ModelChangedEventArgs obj)
         {
-            Model.Stats = _objectRepository.Stats();
-            SendUpdate();
+            if (obj.Entity.GetType().Assembly == GetType().Assembly && (obj.ChangeType == ChangeType.Add || obj.ChangeType == ChangeType.Remove))
+            {
+                Model.Stats = _objectRepository.Stats();
+                SendUpdate();
+            }
         }
     }
 }
