@@ -1,16 +1,51 @@
-<script>
+<script lang="ts">
     import SoWService from '../services/SoWService';
-    import { UtilityController } from '../generated-types';
     import Link from '../svero/Link.svelte';
 
     let settings = SoWService.Settings;
     let newPassword = '';
+    let downloadInProgress = false;
 
     async function updateSettingsPassword() {
         await SoWService.updateSettingsPassword(newPassword);
         newPassword = '';
     }
+
+    async function downloadDump() {
+        downloadInProgress = true;
+        let response = await SoWService.downloadDump();
+        let blob = new File([response.buffer], "database.litedb", {type: 'application/octet-stream'});
+        let href = URL.createObjectURL(blob);
+
+         let link = document.createElement('a');
+        link.href = href;
+        link.download = "database.litedb";
+        document.body.appendChild(link);
+        link.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true, view: window}));
+        link.remove();
+        URL.revokeObjectURL(href);
+        downloadInProgress = false;
+    }
+
+    Link; downloadDump; updateSettingsPassword; settings; downloadInProgress;
 </script>
+
+<style type="text/css">
+    @keyframes spinner-border {
+        to { transform: rotate(360deg); }
+    }
+
+    .spinner-border {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        vertical-align: text-bottom;
+        border: 2px solid currentColor;
+        border-right-color: transparent;
+        border-radius: 50%;
+        animation: spinner-border .75s linear infinite;
+    }
+</style>
 
 <svelte:head>
     <title>BudgetTracker - Настройки</title>
@@ -47,7 +82,12 @@
                     <Link class="btn btn-pill btn-outline-info btn-sm mb-2" href="/Utility/Tasks">Фоновые&nbsp;задачи</Link>
                     <br/>
                     {#if $settings.canDownloadDbDump}
-                        <a class="btn btn-pill btn-outline-info btn-sm mb-2" href="{UtilityController.downloadDump}">Скачать дамп базы</a>
+                        <input type="button" class="btn btn-pill btn-outline-info btn-sm mb-2" on:click="{() => downloadDump()}" value="Скачать дамп базы" disabled={downloadInProgress} />
+                        {#if downloadInProgress}
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        {/if}
                         <br/>
                     {/if}
                     <Link class="btn btn-pill btn-outline-info btn-sm mb-2" href="/Utility/Screenshot">Скриншот&nbsp;браузера</Link>

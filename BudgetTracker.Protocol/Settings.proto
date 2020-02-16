@@ -40,3 +40,22 @@ message AddScraperRequest {
 message UpdatePasswordRequest {
     string newPassword = 1;
 }
+
+message ExecuteScriptRequest {
+    string script = 1;
+}
+
+message ExecuteScriptResponse {
+    oneof response {
+        string result = 1;
+        string exception = 2;
+    }
+}
+
+message Screenshot {
+    bytes contents = 1;
+}
+
+message DbDump {
+    bytes content = 1;
+}

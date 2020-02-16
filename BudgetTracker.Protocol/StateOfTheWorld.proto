@@ -14,4 +14,9 @@ service SoWService {
   rpc AddScraper(Settings.AddScraperRequest) returns (Empty);
   rpc DeleteConfig(UUID) returns (Empty);
   rpc ClearLastSuccesful(UUID) returns (Empty);
+  
+  // Utility
+  rpc ExecuteScript (Settings.ExecuteScriptRequest) returns (Settings.ExecuteScriptResponse);
+  rpc GetScreenshot (Empty) returns (stream Settings.Screenshot);
+  rpc DownloadDbDump (Empty) returns (Settings.DbDump);
 }

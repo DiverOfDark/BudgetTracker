@@ -73,6 +73,7 @@ namespace BudgetTracker
                 services.AddSingleton(typeof(GenericScraper), s);
             }
             
+            services.AddTransient<ScreenshotViewModel>();
             services.AddTransient<SystemInfoViewModel>();
             services.AddTransient<SettingsViewModel>();
 

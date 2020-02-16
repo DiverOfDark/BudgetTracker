@@ -1,12 +1,23 @@
-<script>
+<script lang="ts">
+    import SoWService from '../../services/SoWService';
+
     let command = "";
     let result = "";
-
-    import { UtilityController } from '../../generated-types';
+    let exception = "";
 
     let executeScript = async function() {
-        result = await UtilityController.scriptConsole(command);
+        let response = await SoWService.executeScript(command);
+        result = response.result;
+        exception = response.exception;
     }
+
+    let handleKeydown = function(event: KeyboardEvent) {
+        if (event.key == "Enter" && event.ctrlKey) {
+            executeScript();
+        }
+    }
+
+    executeScript; command; result; exception; handleKeydown;
 </script>
 
 <svelte:head>
@@ -27,6 +38,8 @@
     }
 </style>
 
+<svelte:window on:keydown={handleKeydown}/>
+
 <div class="container">
     <div class="row row-cards row-deck">
         <div class="col-12">
@@ -39,16 +52,20 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-12">
-                            <textarea name="script" rows="10" cols="80" class="form-control" bind:value="{command}"></textarea>
-                            <br/>
-                            <button on:click="{() => executeScript()}" class="btn btn-primary">Выполнить</button>
+                            <form on:submit|preventDefault="{() => executeScript()}">
+                                <textarea name="script" rows="10" cols="80" class="form-control" bind:value="{command}"></textarea>
+                                <br/>
+                                <input type="submit" class="btn btn-primary" value="Выполнить" />
+                            </form>
                         </div>
                     </div>
                 </div>
                 <div class="card-footer">
-                    <pre>
-                        {@html result}
-                    </pre>
+                    {#if exception}
+                        <pre class="text-danger">{exception}</pre>
+                    {:else}
+                        <pre>{@html result}</pre>
+                    {/if}
                 </div>
             </div>
         </div>

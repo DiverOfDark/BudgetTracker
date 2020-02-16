@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Timers;
 using BudgetTracker.Model;
 using BudgetTracker.Services;
@@ -28,7 +29,7 @@ namespace BudgetTracker.GrpcServices
 
             _objectRepository.ModelChanged += ObjectRepositoryChanged;
             _updateService.PropertyChanged += UpdateServiceChanged;
-            _timer = new Timer(0.5) {AutoReset = false};
+            _timer = new Timer(100) {AutoReset = false};
             _timer.Elapsed += SendStatsUpdate;
             
             Anchors.Add(() =>

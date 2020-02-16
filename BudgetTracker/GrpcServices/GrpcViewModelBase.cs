@@ -20,15 +20,21 @@ namespace BudgetTracker.GrpcServices
         public async Task Send(IServerStreamWriter<T> writer, ServerCallContext context) 
         {
             await Init();
-            while (!context.CancellationToken.IsCancellationRequested)
+            try
             {
-                if (_sendModelEvent.IsSet)
+                while (!context.CancellationToken.IsCancellationRequested)
                 {
-                    _sendModelEvent.Reset();
-                    await writer.WriteAsync(Model);
-                }
+                    if (_sendModelEvent.IsSet)
+                    {
+                        _sendModelEvent.Reset();
+                        await writer.WriteAsync(Model);
+                    }
 
-                await _sendModelEvent.WaitAsync(context.CancellationToken);
+                    await _sendModelEvent.WaitAsync(context.CancellationToken);
+                }
+            } catch (Exception ex) when (ex is RpcException exception && exception.StatusCode == StatusCode.Cancelled || ex is TaskCanceledException)
+            {
+                // cancelled, not an issue                
             }
         }
     }
