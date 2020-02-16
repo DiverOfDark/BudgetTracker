@@ -1,5 +1,7 @@
+using System.Linq;
 using System.Timers;
 using Google.Protobuf;
+using OpenQA.Selenium.Support.Extensions;
 
 namespace BudgetTracker.GrpcServices
 {
@@ -14,6 +16,7 @@ namespace BudgetTracker.GrpcServices
             var timer = new Timer(1000);
             timer.Elapsed += SendScrenshot;
             timer.Start();
+            SendScrenshot(null, null);
             Anchors.Add(timer.Dispose);
             Anchors.Add(() => timer.Elapsed -= SendScrenshot);
         }
@@ -22,9 +25,13 @@ namespace BudgetTracker.GrpcServices
         {
             if (_chrome.HasDriver)
             {
-                var screenShot = _chrome.Driver.GetScreenshot().AsByteArray;
-                Model.Contents = ByteString.CopyFrom(screenShot);
-                SendUpdate();
+                var screenShot = _chrome.Driver.TakeScreenshot().AsByteArray;
+
+                if (!Model.Contents.SequenceEqual(screenShot))
+                {
+                    Model.Contents = ByteString.CopyFrom(screenShot);
+                    SendUpdate();
+                }
             }
         }
     }
