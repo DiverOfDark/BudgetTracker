@@ -7,8 +7,6 @@ import { ClientReadableStream } from 'grpc-web';
 export class SoWService {
     Empty = new protoCommons.Empty()
     SystemInfo = writable(new protoSettings.SystemInfo().toObject());
-    Settings = writable(new protoSettings.Settings().toObject());
-
     SoWClient: proto.SoWServicePromiseClient;
 
     private reconnect<T>(method: (x: SoWServicePromiseClient) => ClientReadableStream<T>, callback: (x: T) => any): () => void {
@@ -113,10 +111,10 @@ export class SoWService {
         })
     }
 
-    getSettings(): () => void {
+    getSettings(callback: (settings: protoSettings.Settings.AsObject) => void): () => void {
         return this.reconnect(x=>x.getSettings(this.Empty), response => {
             let object = response.toObject(false);
-            this.Settings.set(object);
+            callback(object);
         })
     }
 
@@ -126,7 +124,6 @@ export class SoWService {
         enableDevTools([ this.SoWClient ]);
 
         this.getSystemInfo();
-        this.getSettings();
     }
 }
 

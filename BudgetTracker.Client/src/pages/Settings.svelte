@@ -1,8 +1,12 @@
 <script lang="ts">
+    import { writable } from 'svelte/store';
+    import { onDestroy } from 'svelte';
     import SoWService from '../services/SoWService';
+    import protoSettings from '../generated/Settings_pb';
     import Link from '../svero/Link.svelte';
 
-    let settings = SoWService.Settings;
+    let settings = writable(new protoSettings.Settings().toObject());
+
     let newPassword = '';
     let downloadInProgress = false;
 
@@ -17,7 +21,7 @@
         let blob = new File([response.buffer], "database.litedb", {type: 'application/octet-stream'});
         let href = URL.createObjectURL(blob);
 
-         let link = document.createElement('a');
+        let link = document.createElement('a');
         link.href = href;
         link.download = "database.litedb";
         document.body.appendChild(link);
@@ -26,6 +30,10 @@
         URL.revokeObjectURL(href);
         downloadInProgress = false;
     }
+    
+    let unsubscribe = SoWService.getSettings(x => settings.set(x));
+
+    onDestroy(() => unsubscribe());
 
     Link; downloadDump; updateSettingsPassword; settings; downloadInProgress;
 </script>
