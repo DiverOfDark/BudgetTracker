@@ -19,16 +19,8 @@ namespace BudgetTracker.Scrapers
         
         public override IList<MoneyStateModel> Scrape(ScraperConfigurationModel configuration, Chrome driver)
         {
-            var s1 = Calculate(s =>
-            {
-                var debtJsViewModel = new DebtJsViewModel(s);
-                return debtJsViewModel.Amount * (1 + debtJsViewModel.Percentage / 100) - debtJsViewModel.Returned;
-            }, "Долги с процентами");
-            var s2 = Calculate(s =>
-            {
-                var vm = new DebtJsViewModel(s);
-                return vm.Amount - vm.Returned;
-            }, "Долги");
+            var s1 = Calculate(s => s.Amount * (1 + s.Percentage / 100) - s.Returned, "Долги с процентами");
+            var s2 = Calculate(s => s.Amount - s.Returned, "Долги");
 
             return s1.Concat(s2).ToList();
         }

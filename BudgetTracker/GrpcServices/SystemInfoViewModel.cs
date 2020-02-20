@@ -3,21 +3,24 @@ using System.Threading.Tasks;
 using System.Timers;
 using BudgetTracker.Model;
 using BudgetTracker.Services;
+using Microsoft.AspNetCore.Http;
 using OutCode.EscapeTeams.ObjectRepository;
 
 namespace BudgetTracker.GrpcServices
 {
+    // TODO use shared state
     public class SystemInfoViewModel : GrpcViewModelBase<SystemInfo>
     {
         private readonly UpdateService _updateService;
         private readonly ObjectRepository _objectRepository;
-        private readonly Timer _timer;
+        private Timer _timer;
+        private readonly SystemInfo _model;
 
-        public SystemInfoViewModel(UpdateService updateService, ObjectRepository objectRepository)
+        public SystemInfoViewModel(UpdateService updateService, ObjectRepository objectRepository, IHttpContextAccessor accessor): base(accessor)
         {
             _updateService = updateService;
             _objectRepository = objectRepository;
-            Model = new SystemInfo
+            _model = new SystemInfo
             {
                 IsProduction = Startup.IsProduction,
                 CurrentVersion = Startup.CommmitHash,
@@ -26,7 +29,10 @@ namespace BudgetTracker.GrpcServices
                 LaunchTime = Startup.LaunchTime.ToLocalTime().ToString("G"),
                 Stats = _objectRepository.Stats()
             };
+        }
 
+        protected override Task Init()
+        {
             _objectRepository.ModelChanged += ObjectRepositoryChanged;
             _updateService.PropertyChanged += UpdateServiceChanged;
             _timer = new Timer(100) {AutoReset = false};
@@ -39,20 +45,23 @@ namespace BudgetTracker.GrpcServices
                 _timer.Elapsed -= SendStatsUpdate;
             });
             Anchors.Add(_timer.Dispose);
+            SendUpdate(_model);
+
+            return base.Init();
         }
 
         private void SendStatsUpdate(object sender, ElapsedEventArgs e)
         {
             _timer.Enabled = false;
-            Model.Stats = _objectRepository.Stats();
-            SendUpdate();
+            _model.Stats = _objectRepository.Stats();
+            SendUpdate(_model);
         }
 
         private void UpdateServiceChanged(object sender, PropertyChangedEventArgs e)
         {
-            Model.HasNewerVersion = _updateService.HasNewerVersion;
-            Model.LatestVersion = _updateService.LatestVersion;
-            SendUpdate();
+            _model.HasNewerVersion = _updateService.HasNewerVersion;
+            _model.LatestVersion = _updateService.LatestVersion;
+            SendUpdate(_model);
         }
 
         private void ObjectRepositoryChanged(ModelChangedEventArgs obj)

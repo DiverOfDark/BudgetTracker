@@ -1,5 +1,6 @@
 import proto, { SoWServicePromiseClient } from '../generated/StateOfTheWorld_grpc_web_pb';
 import protoSettings from '../generated/Settings_pb';
+import protoDebts from '../generated/Debts_pb';
 import protoCommons from '../generated/Commons_pb';
 import { writable } from 'svelte/store';
 import { ClientReadableStream } from 'grpc-web';
@@ -97,6 +98,33 @@ export class SoWService {
         return response.toObject();
     }
 
+    async deleteDebt(id: protoCommons.UUID.AsObject) {
+        let request = new protoCommons.UUID();
+        request.setValue(id.value);
+        await this.SoWClient.deleteDebt(request);
+    }
+
+    async updateDebt(debt: protoDebts.Debt.AsObject) {
+        let request = new protoDebts.Debt();
+        let uuid = new protoCommons.UUID();
+
+        if (debt.id) {
+            uuid.setValue(debt.id.value);
+        }
+        request.setId(uuid);
+        request.setAmount(debt.amount);
+        request.setCcy(debt.ccy);
+        request.setDaysCount(debt.daysCount);
+        request.setDescription(debt.description);
+        let issuedModel = new protoCommons.Timestamp();
+        issuedModel.setSeconds(debt.issued!.seconds);
+        issuedModel.setNanos(debt.issued!.nanos);
+        request.setIssued(issuedModel);
+        request.setPercentage(debt.percentage);
+        request.setRegexForTransfer(debt.regexForTransfer);
+        await this.SoWClient.editDebt(request);
+    }
+
     getScreenshot(callback: (base64Image: string) => void): () => void  {
         return this.reconnect(x => x.getScreenshot(this.Empty), response => {
             let object = response.getContents_asB64();
@@ -113,6 +141,13 @@ export class SoWService {
 
     getSettings(callback: (settings: protoSettings.Settings.AsObject) => void): () => void {
         return this.reconnect(x=>x.getSettings(this.Empty), response => {
+            let object = response.toObject(false);
+            callback(object);
+        })
+    }
+
+    getDebts(callback: (debts: protoDebts.DebtsStream.AsObject) => void): () => void {
+        return this.reconnect(x=>x.getDebts(this.Empty), response => {
             let object = response.toObject(false);
             callback(object);
         })

@@ -3,6 +3,7 @@
 </svelte:head>
 
 <script>
+/*
     import Link from '../../svero/Link.svelte';
     import moment from 'moment';
 
@@ -211,7 +212,7 @@
 
     $: resort(sorting);
 
-    reload();
+    reload();*/
 </script>
 
 <style>
@@ -224,6 +225,8 @@
     }
 </style>
 
+<div></div>
+<!--
 <div class="container">
     <div class="row row-cards row-deck">
         <div class="col-12">
@@ -310,4 +313,4 @@
             </div>
         </div>
     </div>
-</div>
+</div>-->

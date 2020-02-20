@@ -39,7 +39,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
 
         public override CalculateExpression TryApply(CalculateExpression otherExpression)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         protected override string ToStringImpl() => "{" + _source + "}";

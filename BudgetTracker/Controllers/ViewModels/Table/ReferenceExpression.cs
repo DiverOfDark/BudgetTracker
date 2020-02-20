@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using BudgetTracker.JsModel;
 
 namespace BudgetTracker.Controllers.ViewModels.Table
@@ -31,7 +32,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             }
         }
         
-        public override CalculateExpression TryApply(CalculateExpression otherExpression) => throw new System.NotImplementedException();
+        public override CalculateExpression TryApply(CalculateExpression otherExpression) => throw new NotSupportedException();
 
         protected override string ToStringImpl() => $"[{_column.Provider}/{_column.UserFriendlyName ?? _column.AccountName}]({Value})";
     }

@@ -5,9 +5,10 @@ option csharp_namespace = "BudgetTracker";
 package Protos;
 import "Settings.proto";
 import "Commons.proto";
+import "Debts.proto";
 
 service SoWService {
-  // Settings Region
+  // Settings
   rpc GetSystemInfo (Empty) returns (stream Settings.SystemInfo);
   rpc GetSettings (Empty) returns (stream Settings.Settings);
   rpc UpdateSettingsPassword (Settings.UpdatePasswordRequest) returns (Empty);
@@ -19,4 +20,9 @@ service SoWService {
   rpc ExecuteScript (Settings.ExecuteScriptRequest) returns (Settings.ExecuteScriptResponse);
   rpc GetScreenshot (Empty) returns (stream Settings.Screenshot);
   rpc DownloadDbDump (Empty) returns (Settings.DbDump);
+  
+  // Debts
+  rpc GetDebts (Empty) returns (stream Debts.DebtsStream);
+  rpc EditDebt (Debts.Debt) returns (Empty);
+  rpc DeleteDebt (UUID) returns (Empty);
 }

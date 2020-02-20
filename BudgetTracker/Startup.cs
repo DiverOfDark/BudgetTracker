@@ -74,11 +74,12 @@ namespace BudgetTracker
             }
             
             services.AddTransient<ScreenshotViewModel>();
+            services.AddTransient<DebtsViewModel>();
             services.AddTransient<SystemInfoViewModel>();
             services.AddTransient<SettingsViewModel>();
 
             services.AddTransient(x => new TableViewModelFactory(x.GetRequiredService<ObjectRepository>()));
-            services.AddSingleton<ScriptService>();
+            services.AddTransient<ScriptService>();
             services.AddSingleton<SmsRuleProcessor>();
             services.AddSingleton<UpdateService>();
             services.AddHangfire(x=>{ });
@@ -95,6 +96,7 @@ namespace BudgetTracker
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
+            services.AddHttpContextAccessor();
             services.AddResponseCompression(x => x.EnableForHttps = true);
             services.AddGrpc();
             services.AddGrpcWeb(x => x.GrpcWebEnabled = true);

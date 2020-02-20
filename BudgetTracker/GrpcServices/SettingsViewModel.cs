@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BudgetTracker.Model;
 using BudgetTracker.Scrapers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using OutCode.EscapeTeams.ObjectRepository;
 
@@ -12,30 +14,36 @@ namespace BudgetTracker.GrpcServices
     {
         private readonly ObjectRepository _objectRepository;
         private readonly List<string> _scrapers;
+        private Settings _model;
 
-        public SettingsViewModel(ObjectRepository objectRepository, IEnumerable<GenericScraper> scrapers)
+        public SettingsViewModel(ObjectRepository objectRepository, IEnumerable<GenericScraper> scrapers, IHttpContextAccessor accessor): base(accessor)
         {
             _objectRepository = objectRepository;
             _scrapers = scrapers.Select(v=>v.ProviderName).OrderBy(v=>v).ToList();
-            
-            Model = new Settings { CanDownloadDbDump = !string.IsNullOrWhiteSpace(Startup.DbFileName) };
+            _model = new Settings { CanDownloadDbDump = !string.IsNullOrWhiteSpace(Startup.DbFileName) };
+        }
+
+        protected override Task Init()
+        {
             UpdateScraperConfigs();
             
             _objectRepository.ModelChanged += ModelHandler;
             Anchors.Add(() => _objectRepository.ModelChanged -= ModelHandler);
+            SendUpdate(_model);
+            return base.Init();
         }
 
         private void UpdateScraperConfigs()
         {
             string FormatDateTime(DateTime? from) => from == null ? "" : from.Value != default ? from.Value.ToString("g") : "-";
 
-            Model.ScraperConfigs.Clear();
+            _model.ScraperConfigs.Clear();
             var configs = _objectRepository.Set<ScraperConfigurationModel>();
             foreach (string scraperName in _scrapers)
             {
                 var config = configs.FirstOrDefault(v => v.ScraperName == scraperName);
                 
-                Model.ScraperConfigs.Add(new ScraperConfig
+                _model.ScraperConfigs.Add(new ScraperConfig
                 {
                     Id = config?.Id.ToUUID(),
                     LastSuccessfulBalanceScraping = FormatDateTime(config?.LastSuccessfulBalanceScraping),
@@ -55,7 +63,7 @@ namespace BudgetTracker.GrpcServices
             if (obj.Source is ScraperConfigurationModel)
             {
                 UpdateScraperConfigs();
-                SendUpdate();
+                SendUpdate(_model);
             }
         }
 

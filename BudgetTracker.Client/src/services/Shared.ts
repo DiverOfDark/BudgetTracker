@@ -10,6 +10,10 @@ export function formatMonth(from: string) {
     return moment(from).format("MMMM YYYY");
 }
 
+export function formatUnixDate(from: number) {
+    return moment.unix(from).format("DD.MM.YYYY");
+}
+
 export function formatDate(from: string) {
     return moment(from).format("DD.MM.YYYY");
 }

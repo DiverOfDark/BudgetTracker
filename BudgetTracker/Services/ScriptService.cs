@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using BudgetTracker.Model;
+using BudgetTracker.Services;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using Newtonsoft.Json;
@@ -11,7 +12,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace BudgetTracker.Controllers
 {
-    public class ScriptService
+    public class ScriptService : ViewModelBase
     {
         private readonly ObjectRepository _objectRepository;
         private readonly ScriptOptions _options;

@@ -1,24 +1,33 @@
 using System.Linq;
+using System.Threading.Tasks;
 using System.Timers;
 using Google.Protobuf;
+using Microsoft.AspNetCore.Http;
 using OpenQA.Selenium.Support.Extensions;
 
 namespace BudgetTracker.GrpcServices
 {
+    // TODO use shared state
     public class ScreenshotViewModel : GrpcViewModelBase<Screenshot>
     {
         private readonly Chrome _chrome;
+        private readonly Screenshot _model;
 
-        public ScreenshotViewModel(Chrome chrome)
+        public ScreenshotViewModel(Chrome chrome, IHttpContextAccessor accessor): base(accessor)
         {
-            Model = new Screenshot();
             _chrome = chrome;
+            _model = new Screenshot();
+        }
+
+        protected override Task Init()
+        {
             var timer = new Timer(1000);
             timer.Elapsed += SendScrenshot;
             timer.Start();
             SendScrenshot(null, null);
             Anchors.Add(timer.Dispose);
             Anchors.Add(() => timer.Elapsed -= SendScrenshot);
+            return base.Init();
         }
 
         private void SendScrenshot(object sender, ElapsedEventArgs e)
@@ -27,10 +36,10 @@ namespace BudgetTracker.GrpcServices
             {
                 var screenShot = _chrome.Driver.TakeScreenshot().AsByteArray;
 
-                if (!Model.Contents.SequenceEqual(screenShot))
+                if (!_model.Contents.SequenceEqual(screenShot))
                 {
-                    Model.Contents = ByteString.CopyFrom(screenShot);
-                    SendUpdate();
+                    _model.Contents = ByteString.CopyFrom(screenShot);
+                    SendUpdate(_model);
                 }
             }
         }

@@ -33,7 +33,7 @@
     
     let unsubscribe = SoWService.getSettings(x => settings.set(x));
 
-    onDestroy(() => unsubscribe());
+    onDestroy(unsubscribe);
 
     Link; downloadDump; updateSettingsPassword; settings; downloadInProgress;
 </script>

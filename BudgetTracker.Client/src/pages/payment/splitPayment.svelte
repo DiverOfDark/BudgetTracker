@@ -3,6 +3,7 @@
 </svelte:head>
 
 <script>
+/*
     import {PaymentController, PaymentViewModelController, DebtModelController, MoneyColumnMetadataModelController, SpentCategoryModelController} from '../../generated-types';
     import {compare} from '../../services/Shared'
     import { navigateTo } from '../../svero/utils';
@@ -23,9 +24,9 @@
         navigateTo("/Payment");
     }
 
-    load();
+    load();*/
 </script>
-
+<!--
 <div class="container">
     <div class="row row-cards row-deck">
         <div class="col-12">
@@ -87,4 +88,4 @@
             </div>
         </div>
     </div>
-</div>
+</div>-->
