@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using BudgetTracker.Model;
 using BudgetTracker.Services;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using OutCode.EscapeTeams.ObjectRepository;
 
 namespace BudgetTracker.GrpcServices
@@ -16,7 +16,7 @@ namespace BudgetTracker.GrpcServices
         private Timer _timer;
         private readonly SystemInfo _model;
 
-        public SystemInfoViewModel(UpdateService updateService, ObjectRepository objectRepository, IHttpContextAccessor accessor): base(accessor)
+        public SystemInfoViewModel(UpdateService updateService, ObjectRepository objectRepository, ILogger<SystemInfoViewModel> logger) : base(logger)
         {
             _updateService = updateService;
             _objectRepository = objectRepository;

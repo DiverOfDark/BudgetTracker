@@ -2,7 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
 using Google.Protobuf;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using OpenQA.Selenium.Support.Extensions;
 
 namespace BudgetTracker.GrpcServices
@@ -13,7 +13,7 @@ namespace BudgetTracker.GrpcServices
         private readonly Chrome _chrome;
         private readonly Screenshot _model;
 
-        public ScreenshotViewModel(Chrome chrome, IHttpContextAccessor accessor): base(accessor)
+        public ScreenshotViewModel(Chrome chrome, ILogger<ScreenshotViewModel> logger) : base(logger)
         {
             _chrome = chrome;
             _model = new Screenshot();

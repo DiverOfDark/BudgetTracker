@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using BudgetTracker.Model;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using OutCode.EscapeTeams.ObjectRepository;
 
 namespace BudgetTracker.GrpcServices
@@ -12,7 +12,7 @@ namespace BudgetTracker.GrpcServices
     {
         private readonly ObjectRepository _repository;
 
-        public DebtsViewModel(ObjectRepository repository, IHttpContextAccessor accessor): base(accessor)
+        public DebtsViewModel(ObjectRepository repository, ILogger<DebtsViewModel> logger) : base(logger)
         {
             _repository = repository;
         }

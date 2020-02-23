@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using BudgetTracker.Model;
 using BudgetTracker.Scrapers;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using OutCode.EscapeTeams.ObjectRepository;
 
 namespace BudgetTracker.GrpcServices
@@ -16,7 +16,7 @@ namespace BudgetTracker.GrpcServices
         private readonly List<string> _scrapers;
         private Settings _model;
 
-        public SettingsViewModel(ObjectRepository objectRepository, IEnumerable<GenericScraper> scrapers, IHttpContextAccessor accessor): base(accessor)
+        public SettingsViewModel(ObjectRepository objectRepository, IEnumerable<GenericScraper> scrapers, ILogger<SettingsViewModel> logger) : base(logger)
         {
             _objectRepository = objectRepository;
             _scrapers = scrapers.Select(v=>v.ProviderName).OrderBy(v=>v).ToList();

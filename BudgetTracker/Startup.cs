@@ -80,6 +80,9 @@ namespace BudgetTracker
 
             services.AddTransient(x => new TableViewModelFactory(x.GetRequiredService<ObjectRepository>()));
             services.AddTransient<ScriptService>();
+
+            services.AddSingleton<GrpcProvider>();
+            
             services.AddSingleton<SmsRuleProcessor>();
             services.AddSingleton<UpdateService>();
             services.AddHangfire(x=>{ });
@@ -160,7 +163,6 @@ namespace BudgetTracker
         {
             app.UseResponseCompression();
             app.UseDeveloperExceptionPage();
-            
             var objRepoLogger = loggerFactory.CreateLogger("ObjectRepository");
             void OnError(Exception ex) => objRepoLogger.LogError(ex, ex.Message);
             
@@ -179,7 +181,8 @@ namespace BudgetTracker
             app.UseStatusCodePagesWithReExecute("/Error", "?statusCode={0}");
             app.UseExceptionHandler("/Error");
             app.UseStaticFiles();
-            
+            app.UseSession();
+
             app.Use(async (context, next) =>
             {
                 context.Response.GetTypedHeaders().CacheControl = 
@@ -193,7 +196,6 @@ namespace BudgetTracker
             
             app.UseRouting();
             app.UseGrpcWeb();
-            app.UseSession();
             app.UseAuthentication();
             app.UseAuthorization();
             
