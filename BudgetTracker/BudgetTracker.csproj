@@ -13,7 +13,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.4.0" />
     <PackageReference Include="Octokit" Version="0.37.0" />
     <PackageReference Include="OutCode.EscapeTeams.ObjectRepository.LiteDB" Version="1.0.124" />
-    <PackageReference Include="OutCode.EscapeTeams.ObjectRepository.Hangfire" Version="1.0.124" />
+    <PackageReference Include="OutCode.EscapeTeams.ObjectRepository.Hangfire" Version="1.0.153" />
     <PackageReference Include="Selenium.Support" Version="3.141.0" />
     <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />
     <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="80.0.3987.1600" />
