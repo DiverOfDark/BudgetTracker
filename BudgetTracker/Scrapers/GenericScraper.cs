@@ -37,7 +37,7 @@ namespace BudgetTracker.Scrapers
 
         protected void WaitForPageLoad(ChromeDriver driver, int times = 5)
         {
-            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(0.5));
+            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
             wait.Until(wd => wd.ExecuteJavaScript<string>("return document.readyState") == "complete");
             Thread.Sleep(times * 1000);
         }
