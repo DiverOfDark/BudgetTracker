@@ -7,9 +7,10 @@ namespace BudgetTracker
     {
         public const string RUB = "RUB";
         public const string EUR = "EUR";
+        public const string GBP = "GBP";
         public const string USD = "USD";
 
-        public static readonly IEnumerable<String> KnownCurrencies = new[] {RUB, USD, EUR};
+        public static readonly IEnumerable<String> KnownCurrencies = new[] {RUB, GBP, USD, EUR};
 
         public static string NormalizeCcy(string value)
         {
@@ -20,6 +21,9 @@ namespace BudgetTracker
                 value.ToLower().Contains("р") || 
                 value.Contains("₽"))
                 return RUB;
+            
+            if (value.ToLower().Contains("£"))
+                return GBP;
             if (value.ToLower().Contains("$"))
                 return USD;
             if (value.ToLower().Contains("€"))
@@ -34,6 +38,8 @@ namespace BudgetTracker
             {
                 case RUB:
                     return "₽";
+                case GBP:
+                    return "£";
                 case USD:
                     return "$";
                 case EUR:
