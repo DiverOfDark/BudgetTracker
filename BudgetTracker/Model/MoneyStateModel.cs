@@ -34,10 +34,25 @@ namespace BudgetTracker.Model
 
         protected override BaseEntity Entity => _entity;
 
+        private MoneyColumnMetadataModel _lastSetColumn = null;
         public MoneyColumnMetadataModel Column
         {
-            get => Single<MoneyColumnMetadataModel>(_entity.ColumnId);
-            set => UpdateProperty(_entity, () => x => x.ColumnId, (Guid?)value.Id);
+            get
+            {
+                var model = _lastSetColumn;
+                if (model != null)
+                {
+                    return model;
+                }
+
+                model = Single<MoneyColumnMetadataModel>(_entity.ColumnId);
+                return model;
+            }
+            set
+            {
+                UpdateProperty(_entity, () => x => x.ColumnId, (Guid?) value.Id);
+                _lastSetColumn = value;
+            }
         }
 
         public double Amount

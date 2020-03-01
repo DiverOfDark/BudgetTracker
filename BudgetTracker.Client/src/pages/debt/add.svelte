@@ -59,6 +59,7 @@
                 <option value="RUB">₽</option>
                 <option value="USD">$</option>
                 <option value="EUR">€</option>
+                <option value="GBP">£</option>
             </select>
         </div>
     </div>

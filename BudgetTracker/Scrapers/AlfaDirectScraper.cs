@@ -75,8 +75,8 @@ namespace BudgetTracker.Scrapers
 
                 if (!double.TryParse(activeCurrentPrice, NumberStyles.Any, new NumberFormatInfo{NumberDecimalSeparator = "."}, out var amount))
                     continue;
-                
-                result.Add(Money(activeName ?? activeType, amount, ccy));
+
+                result.Add(Money(activeName ?? (activeType + " " + ccy), amount, ccy));
             }
 
             var totals = result.GroupBy(v => v.Ccy).Select(s => Money("Итого " + s.Key, s.Sum(v => v.Amount), s.Key)).ToList();

@@ -54,6 +54,8 @@ namespace BudgetTracker.Controllers
             existingModel.UserFriendlyName = userFriendlyName;
             existingModel.AutogenerateStatements = autogenerateStatements;
 
+            _objectRepository.Remove<MoneyStateModel>(v => v.Column.IsComputed && v.When.Date == DateTime.Today.Date);
+
             return Ok();
         }
 
