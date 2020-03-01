@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using BudgetTracker.Model;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
@@ -28,15 +29,16 @@ namespace BudgetTracker.Scrapers
                 double.Parse(sps, new NumberFormatInfo() {NumberDecimalSeparator = ",", NumberGroupSeparator = "."}),
                 CurrencyExtensions.USD));
 
-            foreach (var item in CurrencyExtensions.KnownCurrencies)
+            foreach (var item in CurrencyExtensions.KnownCurrencies.Where(v => v != CurrencyExtensions.RUB))
             {
                 driver.Navigate().GoToUrl($"https://ru.investing.com/currencies/{item.ToLower()}-rub");
                 sps = GetElement(driver, By.Id("last_last")).Text;
                 var itemRub = item + "/" + CurrencyExtensions.RUB;
                 result.Add(Money(itemRub,
-                    double.Parse(sps, new NumberFormatInfo { NumberDecimalSeparator = ",", NumberGroupSeparator = "." }),itemRub));
+                    double.Parse(sps, new NumberFormatInfo {NumberDecimalSeparator = ",", NumberGroupSeparator = "."}),
+                    itemRub));
             }
-                
+
             return result;
         }
     }
