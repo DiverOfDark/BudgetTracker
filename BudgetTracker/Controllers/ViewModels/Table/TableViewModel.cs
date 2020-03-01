@@ -114,7 +114,7 @@ namespace BudgetTracker.Controllers.ViewModels.Table
             {
                 foreach (var cell in r.CalculatedCells.Values.OfType<ExpressionCalculatedResult>())
                 {
-                    if (cell.IsOk && cell.Value != null && r.When.Date != DateTime.Today.Date)
+                    if (cell.IsOk && cell.Value != null)
                     {
                         repository.Add(new MoneyStateModel
                         {
