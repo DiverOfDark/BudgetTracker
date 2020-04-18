@@ -1,4 +1,7 @@
-﻿namespace BudgetTracker
+﻿using System;
+using System.Collections.Generic;
+
+namespace BudgetTracker
 {
     public static class CurrencyExtensions
     {
