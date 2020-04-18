@@ -6,6 +6,8 @@ package Protos;
 import "Settings.proto";
 import "Commons.proto";
 import "Debts.proto";
+import "Payments.proto";
+import "SpentCategories.proto";
 
 service SoWService {
   // Settings
@@ -25,4 +27,15 @@ service SoWService {
   rpc GetDebts (Empty) returns (stream Debts.DebtsStream);
   rpc EditDebt (Debts.Debt) returns (Empty);
   rpc DeleteDebt (UUID) returns (Empty);
+  
+  // Payments
+  rpc GetPayments (Empty) returns (stream Payments.PaymentsStream);
+
+  rpc EditPayment (Payments.Payment) returns (Empty);
+  rpc SplitPayment (Payments.SplitPaymentRequest) returns (Empty);
+  rpc DeletePayment (UUID) returns (Empty);
+
+  rpc GetSpentCategories (Empty) returns (stream SpentCategories.SpentCategoriesStream);
+  rpc EditSpentCategory (SpentCategories.SpentCategory) returns (Empty);
+  rpc DeleteSpentCategory (UUID) returns (Empty);
 }

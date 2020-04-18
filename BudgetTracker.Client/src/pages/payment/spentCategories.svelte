@@ -1,41 +1,89 @@
 <svelte:head>
     <title>BudgetTracker - Категории расходов</title>
 </svelte:head>
-
-<script>
-    import {SpentCategoryModelController, PaymentController } from '../../generated-types';
+<script lang="ts">
+    import Form from './editCategory.svelte';
+    import Modal from '../../components/Modal.svelte';
+    import SoWService from '../../services/SoWService';
     import {compare} from '../../services/Shared';
-    import { navigateTo } from '../../svero/utils';
+    import * as protos from '../../generated/SpentCategories_pb';
+    import { writable, get } from 'svelte/store';
+    import { onDestroy } from 'svelte';
 
-    let categories = [];
+    let spentCategories = writable<protos.SpentCategory.AsObject[]>([]);
 
     let newCategory = "";
     let newPattern = "";
-    let newKind = "";
+    let newKind = 0;
+    let showEdit = false;
+    let editSpentCategoryModel: protos.SpentCategory.AsObject | undefined = undefined;
 
-    async function load() {
-        categories = await SpentCategoryModelController.list();
-        categories.sort((a,b) => compare(a.category, b.category) * 10 + compare(a.pattern, b.pattern));
+    function getDisplayName(kind: any) {
+        if (kind == 0)
+            return "Трата";
+        if (kind == 1)
+            return "Доход";
+        if (kind == 2)
+            return "Перевод";
+        return "Неизвестно";
     }
 
-    let edit = function(id) {
-        navigateTo("/Payment/Category/Edit/" + id);
+    function categorySort(a: protos.SpentCategory.AsObject, b: protos.SpentCategory.AsObject): number {
+        return compare(a.category, b.category) * 10 + compare(a.pattern, b.pattern);
     }
 
-    let deleteCategory = async function(id) {
-        await SpentCategoryModelController.delete(id);
-        await load();
+    function parseSpentCategories(stream: protos.SpentCategoriesStream.AsObject) {
+        if (stream.added) {
+            let newCategories = get(spentCategories);
+            newCategories = [...newCategories, stream.added];
+            newCategories.sort(categorySort);
+            spentCategories.set(newCategories);
+        } else if (stream.removed) {
+            let newCategories = get(spentCategories);
+            newCategories = newCategories.filter((f: protos.SpentCategory.AsObject) => f.id!.value != stream.removed!.id!.value);
+            newCategories.sort(categorySort);
+            spentCategories.set(newCategories);
+        } else if (stream.updated) {
+            let newCategories = get(spentCategories);
+            newCategories = newCategories.map((f: protos.SpentCategory.AsObject) => {
+                if (f.id!.value == stream.updated!.id!.value) {
+                    return stream!.updated;
+                }
+                return f;
+            });
+            newCategories.sort(categorySort);
+            spentCategories.set(newCategories);
+        } else if (stream.snapshot) {
+            let newCategories = stream.snapshot.spentcategoriesList;
+            newCategories.sort(categorySort);
+            spentCategories.set(newCategories);
+        } else {
+            console.error("Unsupported operation");
+        }
+    }
+
+    let edit = function(category: protos.SpentCategory.AsObject) {
+        editSpentCategoryModel = category;
+        showEdit = true;
+    }
+
+    let deleteCategory = async function(category: protos.SpentCategory.AsObject) {
+        SoWService.deleteSpentCategory(category.id!);
     }
 
     let create = async function() {
-        await PaymentController.createCategory(newPattern, newCategory, newKind);
-        await load();
+        SoWService.createSpentCategory(newCategory, newPattern, newKind);
         newCategory = "";
         newPattern = "";
-        newKind = "";
+        newKind = 0;
     }
 
-    load();
+    let unsubscribe = SoWService.getSpentCategories(parseSpentCategories);
+
+    onDestroy(unsubscribe);
+
+    // used in view
+    newCategory; newPattern; newKind; deleteCategory; edit; create; getDisplayName; showEdit; Modal; Form; editSpentCategoryModel;
 </script>
 
 <div class="container">
@@ -58,16 +106,16 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {#each categories as category, idx}
+                                {#each $spentCategories as category, idx}
                                 <tr>
                                     <td>{category.category}</td>
-                                    <td>{category.kind}</td>
+                                    <td>{getDisplayName(category.kind)}</td>
                                     <td>{category.pattern || ''}</td>
                                     <td>
-                                        <button class="btn btn-link btn-anchor" on:click="{() => edit(category.id)}">
+                                        <button class="btn btn-link btn-anchor" on:click="{() => edit(category)}">
                                             <span class="fe fe-edit"></span>
                                         </button>
-                                        <button class="btn btn-link btn-anchor" on:click="{() => deleteCategory(category.id)}">
+                                        <button class="btn btn-link btn-anchor" on:click="{() => deleteCategory(category)}">
                                             <span class="fe fe-x-circle"></span>
                                         </button>
                                     </td>
@@ -100,3 +148,12 @@
         </div>
     </div>
 </div>
+
+{#if showEdit}
+<Modal bind:show="{showEdit}">
+    <div slot="title">
+        Редактировать категорию
+    </div>
+    <Form model="{editSpentCategoryModel}" on:close="{() => showEdit = false}" />
+</Modal>
+{/if}

@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+option csharp_namespace = "BudgetTracker";
+
+package Protos.Payments;
+
+import "Commons.proto";
+
+message Payment {
+    UUID id = 1;
+
+    string what = 2;
+    string ccy = 3;
+    
+    double amount = 4;
+    
+    Timestamp when = 5;
+    
+    string provider = 6;
+    string account = 7;
+    string statementReference = 8;
+    string sms = 9;
+    
+    UUID categoryId = 10;
+    string category = 11;
+
+    UUID debtId = 12;
+    string debt = 13;
+    
+    UUID columnId = 14;
+    
+    PaymentKind kind = 15;
+}
+
+enum PaymentKind {
+    EXPENSE = 0;
+    INCOME = 1;
+    TRANSFER = 2;
+    UNKNOWN = -1;
+}
+
+message PaymentGroup {
+    
+}
+
+message PaymentView {
+    oneof row {
+        Payment payment = 1;
+        PaymentGroup group = 2;
+    }
+}
+
+message PaymentsList {
+    repeated PaymentView payments = 1;
+}
+
+message PaymentsStream {
+    oneof update {
+        PaymentsList snapshot = 1;
+        PaymentView added = 2;
+        PaymentView removed = 3;
+        PaymentView updated = 4;
+    }
+}
+
+message SplitPaymentRequest {
+    UUID id = 1;
+    double amount = 2;
+}

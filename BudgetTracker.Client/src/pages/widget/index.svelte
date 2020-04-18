@@ -6,7 +6,8 @@
     import Link from '../../svero/Link.svelte';
     import { navigateTo } from '../../svero/utils';
 
-    import { WidgetController, WidgetViewModel } from '../../generated-types';
+    import { WidgetController } from '../../generated-types';
+    import * as interfaces from '../../generated-types';
     import donutWidget from './Widgets/donutWidget.svelte';
     import linearChartWidget from './Widgets/linearChartWidget.svelte';
     import deltaWidget from './Widgets/deltaWidget.svelte';
@@ -46,7 +47,7 @@
         await loadData();
     }
 
-    let createComponent = function(widget: WidgetViewModel):any {
+    let createComponent = function(widget: interfaces.WidgetViewModel):any {
         switch(widget.kind) {
             case "LastValueWidgetViewModel":
                 return lastValueWidget;

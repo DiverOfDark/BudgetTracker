@@ -1,3 +1,4 @@
+<!--
 <script>
     export let payment;
     export let hideCategorized;
@@ -100,3 +101,4 @@
         </tr>
     {/if}
 {/if}
+-->

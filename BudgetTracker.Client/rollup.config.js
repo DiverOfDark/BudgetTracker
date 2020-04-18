@@ -60,7 +60,6 @@ export default {
 	plugins: [
 		progress(),
 		sizeSnapshot(), 
-		sizes(),
 		svelte({
 			// enable run-time checks when not in production
 			dev: !production,
@@ -87,6 +86,7 @@ export default {
 		babel({
 			exclude: 'node_modules/**' // only transpile our source code
 		  }),
+        sizes(),
 
 		// If we're building for production (npm run build
 		// instead of npm run dev), minify

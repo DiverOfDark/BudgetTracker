@@ -2,6 +2,8 @@ import proto, { SoWServicePromiseClient } from '../generated/StateOfTheWorld_grp
 import protoSettings from '../generated/Settings_pb';
 import protoDebts from '../generated/Debts_pb';
 import protoCommons from '../generated/Commons_pb';
+import protoSpentCategories from '../generated/SpentCategories_pb';
+import protoPayments from '../generated/Payments_pb';
 import { writable } from 'svelte/store';
 import { ClientReadableStream } from 'grpc-web';
 
@@ -125,6 +127,35 @@ export class SoWService {
         await this.SoWClient.editDebt(request);
     }
 
+    async deleteSpentCategory(id: protoCommons.UUID.AsObject) {
+        let request = new protoCommons.UUID();
+        request.setValue(id.value);
+        await this.SoWClient.deleteSpentCategory(request);
+    }
+
+    async updateSpentCategory(category: protoSpentCategories.SpentCategory.AsObject) {
+        let request = new protoSpentCategories.SpentCategory();
+        let uuid = new protoCommons.UUID();
+
+        if (category.id) {
+            uuid.setValue(category.id.value);
+        }
+        request.setId(uuid);
+        request.setCategory(category.category);
+        request.setPattern(category.pattern);
+        request.setKind(category.kind);
+
+        await this.SoWClient.editSpentCategory(request);
+    }
+
+    async createSpentCategory(category: string, pattern: string, kind: protoPayments.PaymentKind) {
+        let categoryObject = new protoSpentCategories.SpentCategory().toObject();
+        categoryObject.category = category;
+        categoryObject.pattern = pattern;
+        categoryObject.kind = kind;
+        this.updateSpentCategory(categoryObject);
+    }
+
     getScreenshot(callback: (base64Image: string) => void): () => void  {
         return this.reconnect(x => x.getScreenshot(this.Empty), response => {
             let object = response.getContents_asB64();
@@ -148,6 +179,20 @@ export class SoWService {
 
     getDebts(callback: (debts: protoDebts.DebtsStream.AsObject) => void): () => void {
         return this.reconnect(x=>x.getDebts(this.Empty), response => {
+            let object = response.toObject(false);
+            callback(object);
+        })
+    }
+
+    getSpentCategories(callback: (spentCategories: protoSpentCategories.SpentCategoriesStream.AsObject) => void) : () => void {
+        return this.reconnect(x=>x.getSpentCategories(this.Empty), response => {
+            let object = response.toObject(false);
+            callback(object);
+        })
+    }
+
+    getPayments(callback: (payments: protoPayments.PaymentsStream.AsObject) => void) : () => void {
+        return this.reconnect(x=>x.getPayments(this.Empty), response => {
             let object = response.toObject(false);
             callback(object);
         })

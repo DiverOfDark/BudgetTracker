@@ -2,17 +2,20 @@
     <title>BudgetTracker - Движение денежных средств</title>
 </svelte:head>
 
-<script>
-/*
+<script lang="ts">
     import Link from '../../svero/Link.svelte';
+
+    let hideCategorized = false;
+
+
+    Link; hideCategorized; // used in view
+/*
     import moment from 'moment';
 
     import {PaymentController, PaymentViewModelController, SpentCategoryJsModel, DebtModelController } from '../../generated-types';
     import {compare, formatMoney} from '../../services/Shared';
     import { tooltip } from '../../services/Tooltip'
     import PaymentRow from './paymentRow.svelte';
-
-    let hideCategorized = false;
 
     let sorting = "date"; // "amount"
 
@@ -226,7 +229,6 @@
 </style>
 
 <div></div>
-<!--
 <div class="container">
     <div class="row row-cards row-deck">
         <div class="col-12">
@@ -245,6 +247,7 @@
                         </button>
                     </div>
                 </div>
+<!--
                 <div class="card-header">
                     {#each categories as category}
                         <span on:drop={event => drop(event, category)} on:dragover={dragover} class="btn btn-sm {category.isDebt ? "btn-warning" : "btn-success"} p-1 m-1" style="cursor: no-drop">
@@ -309,8 +312,8 @@
                         {/each}
                         </tbody>
                     </table>
-                </div>
+                </div>-->
             </div>
         </div>
     </div>
-</div>-->
+</div>

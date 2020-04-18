@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using BudgetTracker.Model;
 using BudgetTracker.Services;
 using Google.Protobuf;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
 using Nito.AsyncEx;
+using OutCode.EscapeTeams.ObjectRepository;
 
 namespace BudgetTracker.GrpcServices
 {
@@ -16,17 +17,22 @@ namespace BudgetTracker.GrpcServices
 
         private readonly ConcurrentQueue<T> _queue = new ConcurrentQueue<T>();
 
-        protected virtual Task Init() => Task.CompletedTask;
-
-        public GrpcViewModelBase(ILogger logger)
+        public GrpcViewModelBase(ObjectRepository objectRepository, ILogger logger)
         {
+            ObjectRepository = objectRepository;
+            logger.LogInformation($"Creating {GetType().Name}.");
+            
             Anchors.Add(() =>
             {
                 logger.LogInformation($"Disposing {GetType().Name}.");
                 _sendModelEvent.Set();
             });
         }
-        
+
+        protected ObjectRepository ObjectRepository { get; }
+
+        protected abstract Task Init();
+
         protected void SendUpdate(T model)
         {
             _queue.Enqueue(model);
@@ -36,6 +42,8 @@ namespace BudgetTracker.GrpcServices
         public async Task Send(IServerStreamWriter<T> writer, ServerCallContext context) 
         {
             await Init();
+            ObjectRepository.ModelChanged += OnModelRepositoryChanged;
+            Anchors.Add(() => ObjectRepository.ModelChanged -= OnModelRepositoryChanged);
             try
             {
                 while (!context.CancellationToken.IsCancellationRequested && !IsDisposed)
@@ -55,6 +63,10 @@ namespace BudgetTracker.GrpcServices
             {
                 // cancelled, not an issue                
             }
+        }
+
+        protected virtual void OnModelRepositoryChanged(ModelChangedEventArgs obj)
+        {
         }
     }
 }

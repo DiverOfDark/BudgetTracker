@@ -1,11 +1,12 @@
 ﻿
 <script lang="ts">
     import LinearChartWidget from './Widgets/linearChartWidget.svelte';
-    import { TableController, LinearChartWidgetViewModel } from '../../generated-types';
+    import { TableController } from '../../generated-types';
+    import * as interfaces from '../../generated-types';
 
     export let router: any = {};
 
-	let widgetModel: LinearChartWidgetViewModel = {
+	let widgetModel: interfaces.LinearChartWidgetViewModel = {
         title: '',
         period: 0,
         values: [],
@@ -48,9 +49,3 @@
         </div>
     </div>
 </div>
-<!--
-@{
-    ViewData["Title"] = Model.Title;
-    ViewBag.FullScreen = true;
-}
--->

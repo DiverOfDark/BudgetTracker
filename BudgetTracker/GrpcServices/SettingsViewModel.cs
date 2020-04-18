@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using BudgetTracker.Model;
 using BudgetTracker.Scrapers;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using OutCode.EscapeTeams.ObjectRepository;
 
@@ -12,13 +11,11 @@ namespace BudgetTracker.GrpcServices
 {
     public class SettingsViewModel : GrpcViewModelBase<Settings>
     {
-        private readonly ObjectRepository _objectRepository;
         private readonly List<string> _scrapers;
-        private Settings _model;
+        private readonly Settings _model;
 
-        public SettingsViewModel(ObjectRepository objectRepository, IEnumerable<GenericScraper> scrapers, ILogger<SettingsViewModel> logger) : base(logger)
+        public SettingsViewModel(ObjectRepository objectRepository, IEnumerable<GenericScraper> scrapers, ILogger<SettingsViewModel> logger) : base(objectRepository, logger)
         {
-            _objectRepository = objectRepository;
             _scrapers = scrapers.Select(v=>v.ProviderName).OrderBy(v=>v).ToList();
             _model = new Settings { CanDownloadDbDump = !string.IsNullOrWhiteSpace(Startup.DbFileName) };
         }
@@ -26,11 +23,8 @@ namespace BudgetTracker.GrpcServices
         protected override Task Init()
         {
             UpdateScraperConfigs();
-            
-            _objectRepository.ModelChanged += ModelHandler;
-            Anchors.Add(() => _objectRepository.ModelChanged -= ModelHandler);
             SendUpdate(_model);
-            return base.Init();
+            return Task.CompletedTask;
         }
 
         private void UpdateScraperConfigs()
@@ -38,7 +32,7 @@ namespace BudgetTracker.GrpcServices
             string FormatDateTime(DateTime? from) => from == null ? "" : from.Value != default ? from.Value.ToString("g") : "-";
 
             _model.ScraperConfigs.Clear();
-            var configs = _objectRepository.Set<ScraperConfigurationModel>();
+            var configs = ObjectRepository.Set<ScraperConfigurationModel>();
             foreach (string scraperName in _scrapers)
             {
                 var config = configs.FirstOrDefault(v => v.ScraperName == scraperName);
@@ -58,7 +52,7 @@ namespace BudgetTracker.GrpcServices
             }
         }
 
-        private void ModelHandler(ModelChangedEventArgs obj)
+        protected override void OnModelRepositoryChanged(ModelChangedEventArgs obj)
         {
             if (obj.Source is ScraperConfigurationModel)
             {
@@ -79,18 +73,17 @@ namespace BudgetTracker.GrpcServices
                 Login = login,
                 Password = password
             };
-
-            _objectRepository.Add(scm);
+            ObjectRepository.Add(scm);
         }
 
         public void DeleteConfig(Guid id)
         {
-            _objectRepository.Remove<ScraperConfigurationModel>(v=>v.Id == id);
+            ObjectRepository.Remove<ScraperConfigurationModel>(v=>v.Id == id);
         }
 
         public void ClearLastSuccessful(Guid id)
         {
-            var model = _objectRepository.Set<ScraperConfigurationModel>().First(v => v.Id == id);
+            var model = ObjectRepository.Set<ScraperConfigurationModel>().First(v => v.Id == id);
             model.LastSuccessfulBalanceScraping = default;
             model.LastSuccessfulStatementScraping = default;
         }

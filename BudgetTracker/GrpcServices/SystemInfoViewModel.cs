@@ -12,14 +12,12 @@ namespace BudgetTracker.GrpcServices
     public class SystemInfoViewModel : GrpcViewModelBase<SystemInfo>
     {
         private readonly UpdateService _updateService;
-        private readonly ObjectRepository _objectRepository;
         private Timer _timer;
         private readonly SystemInfo _model;
 
-        public SystemInfoViewModel(UpdateService updateService, ObjectRepository objectRepository, ILogger<SystemInfoViewModel> logger) : base(logger)
+        public SystemInfoViewModel(UpdateService updateService, ObjectRepository objectRepository, ILogger<SystemInfoViewModel> logger) : base(objectRepository, logger)
         {
             _updateService = updateService;
-            _objectRepository = objectRepository;
             _model = new SystemInfo
             {
                 IsProduction = Startup.IsProduction,
@@ -27,33 +25,31 @@ namespace BudgetTracker.GrpcServices
                 HasNewerVersion = _updateService.HasNewerVersion,
                 LatestVersion = _updateService.LatestVersion,
                 LaunchTime = Startup.LaunchTime.ToLocalTime().ToString("G"),
-                Stats = _objectRepository.Stats()
+                Stats = ObjectRepository.Stats()
             };
         }
 
         protected override Task Init()
         {
-            _objectRepository.ModelChanged += ObjectRepositoryChanged;
             _updateService.PropertyChanged += UpdateServiceChanged;
             _timer = new Timer(100) {AutoReset = false};
             _timer.Elapsed += SendStatsUpdate;
             
             Anchors.Add(() =>
             {
-                _objectRepository.ModelChanged -= ObjectRepositoryChanged;
                 _updateService.PropertyChanged -= UpdateServiceChanged;
                 _timer.Elapsed -= SendStatsUpdate;
             });
             Anchors.Add(_timer.Dispose);
             SendUpdate(_model);
 
-            return base.Init();
+            return Task.CompletedTask;
         }
 
         private void SendStatsUpdate(object sender, ElapsedEventArgs e)
         {
             _timer.Enabled = false;
-            _model.Stats = _objectRepository.Stats();
+            _model.Stats = ObjectRepository.Stats();
             SendUpdate(_model);
         }
 
@@ -64,7 +60,7 @@ namespace BudgetTracker.GrpcServices
             SendUpdate(_model);
         }
 
-        private void ObjectRepositoryChanged(ModelChangedEventArgs obj)
+        protected override void OnModelRepositoryChanged(ModelChangedEventArgs obj)
         {
             if ((obj.ChangeType == ChangeType.Add || obj.ChangeType == ChangeType.Remove) && obj.Entity.GetType().Assembly == typeof(SystemInfoViewModel).Assembly)
             {

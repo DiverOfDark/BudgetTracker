@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+option csharp_namespace = "BudgetTracker";
+
+package Protos.SpentCategories;
+
+import "Commons.proto";
+import "Payments.proto";
+
+message SpentCategory {
+    UUID id = 1;
+    string pattern = 2;
+    string category = 3;
+    Payments.PaymentKind Kind = 4;
+}
+
+message SpentCategoryList {
+    repeated SpentCategory spentCategories = 1;
+}
+
+message SpentCategoriesStream {
+    oneof update  {
+        SpentCategoryList snapshot = 1;
+        SpentCategory added = 2;
+        SpentCategory removed = 3;
+        SpentCategory updated = 4;
+    }
+}

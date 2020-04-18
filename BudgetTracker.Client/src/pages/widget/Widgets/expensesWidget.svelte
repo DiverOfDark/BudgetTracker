@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ExpensesWidgetViewModel } from './../../../generated-types';
+	import * as interfaces from './../../../generated-types';
     import { formatMoney } from './../../../services/Shared';
 	import tabler from './../../../tabler';
 	import { onMount, onDestroy } from 'svelte';
@@ -11,7 +11,7 @@
 	//@ts-ignore
 	import ChartDoughnutLabel from 'chartjs-plugin-doughnutlabel';
 
-	export let model: ExpensesWidgetViewModel = {
+	export let model: interfaces.ExpensesWidgetViewModel = {
         title: '',
         period: 0,
         names: [],

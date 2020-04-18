@@ -7,32 +7,32 @@
     import Link from '../../svero/Link.svelte';
     import Modal from '../../components/Modal.svelte';
     import SoWService from '../../services/SoWService';
-    import { Timestamp } from '../../generated/Commons_pb';
-    import { Debt, DebtView, DebtsStream } from '../../generated/Debts_pb';
+    import * as commons from '../../generated/Commons_pb';
+    import * as protos from '../../generated/Debts_pb';
     import {formatMoney} from '../../services/Shared'
     import { writable, get } from 'svelte/store';
     import { onDestroy } from 'svelte';
     import { formatUnixDate } from '../../services/Shared';
 
-    let debts = writable<DebtView.AsObject[]>([]);
+    let debts = writable<protos.DebtView.AsObject[]>([]);
 
     let showCreate = false;
     let showEdit = false;
 
-    let editDebtModel: Debt.AsObject | undefined = undefined;
+    let editDebtModel: protos.Debt.AsObject | undefined = undefined;
     
-    function parseDebts(stream: DebtsStream.AsObject) {
+    function parseDebts(stream: protos.DebtsStream.AsObject) {
         if (stream.added) {
             let newDebts = get(debts);
             newDebts = [...newDebts, stream.added];
             debts.set(newDebts);
         } else if (stream.removed) {
             let newDebts = get(debts);
-            newDebts = newDebts.filter((f: DebtView.AsObject) => f.model!.id!.value != stream.removed!.model!.id!.value);
+            newDebts = newDebts.filter((f: protos.DebtView.AsObject) => f.model!.id!.value != stream.removed!.model!.id!.value);
             debts.set(newDebts);
         } else if (stream.updated) {
             let newDebts = get(debts);
-            newDebts = newDebts.map((f: DebtView.AsObject) => {
+            newDebts = newDebts.map((f: protos.DebtView.AsObject) => {
                 if (f.model!.id!.value == stream.updated!.model!.id!.value) {
                     return stream!.updated;
                 }
@@ -47,7 +47,7 @@
         }
     }
 
-    function formatTimestamp(timestamp: Timestamp.AsObject) {
+    function formatTimestamp(timestamp: commons.Timestamp.AsObject) {
          return formatUnixDate(timestamp.seconds + timestamp.nanos / 10e9);
     }
 
@@ -55,12 +55,12 @@
         showCreate = true;
     }
 
-    function editDebt(debt: DebtView.AsObject) {
+    function editDebt(debt: protos.DebtView.AsObject) {
         editDebtModel = debt.model;
         showEdit = true;
     }
 
-    async function deleteDebt(debt: DebtView.AsObject) {
+    async function deleteDebt(debt: protos.DebtView.AsObject) {
         await SoWService.deleteDebt(debt.model!.id!);
     }
 

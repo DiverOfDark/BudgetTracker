@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { LastValueWidgetViewModel } from './../../../generated-types';
+	import * as interfaces from './../../../generated-types';
 	import Link from '../../../svero/Link.svelte';
     import { formatMoney, formatDate, formatDateJs } from './../../../services/Shared';
 	import { onMount, onDestroy } from 'svelte';
@@ -7,7 +7,7 @@
 	import tabler from './../../../tabler';
 	import Chart from 'chart.js';
 
-	export let model: LastValueWidgetViewModel = {
+	export let model: interfaces.LastValueWidgetViewModel = {
 		account: '',
 		color: '',
 		colorYear: '',
@@ -18,7 +18,7 @@
 		deltaYear: '',
 		description: '',
 		exemptTransfers: false,
-		graphKind: '',
+		graphKind: interfaces.GraphKindEnum.Differential,
 		incompleteData: false,
 		isCompact: false,
 		provider: '',
@@ -67,12 +67,12 @@
 			var chartItems : number[] = goodItems.map(v => <number> v[1]);
 			var datesItems : string[] = goodItems.map(v => <string> v[0]);
 
-			if (model.graphKind == 'Differential')
+			if (model.graphKind.getId() == interfaces.GraphKindEnum.Differential.getId())
 			{
 				chartItems = chartItems.map((a,b) => b == 0 ? a : a - chartItems[b-1]);
 				datesItems.slice(1);
 			}
-			else if (model.graphKind == 'CumulativeFromTimePeriod')
+			else if (model.graphKind.getId() == interfaces.GraphKindEnum.CumulativeFromTimePeriod.getId())
 			{
 				chartItems = chartItems.map(a => a - chartItems[0]);
 			}

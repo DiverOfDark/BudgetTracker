@@ -32,12 +32,12 @@ import rest from './services/Rest';
             var types = typeof(Startup).Assembly.GetTypes();
             var exportableTypes = types.Where(v => v.GetCustomAttribute<ExportJsModelAttribute>() != null).ToList();
 
-            foreach (var type in types.Where(v => v.IsEnum).OrderBy(v => v.Name))
+            foreach (var type in exportableTypes.Where(v => v.IsEnum).OrderBy(v => v.Name))
             {
                 GenerateEnum(type);
             }
-            
-            foreach (var type in exportableTypes.OrderBy(v=>v.Name))
+
+            foreach (var type in exportableTypes.Where(v => !v.IsEnum).OrderBy(v => v.Name))
             {
                 GenerateType(type, exportableTypes);
             }
@@ -143,8 +143,8 @@ import rest from './services/Rest';
                     
                     if (jsMethod == "get")
                     {
-                        fileWrite.WriteLine($"    static async {GetMethodSignature(method)}: Promise<{GetTypescriptType(method.ReturnType, knownTypes)}> {{ ");
-                        fileWrite.WriteLine($"      return {boolPrefix}rest.{jsMethod}({GetMethodQuery(method, controllerName)}, {hasResponse.ToString().ToLower()}, {ShouldDeserialize(method.ReturnType).ToString().ToLower()}); ");
+                        fileWrite.WriteLine($"    static async {GetMethodSignature(method, knownTypes)}: Promise<{GetTypescriptType(method.ReturnType, knownTypes)}> {{ ");
+                        fileWrite.WriteLine($"      return {boolPrefix}rest.{jsMethod}({GetMethodQuery(method, controllerName, knownTypes)}, {hasResponse.ToString().ToLower()}, {ShouldDeserialize(method.ReturnType).ToString().ToLower()}); ");
                         fileWrite.WriteLine("    };");
                     }
                     else
@@ -156,7 +156,13 @@ import rest from './services/Rest';
                         fileWrite.WriteLine($"      let data = {{");
                         foreach (var v in enumerable)
                         {
-                            fileWrite.WriteLine($"          {v.original.Name}: {v.filtered},");
+                            var value = v.filtered;
+                            if (v.original.ParameterType.IsEnum)
+                            {
+                                value += ".getName()";
+                            }
+                            
+                            fileWrite.WriteLine($"          {v.original.Name}: {value},");
                         }
                         fileWrite.WriteLine($"      }}");
                         fileWrite.WriteLine($"      return {boolPrefix}rest.{jsMethod}({endpoint}, data, {hasResponse.ToString().ToLower()}, {ShouldDeserialize(method.ReturnType).ToString().ToLower()}); ");
@@ -202,7 +208,7 @@ import rest from './services/Rest';
             }
         }
 
-        private static string GetMethodQuery(MethodInfo method, string controllerName)
+        private static string GetMethodQuery(MethodInfo method, string controllerName, IEnumerable<Type> knownTypes)
         {
             var endpoint = $"`/{controllerName}/{method.Name}";
             var param = method.GetParameters();
@@ -211,7 +217,7 @@ import rest from './services/Rest';
                 endpoint += "?";
                 endpoint += param.Select(v =>
                 {
-                    var value = GetTypescriptType(v.ParameterType) == "string" ? "encodeURIComponent(" + FilterKeywords(v.Name) + ")" : FilterKeywords(v.Name); 
+                    var value = GetTypescriptType(v.ParameterType, knownTypes) == "string" ? "encodeURIComponent(" + FilterKeywords(v.Name) + ")" : FilterKeywords(v.Name); 
                     return v.Name + "=" + "` + " + value + " + `";
                 }).Join("&");
             }
@@ -314,10 +320,16 @@ import rest from './services/Rest';
             }
 
             string result = "";
-            
+
             if (knownTypes?.Contains(type) == true)
+            {
                 result = type.Name;
-            else if (type == typeof(String) || type == typeof(Guid) || type.IsEnum)
+                if (type.IsEnum)
+                {
+                    result += "Enum";
+                }
+            }
+            else if (type == typeof(String) || type == typeof(Guid))
                 result = "string";
             else if (type == typeof(int))
                 result = "number";

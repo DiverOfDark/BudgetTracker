@@ -7,6 +7,7 @@ using OutCode.EscapeTeams.ObjectRepository;
 
 namespace BudgetTracker.Model
 {
+    [ExportJsModel]
     public enum WidgetKind
     {
         [JsDisplayName("Не задан")] Unknown,

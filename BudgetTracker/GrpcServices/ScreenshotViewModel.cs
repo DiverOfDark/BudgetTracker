@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
+using BudgetTracker.Model;
 using Google.Protobuf;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium.Support.Extensions;
@@ -13,7 +14,7 @@ namespace BudgetTracker.GrpcServices
         private readonly Chrome _chrome;
         private readonly Screenshot _model;
 
-        public ScreenshotViewModel(Chrome chrome, ILogger<ScreenshotViewModel> logger) : base(logger)
+        public ScreenshotViewModel(Chrome chrome, ObjectRepository objectRepository, ILogger<ScreenshotViewModel> logger) : base(objectRepository, logger)
         {
             _chrome = chrome;
             _model = new Screenshot();
@@ -27,7 +28,7 @@ namespace BudgetTracker.GrpcServices
             SendScrenshot(null, null);
             Anchors.Add(timer.Dispose);
             Anchors.Add(() => timer.Elapsed -= SendScrenshot);
-            return base.Init();
+            return Task.CompletedTask;
         }
 
         private void SendScrenshot(object sender, ElapsedEventArgs e)

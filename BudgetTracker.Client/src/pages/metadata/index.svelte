@@ -1,11 +1,12 @@
 <script lang="ts">
-    import {MetadataController, MoneyColumnMetadataJsModel} from '../../generated-types';
+    import {MetadataController } from '../../generated-types';
+    import * as interfaces from '../../generated-types';
     
     import Link from '../../svero/Link.svelte';
 
-    let columns: MoneyColumnMetadataJsModel[] = [];
+    let columns: interfaces.MoneyColumnMetadataJsModel[] = [];
 
-    let getUsedIn = function(meta: MoneyColumnMetadataJsModel): MoneyColumnMetadataJsModel[] {
+    let getUsedIn = function(meta: interfaces.MoneyColumnMetadataJsModel): interfaces.MoneyColumnMetadataJsModel[] {
       return columns.filter(s=> s != meta && s.function != null && (s.function.indexOf("[" + meta.userFriendlyName + "]") != -1 || s.function.indexOf("[" + meta.provider + "/" + meta.accountName + "]") != -1))
     }
 

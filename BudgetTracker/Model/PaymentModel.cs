@@ -23,18 +23,6 @@ namespace BudgetTracker.Model
         }
     }
     
-    public enum PaymentKind
-    {
-        [JsDisplayName("Трата")]
-        Expense = 0,
-        [JsDisplayName("Доход")]
-        Income = 1,
-        [JsDisplayName("Перевод")]
-        Transfer = 2,
-        [JsDisplayName("Неизвестно")]
-        Unknown = -1
-    }
-    
     public class PaymentModel : ModelBase
     {
         public class PaymentEntity : BaseEntity

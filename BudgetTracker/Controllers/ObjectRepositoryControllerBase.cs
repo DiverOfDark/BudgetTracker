@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BudgetTracker.Controllers.ViewModels.Payment;
 using BudgetTracker.JsModel;
 using BudgetTracker.Model;
 using Microsoft.AspNetCore.Authorization;
@@ -45,24 +44,6 @@ namespace BudgetTracker.Controllers
             MoneyColumnMetadataJsModel>
     {
         public MoneyColumnMetadataModelController(ObjectRepository objectRepository) : base(objectRepository, x => new MoneyColumnMetadataJsModel(x))
-        {
-        }
-    }
-
-    [Obsolete]
-    public class SpentCategoryModelController : ObjectRepositoryControllerBase<SpentCategoryModel, SpentCategoryJsModel>
-    {
-        public SpentCategoryModelController(ObjectRepository objectRepository) : base(objectRepository,
-            v => new SpentCategoryJsModel(v))
-        {
-        }
-    }
-
-    [Obsolete]
-    public class PaymentViewModelController : ObjectRepositoryControllerBase<PaymentModel, PaymentViewModel>
-    {
-        public PaymentViewModelController(ObjectRepository objectRepository) : base(objectRepository,
-            @from => new PaymentViewModel(from))
         {
         }
     }

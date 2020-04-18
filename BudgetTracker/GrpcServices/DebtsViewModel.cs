@@ -10,22 +10,17 @@ namespace BudgetTracker.GrpcServices
 {
     public class DebtsViewModel : GrpcViewModelBase<DebtsStream>
     {
-        private readonly ObjectRepository _repository;
-
-        public DebtsViewModel(ObjectRepository repository, ILogger<DebtsViewModel> logger) : base(logger)
+        public DebtsViewModel(ObjectRepository objectRepository, ILogger<DebtsViewModel> logger) : base(objectRepository, logger)
         {
-            _repository = repository;
         }
 
         protected override Task Init()
         {
             SendSnapshot();
-            _repository.ModelChanged += Handler;
-            Anchors.Add(() => _repository.ModelChanged -= Handler);
             return Task.CompletedTask;
         }
 
-        private void Handler(ModelChangedEventArgs obj)
+        protected override void OnModelRepositoryChanged(ModelChangedEventArgs obj)
         {
             // TODO debounce
             if (obj.Source is DebtModel || obj.Source is PaymentModel)
@@ -77,7 +72,7 @@ namespace BudgetTracker.GrpcServices
         private void SendSnapshot()
         {
             var model = new DebtsStream {Snapshot = new DebtsList()};
-            model.Snapshot.Debts.AddRange(_repository.Set<DebtModel>().Select(ToDebtView).ToList());
+            model.Snapshot.Debts.AddRange(ObjectRepository.Set<DebtModel>().Select(ToDebtView).ToList());
             SendUpdate(model);
         }
 
@@ -87,11 +82,11 @@ namespace BudgetTracker.GrpcServices
             if (request.Id.ToGuid() == Guid.Empty)
             {
                 model = new DebtModel();
-                _repository.Add(model);
+                ObjectRepository.Add(model);
             }
             else
             {
-                model = _repository.Set<DebtModel>().First(v => v.Id == request.Id.ToGuid());
+                model = ObjectRepository.Set<DebtModel>().First(v => v.Id == request.Id.ToGuid());
             }
 
             model.When = request.Issued.ToDateTime();
@@ -118,15 +113,15 @@ namespace BudgetTracker.GrpcServices
 
         public void DeleteDebt(UUID request)
         {
-            var debt = _repository.Set<DebtModel>().Find(request.ToGuid());
+            var debt = ObjectRepository.Set<DebtModel>().Find(request.ToGuid());
             if (debt != null)
             {
-                foreach (var paymentModel in _repository.Set<PaymentModel>().Where(v=>v.Debt == debt))
+                foreach (var paymentModel in ObjectRepository.Set<PaymentModel>().Where(v=>v.Debt == debt))
                 {
                     paymentModel.Debt = null;
                 }
 
-                _repository.Remove(debt);
+                ObjectRepository.Remove(debt);
             }
         }
     }

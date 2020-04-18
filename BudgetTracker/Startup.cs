@@ -75,6 +75,8 @@ namespace BudgetTracker
             
             services.AddTransient<ScreenshotViewModel>();
             services.AddTransient<DebtsViewModel>();
+            services.AddTransient<PaymentsViewModel>();
+            services.AddTransient<SpentCategoriesViewModel>();
             services.AddTransient<SystemInfoViewModel>();
             services.AddTransient<SettingsViewModel>();
 

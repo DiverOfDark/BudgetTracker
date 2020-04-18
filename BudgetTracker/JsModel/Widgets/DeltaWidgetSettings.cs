@@ -3,6 +3,7 @@ using BudgetTracker.JsModel.Attributes;
 
 namespace BudgetTracker.Controllers.ViewModels.Widgets
 {
+    [ExportJsModel]
     public enum DeltaInterval
     {
         [JsDisplayName("24ч/48ч/Неделя/Месяц")]
