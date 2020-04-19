@@ -18,18 +18,22 @@ message Payment {
     
     string provider = 6;
     string account = 7;
-    string statementReference = 8;
-    string sms = 9;
     
-    UUID categoryId = 10;
+    UUID category_id = 10;
     string category = 11;
 
-    UUID debtId = 12;
+    UUID debt_id = 12;
     string debt = 13;
     
-    UUID columnId = 14;
+    UUID column_id = 14;
     
     PaymentKind kind = 15;
+}
+
+message PaymentDetails {
+    Payment payment = 1;
+    string statement_reference = 2;
+    string sms = 3;
 }
 
 enum PaymentKind {
@@ -39,31 +43,86 @@ enum PaymentKind {
     UNKNOWN = -1;
 }
 
+enum Ordering {
+    DATE = 0;
+    AMOUNT = 1;
+}
+
 message PaymentGroup {
+    Timestamp when = 1;
+    int32 payment_count = 2;
+    PaymentKind kind = 3;
+    string category = 4;
+    string provider = 5;
+    string account = 6;
     
+    double amount = 7;
+    string ccy = 8;
+    
+    string what = 9;
+    
+    bool is_expanded = 10;
+}
+
+message CurrencySummary {
+    string currency = 1;
+    double amount = 2;
+}
+
+message MonthSummary {
+    Timestamp when = 1;
+    repeated CurrencySummary summary = 2;
+    int32 uncategorized_count = 3;
+    
+    bool isExpanded = 4;
 }
 
 message PaymentView {
     oneof row {
-        Payment payment = 1;
-        PaymentGroup group = 2;
+        Payment payment = 2;
+        PaymentGroup group = 3;
+        MonthSummary summary = 4;
     }
+}
+
+message PaymentViewUpdate {
+    int32 rowPosition = 1;
+    PaymentView view = 2;
 }
 
 message PaymentsList {
     repeated PaymentView payments = 1;
+    Ordering ordering = 2;
+    bool show_categorized = 3;
 }
 
 message PaymentsStream {
     oneof update {
         PaymentsList snapshot = 1;
-        PaymentView added = 2;
-        PaymentView removed = 3;
-        PaymentView updated = 4;
+        PaymentViewUpdate added = 2;
+        PaymentViewUpdate removed = 3;
+        PaymentViewUpdate updated = 4;
     }
 }
 
 message SplitPaymentRequest {
     UUID id = 1;
     double amount = 2;
+}
+
+message ShowCategorizedRequest {
+    bool show_categorized = 1;
+}
+
+message ExpandCollapseMonth {
+    Timestamp timestamp = 1;
+}
+
+message ExpandCollapseGroup {
+    Timestamp month = 1;
+    int32 row_number = 2;
+}
+
+message UpdateOrderingRequest {
+    Ordering new_ordering = 1;
 }

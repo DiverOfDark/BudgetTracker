@@ -14,9 +14,17 @@ namespace BudgetTracker.GrpcServices
             return Guid.Parse(from.Value);
         }
 
-        public static UUID ToUUID(this Guid guid)
+        public static UUID ToUUID(this Guid guid) => ToUUID((Guid?)guid);
+
+        public static UUID ToUUID(this Guid? guid)
         {
-            return new UUID {Value = guid.ToString()};
+            var uuid = new UUID();
+            if (guid != null)
+            {
+                uuid.Value = guid.ToString();
+            }
+
+            return uuid;
         }
 
         public static Timestamp ToTimestamp(this DateTime dateTime)

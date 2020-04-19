@@ -15,7 +15,7 @@ message SpentCategory {
 }
 
 message SpentCategoryList {
-    repeated SpentCategory spentCategories = 1;
+    repeated SpentCategory spent_categories = 1;
 }
 
 message SpentCategoriesStream {

@@ -54,7 +54,7 @@
             newCategories.sort(categorySort);
             spentCategories.set(newCategories);
         } else if (stream.snapshot) {
-            let newCategories = stream.snapshot.spentcategoriesList;
+            let newCategories = stream.snapshot.spentCategoriesList;
             newCategories.sort(categorySort);
             spentCategories.set(newCategories);
         } else {

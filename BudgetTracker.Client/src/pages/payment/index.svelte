@@ -4,11 +4,157 @@
 
 <script lang="ts">
     import Link from '../../svero/Link.svelte';
+    import SoWService from '../../services/SoWService';
+    // import Modal from '../../components/Modal.svelte';
+    // import {compare} from '../../services/Shared';
+    import * as protosCommons from '../../generated/Commons_pb';
+    import * as protosCategories from '../../generated/SpentCategories_pb';
+    import * as protosDebts from '../../generated/Debts_pb';
+    import * as protosPayments from '../../generated/Payments_pb';
+    import { writable, get } from 'svelte/store';
+    import { onDestroy } from 'svelte';
 
-    let hideCategorized = false;
+    let spentCategories = writable<protosCategories.SpentCategory.AsObject[]>([]);
+    let debts = writable<protosDebts.DebtView.AsObject[]>([]);
+    let payments = writable<protosPayments.PaymentView.AsObject[]>([]);
+  
+    let sorting: number = 0;
 
+    class CategoryDropDown {
+        constructor(name: string, id: protosCommons.UUID.AsObject, isDebt: boolean) {
+            this.name = name;
+            this.id = id;
+            this.isDebt = isDebt;
+        }
 
-    Link; hideCategorized; // used in view
+        name: string;
+        id: protosCommons.UUID.AsObject;
+        isDebt: boolean;
+    }
+
+    let categories: CategoryDropDown[] = [];
+
+    onDestroy(spentCategories.subscribe(updateCategories));
+    onDestroy(debts.subscribe(updateCategories));
+
+    function updateCategories() {
+        categories = get(spentCategories).reduce((acc: CategoryDropDown[], category: protosCategories.SpentCategory.AsObject) => {
+            if (!acc.find(t=>t.name == category.category)) {
+                acc = [...acc, new CategoryDropDown(category.category, category.id!, false) ];
+            }
+            return acc;
+        }, []).concat(get(debts).reduce((acc: CategoryDropDown[], debt: protosDebts.DebtView.AsObject) => {
+            if (!acc.find(t=>t.name == debt.model!.description)) {
+                acc = [...acc, new CategoryDropDown(debt.model!.description, debt.model!.id!, true) ];
+            }
+            return acc;
+        }, []));
+    }
+
+    let showCategorized = true;
+
+    function parseDebts(stream: protosDebts.DebtsStream.AsObject) {
+        if (stream.added) {
+            let newDebts = get(debts);
+            newDebts = [...newDebts, stream.added];
+            debts.set(newDebts);
+        } else if (stream.removed) {
+            let newDebts = get(debts);
+            newDebts = newDebts.filter((f: protosDebts.DebtView.AsObject) => f.model!.id!.value != stream.removed!.model!.id!.value);
+            debts.set(newDebts);
+        } else if (stream.updated) {
+            let newDebts = get(debts);
+            newDebts = newDebts.map((f: protosDebts.DebtView.AsObject) => {
+                if (f.model!.id!.value == stream.updated!.model!.id!.value) {
+                    return stream!.updated;
+                }
+                return f;
+            });
+            debts.set(newDebts);
+        } else if (stream.snapshot) {
+            let newStores = stream.snapshot.debtsList;
+            debts.set(newStores);
+        } else {
+            console.error("Unsupported operation");
+        }
+    }
+
+    function parseSpentCategories(stream: protosCategories.SpentCategoriesStream.AsObject) {
+        if (stream.added) {
+            let newCategories = get(spentCategories);
+            newCategories = [...newCategories, stream.added];
+            spentCategories.set(newCategories);
+        } else if (stream.removed) {
+            let newCategories = get(spentCategories);
+            newCategories = newCategories.filter((f: protosCategories.SpentCategory.AsObject) => f.id!.value != stream.removed!.id!.value);
+            spentCategories.set(newCategories);
+        } else if (stream.updated) {
+            let newCategories = get(spentCategories);
+            newCategories = newCategories.map((f: protosCategories.SpentCategory.AsObject) => {
+                if (f.id!.value == stream.updated!.id!.value) {
+                    return stream!.updated;
+                }
+                return f;
+            });
+            spentCategories.set(newCategories);
+        } else if (stream.snapshot) {
+            let newCategories = stream.snapshot.spentCategoriesList;
+            spentCategories.set(newCategories);
+        } else {
+            console.error("Unsupported operation");
+        }
+    }
+
+    function parsePayments(stream: protosPayments.PaymentsStream.AsObject) {
+        console.log(stream);
+    }
+
+    async function switchCategorized() {
+        await SoWService.showCategorized(!showCategorized);
+    }
+
+    async function setOrdering(ordering: number) {
+        await SoWService.setOrdering(ordering);
+    }
+    
+    function dragStart(ev: DragEvent, payment: protosPayments.PaymentView) {
+        if (ev.dataTransfer) {
+            ev.dataTransfer.setData("payment", JSON.stringify(payment));
+        }
+    }
+    
+    function dragover(ev: DragEvent) {
+        ev.preventDefault();
+        if (ev.dataTransfer) {
+            ev.dataTransfer.dropEffect = 'move';
+        }
+	}
+
+    async function drop(ev: DragEvent, newCategory: CategoryDropDown) {
+        ev.preventDefault();
+        if (ev.dataTransfer) {
+            var payment: protosPayments.PaymentView = JSON.parse(ev.dataTransfer.getData("payment"));
+            payment;
+        }
+
+        newCategory;
+        /*
+        await PaymentController.editPayment(payment.id, payment.amount, payment.ccy, payment.what, newCategory.isDebt ? payment.categoryId : newCategory.id, payment.columnId,  newCategory.isDebt ? newCategory.id : payment.debtId, payment.kind);
+
+        if (newCategory.isDebt) {
+            payment.debt = newCategory.name;
+        } else {
+            payment.category = newCategory.name;
+        }
+
+        reload();*/
+    }
+
+    onDestroy(SoWService.getDebts(parseDebts));
+    onDestroy(SoWService.getSpentCategories(parseSpentCategories));
+    onDestroy(SoWService.getPayments(parsePayments));
+
+    Link; showCategorized; switchCategorized; sorting; setOrdering; spentCategories; categories; payments; dragStart; dragover; drop; // used in view
 /*
     import moment from 'moment';
 
@@ -21,8 +167,6 @@
 
     let months = [];
     let keys = [];
-
-    let categories = [];
 
     function groupBy(list, keyGetter) {
         const map = new Map();
@@ -54,29 +198,6 @@
                     }
                 })
             });
-        }
-
-        if (!categories.length) {
-            let categoriesModels = await PaymentController.spentCategories()
-            categoriesModels.forEach(s => {
-                if (!categories.find(t=>t.name == s.category)) {
-                    categories = [...categories, {
-                        name: s.category,
-                        id: s.id,
-                        isDebt: false
-                    }]
-                }
-            });
-            let debtModels = await DebtModelController.list()
-            debtModels.forEach(s => {
-                if (!categories.find(t=>t.name == s.description)) {
-                    categories = [...categories, {
-                        name: s.description,
-                        id: s.id,
-                        isDebt: true
-                    }]
-                }
-            })
         }
 
         let payments = await PaymentViewModelController.list();
@@ -192,30 +313,10 @@
         return month.values.filter(s=>!hideCategorized || s.category == null && s.debt == null).length > 0;
     }
 
-    let dragStart = function (ev, payment) {
-        ev.dataTransfer.setData("payment", JSON.stringify(payment));
-	}
-	let dragover = function (ev) {
-		ev.preventDefault();
-        ev.dataTransfer.dropEffect = 'move';
-	}
-    let drop = async function(ev, newCategory) {
-        ev.preventDefault();
-        var payment = JSON.parse(ev.dataTransfer.getData("payment"));
-        await PaymentController.editPayment(payment.id, payment.amount, payment.ccy, payment.what, newCategory.isDebt ? payment.categoryId : newCategory.id, payment.columnId,  newCategory.isDebt ? newCategory.id : payment.debtId, payment.kind);
-
-        if (newCategory.isDebt) {
-            payment.debt = newCategory.name;
-        } else {
-            payment.category = newCategory.name;
-        }
-
-        reload();
-    }
-
     $: resort(sorting);
 
     reload();*/
+
 </script>
 
 <style>
@@ -242,12 +343,11 @@
                         <Link class="btn btn-primary btn-sm" href="/Payment/Category">
                             Категории расходов
                         </Link>
-                        <button class="btn btn-secondary btn-sm ml-2" on:click="{() => hideCategorized = !hideCategorized}">
-                            {hideCategorized ? "Показать все" : "Скрыть с категориями"}
+                        <button class="btn btn-secondary btn-sm ml-2" on:click="{() => switchCategorized()}">
+                            {showCategorized ? "Скрыть с категориями" : "Показать все"}
                         </button>
                     </div>
                 </div>
-<!--
                 <div class="card-header">
                     {#each categories as category}
                         <span on:drop={event => drop(event, category)} on:dragover={dragover} class="btn btn-sm {category.isDebt ? "btn-warning" : "btn-success"} p-1 m-1" style="cursor: no-drop">
@@ -260,9 +360,9 @@
                         <thead>
                         <tr>
                             <th>
-                                <button class="btn btn-link btn-anchor" on:click="{() => sorting = "date"}">
+                                <button class="btn btn-link btn-anchor" on:click="{() => setOrdering(0) }">
                                     Когда
-                                    {#if sorting == "date"}
+                                    {#if sorting == 0}
                                         <span class="fe fe-chevron-down"></span>
                                     {/if}
                                 </button>
@@ -272,9 +372,9 @@
                             <th>Провайдер</th>
                             <th>Счёт</th>
                             <th>
-                                <button class="btn btn-link btn-anchor" on:click="{() => sorting = "amount"}">
+                                <button class="btn btn-link btn-anchor" on:click="{() => setOrdering(1) }">
                                     Сумма
-                                    {#if sorting == "amount"}
+                                    {#if sorting == 1}
                                         <span class="fe fe-chevron-down"></span>
                                     {/if}
                                 </button>
@@ -284,6 +384,7 @@
                         </tr>
                         </thead>
                         <tbody>
+<!--
                         {#each keys as monthKey, idx}
 
                             {#if (showHeader(months[monthKey], hideCategorized))}
@@ -309,10 +410,10 @@
                                     <PaymentRow {payment} {hideCategorized} {deletePayment} {dragStart} />
                                 {/each}
                             {/if}
-                        {/each}
+                        {/each}-->
                         </tbody>
                     </table>
-                </div>-->
+                </div>
             </div>
         </div>
     </div>

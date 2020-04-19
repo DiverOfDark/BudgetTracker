@@ -156,6 +156,18 @@ export class SoWService {
         this.updateSpentCategory(categoryObject);
     }
 
+    async showCategorized(showCategorized: boolean) {
+        let request = new protoPayments.ShowCategorizedRequest();
+        request.setShowCategorized(showCategorized);
+        await this.SoWClient.showCategorized(request);
+    }
+
+    async setOrdering(newOrdering: number) {
+        let request = new protoPayments.UpdateOrderingRequest();
+        request.setNewOrdering(newOrdering);
+        await this.SoWClient.setOrdering(request);
+    }
+
     getScreenshot(callback: (base64Image: string) => void): () => void  {
         return this.reconnect(x => x.getScreenshot(this.Empty), response => {
             let object = response.getContents_asB64();

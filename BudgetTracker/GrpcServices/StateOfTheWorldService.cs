@@ -81,7 +81,37 @@ namespace BudgetTracker.GrpcServices
             _provider.GetService<DebtsViewModel>(_accessor).DeleteDebt(request);
             return Empty;
         }
-        
+
+        public override Task<PaymentDetails> GetPaymentDetails(UUID request, ServerCallContext context)
+        {
+            var result = _provider.GetService<PaymentsViewModel>(_accessor).GetPaymentDetails(request);
+            return Task.FromResult(result);
+        }
+
+        public override Task<Empty> ShowCategorized(ShowCategorizedRequest request, ServerCallContext context)
+        {
+            _provider.GetService<PaymentsViewModel>(_accessor).ShowCategorized = request.ShowCategorized;
+            return Empty;
+        }
+
+        public override Task<Empty> ExpandCollapseGroup(ExpandCollapseGroup request, ServerCallContext context)
+        {
+            _provider.GetService<PaymentsViewModel>(_accessor).ExpandCollapseGroup(request.Month, request.RowNumber);
+            return Empty;
+        }
+
+        public override Task<Empty> ExpandCollapseMonth(ExpandCollapseMonth request, ServerCallContext context)
+        {
+            _provider.GetService<PaymentsViewModel>(_accessor).ExpandCollapseMonth(request.Timestamp);
+            return Empty;
+        }
+
+        public override Task<Empty> SetOrdering(UpdateOrderingRequest request, ServerCallContext context)
+        {
+            _provider.GetService<PaymentsViewModel>(_accessor).Ordering = request.NewOrdering;
+            return Empty;
+        }
+
         public override Task<Empty> DeletePayment(UUID request, ServerCallContext context)
         {
             _provider.GetService<PaymentsViewModel>(_accessor).DeletePayment(request);

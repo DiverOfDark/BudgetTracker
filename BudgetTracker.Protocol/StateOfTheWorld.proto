@@ -30,10 +30,15 @@ service SoWService {
   
   // Payments
   rpc GetPayments (Empty) returns (stream Payments.PaymentsStream);
+  rpc GetPaymentDetails (UUID) returns (Payments.PaymentDetails);
 
   rpc EditPayment (Payments.Payment) returns (Empty);
   rpc SplitPayment (Payments.SplitPaymentRequest) returns (Empty);
   rpc DeletePayment (UUID) returns (Empty);
+  rpc ShowCategorized (Payments.ShowCategorizedRequest) returns (Empty);
+  rpc ExpandCollapseGroup (Payments.ExpandCollapseGroup) returns (Empty);
+  rpc ExpandCollapseMonth (Payments.ExpandCollapseMonth) returns (Empty);
+  rpc SetOrdering (Payments.UpdateOrderingRequest) returns (Empty);
 
   rpc GetSpentCategories (Empty) returns (stream SpentCategories.SpentCategoriesStream);
   rpc EditSpentCategory (SpentCategories.SpentCategory) returns (Empty);
