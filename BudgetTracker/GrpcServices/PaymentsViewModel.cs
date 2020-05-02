@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,591 +11,287 @@ namespace BudgetTracker.GrpcServices
 {
     public class PaymentsViewModel : GrpcViewModelBase<PaymentsStream>
     {
-        internal abstract class RowViewModel : IEnumerable<PaymentView>
+        public static class PaymentTransformers
         {
-            public abstract IEnumerator<PaymentView> GetEnumerator();
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
-            
-            protected static double OrderingComparator(PaymentModel arg, Ordering ordering)
-            {
-                if (ordering == Ordering.Amount) return arg.Amount;
-                if (ordering == Ordering.Date) return arg.When.Ticks;
-                return 0;
-            }
-
-            protected static double OrderingComparator(RowViewModel arg, Ordering ordering)
-            {
-                if (arg is PaymentRowViewModel prvm)
-                    return OrderingComparator(prvm, ordering);
-                if (arg is PaymentGroupViewModel pgvm)
-                    return OrderingComparator(pgvm, ordering);
-                return 0;
-            }            
-
-            protected static double OrderingComparator(PaymentRowViewModel arg, Ordering ordering)
-            {
-                if (ordering == Ordering.Amount) return arg.Model.Amount;
-                if (ordering == Ordering.Date) return arg.Model.When.Ticks;
-                return 0;
-            }
-
-            protected static double OrderingComparator(PaymentGroupViewModel arg, Ordering ordering)
-            {
-                if (ordering == Ordering.Amount) return arg.Amount;
-                if (ordering == Ordering.Date) return arg.When.Ticks;
-                return 0;
-            }
-        }
-
-        internal class PaymentRowViewModel : RowViewModel
-        {
-            private readonly PaymentsViewModel _owner;
-            public PaymentModel Model { get; }
-
-            public PaymentRowViewModel(PaymentsViewModel owner, PaymentModel model)
-            {
-                _owner = owner;
-                Model = model;
-            }
-            
-            public PaymentDetails GetDetails()
-            {
-                return new PaymentDetails
+            public static PaymentsStream OnAdd(PaymentsMonthViewModel arg1, int arg2) =>
+                new PaymentsStream
                 {
-                    Payment = ToPayment(),
-                    Sms = Model.Sms?.Message ?? "",
-                    StatementReference = Model.StatementReference ?? ""
+                    Added = new PaymentViewUpdate
+                    {
+                        Position = arg2,
+                        View = ToPaymentView(arg1)
+                    }
                 };
-            }
 
-            public override IEnumerator<PaymentView> GetEnumerator()
+            public static PaymentsStream OnRemove(PaymentsMonthViewModel arg1, int arg2) =>
+                new PaymentsStream
+                {
+                    Removed = new PaymentViewUpdate
+                    {
+                        Position = arg2
+                    }
+                };
+
+            public static PaymentsStream OnUpdate(PaymentsMonthViewModel arg1, int arg2) =>
+                new PaymentsStream
+                {
+                    Updated = new PaymentViewUpdate
+                    {
+                        Position = arg2,
+                        View = ToPaymentView(arg1)
+                    }
+                };
+
+            private static PaymentView ToPaymentView(PaymentsMonthViewModel arg1) => new PaymentView { Summary = ToMonthSummary(arg1) };
+
+            public static MonthSummary ToMonthSummary(PaymentsMonthViewModel vm)
             {
-                yield return new PaymentView {Payment = ToPayment()};
+                var monthSummary = new MonthSummary
+                {
+                    Id = vm.Id.ToUUID(),
+                    When = vm.When.ToTimestamp(),
+                    IsExpanded = vm.IsExpanded,
+                    UncategorizedCount = vm._payments.Count(v => v.CategoryId == null && v.DebtId == null), // TODO replace linq with field
+                    Summary =
+                    {
+                        // TODO replace linq with field
+                        vm._payments.GroupBy(v => v.Ccy).Select(v => new CurrencySummary {Amount = v.Sum(t => t.Amount), Currency = v.Key})
+                    }
+                };
+
+                // TODO replace linq with field
+                var visiblePayments = vm._payments.Where(v => v.DebtId != null || v.CategoryId != null || vm.ShowUncategorized);
+
+                if (vm.IsExpanded)
+                {
+                    foreach (var v in visiblePayments.OrderByDescending(v => v.When))
+                    {
+                        monthSummary.Payments.Add(new PaymentView {Payment = ToPaymentView(v)});
+                    }
+                }
+
+                return monthSummary;
             }
 
-            private Payment ToPayment()
+            public static Payment ToPaymentView(PaymentModel vm)
             {
                 return new Payment
                 {
-                    Account = Model.Column.AccountName,
-                    Amount = Model.Amount,
-                    Category = Model.Category?.Category ?? "",
-                    CategoryId = Model.CategoryId.ToUUID(),
-                    Ccy = Model.Ccy,
-                    Debt = Model.Debt?.Description ?? "",
-                    Id = Model.Id.ToUUID(),
-                    Kind = Model.Kind,
-                    Provider = Model.Column.Provider,
-                    What = Model.What,
-                    When = Model.When.ToTimestamp(),
-                    ColumnId = Model.ColumnId.ToUUID(),
-                    DebtId = Model.DebtId.ToUUID(),
+                    Id = vm.Id.ToUUID(),
+                    Amount = vm.Amount,
+                    Ccy = vm.Ccy,
+                    Kind = vm.Kind,
+                    What = vm.What,
+                    CategoryId = vm.CategoryId.ToUUID(),
+                    When = vm.When.ToTimestamp(),
+                    ColumnId = vm.ColumnId.ToUUID(),
+                    DebtId = vm.DebtId.ToUUID()
                 };
             }
 
-            public void UpdatePayment(ModelChangedEventArgs changedEventArgs)
-            {
-                // TODO send update
-            }
+            public static string GetKey(PaymentModel paymentModel) => paymentModel.When.Year + "" + paymentModel.When.Month;
         }
 
-        internal class PaymentGroupViewModel : RowViewModel
+        public class PaymentsMonthViewModel : ViewModelBase
         {
             private readonly PaymentsViewModel _owner;
+            internal List<PaymentModel> _payments;
 
-            public PaymentGroupViewModel(PaymentsViewModel owner)
+            public PaymentsMonthViewModel(PaymentsViewModel owner, DateTime when, string key)
             {
+                Id = Guid.NewGuid();
+                Key = key;
                 _owner = owner;
-                Payments = new List<PaymentRowViewModel>();
+                When = when;
+                _payments = new List<PaymentModel>();
+                IsExpanded = When.AddMonths(3) > DateTime.Now;
             }
 
-            public double Amount => Payments.Sum(v => v.Model.Amount);
-
-            public DateTime When => Payments.First().Model.When;
-
-            public List<PaymentRowViewModel> Payments { get; }
-
-            public bool IsExpanded { get; } = false;
-
-            private static string OneOrDefault(IEnumerable<string> distinct)
-            {
-                string currentValue = null;
-                foreach (var v in distinct)
-                {
-                    if (currentValue == null)
-                    {
-                        currentValue = v;
-                    }
-                    else
-                    {
-                        return "";
-                    }
-                }
-
-                return currentValue;
-            }
-            
-            public override IEnumerator<PaymentView> GetEnumerator()
-            {
-                yield return new PaymentView
-                {
-                    Group = new PaymentGroup
-                    {
-                        PaymentCount = Payments.Count,
-                        IsExpanded = IsExpanded,
-                        When = When.ToTimestamp(),
-                        What = OneOrDefault(Payments.Select(v => v.Model.What).Distinct()),
-                        Account = OneOrDefault(Payments.Select(v => v.Model.Column.AccountName).Distinct()),
-                        Amount = Amount,
-                        Category = OneOrDefault(Payments.Select(v => v.Model.Category?.Category).Distinct()),
-                        Ccy = Payments.First().Model.Ccy,
-                        Kind = Payments.First().Model.Kind,
-                        Provider = OneOrDefault(Payments.Select(v => v.Model.Column.Provider).Distinct())
-                    }
-                };
-                
-                if (IsExpanded)
-                {
-                    foreach (var view in Payments.SelectMany(v=>v))
-                    {
-                        yield return view;
-                    }
-                }
-            }
-
-            public void AddPayment(PaymentModel paymentModel)
-            {
-                int idx;
-                
-                for (idx = 0; idx < Payments.Count; idx++)
-                {
-                    var newComparator = OrderingComparator(paymentModel, _owner.Ordering);
-                    var oldComparator = OrderingComparator(Payments[idx], _owner.Ordering);
-
-                    if (oldComparator > newComparator)
-                        break;
-                }
-
-                Payments.Insert(idx, new PaymentRowViewModel(_owner, paymentModel));
-                // TODO send update
-            }
-
-            public void RemovePayment(PaymentModel paymentModel)
-            {
-                foreach (var payment in Payments)
-                {
-                    if (payment.Model == paymentModel)
-                    {
-                        Payments.Remove(payment);
-                        // TODO send update with removal
-                        break;
-                    }
-                }
-            }
-
-            public void ExpandCollapseGroup()
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        private class MonthViewModel : RowViewModel
-        {
-            private readonly PaymentsViewModel _owner;
-            private readonly MonthSummary _summary;
-
-            public MonthViewModel(PaymentsViewModel owner, DateTime matchingMonth)
-            {
-                _owner = owner;
-                When = matchingMonth;
-                _summary = new MonthSummary
-                {
-                    IsExpanded = (DateTime.Now - matchingMonth).TotalDays < 31 * 3, // by default expand only last 3 month
-                    When = matchingMonth.ToTimestamp(),
-                    UncategorizedCount = 0,
-                };
-                Payments = new List<RowViewModel>();
-            }
+            public Guid Id { get; }
 
             public DateTime When { get; }
+            
+            public bool IsExpanded { get; }
+        
+            public bool ShowUncategorized { get; private set; }
 
-            public List<RowViewModel> Payments { get; }
-
-            public override IEnumerator<PaymentView> GetEnumerator()
+            public string Key { get; }
+        
+            public int Count => _payments.Count;
+        
+            public void UpdateShowCategorized(bool requestShowCategorized)
             {
-                yield return new PaymentView
+                if (ShowUncategorized != requestShowCategorized)
                 {
-                    Summary = _summary
-                };
-
-                if (_summary.IsExpanded)
-                {
-                    foreach (var v in Payments.SelectMany(v=>v))
-                    {
-                        yield return v;
-                    }
+                    ShowUncategorized = requestShowCategorized;
+                    // TODO calculate everything
                 }
             }
-            
+
             public void AddPayment(PaymentModel paymentModel)
             {
-                _summary.UncategorizedCount += paymentModel.CategoryId.HasValue ? 0 : 1;
-                var ccySummary = _summary.Summary.FirstOrDefault(v => v.Currency == paymentModel.Ccy);
-                if (ccySummary == null)
-                {
-                    _summary.Summary.Add(ccySummary = new CurrencySummary{ Amount = 0, Currency = paymentModel.Ccy });
-                }
-
-                ccySummary.Amount += paymentModel.Amount;
-               
-                // TODO send updated summary
-
-                string groupingFunc(PaymentModel pm) => pm.Kind + pm.Ccy + pm.What;
-
-                var inserterGrouper = groupingFunc(paymentModel);
-                
-                int idx;
-                for (idx = 0; idx < Payments.Count; idx++)
-                {
-                    var current = OrderingComparator(Payments[idx], _owner.Ordering);
-                    var next = OrderingComparator(paymentModel, _owner.Ordering);
-
-                    if (Payments[idx] is PaymentGroupViewModel pgvm)
-                    {
-                        var existingGrouper = groupingFunc(pgvm.Payments.First().Model);
-                        if (existingGrouper == inserterGrouper)
-                        {
-                            pgvm.AddPayment(paymentModel);
-                            return;
-                        }
-                    } else if (Payments[idx] is PaymentRowViewModel prvm)
-                    {
-                        var existingGrouper = groupingFunc(prvm.Model);
-                        if (existingGrouper == inserterGrouper)
-                        {
-                            Payments.RemoveAt(idx);
-                            var group = new PaymentGroupViewModel(_owner);
-                            // TODO send update about row removal
-                            Payments.Insert(idx, group);
-                            // TODO send update about row addition
-                            group.AddPayment(prvm.Model);
-                            group.AddPayment(paymentModel);
-                            return;
-
-                            // TODO remove Payments[idx]
-                            // TODO insert in its place PaymentsGroup of Payments[idx] and payment
-                            // TODO return
-                        }
-                    }
-                    
-
-                    if (current > next)
-                    {
-                        break;
-                    }
-                }
-
-                Payments.Insert(idx, new PaymentRowViewModel(_owner, paymentModel));
-                // TODO notify inserted payment
+                _payments.Add(paymentModel);
+                // TODO recalculate payments
             }
 
             public void RemovePayment(PaymentModel paymentModel)
             {
-                _summary.UncategorizedCount -= paymentModel.CategoryId.HasValue ? 0 : 1;
-                var matchingSummary = _summary.Summary.First(v => v.Currency == paymentModel.Ccy);
-                matchingSummary.Amount -= paymentModel.Amount;
-                if (Math.Abs(matchingSummary.Amount) < double.Epsilon)
+                _payments.Remove(paymentModel);
+                // TODO recalculate payments, send update
+            }
+
+            public void UpdatePayment(PaymentModel pm)
+            {
+                _owner.SendUpdate(new PaymentsStream
                 {
-                    _summary.Summary.Remove(matchingSummary);
-                }
-
-                // TODO send updated summary
-
-                foreach (var v in Payments)
-                {
-                    if (v is PaymentRowViewModel prvm && prvm.Model == paymentModel)
+                    Updated = new PaymentViewUpdate
                     {
-                        Payments.Remove(prvm);
-                        // TODO send update with removed row;
-                        break;
-                    }
-
-                    if (v is PaymentGroupViewModel pgvm)
-                    {
-                        pgvm.RemovePayment(paymentModel);
-
-                        if (pgvm.Payments.Count == 1)
+                        Id = { Id.ToUUID() },
+                        Position = _payments.IndexOf(pm),
+                        View = new PaymentView
                         {
-                            // TODO remove paymentgroup 
-                            // TODO send update with removal of payment group
-                            // TODO add paymentrow instead in that place
-                            // TODO send update with addition of payment row
+                            Payment = PaymentTransformers.ToPaymentView(pm)
                         }
                     }
-                }
+                });
+                // TODO move to correct group
+                // TODO recalculate uncategorized count / summmary
             }
 
-            public void UpdatePayment(PaymentModel paymentModel, ModelChangedEventArgs changedEventArgs)
+            public void ExpandCollapseGroup(IEnumerable<Guid> requestRowNumber)
             {
-                if (changedEventArgs.PropertyName == nameof(PaymentModel.CategoryId))
+                if (!requestRowNumber.Any())
                 {
-                    // TODO update summary                    
-                }
-
-                if (changedEventArgs.PropertyName == nameof(PaymentModel.Amount))
-                {
-                    // TODO update summary                    
-                }
-
-                if (changedEventArgs.PropertyName == nameof(PaymentModel.Ccy))
-                {
-                    // TODO update summary                    
-                }
-
-                // TODO send updated summary row
-                
-                foreach (var row in Payments)
-                {
-                    if (row is PaymentGroupViewModel paymentGroupViewModel)
-                    {
-                        foreach (var payment in paymentGroupViewModel.Payments)
-                        {
-                            if (payment.Model == paymentModel)
-                            {
-                                payment.UpdatePayment(changedEventArgs);
-                            }
-                        }
-                    }
-
-                    if (row is PaymentRowViewModel paymentRowViewModel)
-                    {
-                        if (paymentRowViewModel.Model == paymentModel)
-                        {
-                            paymentRowViewModel.UpdatePayment(changedEventArgs);
-                        }
-                    }
-                }
-            }
-
-            public void UpdateShowCategorized(bool value)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void UpdateOrdering(Ordering value)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void ExpandCollapseGroup(int requestRowNumber)
-            {
-                int count = 0;
-                foreach (var payment in Payments)
-                {
-                    if (count == requestRowNumber)
-                    {
-                        ((PaymentGroupViewModel) payment).ExpandCollapseGroup();
-                        break;
-                    }
-                    count += payment.Count();
-                }
-            }
-
-            public void ExpandCollapseMonth()
-            {
-                if (!_summary.IsExpanded)
-                {
-                    _summary.IsExpanded = true;
-                    // ToDo send update with inserts of rows
+                    // TODO switch isExpanded;
                 }
                 else
                 {
-                    _summary.IsExpanded = false;
-                    // ToDo send update with removes of rows
+                    // TODO delegate to payment group
                 }
             }
         }
 
-        internal class RootRowsViewModel : RowViewModel
-        {
-            private readonly PaymentsViewModel _owner;
-
-            private readonly List<MonthViewModel> _months;
-
-            public RootRowsViewModel(PaymentsViewModel owner)
-            {
-                _owner = owner;
-                _months = new List<MonthViewModel>();
-            }
-
-            public override IEnumerator<PaymentView> GetEnumerator()
-            {
-                foreach (var v in _months.SelectMany(v => v))
-                {
-                    yield return v;
-                }
-            }
-
-            public void AddPayment(PaymentModel paymentModel)
-            {
-                var matchingMonth = new DateTime(paymentModel.When.Year, paymentModel.When.Month, 1);
-                var matchingMonthViewModel = _months.FirstOrDefault(v => v.When == matchingMonth);
-                if (matchingMonthViewModel == null)
-                {
-                    matchingMonthViewModel = new MonthViewModel(_owner, matchingMonth);
-                    int idx;
-                    for (idx = 0; idx < _months.Count; idx++)
-                    {
-                        if (matchingMonth > _months[idx].When)
-                            break;
-                    }
-
-                    _months.Insert(idx, matchingMonthViewModel);
-                    // TODO send inserted month row view
-                }
-                
-                matchingMonthViewModel.AddPayment(paymentModel);
-            }
-
-            public void RemovePayment(PaymentModel pm)
-            {
-                foreach (var m in _months)
-                {
-                    m.RemovePayment(pm);
-                    if (!m.Any())
-                    {
-                        _months.Remove(m);
-                        // TODO send removed month row view
-                    }
-                }
-            }
-            
-            public void UpdatePayment(PaymentModel pm, ModelChangedEventArgs changedEventArgs)
-            {
-                foreach (var m in _months)
-                {
-                    m.UpdatePayment(pm, changedEventArgs);
-                }
-            }
-
-            public void UpdateShowCategorized(bool value)
-            {
-                foreach (var month in _months)
-                {
-                    month.UpdateShowCategorized(value);
-                }
-            }
-
-            public void UpdateOrdering(Ordering value)
-            {
-                foreach (var month in _months)
-                {
-                    month.UpdateOrdering(value);
-                }
-            }
-
-            public void ExpandCollapseGroup(Timestamp requestMonth, int requestRowNumber)
-            {
-                var dt = requestMonth.ToDateTime();
-                var matchingMonth = _months.First(v => v.When == dt);
-                matchingMonth.ExpandCollapseGroup(requestRowNumber);
-            }
-
-            public void ExpandCollapseMonth(Timestamp @when)
-            {
-                var dt = when.ToDateTime();
-                var matchingMonth = _months.First(v => v.When == dt);
-                matchingMonth.ExpandCollapseMonth();
-            }
-        }
-        
-        private bool _showCategorized = true;
-        private Ordering _ordering = Ordering.Amount;
-
-        private RootRowsViewModel _state;
+        private ServerObservableCollection<PaymentsMonthViewModel, PaymentsStream> _collection;
 
         public PaymentsViewModel(ObjectRepository objectRepository, ILogger<PaymentsViewModel> logger) : base(objectRepository, logger)
         {
         }
 
-        public bool ShowCategorized
-        {
-            get => _showCategorized;
-            set
-            {
-                if (value != _showCategorized)
-                {
-                    _showCategorized = value;
-                    _state?.UpdateShowCategorized(value);
-                }
-            }
-        }
-
-        public Ordering Ordering
-        {
-            get => _ordering;
-            set
-            {
-                if (value != _ordering)
-                {
-                    _ordering = value;
-                    _state?.UpdateOrdering(value);
-                }
-            }
-        }
-
         protected override Task Init()
         {
-            _state = new RootRowsViewModel(this);
-            foreach (PaymentModel paymentModel in ObjectRepository.Set<PaymentModel>())
+            _collection = new ServerObservableCollection<PaymentsMonthViewModel, PaymentsStream>(SendUpdate, PaymentTransformers.OnAdd, PaymentTransformers.OnRemove, PaymentTransformers.OnUpdate);
+            
+            _collection.SendUpdates = false;
+            
+            foreach (PaymentModel v in ObjectRepository.Set<PaymentModel>())
             {
-                _state.AddPayment(paymentModel);
+                AddPayment(v);
             }
-            SendSnapshot();
-            return Task.CompletedTask;
-        }
 
-        private void SendSnapshot()
-        {
+            var paymentsList = new PaymentsList
+            {
+                ShowCategorized = ShowCategorized,
+            };
+            foreach (var v in _collection)
+            {
+                var monthSummary = PaymentTransformers.ToMonthSummary(v);
+                paymentsList.Payments.Add(new PaymentView {Summary = monthSummary});
+            }
+            
             SendUpdate(new PaymentsStream
             {
-                Snapshot = new PaymentsList
-                {
-                    Ordering = Ordering,
-                    ShowCategorized = ShowCategorized,
-                    Payments = {_state.ToList()}
-                }
+                Snapshot = paymentsList
             });
+
+            _collection.SendUpdates = true;
+
+            return Task.CompletedTask;
+        }
+        
+        public bool ShowCategorized { get; private set; }
+
+        private void AddPayment(PaymentModel paymentModel)
+        {
+            var key = PaymentTransformers.GetKey(paymentModel);
+            var existing = _collection.FirstOrDefault(v => v.Key == key);
+            if (existing == null)
+            {
+                existing = new PaymentsMonthViewModel(this, paymentModel.When.Date, key);
+                int i;
+                for (i = 0; i < _collection.Count; i++)
+                {
+                    if (String.Compare(_collection[i].Key, key, StringComparison.Ordinal) < 0)
+                    {
+                        break;
+                    }
+                }
+                _collection.Insert(i, existing);
+            }
+
+            existing.AddPayment(paymentModel);
+        }
+
+        private void RemovePayment(PaymentModel paymentModel)
+        {
+            var key = PaymentTransformers.GetKey(paymentModel);
+            var matchingMonth = _collection.First(v => v.Key == key);
+
+            matchingMonth.RemovePayment(paymentModel);
+            if (matchingMonth.Count == 0)
+            {
+                _collection.Remove(matchingMonth);
+            }
+        }
+
+        private void UpdatePayment(PaymentModel pm)
+        {
+            // payment date can't be edited, thus it is safe to delegate only to matching month;
+            var key = PaymentTransformers.GetKey(pm);
+            var matchingMonth = _collection.First(v => v.Key == key);
+            matchingMonth.UpdatePayment(pm);
         }
 
         protected override void OnModelRepositoryChanged(ModelChangedEventArgs obj)
         {
             if (obj.Source is PaymentModel pm)
             {
-                if (obj.ChangeType == ChangeType.Add)
+                switch (obj.ChangeType)
                 {
-                    _state.AddPayment(pm);
-                }
-
-                if (obj.ChangeType == ChangeType.Remove)
-                {
-                    _state.RemovePayment(pm);
-                }
-
-                if (obj.ChangeType == ChangeType.Update)
-                {
-                    _state.UpdatePayment(pm, obj);
+                    case ChangeType.Add:
+                        AddPayment(pm);
+                        break;
+                    case ChangeType.Remove:
+                        RemovePayment(pm);
+                        break;
+                    case ChangeType.Update:
+                        UpdatePayment(pm);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
+            base.OnModelRepositoryChanged(obj);
         }
 
-        public void ExpandCollapseGroup(Timestamp requestMonth, int requestRowNumber) => _state.ExpandCollapseGroup(requestMonth, requestRowNumber);
+        public void ExpandCollapseGroup(List<Guid> requestRowNumber)
+        {
+            var matchingMonth = requestRowNumber.First();
+            _collection.First(v => v.Id == matchingMonth).ExpandCollapseGroup(requestRowNumber.Skip(1));
+        }
 
-        public void ExpandCollapseMonth(Timestamp when) => _state.ExpandCollapseMonth(when);
+        public PaymentDetails GetPaymentDetails(UUID request)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UpdateShowCategorized(bool requestShowCategorized)
+        {
+            ShowCategorized = requestShowCategorized;
+            foreach (var monthViewModel in _collection)
+            {
+                monthViewModel.UpdateShowCategorized(requestShowCategorized);
+            }
+        }
 
         public void DeletePayment(UUID request)
         {
@@ -668,13 +363,6 @@ namespace BudgetTracker.GrpcServices
                 ObjectRepository.Add(newPayment);
                 newPayment.UserEdited = true;
             }
-        }
-
-        public PaymentDetails GetPaymentDetails(UUID request)
-        {
-            var pm = ObjectRepository.Set<PaymentModel>().Find(request.ToGuid());
-
-            return new PaymentRowViewModel(this, pm).GetDetails();
         }
     }
 }

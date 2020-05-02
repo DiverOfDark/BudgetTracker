@@ -10,42 +10,15 @@
     import * as commons from '../../generated/Commons_pb';
     import * as protos from '../../generated/Debts_pb';
     import {formatMoney} from '../../services/Shared'
-    import { writable, get } from 'svelte/store';
     import { onDestroy } from 'svelte';
     import { formatUnixDate } from '../../services/Shared';
 
-    let debts = writable<protos.DebtView.AsObject[]>([]);
+    let debts = SoWService.getDebts(onDestroy).debts;
 
     let showCreate = false;
     let showEdit = false;
 
     let editDebtModel: protos.Debt.AsObject | undefined = undefined;
-    
-    function parseDebts(stream: protos.DebtsStream.AsObject) {
-        if (stream.added) {
-            let newDebts = get(debts);
-            newDebts = [...newDebts, stream.added];
-            debts.set(newDebts);
-        } else if (stream.removed) {
-            let newDebts = get(debts);
-            newDebts = newDebts.filter((f: protos.DebtView.AsObject) => f.model!.id!.value != stream.removed!.model!.id!.value);
-            debts.set(newDebts);
-        } else if (stream.updated) {
-            let newDebts = get(debts);
-            newDebts = newDebts.map((f: protos.DebtView.AsObject) => {
-                if (f.model!.id!.value == stream.updated!.model!.id!.value) {
-                    return stream!.updated;
-                }
-                return f;
-            });
-            debts.set(newDebts);
-        } else if (stream.snapshot) {
-            let newStores = stream.snapshot.debtsList;
-            debts.set(newStores);
-        } else {
-            console.error("Unsupported operation");
-        }
-    }
 
     function formatTimestamp(timestamp: commons.Timestamp.AsObject) {
          return formatUnixDate(timestamp.seconds + timestamp.nanos / 10e9);
@@ -63,10 +36,6 @@
     async function deleteDebt(debt: protos.DebtView.AsObject) {
         await SoWService.deleteDebt(debt.model!.id!);
     }
-
-    let unsubscribe = SoWService.getDebts(parseDebts);
-
-    onDestroy(unsubscribe);
 
     //used in views:
     Link; Modal; Form; showCreate; showEdit; debts; editDebtModel; formatMoney; formatTimestamp; editDebt; deleteDebt; createDebt;

@@ -4,19 +4,108 @@ import protoDebts from '../generated/Debts_pb';
 import protoCommons from '../generated/Commons_pb';
 import protoSpentCategories from '../generated/SpentCategories_pb';
 import protoPayments from '../generated/Payments_pb';
-import { writable } from 'svelte/store';
+import { writable, get } from 'svelte/store';
 import { ClientReadableStream } from 'grpc-web';
+import {compare } from '../services/Shared';
+
+class SpentCategoriesStreamViewModel {
+    spentCategories = writable<protoSpentCategories.SpentCategory.AsObject[]>([])
+
+    private categorySort(a: protoSpentCategories.SpentCategory.AsObject, b: protoSpentCategories.SpentCategory.AsObject): number {
+        return compare(a.category, b.category) * 10 + compare(a.pattern, b.pattern);
+    }
+
+    private parseSpentCategories(stream: protoSpentCategories.SpentCategoriesStream.AsObject) {
+        if (stream.added) {
+            let newCategories = get(this.spentCategories);
+            newCategories = [...newCategories, stream.added];
+            newCategories.sort(this.categorySort);
+            this.spentCategories.set(newCategories);
+        } else if (stream.removed) {
+            let newCategories = get(this.spentCategories);
+            newCategories = newCategories.filter((f: protoSpentCategories.SpentCategory.AsObject) => f.id!.value != stream.removed!.id!.value);
+            newCategories.sort(this.categorySort);
+            this.spentCategories.set(newCategories);
+        } else if (stream.updated) {
+            let newCategories = get(this.spentCategories);
+            newCategories = newCategories.map((f: protoSpentCategories.SpentCategory.AsObject) => {
+                if (f.id!.value == stream.updated!.id!.value) {
+                    return stream!.updated;
+                }
+                return f;
+            });
+            newCategories.sort(this.categorySort);
+            this.spentCategories.set(newCategories);
+        } else if (stream.snapshot) {
+            let newCategories = stream.snapshot.spentCategoriesList;
+            newCategories.sort(this.categorySort);
+            this.spentCategories.set(newCategories);
+        } else {
+            console.log(stream);
+            debugger;
+            console.error("Unsupported operation");
+        }
+    }
+
+    constructor(service: SoWService, onDestroy: (callback:() => void) => void) {
+        let callback = service.reconnect(x=>x.getSpentCategories(service.Empty), response => {
+            let object = response.toObject(false);
+            this.parseSpentCategories(object);
+        })
+        onDestroy(callback)
+    }    
+}
+
+class DebtsStreamViewModel {
+    debts = writable<protoDebts.DebtView.AsObject[]>([]);
+
+    private parseDebts(stream: protoDebts.DebtsStream.AsObject) {
+        if (stream.added) {
+            let newDebts = get(this.debts);
+            newDebts = [...newDebts, stream.added];
+            this.debts.set(newDebts);
+        } else if (stream.removed) {
+            let newDebts = get(this.debts);
+            newDebts = newDebts.filter((f: protoDebts.DebtView.AsObject) => f.model!.id!.value != stream.removed!.model!.id!.value);
+            this.debts.set(newDebts);
+        } else if (stream.updated) {
+            let newDebts = get(this.debts);
+            newDebts = newDebts.map((f: protoDebts.DebtView.AsObject) => {
+                if (f.model!.id!.value == stream.updated!.model!.id!.value) {
+                    return stream!.updated;
+                }
+                return f;
+            });
+            this.debts.set(newDebts);
+        } else if (stream.snapshot) {
+            let newStores = stream.snapshot.debtsList;
+            this.debts.set(newStores);
+        } else {
+            console.log(stream);
+            debugger;
+            console.error("Unsupported operation");
+        }
+    }
+
+    constructor(service: SoWService, onDestroy: (callback:() => void) => void) {
+        let callback = service.reconnect(x=>x.getDebts(service.Empty), response => {
+            let object = response.toObject(false);
+            this.parseDebts(object);
+        });
+        onDestroy(callback)
+    }    
+}
 
 export class SoWService {
     Empty = new protoCommons.Empty()
     SystemInfo = writable(new protoSettings.SystemInfo().toObject());
     SoWClient: proto.SoWServicePromiseClient;
 
-    private reconnect<T>(method: (x: SoWServicePromiseClient) => ClientReadableStream<T>, callback: (x: T) => any): () => void {
+    reconnect<T>(method: (x: SoWServicePromiseClient) => ClientReadableStream<T>, callback: (x: T) => any): () => void {
         let that = this;
 
         function reconnectImpl() {
-            console.log("Stream reconnecting... (" + method.toString() + ")");
+            console.log(new Date().toUTCString() + " - Stream reconnecting... (" + method.toString() + ")");
 
             let cancelResult = () => {};
 
@@ -37,7 +126,7 @@ export class SoWService {
             cancelResult = () => result.cancel();
 
             return () => {
-                console.log("Stream canceled. (" + method.toString() + ")");
+                console.log(new Date().toUTCString() + " - Stream canceled. (" + method.toString() + ")");
                 cancelResult();
             }
         }
@@ -57,9 +146,26 @@ export class SoWService {
 
         return () => {
             cancel();
-            console.log("Stream aborted. (" + method.toString() + ")");
+            console.log(new Date().toUTCString() + " - Stream aborted. (" + method.toString() + ")");
             document.removeEventListener("visibilitychange", handleVisibilityChange, false);
         };
+    }
+
+    private toUuid(uuid: protoCommons.UUID.AsObject | undefined): protoCommons.UUID {
+        let result = new protoCommons.UUID();
+        if (uuid !== undefined) {
+            result.setValue(uuid.value);
+        }
+        return result;
+    }
+
+    private toTimestamp(timestamp: protoCommons.Timestamp.AsObject | undefined): protoCommons.Timestamp {
+        let result = new protoCommons.Timestamp();
+        if (timestamp !== undefined) {
+            result.setSeconds(timestamp.seconds);
+            result.setNanos(timestamp.nanos);
+        }
+        return result;
     }
 
     async updateSettingsPassword(newPassword: string) {
@@ -69,15 +175,11 @@ export class SoWService {
     }
 
     async deleteConfig(uuid: protoCommons.UUID.AsObject) {
-        var id = new protoCommons.UUID();
-        id.setValue(uuid.value);
-        await this.SoWClient.deleteConfig(id)
+        await this.SoWClient.deleteConfig(this.toUuid(uuid))
     }
 
     async clearLastSuccessful(uuid: protoCommons.UUID.AsObject) {
-        var id = new protoCommons.UUID();
-        id.setValue(uuid.value);
-        await this.SoWClient.clearLastSuccesful(id);
+        await this.SoWClient.clearLastSuccesful(this.toUuid(uuid));
     }
 
     async addConfig(scraperName: string, login: string, password: string) {
@@ -101,46 +203,29 @@ export class SoWService {
     }
 
     async deleteDebt(id: protoCommons.UUID.AsObject) {
-        let request = new protoCommons.UUID();
-        request.setValue(id.value);
-        await this.SoWClient.deleteDebt(request);
+        await this.SoWClient.deleteDebt(this.toUuid(id));
     }
 
     async updateDebt(debt: protoDebts.Debt.AsObject) {
         let request = new protoDebts.Debt();
-        let uuid = new protoCommons.UUID();
-
-        if (debt.id) {
-            uuid.setValue(debt.id.value);
-        }
-        request.setId(uuid);
+        request.setId(this.toUuid(debt.id));
         request.setAmount(debt.amount);
         request.setCcy(debt.ccy);
         request.setDaysCount(debt.daysCount);
         request.setDescription(debt.description);
-        let issuedModel = new protoCommons.Timestamp();
-        issuedModel.setSeconds(debt.issued!.seconds);
-        issuedModel.setNanos(debt.issued!.nanos);
-        request.setIssued(issuedModel);
+        request.setIssued(this.toTimestamp(debt.issued));
         request.setPercentage(debt.percentage);
         request.setRegexForTransfer(debt.regexForTransfer);
         await this.SoWClient.editDebt(request);
     }
 
     async deleteSpentCategory(id: protoCommons.UUID.AsObject) {
-        let request = new protoCommons.UUID();
-        request.setValue(id.value);
-        await this.SoWClient.deleteSpentCategory(request);
+        await this.SoWClient.deleteSpentCategory(this.toUuid(id));
     }
 
     async updateSpentCategory(category: protoSpentCategories.SpentCategory.AsObject) {
         let request = new protoSpentCategories.SpentCategory();
-        let uuid = new protoCommons.UUID();
-
-        if (category.id) {
-            uuid.setValue(category.id.value);
-        }
-        request.setId(uuid);
+        request.setId(this.toUuid(category.id));
         request.setCategory(category.category);
         request.setPattern(category.pattern);
         request.setKind(category.kind);
@@ -162,10 +247,28 @@ export class SoWService {
         await this.SoWClient.showCategorized(request);
     }
 
-    async setOrdering(newOrdering: number) {
-        let request = new protoPayments.UpdateOrderingRequest();
-        request.setNewOrdering(newOrdering);
-        await this.SoWClient.setOrdering(request);
+    async expandCollapse(uuids: protoCommons.UUID.AsObject[]) {
+        let request = new protoPayments.ExpandCollapse();
+        request.setPathList(uuids.map(this.toUuid))
+        await this.SoWClient.expandCollapse(request);
+    }
+
+    async deletePayment(id: protoCommons.UUID.AsObject) {
+        await this.SoWClient.deletePayment(this.toUuid(id));
+    }
+
+    async editPayment(payment: protoPayments.Payment.AsObject) {
+        let request = new protoPayments.Payment();
+        request.setAmount(payment.amount);
+        request.setCategoryId(this.toUuid(payment.categoryId));
+        request.setCcy(payment.ccy);
+        request.setColumnId(this.toUuid(payment.columnId));
+        request.setDebtId(this.toUuid(payment.debtId));
+        request.setId(this.toUuid(payment.id));
+        request.setKind(payment.kind);
+        request.setWhat(payment.what);
+        request.setWhen(this.toTimestamp(payment.when));
+        await this.SoWClient.editPayment(request);
     }
 
     getScreenshot(callback: (base64Image: string) => void): () => void  {
@@ -189,18 +292,12 @@ export class SoWService {
         })
     }
 
-    getDebts(callback: (debts: protoDebts.DebtsStream.AsObject) => void): () => void {
-        return this.reconnect(x=>x.getDebts(this.Empty), response => {
-            let object = response.toObject(false);
-            callback(object);
-        })
+    getDebts(onDestroy: (callback: () => void) => void): DebtsStreamViewModel {
+        return new DebtsStreamViewModel(this, onDestroy);
     }
 
-    getSpentCategories(callback: (spentCategories: protoSpentCategories.SpentCategoriesStream.AsObject) => void) : () => void {
-        return this.reconnect(x=>x.getSpentCategories(this.Empty), response => {
-            let object = response.toObject(false);
-            callback(object);
-        })
+    getSpentCategories(onDestroy: (callback: () => void) => void): SpentCategoriesStreamViewModel {
+        return new SpentCategoriesStreamViewModel(this, onDestroy)
     }
 
     getPayments(callback: (payments: protoPayments.PaymentsStream.AsObject) => void) : () => void {

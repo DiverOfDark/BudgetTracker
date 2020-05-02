@@ -9,6 +9,7 @@ import "Debts.proto";
 import "Payments.proto";
 import "SpentCategories.proto";
 
+// TODO merge all streams into single active connection because max could be 6 connections, i.e. 5 streams and 1 for action.
 service SoWService {
   // Settings
   rpc GetSystemInfo (Empty) returns (stream Settings.SystemInfo);
@@ -36,9 +37,7 @@ service SoWService {
   rpc SplitPayment (Payments.SplitPaymentRequest) returns (Empty);
   rpc DeletePayment (UUID) returns (Empty);
   rpc ShowCategorized (Payments.ShowCategorizedRequest) returns (Empty);
-  rpc ExpandCollapseGroup (Payments.ExpandCollapseGroup) returns (Empty);
-  rpc ExpandCollapseMonth (Payments.ExpandCollapseMonth) returns (Empty);
-  rpc SetOrdering (Payments.UpdateOrderingRequest) returns (Empty);
+  rpc ExpandCollapse (Payments.ExpandCollapse) returns (Empty);
 
   rpc GetSpentCategories (Empty) returns (stream SpentCategories.SpentCategoriesStream);
   rpc EditSpentCategory (SpentCategories.SpentCategory) returns (Empty);

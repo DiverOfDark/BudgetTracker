@@ -5,62 +5,17 @@
     import Form from './editCategory.svelte';
     import Modal from '../../components/Modal.svelte';
     import SoWService from '../../services/SoWService';
-    import {compare} from '../../services/Shared';
+    import { formatPaymentKind } from '../../services/Shared';
     import * as protos from '../../generated/SpentCategories_pb';
-    import { writable, get } from 'svelte/store';
     import { onDestroy } from 'svelte';
 
-    let spentCategories = writable<protos.SpentCategory.AsObject[]>([]);
+    let spentCategories = SoWService.getSpentCategories(onDestroy).spentCategories;
 
     let newCategory = "";
     let newPattern = "";
     let newKind = 0;
     let showEdit = false;
     let editSpentCategoryModel: protos.SpentCategory.AsObject | undefined = undefined;
-
-    function getDisplayName(kind: any) {
-        if (kind == 0)
-            return "Трата";
-        if (kind == 1)
-            return "Доход";
-        if (kind == 2)
-            return "Перевод";
-        return "Неизвестно";
-    }
-
-    function categorySort(a: protos.SpentCategory.AsObject, b: protos.SpentCategory.AsObject): number {
-        return compare(a.category, b.category) * 10 + compare(a.pattern, b.pattern);
-    }
-
-    function parseSpentCategories(stream: protos.SpentCategoriesStream.AsObject) {
-        if (stream.added) {
-            let newCategories = get(spentCategories);
-            newCategories = [...newCategories, stream.added];
-            newCategories.sort(categorySort);
-            spentCategories.set(newCategories);
-        } else if (stream.removed) {
-            let newCategories = get(spentCategories);
-            newCategories = newCategories.filter((f: protos.SpentCategory.AsObject) => f.id!.value != stream.removed!.id!.value);
-            newCategories.sort(categorySort);
-            spentCategories.set(newCategories);
-        } else if (stream.updated) {
-            let newCategories = get(spentCategories);
-            newCategories = newCategories.map((f: protos.SpentCategory.AsObject) => {
-                if (f.id!.value == stream.updated!.id!.value) {
-                    return stream!.updated;
-                }
-                return f;
-            });
-            newCategories.sort(categorySort);
-            spentCategories.set(newCategories);
-        } else if (stream.snapshot) {
-            let newCategories = stream.snapshot.spentCategoriesList;
-            newCategories.sort(categorySort);
-            spentCategories.set(newCategories);
-        } else {
-            console.error("Unsupported operation");
-        }
-    }
 
     let edit = function(category: protos.SpentCategory.AsObject) {
         editSpentCategoryModel = category;
@@ -78,12 +33,8 @@
         newKind = 0;
     }
 
-    let unsubscribe = SoWService.getSpentCategories(parseSpentCategories);
-
-    onDestroy(unsubscribe);
-
     // used in view
-    newCategory; newPattern; newKind; deleteCategory; edit; create; getDisplayName; showEdit; Modal; Form; editSpentCategoryModel;
+    newCategory; newPattern; newKind; deleteCategory; edit; create; formatPaymentKind; showEdit; Modal; Form; editSpentCategoryModel; spentCategories;
 </script>
 
 <div class="container">
@@ -109,7 +60,7 @@
                                 {#each $spentCategories as category, idx}
                                 <tr>
                                     <td>{category.category}</td>
-                                    <td>{getDisplayName(category.kind)}</td>
+                                    <td>{formatPaymentKind(category.kind)}</td>
                                     <td>{category.pattern || ''}</td>
                                     <td>
                                         <button class="btn btn-link btn-anchor" on:click="{() => edit(category)}">

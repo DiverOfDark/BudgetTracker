@@ -16,18 +16,11 @@ message Payment {
     
     Timestamp when = 5;
     
-    string provider = 6;
-    string account = 7;
+    UUID category_id = 6;
+    UUID debt_id = 7;
+    UUID column_id = 8;
     
-    UUID category_id = 10;
-    string category = 11;
-
-    UUID debt_id = 12;
-    string debt = 13;
-    
-    UUID column_id = 14;
-    
-    PaymentKind kind = 15;
+    PaymentKind kind = 9;
 }
 
 message PaymentDetails {
@@ -43,25 +36,23 @@ enum PaymentKind {
     UNKNOWN = -1;
 }
 
-enum Ordering {
-    DATE = 0;
-    AMOUNT = 1;
-}
-
 message PaymentGroup {
-    Timestamp when = 1;
-    int32 payment_count = 2;
-    PaymentKind kind = 3;
-    string category = 4;
-    string provider = 5;
-    string account = 6;
+    UUID id = 1;
+    Timestamp when = 2;
+    int32 payment_count = 3;
+    PaymentKind kind = 4;
+    string category = 5;
+    string provider = 6;
+    string account = 7;
     
-    double amount = 7;
-    string ccy = 8;
+    double amount = 8;
+    string ccy = 9;
     
-    string what = 9;
+    string what = 10;
     
-    bool is_expanded = 10;
+    bool is_expanded = 11;
+
+    repeated Payment payments = 12;
 }
 
 message CurrencySummary {
@@ -70,11 +61,14 @@ message CurrencySummary {
 }
 
 message MonthSummary {
-    Timestamp when = 1;
-    repeated CurrencySummary summary = 2;
-    int32 uncategorized_count = 3;
+    UUID id = 1;    
+    Timestamp when = 2;
+    repeated CurrencySummary summary = 3;
+    int32 uncategorized_count = 4;
     
-    bool isExpanded = 4;
+    bool isExpanded = 5;
+    
+    repeated PaymentView payments = 6;
 }
 
 message PaymentView {
@@ -86,14 +80,14 @@ message PaymentView {
 }
 
 message PaymentViewUpdate {
-    int32 rowPosition = 1;
-    PaymentView view = 2;
+    repeated UUID id = 1;
+    int32 position = 2;
+    PaymentView view = 3;
 }
 
 message PaymentsList {
     repeated PaymentView payments = 1;
-    Ordering ordering = 2;
-    bool show_categorized = 3;
+    bool show_categorized = 2;
 }
 
 message PaymentsStream {
@@ -114,15 +108,6 @@ message ShowCategorizedRequest {
     bool show_categorized = 1;
 }
 
-message ExpandCollapseMonth {
-    Timestamp timestamp = 1;
-}
-
-message ExpandCollapseGroup {
-    Timestamp month = 1;
-    int32 row_number = 2;
-}
-
-message UpdateOrderingRequest {
-    Ordering new_ordering = 1;
+message ExpandCollapse {
+    repeated UUID path = 1;
 }

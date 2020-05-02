@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using BudgetTracker.Controllers;
 using Google.Protobuf;
@@ -90,25 +91,13 @@ namespace BudgetTracker.GrpcServices
 
         public override Task<Empty> ShowCategorized(ShowCategorizedRequest request, ServerCallContext context)
         {
-            _provider.GetService<PaymentsViewModel>(_accessor).ShowCategorized = request.ShowCategorized;
+            _provider.GetService<PaymentsViewModel>(_accessor).UpdateShowCategorized(request.ShowCategorized);
             return Empty;
         }
 
-        public override Task<Empty> ExpandCollapseGroup(ExpandCollapseGroup request, ServerCallContext context)
+        public override Task<Empty> ExpandCollapse(ExpandCollapse request, ServerCallContext context)
         {
-            _provider.GetService<PaymentsViewModel>(_accessor).ExpandCollapseGroup(request.Month, request.RowNumber);
-            return Empty;
-        }
-
-        public override Task<Empty> ExpandCollapseMonth(ExpandCollapseMonth request, ServerCallContext context)
-        {
-            _provider.GetService<PaymentsViewModel>(_accessor).ExpandCollapseMonth(request.Timestamp);
-            return Empty;
-        }
-
-        public override Task<Empty> SetOrdering(UpdateOrderingRequest request, ServerCallContext context)
-        {
-            _provider.GetService<PaymentsViewModel>(_accessor).Ordering = request.NewOrdering;
+            _provider.GetService<PaymentsViewModel>(_accessor).ExpandCollapseGroup(request.Path.Select(v=>v.ToGuid()).ToList());
             return Empty;
         }
 

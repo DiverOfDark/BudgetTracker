@@ -10,42 +10,37 @@ namespace BudgetTracker.GrpcServices
 {
     public class DebtsViewModel : GrpcViewModelBase<DebtsStream>
     {
+        private ObjectRepositoryServerObservableCollection<DebtModel, DebtsStream> _collection;
+
         public DebtsViewModel(ObjectRepository objectRepository, ILogger<DebtsViewModel> logger) : base(objectRepository, logger)
         {
         }
 
         protected override Task Init()
         {
-            SendSnapshot();
+            _collection = new ObjectRepositoryServerObservableCollection<DebtModel, DebtsStream>(
+                ObjectRepository,
+                SendUpdate,
+                (x, i) => new DebtsStream {Added = ToDebtView(x)},
+                (x, i)=>new DebtsStream {Removed = ToDebtView(x)},
+                (x, i) => new DebtsStream {Updated = ToDebtView(x)},
+                list =>
+                {
+                    var model = new DebtsStream {Snapshot = new DebtsList()};
+                    model.Snapshot.Debts.AddRange(list.Select(ToDebtView).ToList());
+                    return model;
+                });
+            Anchors.Add(_collection.Dispose);
             return Task.CompletedTask;
         }
 
         protected override void OnModelRepositoryChanged(ModelChangedEventArgs obj)
         {
-            // TODO debounce
-            if (obj.Source is DebtModel || obj.Source is PaymentModel)
+            // TODO handle in debtmodel
+            if (obj.Source is PaymentModel)
             {
-                if (obj.Source is DebtModel debt)
-                {
-                    switch (obj.ChangeType)
-                    {
-                        case ChangeType.Update:
-                            SendUpdate(new DebtsStream {Updated = ToDebtView(debt)});
-                            break;
-                        case ChangeType.Add:
-                            SendUpdate(new DebtsStream {Added = ToDebtView(debt)});
-                            break;
-                        case ChangeType.Remove:
-                            SendUpdate(new DebtsStream {Removed = ToDebtView(debt)});
-                            break;
-                        default:
-                            throw new NotSupportedException();
-                    }
-                }
-                else
-                {
-                    SendSnapshot();
-                }
+                _collection.Dispose();
+                Init();
             }
         }
 
@@ -67,13 +62,6 @@ namespace BudgetTracker.GrpcServices
                 Returned = debt.Returned,
                 LastPaymentDate = debt.LastPaymentDate ?? ""
             };
-        }
-
-        private void SendSnapshot()
-        {
-            var model = new DebtsStream {Snapshot = new DebtsList()};
-            model.Snapshot.Debts.AddRange(ObjectRepository.Set<DebtModel>().Select(ToDebtView).ToList());
-            SendUpdate(model);
         }
 
         public void EditDebt(Debt request)

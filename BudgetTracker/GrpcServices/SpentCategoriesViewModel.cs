@@ -4,42 +4,35 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using BudgetTracker.Model;
 using Microsoft.Extensions.Logging;
-using OutCode.EscapeTeams.ObjectRepository;
 
 namespace BudgetTracker.GrpcServices
 {
     public class SpentCategoriesViewModel : GrpcViewModelBase<SpentCategoriesStream>
     {
+        private ServerObservableCollection<SpentCategoryModel, SpentCategoriesStream> _collection;
+
         public SpentCategoriesViewModel(ObjectRepository objectRepository, ILogger<SpentCategoriesViewModel> logger) : base(objectRepository, logger)
         {
         }
 
         protected override Task Init()
         {
-            SendSnapshot();
-            return Task.CompletedTask;
-        }
-
-        protected override void OnModelRepositoryChanged(ModelChangedEventArgs obj)
-        {
-            // TODO debounce
-            if (obj.Source is SpentCategoryModel spentCategoryModel)
-            {
-                switch (obj.ChangeType)
+            _collection = new ObjectRepositoryServerObservableCollection<SpentCategoryModel, SpentCategoriesStream>(
+                ObjectRepository,
+                SendUpdate,
+                (x, i) => new SpentCategoriesStream {Added = ToSpentCategory(x)},
+                (x, i) => new SpentCategoriesStream {Removed = ToSpentCategory(x)},
+                (x, i) => new SpentCategoriesStream {Updated = ToSpentCategory(x)},
+                list =>
                 {
-                    case ChangeType.Update:
-                        SendUpdate(new SpentCategoriesStream {Updated = ToSpentCategory(spentCategoryModel)});
-                        break;
-                    case ChangeType.Add:
-                        SendUpdate(new SpentCategoriesStream {Added = ToSpentCategory(spentCategoryModel)});
-                        break;
-                    case ChangeType.Remove:
-                        SendUpdate(new SpentCategoriesStream {Removed = ToSpentCategory(spentCategoryModel)});
-                        break;
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
+                    var model = new SpentCategoriesStream {Snapshot = new SpentCategoryList()};
+                    model.Snapshot.SpentCategories.AddRange(list.Select(ToSpentCategory).ToList());
+                    return model;
+                });
+            
+            Anchors.Add(() => _collection.Dispose());
+            
+            return Task.CompletedTask;
         }
 
         private SpentCategory ToSpentCategory(SpentCategoryModel spentCategoryModel)
@@ -53,13 +46,6 @@ namespace BudgetTracker.GrpcServices
             };
         }
 
-        private void SendSnapshot()
-        {
-            var model = new SpentCategoriesStream {Snapshot = new SpentCategoryList()};
-            model.Snapshot.SpentCategories.AddRange(ObjectRepository.Set<SpentCategoryModel>().Select(ToSpentCategory).ToList());
-            SendUpdate(model);
-        }
-        
         public void DeleteCategory(UUID request)
         {
             var id = request.ToGuid();
