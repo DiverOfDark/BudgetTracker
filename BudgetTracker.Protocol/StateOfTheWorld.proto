@@ -3,6 +3,7 @@ syntax = "proto3";
 option csharp_namespace = "BudgetTracker";
 
 package Protos;
+import "Accounts.proto";
 import "Settings.proto";
 import "Commons.proto";
 import "Debts.proto";
@@ -42,4 +43,7 @@ service SoWService {
   rpc GetSpentCategories (Empty) returns (stream SpentCategories.SpentCategoriesStream);
   rpc EditSpentCategory (SpentCategories.SpentCategory) returns (Empty);
   rpc DeleteSpentCategory (UUID) returns (Empty);
+  
+  // Accounts
+  rpc GetMoneyColumnMetadata (Empty) returns (stream Accounts.MoneyColumnMetadataStream);
 }

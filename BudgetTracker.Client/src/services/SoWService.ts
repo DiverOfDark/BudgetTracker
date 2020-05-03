@@ -4,9 +4,127 @@ import protoDebts from '../generated/Debts_pb';
 import protoCommons from '../generated/Commons_pb';
 import protoSpentCategories from '../generated/SpentCategories_pb';
 import protoPayments from '../generated/Payments_pb';
+import protoAccounts from '../generated/Accounts_pb';
 import { writable, get } from 'svelte/store';
 import { ClientReadableStream } from 'grpc-web';
 import {compare } from '../services/Shared';
+
+class PaymentsStreamViewModel {
+    payments = writable<protoPayments.PaymentView.AsObject[]>([]);
+
+    private parsePayments(stream: protoPayments.PaymentsStream.AsObject) {
+        if (stream.snapshot) {
+            this.payments.set(stream.snapshot.paymentsList);
+        } else if (stream.added) {
+            let current: protoPayments.PaymentView.AsObject[] = get(this.payments);
+
+            if (stream.added.idList.length) {
+                let optionalCurrent : protoPayments.PaymentView.AsObject[] | undefined = current;
+                for (let i = 0; i< stream.added.idList.length; i++) {
+                    let currentId = stream.added.idList[i].value;
+
+                    let newCurrent : protoPayments.PaymentView.AsObject | undefined = optionalCurrent!.find(t => {
+                        if (t.summary != undefined)
+                            return t.summary.id!.value == currentId;
+                        if (t.group != undefined)
+                            return t.group.id!.value == currentId;
+                        return false;
+                    });
+
+                    if (newCurrent == undefined) {
+                        console.error("failed to find current!");
+                    } else {
+                        optionalCurrent = newCurrent.summary ? newCurrent.summary.paymentsList : 
+                                  newCurrent.group? newCurrent.group.paymentsList : undefined;
+                    }
+                }
+
+                if (optionalCurrent != undefined) {
+                    optionalCurrent.splice(stream.added.position, 0, stream.added.view!);
+                }
+            }
+            else {
+                current.splice(stream.added.position, 0, stream.added.view!);
+            }
+
+            this.payments.set(current);
+        } else if (stream.removed) {
+            let current: protoPayments.PaymentView.AsObject[] = get(this.payments);
+
+            if (stream.removed.idList.length) {
+                let optionalCurrent : protoPayments.PaymentView.AsObject[] | undefined = current;
+                for (let i = 0; i< stream.removed.idList.length; i++) {
+                    let currentId = stream.removed.idList[i].value;
+
+                    let newCurrent : protoPayments.PaymentView.AsObject | undefined = optionalCurrent!.find(t => {
+                        if (t.summary != undefined)
+                            return t.summary.id!.value == currentId;
+                        if (t.group != undefined)
+                            return t.group.id!.value == currentId;
+                        return false;
+                    });
+
+                    if (newCurrent == undefined) {
+                        console.error("failed to find current!");
+                    } else {
+                        optionalCurrent = newCurrent.summary ? newCurrent.summary.paymentsList : 
+                                  newCurrent.group? newCurrent.group.paymentsList : undefined;
+                    }
+                }
+
+                if (optionalCurrent != undefined) {
+                    optionalCurrent.splice(stream.removed.position, 1);
+                }
+            }
+            else {
+                current.splice(stream.removed.position, 1);
+            }
+
+            this.payments.set(current);
+        } else if (stream.updated) {
+            var current: protoPayments.PaymentView.AsObject[] = get(this.payments);
+
+            if (stream.updated.idList.length) {
+                let optionalCurrent : protoPayments.PaymentView.AsObject[] | undefined = current;
+                for (let i = 0; i< stream.updated.idList.length; i++) {
+                    let currentId = stream.updated.idList[i].value;
+
+                    let newCurrent : protoPayments.PaymentView.AsObject | undefined = optionalCurrent!.find(t => {
+                        if (t.summary != undefined)
+                            return t.summary.id!.value == currentId;
+                        if (t.group != undefined)
+                            return t.group.id!.value == currentId;
+                        return false;
+                    });
+
+                    if (newCurrent == undefined) {
+                        console.error("failed to find current!");
+                    } else {
+                        optionalCurrent = newCurrent.summary ? newCurrent.summary.paymentsList : 
+                                  newCurrent.group? newCurrent.group.paymentsList : undefined;
+                    }
+                }
+
+                if (optionalCurrent != undefined) {
+                    optionalCurrent.splice(stream.updated.position, 1, stream.updated.view!);
+                }
+            }
+            else {
+                current.splice(stream.updated.position, 1, stream.updated.view!);
+            }
+
+            this.payments.set(current);
+        }
+    }
+
+    constructor(service: SoWService, onDestroy: (callback:() => void) => void) {
+        let callback = service.reconnect(x=>x.getPayments(service.Empty), response => {
+            let object = response.toObject(false);
+            this.parsePayments(object);
+        })
+        onDestroy(callback)
+    }
+}
 
 class SpentCategoriesStreamViewModel {
     spentCategories = writable<protoSpentCategories.SpentCategory.AsObject[]>([])
@@ -42,7 +160,6 @@ class SpentCategoriesStreamViewModel {
             this.spentCategories.set(newCategories);
         } else {
             console.log(stream);
-            debugger;
             console.error("Unsupported operation");
         }
     }
@@ -82,7 +199,6 @@ class DebtsStreamViewModel {
             this.debts.set(newStores);
         } else {
             console.log(stream);
-            debugger;
             console.error("Unsupported operation");
         }
     }
@@ -94,6 +210,45 @@ class DebtsStreamViewModel {
         });
         onDestroy(callback)
     }    
+}
+
+class MoneyColumnMetadataStreamViewModel {
+    moneyColumnMetadatas = writable<protoAccounts.MoneyColumnMetadata.AsObject[]>([]);
+
+    private parseMoneyColumnMetadatas(stream: protoAccounts.MoneyColumnMetadataStream.AsObject) {
+        if (stream.added) {
+            let newMetadatas = get(this.moneyColumnMetadatas);
+            newMetadatas = [...newMetadatas, stream.added];
+            this.moneyColumnMetadatas.set(newMetadatas);
+        } else if (stream.removed) {
+            let newMetadatas = get(this.moneyColumnMetadatas);
+            newMetadatas = newMetadatas.filter((f: protoAccounts.MoneyColumnMetadata.AsObject) => f.id!.value != stream.removed!.id!.value);
+            this.moneyColumnMetadatas.set(newMetadatas);
+        } else if (stream.updated) {
+            let newMetadatas = get(this.moneyColumnMetadatas);
+            newMetadatas = newMetadatas.map((f: protoAccounts.MoneyColumnMetadata.AsObject) => {
+                if (f.id!.value == stream.updated!.id!.value) {
+                    return stream!.updated;
+                }
+                return f;
+            });
+            this.moneyColumnMetadatas.set(newMetadatas);
+        } else if (stream.snapshot) {
+            let newStores = stream.snapshot.moneyColumnMetadatasList;
+            this.moneyColumnMetadatas.set(newStores);
+        } else {
+            console.log(stream);
+            console.error("Unsupported operation");
+        }
+    }
+
+    constructor(service: SoWService, onDestroy: (callback:() => void) => void) {
+        let callback = service.reconnect(x=>x.getMoneyColumnMetadata(service.Empty), response => {
+            let object = response.toObject(false);
+            this.parseMoneyColumnMetadatas(object);
+        });
+        onDestroy(callback)
+    }   
 }
 
 export class SoWService {
@@ -297,14 +452,15 @@ export class SoWService {
     }
 
     getSpentCategories(onDestroy: (callback: () => void) => void): SpentCategoriesStreamViewModel {
-        return new SpentCategoriesStreamViewModel(this, onDestroy)
+        return new SpentCategoriesStreamViewModel(this, onDestroy);
     }
 
-    getPayments(callback: (payments: protoPayments.PaymentsStream.AsObject) => void) : () => void {
-        return this.reconnect(x=>x.getPayments(this.Empty), response => {
-            let object = response.toObject(false);
-            callback(object);
-        })
+    getPayments(onDestroy: (callback: () => void) => void) : PaymentsStreamViewModel {
+        return new PaymentsStreamViewModel(this, onDestroy);
+    }
+
+    getMoneyColumnMetadatas(onDestroy: (callback: () => void) => void) : MoneyColumnMetadataStreamViewModel {
+        return new MoneyColumnMetadataStreamViewModel(this, onDestroy);
     }
 
     constructor() {

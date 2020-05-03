@@ -10,7 +10,7 @@ message UUID {
 
 message Timestamp {
     int64 seconds = 1;
-    int32 nanos = 2;
+    int32 nanos = 2; // TODO remove unused
 }
 
 message Empty {

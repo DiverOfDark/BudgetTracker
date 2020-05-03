@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option csharp_namespace = "BudgetTracker";
+
+package Protos.Accounts;
+
+import "Commons.proto";
+
+message MoneyColumnMetadata {
+    UUID id = 1;
+    string provider = 2;
+    string account_name = 3;
+    string user_friendly_name = 4;
+    bool autogenerate_statements = 5;
+    int32 order = 6;
+    string function = 7;
+}
+
+message MoneyColumnMetadataList {
+    repeated MoneyColumnMetadata money_column_metadatas = 1;
+}
+
+message MoneyColumnMetadataStream {
+    oneof update {
+        MoneyColumnMetadataList snapshot = 1;
+        MoneyColumnMetadata added = 2;
+        MoneyColumnMetadata removed = 3;
+        MoneyColumnMetadata updated = 4;
+    }
+}

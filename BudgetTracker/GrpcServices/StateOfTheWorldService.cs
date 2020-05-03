@@ -36,6 +36,8 @@ namespace BudgetTracker.GrpcServices
 
         public override Task GetSpentCategories(Empty request, IServerStreamWriter<SpentCategoriesStream> responseStream, ServerCallContext context) => _provider.GetService<SpentCategoriesViewModel>(_accessor).Send(responseStream, context);
 
+        public override Task GetMoneyColumnMetadata(Empty request, IServerStreamWriter<MoneyColumnMetadataStream> responseStream, ServerCallContext context) => _provider.GetService<MoneyColumnMetadatasViewModel>(_accessor).Send(responseStream, context);
+
         public override Task<ExecuteScriptResponse> ExecuteScript(ExecuteScriptRequest request, ServerCallContext context) => _provider.GetService<ScriptService>(_accessor).Evaluate(request);
 
         public override async Task<DbDump> DownloadDbDump(Empty request, ServerCallContext serverCallContext)

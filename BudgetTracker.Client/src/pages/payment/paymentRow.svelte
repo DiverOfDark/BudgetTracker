@@ -9,6 +9,36 @@
     export let editPayment;
     export let deletePayment;
     export let splitPayment;
+
+    export let debts;
+    export let spentCategories;
+    export let moneyColumns;
+
+    let providerName = "";
+    let accountName = "";
+    $: {
+        let columnId = payment.group ? payment.group.columnId : payment.payment ? payment.payment.columnId : undefined;
+        if (columnId) {
+            let column = $moneyColumns.find(t=>t.id.value == columnId.value);
+            providerName = column.provider;
+            accountName = column.accountName;
+        }
+    }
+
+    let categoryName = "???";
+    $: {
+        let item = payment.group ? payment.group : payment.payment ? payment.payment : undefined;
+        if (item) {
+            if (item.categoryId.value) {
+                let foundItem = $spentCategories.find(t=>t.id.value == item.categoryId.value);
+                categoryName = foundItem != null ? foundItem.category : "!!!";
+            }
+            if (item.debtId.value) {
+                let foundItem = $debts.find(t=>t.model.id.value == item.debtId.value);
+                categoryName = foundItem != null ? foundItem.model.description : "!!!";
+            }
+        }
+    }
 </script>
 
 <style>
@@ -21,8 +51,8 @@
     }
 </style>
 
-<tr>
-    {#if payment.summary}
+{#if payment.summary}
+    <tr>
         <th colspan="8">
             <span class="card-title">
                 <button class="btn btn-link btn-anchor" on:click="{() => expandCollapse([...parentId, payment.summary.id])}">
@@ -36,12 +66,17 @@
                 {payment.summary.uncategorizedCount} без категорий
             </span>
         </th>
-    {:else if (payment.group)}
+    </tr>
+    {#each payment.summary.paymentsList as item, idx}
+        <svelte:self payment={item} {moneyColumns} {debts} {spentCategories} {expandCollapse} {dragStart} {editPayment} {deletePayment} {splitPayment} parentId="{[ ...parentId, payment.summary.id ]}" />
+    {/each}
+{:else if (payment.group)}
+    <tr>
         <td class="text-nowrap">{formatUnixTime(payment.group.when.seconds)}</td>
         <td class="text-nowrap">{formatPaymentKind(payment.group.kind)}</td>
-        <td class="text-nowrap">{(payment.group.category == null ? payment.group.debt : payment.group.category) || '???'}</td>
-        <td class="text-nowrap">{payment.group.provider}</td>
-        <td class="text-nowrap">{payment.group.account}</td>
+        <td class="text-nowrap">{categoryName}</td>
+        <td class="text-nowrap">{providerName}</td>
+        <td class="text-nowrap">{accountName}</td>
         <td class="text-nowrap">
             <b>{formatMoney(payment.group.amount)}</b> 
             <i>{payment.group.ccy}</i>
@@ -57,24 +92,24 @@
                 ({payment.group.paymentCount})
             </button>
         </td>
-    {:else if (payment.payment)}
+    </tr>
+    {#each payment.group.paymentsList as item, idx}
+        <svelte:self payment={item} {moneyColumns} {debts} {spentCategories} {expandCollapse} {dragStart} {editPayment} {deletePayment} {splitPayment} parentId="{[ ...parentId, payment.group.id ]}" />
+    {/each}
+{:else if (payment.payment)}
+    <tr>
         <td class="text-nowrap">{formatUnixTime(payment.payment.when.seconds)}</td>
         <td class="text-nowrap">{formatPaymentKind(payment.payment.kind)}</td>
         <td class="text-nowrap">
-            <span class="btn btn-sm btn-info p-1 m-1" style="cursor: grab"
-                draggable={true} on:dragstart={event => dragStart(event, payment.payment)}>
-                {(payment.payment.category == null ? payment.payment.debt : payment.payment.category) || '???'}
+            <span class="btn btn-sm btn-info p-1 m-1" style="cursor: grab" draggable={true} on:dragstart={event => dragStart(event, payment.payment)}>
+                {categoryName}
             </span>
         </td>
-        <td class="text-nowrap">{payment.payment.provider}</td>
-        <td class="text-nowrap">{payment.payment.account}</td>
-        <td class="text-nowrap">
-            <b>{formatMoney(payment.payment.amount)}</b> 
-            <i>{payment.payment.ccy}</i>
+        <td class="text-nowrap">{providerName}</td>
+        <td class="text-nowrap">{accountName}</td>
+        <td class="text-nowrap"><b>{formatMoney(payment.payment.amount)}</b> <i>{payment.payment.ccy}</i>
         </td>
-        <td>
-            <b>{payment.payment.what}</b>
-        </td>
+        <td><b>{payment.payment.what}</b></td>
         <td class="text-nowrap">
             <button class="btn btn-link btn-anchor" on:click="{() => splitPayment(payment.payment)}">
                 <span class="fe fe-git-branch"  use:tooltip="{"Разделить"}"></span>
@@ -86,5 +121,5 @@
                 <span class="fe fe-x-circle" use:tooltip="{"Удалить"}"></span>
             </button>
         </td>
-    {/if}
-</tr>
+    </tr>
+{/if}

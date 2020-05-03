@@ -11,8 +11,13 @@
     import * as protosCategories from '../../generated/SpentCategories_pb';
     import * as protosDebts from '../../generated/Debts_pb';
     import * as protosPayments from '../../generated/Payments_pb';
-    import { writable, get } from 'svelte/store';
+    import { get } from 'svelte/store';
     import { onDestroy } from 'svelte';
+
+    let debts = SoWService.getDebts(onDestroy).debts;
+    let spentCategories = SoWService.getSpentCategories(onDestroy).spentCategories;
+    let payments = SoWService.getPayments(onDestroy).payments;
+    let moneyColumns = SoWService.getMoneyColumnMetadatas(onDestroy).moneyColumnMetadatas;
 
     class CategoryDropDown {
         constructor(name: string, id: protosCommons.UUID.AsObject, isDebt: boolean) {
@@ -25,12 +30,7 @@
         id: protosCommons.UUID.AsObject;
         isDebt: boolean;
     }
-
-    let debts = SoWService.getDebts(onDestroy).debts;
-    let spentCategories = SoWService.getSpentCategories(onDestroy).spentCategories;
-
     let categories: CategoryDropDown[] = [];
-
     function updateCategories() {
         categories = get(spentCategories).reduce((acc: CategoryDropDown[], category: protosCategories.SpentCategory.AsObject) => {
             if (!acc.find(t=>t.name == category.category)) {
@@ -48,24 +48,8 @@
     onDestroy(spentCategories.subscribe(updateCategories));
     onDestroy(debts.subscribe(updateCategories));
 
-    let payments = writable<protosPayments.PaymentView.AsObject[]>([]);
     let sorting: number = 0;
     let showCategorized = true;
-
-    function parsePayments(stream: protosPayments.PaymentsStream.AsObject) {
-        if (stream.snapshot) {
-            payments.set(stream.snapshot.paymentsList);
-        } else if (stream.added) {
-            // TODO
-            console.trace(stream);
-        } else if (stream.removed) {
-            // TODO
-            console.trace(stream);
-        } else if (stream.updated) {
-            // TODO
-            console.trace(stream);
-        }
-    }
 
     async function switchCategorized() {
         await SoWService.showCategorized(!showCategorized);
@@ -107,28 +91,17 @@
         if (ev.dataTransfer) {
             var payment: protosPayments.Payment.AsObject = JSON.parse(ev.dataTransfer.getData("payment"));
             if (newCategory.isDebt) {
+                payment.categoryId = undefined;
                 payment.debtId = newCategory.id;
             } else {
                 payment.categoryId = newCategory.id;
+                payment.debtId = undefined;
             }
             SoWService.editPayment(payment);
         }
-
-        /*
-        await PaymentController.editPayment(payment.id, payment.amount, payment.ccy, payment.what, newCategory.isDebt ? payment.categoryId : newCategory.id, payment.columnId,  newCategory.isDebt ? newCategory.id : payment.debtId, payment.kind);
-
-        if (newCategory.isDebt) {
-            payment.debt = newCategory.name;
-        } else {
-            payment.category = newCategory.name;
-        }
-
-        reload();*/
     }
    
-    onDestroy(SoWService.getPayments(parsePayments));
-
-    PaymentRow; Link; showCategorized; switchCategorized; deletePayment; sorting; expandCollapse; spentCategories; categories; payments; dragStart; dragover; drop; editPayment; splitPayment;  // used in view
+    PaymentRow; Link; showCategorized; switchCategorized; deletePayment; sorting; expandCollapse; spentCategories; categories; payments; dragStart; dragover; drop; editPayment; splitPayment; moneyColumns; // used in view
 </script>
 
 <style>
@@ -201,7 +174,7 @@
                         </thead>
                         <tbody>
                         {#each $payments as payment, idx}
-                            <PaymentRow {payment} {expandCollapse} {dragStart} {editPayment} {deletePayment} {splitPayment} parentId="{[]}" />
+                            <PaymentRow {payment} {debts} {moneyColumns} {spentCategories} {expandCollapse} {dragStart} {editPayment} {deletePayment} {splitPayment} parentId="{[]}" />
                         {/each}
                         </tbody>
                     </table>

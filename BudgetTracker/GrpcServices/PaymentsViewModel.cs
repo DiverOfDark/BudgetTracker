@@ -19,7 +19,7 @@ namespace BudgetTracker.GrpcServices
                     Added = new PaymentViewUpdate
                     {
                         Position = arg2,
-                        View = ToPaymentView(arg1)
+                        View = ToPaymentView(arg1, true)
                     }
                 };
 
@@ -38,13 +38,13 @@ namespace BudgetTracker.GrpcServices
                     Updated = new PaymentViewUpdate
                     {
                         Position = arg2,
-                        View = ToPaymentView(arg1)
+                        View = ToPaymentView(arg1, false)
                     }
                 };
 
-            private static PaymentView ToPaymentView(PaymentsMonthViewModel arg1) => new PaymentView { Summary = ToMonthSummary(arg1) };
+            private static PaymentView ToPaymentView(PaymentsMonthViewModel arg1, bool includePayments) => new PaymentView { Summary = ToMonthSummary(arg1, includePayments) };
 
-            public static MonthSummary ToMonthSummary(PaymentsMonthViewModel vm)
+            public static MonthSummary ToMonthSummary(PaymentsMonthViewModel vm, bool includePayments)
             {
                 var monthSummary = new MonthSummary
                 {
@@ -62,7 +62,7 @@ namespace BudgetTracker.GrpcServices
                 // TODO replace linq with field
                 var visiblePayments = vm._payments.Where(v => v.DebtId != null || v.CategoryId != null || vm.ShowUncategorized);
 
-                if (vm.IsExpanded)
+                if (vm.IsExpanded && includePayments)
                 {
                     foreach (var v in visiblePayments.OrderByDescending(v => v.When))
                     {
@@ -104,7 +104,7 @@ namespace BudgetTracker.GrpcServices
                 _owner = owner;
                 When = when;
                 _payments = new List<PaymentModel>();
-                IsExpanded = When.AddMonths(3) > DateTime.Now;
+                IsExpanded = When.AddDays(45) > DateTime.Now;
             }
 
             public Guid Id { get; }
@@ -140,7 +140,7 @@ namespace BudgetTracker.GrpcServices
                 // TODO recalculate payments, send update
             }
 
-            public void UpdatePayment(PaymentModel pm)
+            public void UpdatePayment(PaymentModel pm, ModelChangedEventArgs modelChangedEventArgs)
             {
                 _owner.SendUpdate(new PaymentsStream
                 {
@@ -194,7 +194,7 @@ namespace BudgetTracker.GrpcServices
             };
             foreach (var v in _collection)
             {
-                var monthSummary = PaymentTransformers.ToMonthSummary(v);
+                var monthSummary = PaymentTransformers.ToMonthSummary(v, true);
                 paymentsList.Payments.Add(new PaymentView {Summary = monthSummary});
             }
             
@@ -243,12 +243,12 @@ namespace BudgetTracker.GrpcServices
             }
         }
 
-        private void UpdatePayment(PaymentModel pm)
+        private void UpdatePayment(PaymentModel pm, ModelChangedEventArgs modelChangedEventArgs)
         {
             // payment date can't be edited, thus it is safe to delegate only to matching month;
             var key = PaymentTransformers.GetKey(pm);
             var matchingMonth = _collection.First(v => v.Key == key);
-            matchingMonth.UpdatePayment(pm);
+            matchingMonth.UpdatePayment(pm, modelChangedEventArgs);
         }
 
         protected override void OnModelRepositoryChanged(ModelChangedEventArgs obj)
@@ -264,7 +264,7 @@ namespace BudgetTracker.GrpcServices
                         RemovePayment(pm);
                         break;
                     case ChangeType.Update:
-                        UpdatePayment(pm);
+                        UpdatePayment(pm, obj);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();

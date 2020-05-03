@@ -37,7 +37,7 @@ namespace BudgetTracker.GrpcServices
         protected override void OnModelRepositoryChanged(ModelChangedEventArgs obj)
         {
             // TODO handle in debtmodel
-            if (obj.Source is PaymentModel)
+            if (obj.Source is PaymentModel && obj.PropertyName == nameof(PaymentModel.DebtId))
             {
                 _collection.Dispose();
                 Init();

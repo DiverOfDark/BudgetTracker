@@ -52,7 +52,7 @@ message PaymentGroup {
     
     bool is_expanded = 11;
 
-    repeated Payment payments = 12;
+    repeated PaymentView payments = 12;
 }
 
 message CurrencySummary {
