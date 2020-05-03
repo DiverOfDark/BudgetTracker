@@ -106,6 +106,15 @@ class PaymentsStreamViewModel {
                 }
 
                 if (optionalCurrent != undefined) {
+                    let oldList;
+                    if (optionalCurrent[stream.updated.position].summary) {
+                        oldList = optionalCurrent[stream.updated.position].summary!.paymentsList;
+                        stream.updated.view!.summary!.paymentsList = oldList;
+                    }
+                    if (optionalCurrent[stream.updated.position].group) {
+                        oldList = optionalCurrent[stream.updated.position].group!.paymentsList;
+                        stream.updated.view!.group!.paymentsList = oldList;
+                    }
                     optionalCurrent.splice(stream.updated.position, 1, stream.updated.view!);
                 }
             }
