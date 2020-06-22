@@ -16,7 +16,11 @@
 
     let debts = SoWService.getDebts(onDestroy).debts;
     let spentCategories = SoWService.getSpentCategories(onDestroy).spentCategories;
-    let payments = SoWService.getPayments(onDestroy).payments;
+    
+    let vm = SoWService.getPayments(onDestroy);
+    let payments = vm.payments;
+    let showCategorized = vm.showCategorized;
+
     let moneyColumns = SoWService.getMoneyColumnMetadatas(onDestroy).moneyColumnMetadatas;
 
     class CategoryDropDown {
@@ -48,11 +52,8 @@
     onDestroy(spentCategories.subscribe(updateCategories));
     onDestroy(debts.subscribe(updateCategories));
 
-    let sorting: number = 0;
-    let showCategorized = true;
-
     async function switchCategorized() {
-        await SoWService.showCategorized(!showCategorized);
+        await SoWService.showCategorized(!get(showCategorized));
     }
 
     async function expandCollapse(ids: protosCommons.UUID.AsObject[]) {
@@ -101,7 +102,7 @@
         }
     }
    
-    PaymentRow; Link; showCategorized; switchCategorized; deletePayment; sorting; expandCollapse; spentCategories; categories; payments; dragStart; dragover; drop; editPayment; splitPayment; moneyColumns; // used in view
+    PaymentRow; Link; showCategorized; switchCategorized; deletePayment; expandCollapse; spentCategories; categories; payments; dragStart; dragover; drop; editPayment; splitPayment; moneyColumns; // used in view
 </script>
 
 <style>
@@ -144,7 +145,7 @@
                             Категории расходов
                         </Link>
                         <button class="btn btn-secondary btn-sm ml-2" on:click="{() => switchCategorized()}">
-                            {showCategorized ? "Скрыть с категориями" : "Показать все"}
+                            {!$showCategorized ? "Скрыть с категориями" : "Показать все"}
                         </button>
                     </div>
                 </div>

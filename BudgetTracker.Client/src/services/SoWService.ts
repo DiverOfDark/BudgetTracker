@@ -11,10 +11,12 @@ import {compare } from '../services/Shared';
 
 class PaymentsStreamViewModel {
     payments = writable<protoPayments.MonthSummary.AsObject[]>([]);
+    showCategorized = writable<boolean>(false);
 
     private parsePayments(stream: protoPayments.PaymentsStream.AsObject) {
         if (stream.snapshot) {
             this.payments.set(stream.snapshot.paymentsList);
+            this.showCategorized.set(stream.snapshot.showCategorized);
         } else if (stream.added) {
             let current: protoPayments.MonthSummary.AsObject[] = get(this.payments);
             current.splice(stream.added.position, 0, stream.added.view!!)

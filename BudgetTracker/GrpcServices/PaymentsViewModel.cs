@@ -60,25 +60,26 @@ namespace BudgetTracker.GrpcServices
 
             public static string GetKey(PaymentModel paymentModel) => paymentModel.When.Year + "" + paymentModel.When.Month;
 
-            public static PaymentGroup ToPaymentGroup(PaymentsGroupViewModel vm)
+            public static PaymentGroup ToPaymentGroup(PaymentsGroupViewModel vm, bool showCategorized)
             {
+                var visiblePayments = vm.GetVisiblePayments(showCategorized);
                 var paymentGroup = new PaymentGroup
                 {
                     IsExpanded = vm.IsExpanded,
-                    Amount = vm.Payments.Select(v=>v.Amount).Sum(),
-                    Ccy = vm.Payments[0].Ccy,
+                    Amount = visiblePayments.Select(v=>v.Amount).Sum(),
+                    Ccy = visiblePayments[0].Ccy,
                     Id = vm.Id.ToUUID(),
-                    Kind = vm.Payments[0].Kind,
-                    PaymentCount = vm.Payments.Count,
-                    What = vm.Payments[0].What,
-                    When = vm.Payments[0].When.ToTimestamp(),
-                    CategoryId = vm.Payments[0].CategoryId.ToUUID(),
-                    ColumnId = vm.Payments[0].ColumnId.ToUUID(),
-                    DebtId = vm.Payments[0].DebtId.ToUUID()
+                    Kind = visiblePayments[0].Kind,
+                    PaymentCount = visiblePayments.Count,
+                    What = visiblePayments[0].What,
+                    When = visiblePayments[0].When.ToTimestamp(),
+                    CategoryId = visiblePayments[0].CategoryId.ToUUID(),
+                    ColumnId = visiblePayments[0].ColumnId.ToUUID(),
+                    DebtId = visiblePayments[0].DebtId.ToUUID()
                 };
                 if (vm.IsExpanded)
                 {
-                    foreach (var v in vm.Payments)
+                    foreach (var v in visiblePayments)
                     {
                         paymentGroup.Payments.Add(new PaymentView {Payment = ToPaymentView(v)});
                     }
@@ -100,6 +101,8 @@ namespace BudgetTracker.GrpcServices
             public bool IsExpanded { get; set; }
             
             public List<PaymentModel> Payments { get; } = new List<PaymentModel>();
+
+            public List<PaymentModel> GetVisiblePayments(bool showCategorized) => Payments.Where(v => v.DebtId != null || v.CategoryId != null || !showCategorized).OrderByDescending(v => v.When).ToList();
         }
 
         public class PaymentsMonthViewModel : ViewModelBase
@@ -121,7 +124,7 @@ namespace BudgetTracker.GrpcServices
             
             public bool IsExpanded { get; set; }
         
-            public bool ShowUncategorized { get; set; }
+            public bool ShowCategorized { get; set; }
 
             public string Key { get; }
             public int Count => _payments.Values.Select(v => v.Payments.Count).Sum();
@@ -173,14 +176,14 @@ namespace BudgetTracker.GrpcServices
                 };
 
                 var visiblePayments = _payments.Values
-                    .OrderByDescending(v => v.Payments[0].When)
+                    .OrderByDescending(v => v.GetVisiblePayments(ShowCategorized).Select(t=>t.When).Concat(new[]{DateTime.MinValue}).Max())
                     .ToList();
 
                 if (IsExpanded)
                 {
                     foreach (var group in visiblePayments)
                     {
-                        var matchingPayments = group.Payments.Where(v => v.DebtId != null || v.CategoryId != null || ShowUncategorized).OrderByDescending(v=>v.When).ToList();
+                        var matchingPayments = group.GetVisiblePayments(ShowCategorized);
 
                         if (matchingPayments.Count == 0)
                         {
@@ -189,7 +192,7 @@ namespace BudgetTracker.GrpcServices
 
                         monthSummary.Payments.Add(matchingPayments.Count == 1
                             ? new PaymentView {Payment = PaymentTransformers.ToPaymentView(matchingPayments[0])}
-                            : new PaymentView {Group = PaymentTransformers.ToPaymentGroup(group)});
+                            : new PaymentView {Group = PaymentTransformers.ToPaymentGroup(group, ShowCategorized)});
                     }
                 }
 
@@ -214,18 +217,13 @@ namespace BudgetTracker.GrpcServices
                 AddPayment(v);
             }
 
-            var paymentsList = new PaymentsList
-            {
-                ShowCategorized = ShowCategorized,
-            };
-            foreach (var v in _collection)
-            {
-                paymentsList.Payments.Add(v.ToMonthSummary());
-            }
-            
             SendUpdate(new PaymentsStream
             {
-                Snapshot = paymentsList
+                Snapshot = new PaymentsList
+                {
+                    ShowCategorized = ShowCategorized,
+                    Payments = {_collection.Select(v => v.ToMonthSummary())}
+                }
             });
 
             _collection.SendUpdates = true;
@@ -336,11 +334,21 @@ namespace BudgetTracker.GrpcServices
         public void UpdateShowCategorized(bool requestShowCategorized)
         {
             ShowCategorized = requestShowCategorized;
+            _collection.SendUpdates = false;
             foreach (var monthViewModel in _collection)
             {
-                monthViewModel.ShowUncategorized = requestShowCategorized;
-                SendMonthUpdate(monthViewModel);
+                monthViewModel.ShowCategorized = requestShowCategorized;
             }
+
+            _collection.SendUpdates = true;
+            SendUpdate(new PaymentsStream
+            {
+                Snapshot = new PaymentsList
+                {
+                    ShowCategorized = ShowCategorized,
+                    Payments = {_collection.Select(v => v.ToMonthSummary())}
+                }
+            });
         }
 
         public void DeletePayment(UUID request)
