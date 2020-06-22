@@ -174,7 +174,7 @@
                         </thead>
                         <tbody>
                         {#each $payments as payment, idx}
-                            <PaymentRow {payment} {debts} {moneyColumns} {spentCategories} {expandCollapse} {dragStart} {editPayment} {deletePayment} {splitPayment} parentId="{[]}" />
+                            <PaymentRow payment={{summary:payment}} {debts} {moneyColumns} {spentCategories} {expandCollapse} {dragStart} {editPayment} {deletePayment} {splitPayment} parentId="{[]}" />
                         {/each}
                         </tbody>
                     </table>

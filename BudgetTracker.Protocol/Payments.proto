@@ -60,6 +60,14 @@ message CurrencySummary {
     double amount = 2;
 }
 
+message PaymentView {
+    oneof row {
+        Payment payment = 2;
+        PaymentGroup group = 3;
+        MonthSummary summary = 4;
+    }
+}
+
 message MonthSummary {
     UUID id = 1;    
     Timestamp when = 2;
@@ -71,22 +79,13 @@ message MonthSummary {
     repeated PaymentView payments = 6;
 }
 
-message PaymentView {
-    oneof row {
-        Payment payment = 2;
-        PaymentGroup group = 3;
-        MonthSummary summary = 4;
-    }
-}
-
 message PaymentViewUpdate {
-    repeated UUID id = 1;
-    int32 position = 2;
-    PaymentView view = 3;
+    int32 position = 1;
+    MonthSummary view = 2;
 }
 
 message PaymentsList {
-    repeated PaymentView payments = 1;
+    repeated MonthSummary payments = 1;
     bool show_categorized = 2;
 }
 

@@ -122,4 +122,8 @@
             </button>
         </td>
     </tr>
+{:else}
+    <tr>
+        <td colspan="7">{JSON.stringify(payment)}</td>
+    </tr>
 {/if}

@@ -10,118 +10,22 @@ import { ClientReadableStream } from 'grpc-web';
 import {compare } from '../services/Shared';
 
 class PaymentsStreamViewModel {
-    payments = writable<protoPayments.PaymentView.AsObject[]>([]);
+    payments = writable<protoPayments.MonthSummary.AsObject[]>([]);
 
     private parsePayments(stream: protoPayments.PaymentsStream.AsObject) {
         if (stream.snapshot) {
             this.payments.set(stream.snapshot.paymentsList);
         } else if (stream.added) {
-            let current: protoPayments.PaymentView.AsObject[] = get(this.payments);
-
-            if (stream.added.idList.length) {
-                let optionalCurrent : protoPayments.PaymentView.AsObject[] | undefined = current;
-                for (let i = 0; i< stream.added.idList.length; i++) {
-                    let currentId = stream.added.idList[i].value;
-
-                    let newCurrent : protoPayments.PaymentView.AsObject | undefined = optionalCurrent!.find(t => {
-                        if (t.summary != undefined)
-                            return t.summary.id!.value == currentId;
-                        if (t.group != undefined)
-                            return t.group.id!.value == currentId;
-                        return false;
-                    });
-
-                    if (newCurrent == undefined) {
-                        console.error("failed to find current!");
-                    } else {
-                        optionalCurrent = newCurrent.summary ? newCurrent.summary.paymentsList : 
-                                  newCurrent.group? newCurrent.group.paymentsList : undefined;
-                    }
-                }
-
-                if (optionalCurrent != undefined) {
-                    optionalCurrent.splice(stream.added.position, 0, stream.added.view!);
-                }
-            }
-            else {
-                current.splice(stream.added.position, 0, stream.added.view!);
-            }
-
+            let current: protoPayments.MonthSummary.AsObject[] = get(this.payments);
+            current.splice(stream.added.position, 0, stream.added.view!!)
             this.payments.set(current);
         } else if (stream.removed) {
-            let current: protoPayments.PaymentView.AsObject[] = get(this.payments);
-
-            if (stream.removed.idList.length) {
-                let optionalCurrent : protoPayments.PaymentView.AsObject[] | undefined = current;
-                for (let i = 0; i< stream.removed.idList.length; i++) {
-                    let currentId = stream.removed.idList[i].value;
-
-                    let newCurrent : protoPayments.PaymentView.AsObject | undefined = optionalCurrent!.find(t => {
-                        if (t.summary != undefined)
-                            return t.summary.id!.value == currentId;
-                        if (t.group != undefined)
-                            return t.group.id!.value == currentId;
-                        return false;
-                    });
-
-                    if (newCurrent == undefined) {
-                        console.error("failed to find current!");
-                    } else {
-                        optionalCurrent = newCurrent.summary ? newCurrent.summary.paymentsList : 
-                                  newCurrent.group? newCurrent.group.paymentsList : undefined;
-                    }
-                }
-
-                if (optionalCurrent != undefined) {
-                    optionalCurrent.splice(stream.removed.position, 1);
-                }
-            }
-            else {
-                current.splice(stream.removed.position, 1);
-            }
-
+            let current: protoPayments.MonthSummary.AsObject[] = get(this.payments);
+            current.splice(stream.removed.position, 1)
             this.payments.set(current);
         } else if (stream.updated) {
-            var current: protoPayments.PaymentView.AsObject[] = get(this.payments);
-
-            if (stream.updated.idList.length) {
-                let optionalCurrent : protoPayments.PaymentView.AsObject[] | undefined = current;
-                for (let i = 0; i< stream.updated.idList.length; i++) {
-                    let currentId = stream.updated.idList[i].value;
-
-                    let newCurrent : protoPayments.PaymentView.AsObject | undefined = optionalCurrent!.find(t => {
-                        if (t.summary != undefined)
-                            return t.summary.id!.value == currentId;
-                        if (t.group != undefined)
-                            return t.group.id!.value == currentId;
-                        return false;
-                    });
-
-                    if (newCurrent == undefined) {
-                        console.error("failed to find current!");
-                    } else {
-                        optionalCurrent = newCurrent.summary ? newCurrent.summary.paymentsList : 
-                                  newCurrent.group? newCurrent.group.paymentsList : undefined;
-                    }
-                }
-
-                if (optionalCurrent != undefined) {
-                    let oldList;
-                    if (optionalCurrent[stream.updated.position].summary) {
-                        oldList = optionalCurrent[stream.updated.position].summary!.paymentsList;
-                        stream.updated.view!.summary!.paymentsList = oldList;
-                    }
-                    if (optionalCurrent[stream.updated.position].group) {
-                        oldList = optionalCurrent[stream.updated.position].group!.paymentsList;
-                        stream.updated.view!.group!.paymentsList = oldList;
-                    }
-                    optionalCurrent.splice(stream.updated.position, 1, stream.updated.view!);
-                }
-            }
-            else {
-                current.splice(stream.updated.position, 1, stream.updated.view!);
-            }
-
+            var current: protoPayments.MonthSummary.AsObject[] = get(this.payments);
+            current.splice(stream.updated.position, 1, stream.updated.view!!)
             this.payments.set(current);
         }
     }
