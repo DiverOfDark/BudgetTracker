@@ -49,6 +49,10 @@
         font-size:inherit;
         text-transform:inherit;
     }
+
+    .italic {
+        font-style: italic;
+    }
 </style>
 
 {#if payment.summary}
@@ -97,7 +101,7 @@
         <svelte:self payment={item} {moneyColumns} {debts} {spentCategories} {expandCollapse} {dragStart} {editPayment} {deletePayment} {splitPayment} parentId="{[ ...parentId, payment.group.id ]}" />
     {/each}
 {:else if (payment.payment)}
-    <tr>
+    <tr class="{parentId.length > 1 ? "italic" : ""}">
         <td class="text-nowrap">{formatUnixTime(payment.payment.when.seconds)}</td>
         <td class="text-nowrap">{formatPaymentKind(payment.payment.kind)}</td>
         <td class="text-nowrap">

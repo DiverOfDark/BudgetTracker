@@ -41,9 +41,10 @@ message PaymentGroup {
     Timestamp when = 2;
     int32 payment_count = 3;
     PaymentKind kind = 4;
-    string category = 5;
-    string provider = 6;
-    string account = 7;
+    
+    UUID category_id = 5;
+    UUID debt_id = 6;
+    UUID column_id = 7;
     
     double amount = 8;
     string ccy = 9;
