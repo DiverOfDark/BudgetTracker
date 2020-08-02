@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
+using System.Xml.Linq;
+using System.Xml.XPath;
 using BudgetTracker.Model;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
@@ -133,6 +136,43 @@ namespace BudgetTracker.Scrapers
             }
 
             return new PaymentModel(when, what, amount, kind, ccy, statementReference, column);
+        }
+        
+        protected List<PaymentModel> ParseOfx(XDocument xdoc, string accountName)
+        {
+            var statements =
+                xdoc.XPathSelectElements("OFX/BANKMSGSRSV1/STMTTRNRS/STMTRS/BANKTRANLIST/STMTTRN");
+
+            var ccyNode = xdoc.XPathSelectElement("OFX/BANKMSGSRSV1/STMTTRNRS/STMTRS/CURDEF");
+
+            var ccy = ccyNode.Value;
+
+            var payments = new List<PaymentModel>();
+
+            foreach (var st in statements)
+            {
+                var timeStr = st.Element("DTPOSTED").Value;
+                var time = DateTime.ParseExact(timeStr, "yyyyMMddhhmmss", CultureInfo.CurrentCulture);
+                var amountStr = st.Element("TRNAMT").Value;
+                var amount = double.Parse(amountStr,
+                    new NumberFormatInfo {NumberDecimalSeparator = "."});
+                var name = st.Element("MEMO").Value;
+
+                var id = timeStr + amountStr + name;
+
+                int counter = 0;
+                while (payments.Any(j => j.StatementReference == id))
+                {
+                    id = timeStr + amountStr + name + counter++;
+                }
+
+                var kind = amount < 0 ? PaymentKind.Expense : PaymentKind.Income;
+
+                var stmt = Statement(time, accountName, name, amount, kind, ccy, id);
+                payments.Add(stmt);
+            }
+
+            return payments;
         }
     }
 }

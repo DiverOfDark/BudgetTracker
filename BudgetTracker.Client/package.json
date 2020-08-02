@@ -35,7 +35,7 @@
     "start": "sirv --port 3000 public",
     "start:dev": "sirv --port 3000 public --dev",
     "lint": "eslint src --plugin svelte3 --ext .svelte,.js --fix",
-    "check": "npx svelte-check"
+    "check": "svelte-check"
   },
   "dependencies": {
     "@types/chart.js": "^2.9.13",
