@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { LinearChartWidgetViewModel } from './../../../generated-types';
+	import * as interfaces from './../../../generated-types';
 	import { formatMoney } from './../../../services/Shared';
 
 	import tabler from './../../../tabler';
@@ -7,7 +7,7 @@
 	
 	import Chart from 'chart.js';
 
-	export let model: LinearChartWidgetViewModel = {
+	export let model: interfaces.LinearChartWidgetViewModel = {
         title: '',
         period: 0,
         values: [],

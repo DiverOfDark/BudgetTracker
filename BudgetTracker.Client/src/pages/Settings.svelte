@@ -2,6 +2,8 @@
     import {SettingsController, UtilityController } from '../generated-types';
     import Link from '../svero/Link.svelte';
 
+    import { DeleteIcon, XCircleIcon } from 'svelte-feather-icons';
+
     let newPassword = '';
 
     let settings = {
@@ -127,19 +129,21 @@
                                     Баланс: <b>{item.lastSuccessfulBalanceScraping}</b><br/>
                                     Выписка: <b>{item.lastSuccessfulStatementScraping}</b>
                                     {#if item.lastSuccessfulBalanceScraping != "-" || item.lastSuccessfulStatementScraping != "-"}
-                                        <button on:click="{() => clearLastSuccessful(item.id)}" class="btn btn-anchor btn-link"><span class="fe fe-delete"></span></button>
+                                        <button on:click="{() => clearLastSuccessful(item.id)}" class="btn btn-anchor btn-link">
+                                            <DeleteIcon size="16" />
+                                        </button>
                                     {/if}
                                 </td>
                                 <td>
                                     <button class="btn btn-anchor btn-link" on:click="{() => deleteConfig(item.id)}">
-                                        <span class="fe fe-x-circle"></span>
+                                        <XCircleIcon size="16" />
                                     </button>
                                 </td>
                             {:else}
                                 <td><input type="text" bind:value="{item.login}" placeholder="Логин" class="form-control form-control-sm"/></td>
                                 <td><input type="text" bind:value="{item.password}" placeholder="Пароль" class="form-control form-control-sm"/></td>
                                 <td>&mdash;</td>
-                                <td><button type="submit" on:click="{() => addConfig(item.scraperName, item.login, item.password)}" class="form-control btn btn-secondary btn-sm">Включить</button></td>
+                                <td><button type="submit" on:click="{() => addConfig(item.scraperName, item.login, item.password)}" class="form-control btn btn-outline-primary btn-sm">Включить</button></td>
                             {/if}
                         </tr>
                     {/each}

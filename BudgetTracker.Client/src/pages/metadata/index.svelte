@@ -1,11 +1,14 @@
 <script lang="ts">
-    import {MetadataController, MoneyColumnMetadataJsModel} from '../../generated-types';
+    import {MetadataController} from '../../generated-types';
+    import * as interfaces from '../../generated-types';
+
+    import { PlusIcon, ArrowUpIcon, ArrowDownIcon, Edit2Icon, XCircleIcon } from 'svelte-feather-icons';
     
     import Link from '../../svero/Link.svelte';
 
-    let columns: MoneyColumnMetadataJsModel[] = [];
+    let columns: interfaces.MoneyColumnMetadataJsModel[] = [];
 
-    let getUsedIn = function(meta: MoneyColumnMetadataJsModel): MoneyColumnMetadataJsModel[] {
+    let getUsedIn = function(meta: interfaces.MoneyColumnMetadataJsModel): interfaces.MoneyColumnMetadataJsModel[] {
       return columns.filter(s=> s != meta && s.function != null && (s.function.indexOf("[" + meta.userFriendlyName + "]") != -1 || s.function.indexOf("[" + meta.provider + "/" + meta.accountName + "]") != -1))
     }
 
@@ -90,7 +93,7 @@
                             <th>Используется</th>
                             <th>
                                 <Link href="/Metadata/Edit">
-                                    <span class="fe fe-plus"></span>
+                                    <PlusIcon size="16" />
                                 </Link>
                             </th>
                         </tr>
@@ -99,12 +102,12 @@
                                 <td class="text-nowrap">
                                     {#if meta != columns[0]}
                                         <button on:click="{() => updateColumnOrder(meta.id, true)}" class="btn btn-link btn-anchor">
-                                            <span class="fe fe-arrow-up"></span>
+                                            <ArrowUpIcon size="16" />
                                         </button>
                                     {/if}
                                     {#if meta != columns[columns.length - 1]}
                                         <button on:click="{() => updateColumnOrder(meta.id, false)}" class="btn btn-link btn-anchor" class:pull-right="{meta == columns[0]}">
-                                            <span class="fe fe-arrow-down"></span>
+                                            <ArrowDownIcon size="16" />
                                         </button>
                                     {/if}
                                 </td>
@@ -126,10 +129,10 @@
                                 </td>
                                 <td class="text-nowrap">
                                     <Link className="btn btn-link btn-anchor" href="/Metadata/Edit/{meta.id}">
-                                        <span class="fe fe-edit-2"></span>
+                                        <Edit2Icon size="16" />
                                     </Link>
                                     <button on:click="{() => deleteColumn(meta.id)}" class="btn btn-link btn-anchor">
-                                        <span class="fe fe-x-circle"></span>
+                                        <XCircleIcon size="16" />
                                     </button>
                                 </td>
                             </tr>

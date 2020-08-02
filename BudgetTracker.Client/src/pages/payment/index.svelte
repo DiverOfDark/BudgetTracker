@@ -6,7 +6,9 @@
     import Link from '../../svero/Link.svelte';
     import moment from 'moment';
 
-    import {PaymentController, PaymentViewModelController, SpentCategoryJsModel, DebtModelController } from '../../generated-types';
+    import { ChevronDownIcon } from 'svelte-feather-icons';
+    import {PaymentController, PaymentViewModelController, DebtModelController } from '../../generated-types';
+    import * as interfaces from '../../generated-types';
     import {compare, formatMoney} from '../../services/Shared';
     import { tooltip } from '../../services/Tooltip'
     import PaymentRow from './paymentRow.svelte';
@@ -237,7 +239,7 @@
                         <Link class="btn btn-primary btn-sm" href="/Payment/Category">
                             Категории расходов
                         </Link>
-                        <button class="btn btn-secondary btn-sm ml-2" on:click="{() => hideCategorized = !hideCategorized}">
+                        <button class="btn btn-outline-primary btn-sm ml-2" on:click="{() => hideCategorized = !hideCategorized}">
                             {hideCategorized ? "Показать все" : "Скрыть с категориями"}
                         </button>
                     </div>
@@ -257,7 +259,7 @@
                                 <button class="btn btn-link btn-anchor" on:click="{() => sorting = "date"}">
                                     Когда
                                     {#if sorting == "date"}
-                                        <span class="fe fe-chevron-down"></span>
+                                        <ChevronDownIcon size="16" />
                                     {/if}
                                 </button>
                             </th>
@@ -269,7 +271,7 @@
                                 <button class="btn btn-link btn-anchor" on:click="{() => sorting = "amount"}">
                                     Сумма
                                     {#if sorting == "amount"}
-                                        <span class="fe fe-chevron-down"></span>
+                                        <ChevronDownIcon size="16" />
                                     {/if}
                                 </button>
                             </th>

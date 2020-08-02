@@ -1,10 +1,10 @@
 ﻿ <script lang="ts">
     import { navigateTo } from '../../svero/utils';
-    import { WidgetController, WidgetViewModelController, WidgetJsViewModel, WidgetKindEnum, GraphKindEnum, DeltaIntervalEnum, MoneyColumnMetadataModelController } from '../../generated-types';
+    import * as interfaces from '../../generated-types';
 
     export let router: any = {};
 
-    let model: WidgetJsViewModel = {
+    let model: interfaces.WidgetJsViewModel = {
         kind: '',
         kindId: 0,
         title: '',
@@ -20,7 +20,7 @@
     let title = 'Создать виджет';
 
     let loadData = async function(id: string) {
-        model = await WidgetViewModelController.find(id);
+        model = await interfaces.WidgetViewModelController.find(id);
         invalidateAccount(model.properties.providerName, model.properties.accountName);
 
         if (!model.properties.stringFormat) {
@@ -39,7 +39,7 @@
     let accountsMap: Map<string, string[]> = new Map();
 
     let loadStatics = async function() {
-        let mcms = await MoneyColumnMetadataModelController.list();
+        let mcms = await interfaces.MoneyColumnMetadataModelController.list();
         providers = [...new Set(mcms.map(f=>f.provider))].sort();
         
         for(var prId = 0; prId < providers.length; prId++) {
@@ -72,7 +72,7 @@
     }
 
     let save = async function() {
-        await WidgetController.editWidget(model.id, model.title, String(model.kindId), model.properties);
+        await interfaces.WidgetController.editWidget(model.id, model.title, String(model.kindId), model.properties);
         navigateTo('/');
     }
 
@@ -83,14 +83,14 @@
     let showAccount = false;
 
     $: {
-        showAccount = model.kindId == WidgetKindEnum.LastValue.getId()
-            || model.kindId == WidgetKindEnum.LinearChart.getId()
-            || model.kindId == WidgetKindEnum.Donut.getId()
-            || model.kindId == WidgetKindEnum.Delta.getId();
+        showAccount = model.kindId == interfaces.WidgetKindEnum.LastValue.getId()
+            || model.kindId == interfaces.WidgetKindEnum.LinearChart.getId()
+            || model.kindId == interfaces.WidgetKindEnum.Donut.getId()
+            || model.kindId == interfaces.WidgetKindEnum.Delta.getId();
     }
 
     // used in template
-    model; title; WidgetKindEnum; GraphKindEnum; DeltaIntervalEnum; providers; accounts; showAccount; save;
+    model; title; interfaces.WidgetKindEnum; interfaces.GraphKindEnum; interfaces.DeltaIntervalEnum; providers; accounts; showAccount; save;
 </script>
 <svelte:head>
     <title>BudgetTracker - {title}</title>
@@ -117,7 +117,7 @@
                                     <label class="control-label">Тип виджета</label>
                                     <div control-labelstyle="padding-top: 7px;">
                                         <select class="form-control" bind:value="{model.kindId}">
-                                            {#each WidgetKindEnum.getEnums() as wk}
+                                            {#each interfaces.WidgetKindEnum.getEnums() as wk}
                                                 <option value="{wk.getId()}">{wk.getLabel()}</option>
                                             {/each}
                                         </select>
@@ -147,12 +147,12 @@
                                     </div>
                                 {/if}
 
-                                {#if (model.kindId == WidgetKindEnum.LastValue.getId() )}
+                                {#if (model.kindId == interfaces.WidgetKindEnum.LastValue.getId() )}
                                     <div class="form-group">
                                         <label class="control-label">Тип графика</label>
                                         <div control-labelstyle="padding-top: 7px;">
                                             <select bind:value="{model.properties.graphKind}" class="form-control">
-                                                {#each GraphKindEnum.getEnums() as gke}
+                                                {#each interfaces.GraphKindEnum.getEnums() as gke}
                                                     <option value="{gke.getName()}">{gke.getLabel()}</option>
                                                 {/each}
                                             </select>
@@ -182,23 +182,23 @@
                                             <input type="checkbox" bind:checked="{model.properties.compact}" />
                                         </div>
                                     </div>
-                                {:else if model.kindId == WidgetKindEnum.Expenses.getId()}
+                                {:else if model.kindId == interfaces.WidgetKindEnum.Expenses.getId()}
                                     <div class="form-group">
                                         <label class="control-label">Валюта по которой показывать траты:</label>
                                         <div control-labelstyle="padding-top: 7px;">
                                             <input type="text" bind:value="{model.properties.currency}" class="form-control" />
                                         </div>
                                     </div>
-                                {:else if model.kindId == WidgetKindEnum.LinearChart.getId()} 
+                                {:else if model.kindId == interfaces.WidgetKindEnum.LinearChart.getId()} 
                                     <!-- No properties for this -->
-                                {:else if model.kindId == WidgetKindEnum.Donut.getId()} 
+                                {:else if model.kindId == interfaces.WidgetKindEnum.Donut.getId()} 
                                     <!-- No properties for this -->
-                                {:else if model.kindId == WidgetKindEnum.Delta.getId()} 
+                                {:else if model.kindId == interfaces.WidgetKindEnum.Delta.getId()} 
                                     <div class="form-group">
                                         <label class="control-label">Периодичность</label>
                                         <div control-labelstyle="padding-top: 7px;">
                                             <select bind:value={model.properties.deltaInterval} class="form-control">
-                                                {#each DeltaIntervalEnum.getEnums() as delta}
+                                                {#each interfaces.DeltaIntervalEnum.getEnums() as delta}
                                                     <option value="{delta.getName()}">{delta.getLabel()}</option>
                                                 {/each}
                                             </select>

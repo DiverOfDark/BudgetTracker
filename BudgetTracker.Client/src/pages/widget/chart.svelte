@@ -1,11 +1,11 @@
 ﻿
 <script lang="ts">
     import LinearChartWidget from './Widgets/linearChartWidget.svelte';
-    import { TableController, LinearChartWidgetViewModel } from '../../generated-types';
+    import * as interfaces from '../../generated-types';
 
     export let router: any = {};
 
-	let widgetModel: LinearChartWidgetViewModel = {
+	let widgetModel: interfaces.LinearChartWidgetViewModel = {
         title: '',
         period: 0,
         values: [],
@@ -19,7 +19,7 @@
 	};
 
     let loadData = async function(provider: string, account: string, exemptTransfers: boolean) {
-        widgetModel = await TableController.chart(provider, account, exemptTransfers)
+        widgetModel = await interfaces.TableController.chart(provider, account, exemptTransfers)
     }
 
     $: {

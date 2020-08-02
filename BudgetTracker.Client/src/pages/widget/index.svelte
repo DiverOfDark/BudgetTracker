@@ -3,10 +3,11 @@
 </svelte:head>
 
 <script lang="ts">
-    import Link from '../../svero/Link.svelte';
     import { navigateTo } from '../../svero/utils';
 
-    import { WidgetController, WidgetViewModel } from '../../generated-types';
+    import { PlusIcon, CalendarIcon, EditIcon, XCircleIcon, ArrowLeftIcon, ArrowRightIcon, EyeIcon, EyeOffIcon } from 'svelte-feather-icons';
+
+    import * as interfaces from '../../generated-types';
     import donutWidget from './Widgets/donutWidget.svelte';
     import linearChartWidget from './Widgets/linearChartWidget.svelte';
     import deltaWidget from './Widgets/deltaWidget.svelte';
@@ -20,7 +21,7 @@
     let period = 0;
 
     let loadData = async () => {
-        model = await WidgetController.index(period);
+        model = await interfaces.WidgetController.index(period);
     }
 
     let createWidget = function() {
@@ -32,21 +33,21 @@
     }
     
     let deleteWidget = async function(id: string) {
-        await WidgetController.deleteWidget(id);
+        await interfaces.WidgetController.deleteWidget(id);
         await loadData();
     }
 
     let moveLeft = async function(id: string) {
-        await WidgetController.moveWidgetLeft(id);
+        await interfaces.WidgetController.moveWidgetLeft(id);
         await loadData();
     }
     
     let moveRight = async function(id: string) {
-        await WidgetController.moveWidgetRight(id);
+        await interfaces.WidgetController.moveWidgetRight(id);
         await loadData();
     }
 
-    let createComponent = function(widget: WidgetViewModel):any {
+    let createComponent = function(widget: interfaces.WidgetViewModel):any {
         switch(widget.kind) {
             case "LastValueWidgetViewModel":
                 return lastValueWidget;
@@ -68,8 +69,8 @@
         }
     }
     
-    let model;
-    let periodFriendly;
+    let model : interfaces.DashboardViewModel;
+    let periodFriendly : String;
     
     $: {
         if (period == 0) periodFriendly = "всё время";
@@ -77,9 +78,6 @@
     }
 
     loadData();
-
-    // used implicitly
-    showButtons; period; moveLeft; moveRight; deleteWidget; createWidget; editWidget; model; periodFriendly; createComponent; Link;
 </script>
 
 <div class="container">
@@ -87,24 +85,28 @@
         <h1 class="page-title">
             Отчёт за {periodFriendly}
         </h1>
-        <div class="page-options d-flex">
-            <button class="btn btn-sm btn-secondary ml-1" on:click="{() => showButtons = !showButtons}">
-                <span class="fe" class:fe-eye-off="{showButtons}" class:fe-eye="{!showButtons}"></span>
+        <div class="page-options" style="text-align: right;">
+            <button class="btn btn-sm btn-outline-primary ml-1" on:click="{() => showButtons = !showButtons}">
+                {#if (showButtons)}
+                    <EyeOffIcon size="16" />
+                {:else}
+                    <EyeIcon size="16" />
+                {/if}
             </button>
-            <button class="btn btn-sm btn-secondary ml-1" on:click="{() => createWidget()}">
-                <span class="fe fe-plus"></span>
+            <button class="btn btn-sm btn-outline-primary ml-1" on:click="{() => createWidget()}">
+                <PlusIcon size="16" />
             </button>
-            <button class="btn btn-sm btn-secondary ml-1" on:click="{() => { period = 1; loadData() }}">
-                <span class="fe fe-calendar">1M</span>
+            <button class="btn btn-sm btn-outline-primary ml-1" on:click="{() => { period = 1; loadData() }}">
+                <CalendarIcon size="16" />1M
             </button>
-            <button class="btn btn-sm btn-secondary ml-1" on:click="{() => { period = 3; loadData() }}">
-                <span class="fe fe-calendar">3M</span>
+            <button class="btn btn-sm btn-outline-primary ml-1" on:click="{() => { period = 3; loadData() }}">
+                <CalendarIcon size="16" />3M
             </button>
-            <button class="btn btn-sm btn-secondary ml-1" on:click="{() => { period = 6; loadData() }}">
-                <span class="fe fe-calendar">6M</span>
+            <button class="btn btn-sm btn-outline-primary ml-1" on:click="{() => { period = 6; loadData() }}">
+                <CalendarIcon size="16" />6M
             </button>
-            <button class="btn btn-sm btn-secondary ml-1" on:click="{() => { period = 0; loadData() }}">
-                <span class="fe fe-calendar">Всё</span>
+            <button class="btn btn-sm btn-outline-primary ml-1" on:click="{() => { period = 0; loadData() }}">
+                <CalendarIcon size="16" />Всё
             </button>
         </div>
     </div>    
@@ -119,13 +121,11 @@
                             {widget.title}
 
                             <div class="card-options">
-                                <button class="btn btn-sm btn-secondary ml-1" on:click="{() => editWidget(widget.id)}">
-                                    <span class="fe fe-edit">
-                                    </span>
+                                <button class="btn btn-sm btn-outline-primary ml-1" on:click="{() => editWidget(widget.id)}">
+                                    <EditIcon size="16" />
                                 </button>
-                                <button class="btn btn-sm btn-secondary ml-1" on:click="{() => deleteWidget(widget.id)}">
-                                    <span class="fe fe-x-circle">
-                                    </span>
+                                <button class="btn btn-sm btn-outline-primary ml-1" on:click="{() => deleteWidget(widget.id)}">
+                                    <XCircleIcon size="16" />
                                 </button>
                             </div>
                         </div>
@@ -136,11 +136,11 @@
 
                     {#if showButtons}
                         <div class="card-footer mb-5">
-                            <button class="float-left btn btn-sm btn-secondary" on:click="{() => moveLeft(widget.id)}">
-                                <span class="fe fe-arrow-left"></span>
+                            <button class="float-left btn btn-sm btn-outline-primary" on:click="{() => moveLeft(widget.id)}">
+                                <ArrowLeftIcon size="16" />
                             </button>
-                            <button class="float-right btn btn-sm btn-secondary" on:click="{() => moveRight(widget.id)}">
-                                <span class="fe fe-arrow-right"></span>
+                            <button class="float-right btn btn-sm btn-outline-primary" on:click="{() => moveRight(widget.id)}">
+                                <ArrowRightIcon size="16" />
                             </button>
                         </div>
                     {/if}

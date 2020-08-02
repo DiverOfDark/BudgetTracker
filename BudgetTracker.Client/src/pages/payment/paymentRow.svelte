@@ -13,6 +13,7 @@
     import Link from '../../svero/Link.svelte';
     import {formatMoney} from '../../services/Shared';
     import {tooltip} from '../../services/Tooltip';
+    import { GitBranchIcon, Edit2Icon, XCircleIcon } from 'svelte-feather-icons';
 
     $: tooltipText = payment.expanded ? "Сгруппировать": "Разгруппировать";
 </script>
@@ -77,13 +78,17 @@
                 </button>
             {:else}
                 <Link class="btn btn-link btn-anchor" href="/Payment/Split/{payment.id}">
-                    <span class="fe fe-git-branch"  use:tooltip="{"Разделить"}"></span>
+                    <div use:tooltip="{"Разделить"}">
+                        <GitBranchIcon size="16" />
+                    </div>
                 </Link>&nbsp;
                 <Link class="btn btn-link btn-anchor" href="/Payment/Edit/{payment.id}">
-                    <span class="fe fe-edit-2" use:tooltip="{"Редактировать"}"></span>
+                    <div use:tooltip="{"Редактировать"}">
+                        <Edit2Icon size="16" />
+                    </div>
                 </Link>&nbsp;
                 <button class="btn btn-link btn-anchor" on:click="{() => deletePayment(payment.id)}" use:tooltip="{"Удалить"}">
-                    <span class="fe fe-x-circle"></span>
+                    <XCircleIcon size="16" />
                 </button>
             {/if}
         </td>

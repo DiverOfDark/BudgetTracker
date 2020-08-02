@@ -4,6 +4,7 @@
 
 <script>
     import {SpentCategoryModelController, PaymentController } from '../../generated-types';
+    import { EditIcon, XCircleIcon } from 'svelte-feather-icons';
     import {compare} from '../../services/Shared';
     import { navigateTo } from '../../svero/utils';
 
@@ -65,10 +66,10 @@
                                     <td>{category.pattern || ''}</td>
                                     <td>
                                         <button class="btn btn-link btn-anchor" on:click="{() => edit(category.id)}">
-                                            <span class="fe fe-edit"></span>
+                                            <EditIcon size="16" />
                                         </button>
                                         <button class="btn btn-link btn-anchor" on:click="{() => deleteCategory(category.id)}">
-                                            <span class="fe fe-x-circle"></span>
+                                            <XCircleIcon size="16" />
                                         </button>
                                     </td>
                                 </tr>

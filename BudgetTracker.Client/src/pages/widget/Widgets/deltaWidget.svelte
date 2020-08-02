@@ -1,8 +1,9 @@
 <script lang="ts">
-    import { DeltaWidgetViewModel, Pair } from './../../../generated-types';
+    import * as interfaces from './../../../generated-types';
     import { formatMoney } from './../../../services/Shared';
+    import { ChevronsUpIcon, ChevronsDownIcon, CodeIcon } from 'svelte-feather-icons';
 
-    export let model: DeltaWidgetViewModel = {
+    export let model: interfaces.DeltaWidgetViewModel = {
         ccy: '',
         deltas: [],
         deltaWidgetSettings: {
@@ -24,23 +25,17 @@
 	$: { colorSuffix = model.incompleteData ? "bg-gray-dark-darkest" : ""; }
     $: { styleSuffix = model.deltas.length < 4 ? "mt-5" : ""; }
 
-    let color = function(item: Pair) {
+    let color = function(item: interfaces.Pair) {
         return item.value > 0 ? "text-green" : Math.abs(item.value) < 0.01 ? "text-blue" : "text-red";
     }
 
-    let format = function(item: Pair) {
+    let format = function(item: interfaces.Pair) {
         let value = formatMoney(item.value);
 
         let prefix = item.value > 0 ? "+" : "";
 
         return prefix + value;
     }
-
-    let direction = function(item: Pair) {
-        return item.value > 0 ? "fe-chevrons-up" : Math.abs(item.value) < 0.01 ? "fe-code" : "fe-chevrons-down";  
-    }
-
-    color;format;direction; colorSuffix; styleSuffix;
 </script>
 
 <div class="card-body p-3 text-center @colorSuffix">
@@ -49,7 +44,15 @@
             <div class="text-nowrap">
                 <span class="text-muted-dark">&Delta; {item.name}: </span>
                 <span class="{color(item)}">{format(item)}</span>&nbsp;<span class="text-muted-dark">{model.ccy}</span>
-                <span class="fe {color(item)} fe {direction(item)}"></span>
+                <span class="{color(item)}">
+                    {#if (item.value > 0)}
+                        <ChevronsUpIcon size="16" />
+                    {:else if (Math.abs(item.value) < 0.01)}
+                        <CodeIcon size="16" />
+                    {:else}
+                        <ChevronsDownIcon size="16" />
+                    {/if}
+                </span>
             </div>
     {/each}
     </div>

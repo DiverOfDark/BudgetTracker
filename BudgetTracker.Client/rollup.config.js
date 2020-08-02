@@ -9,6 +9,7 @@ import { sizeSnapshot } from "rollup-plugin-size-snapshot";
 import sizes from "rollup-plugin-sizes";
 import autoPreprocess from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
+import css from "rollup-plugin-css-only";
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -44,6 +45,7 @@ export default {
 	},
 	onwarn,
 	plugins: [
+		css({ output: "../BudgetTracker/wwwroot/css/dashboard.css" }),
 		progress(),
 		sizeSnapshot(), 
 		sizes(),

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { LastValueWidgetViewModel } from './../../../generated-types';
+	import * as interfaces from './../../../generated-types';
 	import Link from '../../../svero/Link.svelte';
     import { formatMoney, formatDate, formatDateJs } from './../../../services/Shared';
 	import { onMount, onDestroy } from 'svelte';
@@ -7,7 +7,9 @@
 	import tabler from './../../../tabler';
 	import Chart from 'chart.js';
 
-	export let model: LastValueWidgetViewModel = {
+	import { TrendingUpIcon, TrendingDownIcon, ActivityIcon } from 'svelte-feather-icons';
+
+	export let model: interfaces.LastValueWidgetViewModel = {
 		account: '',
 		color: '',
 		colorYear: '',
@@ -37,35 +39,11 @@
 	let colorSuffix = "";
 	$: { colorSuffix = model.incompleteData ? "bg-gray-dark-darkest" : ""; }
 
-	let hexColor = "#000000";
-
-	let trend = "fe-trending-up";
-	
-	$: {
-		switch (model.colorYear) {
-			case "red":
-				hexColor = "#e74c3c";
-				trend = "fe-trending-down";
-				break;
-			case "green":
-				hexColor = "#5eba00";
-				break;
-			case "yellow":
-				hexColor = "#f1c40f";
-				trend = "fe-activity";
-				break;
-			case "blue":
-				hexColor = "#467fcf";
-				trend = "fe-trending-down";
-				break;
-		}
-	}
-
 	let refresh = function() {
 		if (!model.isCompact && chartCanvas) {
 			var goodItems = Object.entries(model.values).sort((a,b)=>compare(a[0], b[0])).filter(v=>v[1]);
-			var chartItems : number[] = goodItems.map(v => <number> v[1]);
-			var datesItems : string[] = goodItems.map(v => <string> v[0]);
+			var chartItems : number[] = goodItems.map(v => v[1]);
+			var datesItems : string[] = goodItems.map(v => v[0]);
 
 			if (model.graphKind == 'Differential')
 			{
@@ -157,8 +135,6 @@
 
 	onMount(() => refresh());
 	onDestroy(() => currentChart && currentChart.destroy());
-
-	hexColor; trend; colorSuffix; formatDate; formatMoney; Link;
 </script>
 
 {#if model.isCompact}
@@ -169,8 +145,14 @@
         <div class="text-muted">
             {model.title}
 			<Link href="/Chart/{encodeURIComponent(model.provider)}/{encodeURIComponent(model.account)}/{encodeURIComponent(model.exemptTransfers)}">
-		        <span class="fe {trend}"></span>
-	        </Link>
+				{#if (model.colorYear == "red")}
+					<TrendingDownIcon size="16" />
+				{:else if (model.colorYear == "yellow")}
+					<ActivityIcon size="16" />
+				{:else if (model.colorYear == "blue")}
+					<TrendingUpIcon size="16" />
+				{/if}
+			</Link>
             <br/>
             <small>
 				{formatDate(model.currentDate)}
@@ -179,7 +161,7 @@
     </div>
 {:else}
 	<div class="card-status bg-{model.colorYear}"></div>
-    <div class="card-body {colorSuffix}">
+    <div class="card-body {colorSuffix}" style="padding-bottom:0">
         <div class="float-right" alt="{model.description}" title="{model.description}" data-toggle="tooltip">
 	        <div class="card-value text-{model.colorYear}">
 		        {model.deltaYear}
@@ -193,8 +175,14 @@
         </h3>
         <div class="text-muted text-nowrap">
             {model.title}
-	        <Link href="/Chart/{encodeURIComponent(model.provider)}/{encodeURIComponent(model.account)}">
-		        <span class="fe {trend}"></span>
+			<Link href="/Chart/{encodeURIComponent(model.provider)}/{encodeURIComponent(model.account)}">
+				{#if (model.colorYear == "red")}
+					<TrendingDownIcon size="16" />
+				{:else if (model.colorYear == "yellow")}
+					<ActivityIcon size="16" />
+				{:else if (model.colorYear == "blue")}
+					<TrendingUpIcon size="16" />
+				{/if}
 	        </Link>
         </div>
         <h4 class="m-0">
@@ -204,6 +192,6 @@
         </h4>
     </div>
 	<div class="card-chart-bg {colorSuffix}">
-		<canvas bind:this="{chartCanvas}"></canvas>
+		<canvas bind:this="{chartCanvas}" height="75px" width="100%"></canvas>
 	</div>
 {/if}

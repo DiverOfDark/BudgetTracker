@@ -33,5 +33,15 @@
     <_ContentIncludedByDefault Remove="Views\Payment\Index.cshtml" />
     <_ContentIncludedByDefault Remove="Views\Payment\SpentCategories.cshtml" />
     <_ContentIncludedByDefault Remove="Views\Payment\SplitPayment.cshtml" />
+    <_ContentIncludedByDefault Remove="wwwroot\fonts\feather\feather-webfont.eot" />
+    <_ContentIncludedByDefault Remove="wwwroot\fonts\feather\feather-webfont.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\fonts\feather\feather-webfont.ttf" />
+    <_ContentIncludedByDefault Remove="wwwroot\fonts\feather\feather-webfont.woff" />
+    <_ContentIncludedByDefault Remove="wwwroot\fonts\fontawesome-webfont.eot" />
+    <_ContentIncludedByDefault Remove="wwwroot\fonts\fontawesome-webfont.svg" />
+    <_ContentIncludedByDefault Remove="wwwroot\fonts\fontawesome-webfont.ttf" />
+    <_ContentIncludedByDefault Remove="wwwroot\fonts\fontawesome-webfont.woff" />
+    <_ContentIncludedByDefault Remove="wwwroot\fonts\fontawesome-webfont.woff2" />
+    <_ContentIncludedByDefault Remove="wwwroot\fonts\FontAwesome.otf" />
   </ItemGroup>
 </Project>

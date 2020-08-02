@@ -4,12 +4,14 @@
 
 <script lang="ts">
     import Link from '../../svero/Link.svelte';
-    import {DebtController, DebtJsViewModel} from '../../generated-types'
+    import * as interfaces from '../../generated-types'
     import {formatMoney} from '../../services/Shared'
 
-    let debts: DebtJsViewModel[] = [];
+    import { Edit2Icon } from 'svelte-feather-icons';
 
-    DebtController.indexJson().then(s=> debts = s);
+    let debts: interfaces.DebtJsViewModel[] = [];
+
+    interfaces.DebtController.indexJson().then(s=> debts = s);
 
     //used in views:
     Link; debts; formatMoney;
@@ -60,7 +62,7 @@
                                 <td>{debt.description}</td>
                                 <td>
                                     <Link href="/Debt/Edit/{debt.id}">
-                                        <span class="fe fe-edit-2"></span>
+                                        <Edit2Icon size="16" />
                                     </Link>
                                 </td>
                             </tr>

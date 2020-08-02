@@ -4,6 +4,7 @@
 
 <script>
     import { SmsListController } from '../../generated-types';
+    import { XCircleIcon } from 'svelte-feather-icons';
     import {compare} from '../../services/Shared';
 
     let load = async function() {
@@ -65,7 +66,7 @@
                                     <td>{rule.text || ""}</td>
                                     <td>
                                         <btn class="btn btn-link btn-anchor" on:click="{() => deleteRule(rule.id)}">
-                                            <span class="fe fe-x-circle"></span>
+                                            <XCircleIcon size="16" />
                                         </btn>
                                     </td>
                                 </tr>

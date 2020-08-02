@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { DonutWidgetViewModel } from './../../../generated-types';
+	import * as interfaces from './../../../generated-types';
 	import { formatMoney } from './../../../services/Shared';
 
 	import tabler from './../../../tabler';
@@ -11,7 +11,7 @@
 	//@ts-ignore
 	import ChartDoughnutLabel from 'chartjs-plugin-doughnutlabel';
 
-	export let model: DonutWidgetViewModel = {
+	export let model: interfaces.DonutWidgetViewModel = {
         title: '',
 		period: 0,
 		names: [],

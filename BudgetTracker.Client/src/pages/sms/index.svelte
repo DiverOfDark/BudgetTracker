@@ -15,6 +15,7 @@
 <script>
     import Link from '../../svero/Link.svelte';
     import { SmsListController } from '../../generated-types';
+    import { XCircleIcon } from 'svelte-feather-icons';
     import { formatDate, formatDateTime, formatMonth } from '../../services/Shared'
 
     let reload = async function() {
@@ -47,7 +48,7 @@
                         <Link class="btn btn-primary btn-sm" href="/SmsList/SmsRules">
                             Правила обработки SMS
                         </Link>
-                        <button class="btn btn-secondary btn-sm ml-2" on:click="{() => showHidden = !showHidden}">
+                        <button class="btn btn-outline-primary btn-sm ml-2" on:click="{() => showHidden = !showHidden}">
                             {#if showHidden}
                                 Скрыть обработанное
                             {:else}
@@ -87,7 +88,7 @@
                                                 <td>{sms.message}</td>
                                                 <td>
                                                     <button class="btn btn-link btn-anchor" on:click="{() => deleteSms(sms.id)}">
-                                                        <span class="fe fe-x-circle"></span>
+                                                        <XCircleIcon size="16" />
                                                     </button>
                                                 </td>
                                             </tr>
