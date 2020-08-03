@@ -1,13 +1,12 @@
-<script>
+<script lang="ts">
     import Link from '../svero/Link.svelte';
 
-    import { writable, get } from 'svelte/store';
     import { onMount, onDestroy } from 'svelte';
 
-    export let href;
-    export let title;
+    export let href : string;
+    export let title : string;
 
-    export let active;
+    export let active : string;
 
     let listener = function() {
         active = window.location.pathname.indexOf(href) == 0 ? "active" : "";;
