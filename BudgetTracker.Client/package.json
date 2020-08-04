@@ -40,7 +40,7 @@
   "dependencies": {
     "@types/chart.js": "^2.9.13",
     "chart.js": "^2.9.3",
-    "chartjs-plugin-datalabels": "^0.6.0",
+    "chartjs-plugin-datalabels": "^0.7.0",
     "chartjs-plugin-doughnutlabel": "^2.0.3",
     "moment": "^2.24.0",
     "path-parser": "^4.2.0",
