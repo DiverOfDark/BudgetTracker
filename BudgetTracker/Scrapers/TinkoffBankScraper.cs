@@ -139,7 +139,7 @@ namespace BudgetTracker.Scrapers
              
              var smsModel = WaitForSms(() => {}, s => s.Message.Contains("код") && s.Message.Contains("Tinkoff.ru"));
              smsCode.Click();
-             var code = new string(smsModel.Message.Where(char.IsDigit).ToArray());
+             var code = new string(smsModel.Message.Where(char.IsDigit).Take(4).ToArray());
 
              chrome.SendKeys(code);
 
