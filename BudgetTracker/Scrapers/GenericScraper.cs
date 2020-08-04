@@ -152,7 +152,11 @@ namespace BudgetTracker.Scrapers
             foreach (var st in statements)
             {
                 var timeStr = st.Element("DTPOSTED").Value;
-                var time = DateTime.ParseExact(timeStr, "yyyyMMddhhmmss", CultureInfo.CurrentCulture);
+                var format = "yyyyMMddHHmmss";
+                if (timeStr.Length > format.Length)
+                    timeStr = timeStr.Substring(0, format.Length);
+                
+                var time = DateTime.ParseExact(timeStr, format, CultureInfo.CurrentCulture);
                 var amountStr = st.Element("TRNAMT").Value;
                 var amount = double.Parse(amountStr,
                     new NumberFormatInfo {NumberDecimalSeparator = "."});
