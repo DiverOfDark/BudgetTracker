@@ -43,7 +43,7 @@
     "chartjs-plugin-datalabels": "^0.6.0",
     "chartjs-plugin-doughnutlabel": "^2.0.3",
     "moment": "^2.24.0",
-    "path-parser": "^4.2.0",
+    "path-parser": "^6.1.0",
     "tabler": "^1.0.0-alpha.7"
   }
 }
