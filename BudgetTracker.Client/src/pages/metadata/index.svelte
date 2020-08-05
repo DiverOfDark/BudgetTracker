@@ -91,7 +91,7 @@
                             <th>Используется</th>
                             <th>
                                 <Link href="/Metadata/Edit">
-                                    <span class="fe fe-plus"></span>
+                                    <PlusIcon size="16" />
                                 </Link>
                             </th>
                         </tr>
@@ -100,12 +100,12 @@
                                 <td class="text-nowrap">
                                     {#if meta != columns[0]}
                                         <button on:click="{() => updateColumnOrder(meta.id, true)}" class="btn btn-link btn-anchor">
-                                            <span class="fe fe-arrow-up"></span>
+                                            <ArrowUpIcon size="16" />
                                         </button>
                                     {/if}
                                     {#if meta != columns[columns.length - 1]}
                                         <button on:click="{() => updateColumnOrder(meta.id, false)}" class="btn btn-link btn-anchor" class:pull-right="{meta == columns[0]}">
-                                            <span class="fe fe-arrow-down"></span>
+                                            <ArrowDownIcon size="16" />
                                         </button>
                                     {/if}
                                 </td>
@@ -127,10 +127,10 @@
                                 </td>
                                 <td class="text-nowrap">
                                     <Link className="btn btn-link btn-anchor" href="/Metadata/Edit/{meta.id}">
-                                        <span class="fe fe-edit-2"></span>
+                                        <Edit2Icon size="16" />
                                     </Link>
                                     <button on:click="{() => deleteColumn(meta.id)}" class="btn btn-link btn-anchor">
-                                        <span class="fe fe-x-circle"></span>
+                                        <XCircleIcon size="16" />
                                     </button>
                                 </td>
                             </tr>

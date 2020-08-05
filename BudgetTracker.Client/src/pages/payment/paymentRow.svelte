@@ -1,4 +1,5 @@
 <script >
+    import { GitBranchIcon, Edit2Icon, XCircleIcon } from 'svelte-feather-icons';
     import { formatUnixMonth, formatUnixTime, formatPaymentKind, formatMoney } from '../../services/Shared';
     import { tooltip } from '../../services/Tooltip';
 

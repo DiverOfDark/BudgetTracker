@@ -3,24 +3,15 @@ import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
-import { preprocess, createEnv, readConfigFile } from "@pyoner/svelte-ts-preprocess";
-import typescript from "rollup-plugin-typescript2";
 import progress from 'rollup-plugin-progress';
 import babel from 'rollup-plugin-babel';
 import { sizeSnapshot } from "rollup-plugin-size-snapshot";
 import sizes from "rollup-plugin-sizes";
+import autoPreprocess from 'svelte-preprocess';
+import typescript from '@rollup/plugin-typescript';
+import css from "rollup-plugin-css-only";
 
 const production = !process.env.ROLLUP_WATCH;
-
-const env = createEnv();
-const compilerOptions = readConfigFile(env);
-const opts = {
-  env,
-  compilerOptions: {
-    ...compilerOptions,
-    allowNonTsExtensions: true
-  }
-};
 
 const onwarn = warning => {
 	if (warning.code === 'CIRCULAR_DEPENDENCY') {
@@ -58,6 +49,7 @@ export default {
 	},
 	onwarn,
 	plugins: [
+		css({ output: "../BudgetTracker/wwwroot/css/dashboard.css" }),
 		progress(),
 		sizeSnapshot(), 
 		svelte({
@@ -68,7 +60,7 @@ export default {
 			css: css => {
 				css.write('../BudgetTracker/wwwroot/css/bundle.css');
 			},
-			preprocess: preprocess(opts)
+			preprocess: autoPreprocess()
 		}),
 
 		// If you have external dependencies installed from
@@ -78,7 +70,7 @@ export default {
 		// https://github.com/rollup/rollup-plugin-commonjs
 		resolve(),
 		commonjs(),
-		typescript(),
+		typescript({ sourceMap: !production }),
 
 		// Watch the `public` directory and refresh the
 		// browser on changes when not in production

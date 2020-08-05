@@ -2,9 +2,10 @@
   "name": "BudgetTracker.Client",
   "version": "1.0.0",
   "devDependencies": {
-    "@babel/core": "^7.9.0",
-    "@babel/preset-env": "^7.9.5",
-    "@pyoner/svelte-ts-preprocess": "^1.2.1",
+    "@babel/core": "^7.11.0",
+    "@babel/preset-env": "^7.11.0",
+    "@rollup/plugin-typescript": "^5.0.2",
+    "@tsconfig/svelte": "^1.0.4",
     "eslint": "^6.8.0",
     "eslint-plugin-svelte3": "^2.7.3",
     "npm-run-all": "^4.1.5",
@@ -13,17 +14,21 @@
     "rollup": "^1.32.1",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-livereload": "^1.2.0",
+    "rollup-plugin-copy": "^3.3.0",
+    "rollup-plugin-css-only": "^2.1.0",
+    "rollup-plugin-livereload": "^1.3.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-progress": "^1.1.1",
+    "rollup-plugin-progress": "^1.1.2",
     "rollup-plugin-size-snapshot": "^0.10.0",
     "rollup-plugin-sizes": "^1.0.2",
-    "rollup-plugin-svelte": "^5.2.1",
+    "rollup-plugin-svelte": "^5.2.3",
     "rollup-plugin-terser": "^5.3.0",
-    "rollup-plugin-typescript2": "^0.21.2",
-    "sirv-cli": "^0.4.5",
-    "svelte": "^3.20.1",
-    "typescript": "^3.8.3",
+    "sirv-cli": "^0.4.6",
+    "svelte": "^3.24.0",
+    "svelte-check": "^1.0.4",
+    "svelte-feather-icons": "^3.2.2",
+    "svelte-preprocess": "^4.0.9",
+    "typescript": "^3.9.7",
     "unzipper": "^0.10.10"
   },
   "scripts": {
@@ -33,10 +38,11 @@
     "dev": "run-p start:dev autobuild",
     "start": "sirv --port 3000 public",
     "start:dev": "sirv --port 3000 public --dev",
-    "lint": "eslint src --plugin svelte3 --ext .svelte,.js --fix"
+    "lint": "eslint src --plugin svelte3 --ext .svelte,.js --fix",
+    "check": "svelte-check"
   },
   "dependencies": {
-    "@types/chart.js": "^2.9.19",
+    "@types/chart.js": "^2.9.13",
     "@types/google-protobuf": "^3.7.2",
     "chart.js": "^2.9.3",
     "chartjs-plugin-datalabels": "^0.6.0",
@@ -44,6 +50,7 @@
     "google-protobuf": "^3.11.4",
     "grpc-web": "^1.0.7",
     "moment": "^2.24.0",
-    "path-parser": "^4.2.0"
+    "path-parser": "^4.2.0",
+    "tabler": "^1.0.0-alpha.7"
   }
 }

@@ -1,6 +1,5 @@
 ﻿ <script lang="ts">
     import { navigateTo } from '../../svero/utils';
-    import { WidgetController, WidgetViewModelController, MoneyColumnMetadataModelController } from '../../generated-types';
     import * as interfaces from '../../generated-types';
 
     export let router: any = {};
@@ -21,7 +20,7 @@
     let title = 'Создать виджет';
 
     let loadData = async function(id: string) {
-        model = await WidgetViewModelController.find(id);
+        model = await interfaces.WidgetViewModelController.find(id);
         invalidateAccount(model.properties.providerName, model.properties.accountName);
 
         if (!model.properties.stringFormat) {
@@ -40,7 +39,7 @@
     let accountsMap: Map<string, string[]> = new Map();
 
     let loadStatics = async function() {
-        let mcms = await MoneyColumnMetadataModelController.list();
+        let mcms = await interfaces.MoneyColumnMetadataModelController.list();
         providers = [...new Set(mcms.map(f=>f.provider))].sort();
         
         for(var prId = 0; prId < providers.length; prId++) {
@@ -73,7 +72,7 @@
     }
 
     let save = async function() {
-        await WidgetController.editWidget(model.id, model.title, interfaces.WidgetKindEnum.getEnums()[model.kindId], model.properties);
+        await interfaces.WidgetController.editWidget(model.id, model.title, interfaces.WidgetKindEnum.getEnums()[model.kindId], model.properties);
         navigateTo('/');
     }
 

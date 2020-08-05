@@ -1,4 +1,7 @@
 <script>
+  import '../node_modules/tabler/dist/css/tabler.min.css';
+  import '../node_modules/tabler/dist/css/tabler-buttons.min.css';
+
   import Router from './svero/Router.svelte';
   import Route from './svero/Route.svelte';
   import AuthService from './services/AuthService';
@@ -39,7 +42,7 @@
   {:else}
     <div class="page-main">
       <Nav />
-      <div class="page-content">
+      <div class="page-content mt-4">
         <Router>
             <Route path="/"><WidgetIndex /></Route>
             <Route path="/Table"><TableIndex /></Route>

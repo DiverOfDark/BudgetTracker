@@ -131,37 +131,7 @@ namespace BudgetTracker.Scrapers
 
                         var xdoc = XDocument.Parse(doc);
 
-                        var statements =
-                            xdoc.XPathSelectElements("OFX/BANKMSGSRSV1/STMTTRNRS/STMTRS/BANKTRANLIST/STMTTRN");
-
-                        var ccyNode = xdoc.XPathSelectElement("OFX/BANKMSGSRSV1/STMTTRNRS/STMTRS/CURDEF");
-
-                        var ccy = ccyNode.Value;
-
-                        var payments = new List<PaymentModel>();
-
-                        foreach (var st in statements)
-                        {
-                            var timeStr = st.Element("DTPOSTED").Value;
-                            var time = DateTime.ParseExact(timeStr, "yyyyMMddhhmmss", CultureInfo.CurrentCulture);
-                            var amountStr = st.Element("TRNAMT").Value;
-                            var amount = double.Parse(amountStr,
-                                new NumberFormatInfo {NumberDecimalSeparator = "."});
-                            var name = st.Element("MEMO").Value;
-                            
-                            var id = timeStr + amountStr + name;
-
-                            int counter = 0;
-                            while (payments.Any(j => j.StatementReference == id))
-                            {
-                                id = timeStr + amountStr + name + counter++;
-                            }
-
-                            var kind = amount < 0 ? PaymentKind.Expense : PaymentKind.Income;
-
-                            var stmt = Statement(time, accountName, name, amount, kind, ccy, id);
-                            payments.Add(stmt);
-                        }
+                        var payments = ParseOfx(xdoc, accountName);
 
                         Logger.LogInformation($"Got {payments.Count} payments from {url}, attempt {i}");
                         result.AddRange(payments);
@@ -176,7 +146,7 @@ namespace BudgetTracker.Scrapers
 
             return result;
         }
-
+        
         private void Login(ScraperConfigurationModel configuration, Chrome chrome)
         {
             var driver = chrome.Driver;

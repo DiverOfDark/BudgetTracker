@@ -6,6 +6,7 @@
     import Link from '../../svero/Link.svelte';
     import SoWService from '../../services/SoWService';
     import PaymentRow from './paymentRow.svelte';
+    import { ChevronDownIcon } from 'svelte-feather-icons';
     // import Modal from '../../components/Modal.svelte';
     import * as protosCommons from '../../generated/Commons_pb';
     import * as protosCategories from '../../generated/SpentCategories_pb';

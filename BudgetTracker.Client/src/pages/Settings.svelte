@@ -4,6 +4,7 @@
     import SoWService from '../services/SoWService';
     import protoSettings from '../generated/Settings_pb';
     import Link from '../svero/Link.svelte';
+    import { DeleteIcon, XCircleIcon } from 'svelte-feather-icons';
 
     let settings = writable(new protoSettings.Settings().toObject());
 
@@ -132,12 +133,14 @@
                                     Баланс: <b>{item.lastSuccessfulBalanceScraping}</b><br/>
                                     Выписка: <b>{item.lastSuccessfulStatementScraping}</b>
                                     {#if item.lastSuccessfulBalanceScraping != "-" || item.lastSuccessfulStatementScraping != "-"}
-                                        <button on:click="{() => SoWService.clearLastSuccessful(item.id)}" class="btn btn-anchor btn-link"><span class="fe fe-delete"></span></button>
+                                        <button on:click="{() => clearLastSuccessful(item.id)}" class="btn btn-anchor btn-link">
+                                            <DeleteIcon size="16" />
+                                        </button>
                                     {/if}
                                 </td>
                                 <td>
-                                    <button class="btn btn-anchor btn-link" on:click="{() => SoWService.deleteConfig(item.id)}">
-                                        <span class="fe fe-x-circle"></span>
+                                    <button class="btn btn-anchor btn-link" on:click="{() => deleteConfig(item.id)}">
+                                        <XCircleIcon size="16" />
                                     </button>
                                 </td>
                             {:else}

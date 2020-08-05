@@ -1,3 +1,8 @@
+<script lang="ts">
+    //@ts-ignore
+    import { ArrowLeftIcon } from 'svelte-feather-icons';
+</script>
+
 <svelte:head>
     <title>BudgetTracker - Ошибка</title>
 </svelte:head>
@@ -7,6 +12,6 @@
     <h1 class="h2 mb-3">Упс.. Что-то пошло не так..</h1>
     <p class="h4 text-muted font-weight-normal mb-7">Сорьки&hellip;</p>
     <a class="btn btn-primary" href="javascript:history.back()">
-        <i class="fe fe-arrow-left mr-2"></i>Назад
+        <ArrowLeftIcon size="16" customClass="mr-2" />Назад
     </a>
 </div>

@@ -1,7 +1,6 @@
 ﻿
 <script lang="ts">
     import LinearChartWidget from './Widgets/linearChartWidget.svelte';
-    import { TableController } from '../../generated-types';
     import * as interfaces from '../../generated-types';
 
     export let router: any = {};
@@ -20,7 +19,7 @@
 	};
 
     let loadData = async function(provider: string, account: string, exemptTransfers: boolean) {
-        widgetModel = await TableController.chart(provider, account, exemptTransfers)
+        widgetModel = await interfaces.TableController.chart(provider, account, exemptTransfers)
     }
 
     $: {
@@ -49,3 +48,9 @@
         </div>
     </div>
 </div>
+<!--
+@{
+    ViewData["Title"] = Model.Title;
+    ViewBag.FullScreen = true;
+}
+-->

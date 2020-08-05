@@ -35,7 +35,7 @@ namespace BudgetTracker.Scrapers
             chrome.SendKeys(configuration.Password);
             chrome.SendKeys(Keys.Return);
 
-            var smsModel = WaitForSms(() => {}, s => s.Message.Contains("Код для входа:"));
+            var smsModel = WaitForSms(() => {}, s => s.Message.Contains("код для входа"));
 
             GetElement(driver, By.TagName("input")).Click();
             

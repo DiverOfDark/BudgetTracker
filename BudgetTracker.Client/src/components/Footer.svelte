@@ -24,7 +24,7 @@
             </div>
             {/if}
             <div class="col-12 col-lg-auto mt-3 mt-lg-0 text-center">
-                <p>&copy; 2019 - BudgetTracker</p>
+                <p>&copy; 2019-2020 &mdash; BudgetTracker</p>
             </div>
         </div>
     </div>

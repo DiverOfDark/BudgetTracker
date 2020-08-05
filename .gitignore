@@ -261,5 +261,6 @@ __pycache__/
 *.pyc
 
 BudgetTracker/wwwroot/**/bundle.*
+BudgetTracker/wwwroot/**/dashboard.css
 .rpt2_cache
 out

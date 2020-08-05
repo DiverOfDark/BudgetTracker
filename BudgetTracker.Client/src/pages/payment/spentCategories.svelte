@@ -8,6 +8,7 @@
     import { formatPaymentKind } from '../../services/Shared';
     import * as protos from '../../generated/SpentCategories_pb';
     import { onDestroy } from 'svelte';
+    import { EditIcon, XCircleIcon } from 'svelte-feather-icons';
 
     let spentCategories = SoWService.getSpentCategories(onDestroy).spentCategories;
 
@@ -64,10 +65,10 @@
                                     <td>{category.pattern || ''}</td>
                                     <td>
                                         <button class="btn btn-link btn-anchor" on:click="{() => edit(category)}">
-                                            <span class="fe fe-edit"></span>
+                                            <EditIcon size="16" />
                                         </button>
                                         <button class="btn btn-link btn-anchor" on:click="{() => deleteCategory(category)}">
-                                            <span class="fe fe-x-circle"></span>
+                                            <XCircleIcon size="16" />
                                         </button>
                                     </td>
                                 </tr>
