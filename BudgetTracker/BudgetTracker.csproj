@@ -19,7 +19,7 @@
     <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="84.0.4147.3001" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
     <PackageReference Include="System.Text.Encodings.Web" Version="4.7.1" />
-    <PackageReference Include="Tinkoff.Trading.OpenApi" Version="1.5.0" />
+    <PackageReference Include="Tinkoff.Trading.OpenApi" Version="1.6.0" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="electron.manifest.json">
