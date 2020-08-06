@@ -102,8 +102,6 @@
             SoWService.editPayment(payment);
         }
     }
-   
-    PaymentRow; Link; showCategorized; switchCategorized; deletePayment; expandCollapse; spentCategories; categories; payments; dragStart; dragover; drop; editPayment; splitPayment; moneyColumns; // used in view
 </script>
 
 <style>

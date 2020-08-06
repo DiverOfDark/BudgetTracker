@@ -88,9 +88,6 @@
             || model.kindId == interfaces.WidgetKindEnum.Donut.getId()
             || model.kindId == interfaces.WidgetKindEnum.Delta.getId();
     }
-
-    // used in template
-    model; title; providers; accounts; showAccount; save;
 </script>
 <svelte:head>
     <title>BudgetTracker - {title}</title>

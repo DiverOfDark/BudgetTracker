@@ -18,9 +18,6 @@
         SoWService.updateSpentCategory(model);
         dispatch('close');
     }
-    
-    // used in view
-    submit; model; kind;
 </script>
 
 <div class="form-horizontal">

@@ -4,7 +4,6 @@
 
 <script lang="ts">
     import Form from './add.svelte';
-    import Link from '../../svero/Link.svelte';
     import Modal from '../../components/Modal.svelte';
     import SoWService from '../../services/SoWService';
     import * as commons from '../../generated/Commons_pb';
@@ -37,9 +36,6 @@
     async function deleteDebt(debt: protos.DebtView.AsObject) {
         await SoWService.deleteDebt(debt.model!.id!);
     }
-
-    //used in views:
-    Link; Modal; Form; showCreate; showEdit; debts; editDebtModel; formatMoney; formatTimestamp; editDebt; deleteDebt; createDebt;
 </script>
 
 <div class="container">

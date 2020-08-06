@@ -33,9 +33,6 @@
         newPattern = "";
         newKind = 0;
     }
-
-    // used in view
-    newCategory; newPattern; newKind; deleteCategory; edit; create; formatPaymentKind; showEdit; Modal; Form; editSpentCategoryModel; spentCategories;
 </script>
 
 <div class="container">

@@ -61,9 +61,6 @@
         await MetadataController.updateColumnOrder(id, moveUp);
         columns = await MetadataController.indexJson();
     };
-
-    // used in view
-    getUsedIn; deleteColumn; updateColumnOrder; Link; splitFunc; getStyleForReference;
 </script>
 
 <style>

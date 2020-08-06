@@ -71,11 +71,9 @@
                             {#each months as month, idx}
                                 <tr>
                                     <th colspan="4">
-                                        <span class="card-title">
-                                            <button on:click="{() => month.collapsed = !month.collapsed}" class="btn btn-anchor btn-link month">
-                                                {formatMonth(month.when)}
-                                            </button>
-                                        </span>
+                                        <a href="#/" on:click="{() => { month.collapsed = !month.collapsed; return false;}}" class="month">
+                                            {formatMonth(month.when)}
+                                        </a>
                                         <span class="badge badge-secondary">{showHidden ? month.sms.length : month.sms.filter(t=>!t.isHidden).length} SMS</span>
                                     </th>
                                 </tr>

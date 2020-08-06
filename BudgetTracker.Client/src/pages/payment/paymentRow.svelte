@@ -1,28 +1,34 @@
-<script >
+<script lang="ts">
     import { GitBranchIcon, Edit2Icon, XCircleIcon } from 'svelte-feather-icons';
     import { formatUnixMonth, formatUnixTime, formatPaymentKind, formatMoney } from '../../services/Shared';
     import { tooltip } from '../../services/Tooltip';
+    import * as interfaces from '../../generated/Payments_pb';
+    import * as commonsProtos from '../../generated/Commons_pb';
+    import * as svelte from 'svelte/store';
+    import * as accountsProtos from '../../generated/Accounts_pb';
+    import * as debtsProtos from '../../generated/Debts_pb';
+    import * as spentCategoriesProtos from '../../generated/SpentCategories_pb';
 
-    export let parentId;
-    export let payment;
-    export let expandCollapse;
-    export let dragStart;
-    export let editPayment;
-    export let deletePayment;
-    export let splitPayment;
+    export let parentId : commonsProtos.UUID.AsObject[];
+    export let payment : interfaces.PaymentView.AsObject;
+    export let expandCollapse: (ids: commonsProtos.UUID.AsObject[]) => void;
+    export let dragStart: (ev: DragEvent, payment: interfaces.Payment.AsObject) => void;
+    export let editPayment: (p: interfaces.Payment.AsObject) => void;
+    export let deletePayment: (p: interfaces.Payment.AsObject) => void;
+    export let splitPayment: (p: interfaces.Payment.AsObject) => void;
 
-    export let debts;
-    export let spentCategories;
-    export let moneyColumns;
+    export let debts : svelte.Writable<debtsProtos.DebtView.AsObject[]>;
+    export let spentCategories : svelte.Writable<spentCategoriesProtos.SpentCategory.AsObject[]>;
+    export let moneyColumns : svelte.Writable<accountsProtos.MoneyColumnMetadata.AsObject[]>;
 
     let providerName = "";
     let accountName = "";
     $: {
         let columnId = payment.group ? payment.group.columnId : payment.payment ? payment.payment.columnId : undefined;
         if (columnId) {
-            let column = $moneyColumns.find(t=>t.id.value == columnId.value);
-            providerName = column.provider;
-            accountName = column.accountName;
+            let column = $moneyColumns.find(t=>t!.id!.value == columnId!.value);
+            providerName = column!.provider;
+            accountName = column!.accountName;
         }
     }
 
@@ -30,13 +36,13 @@
     $: {
         let item = payment.group ? payment.group : payment.payment ? payment.payment : undefined;
         if (item) {
-            if (item.categoryId.value) {
-                let foundItem = $spentCategories.find(t=>t.id.value == item.categoryId.value);
+            if (item!.categoryId!.value) {
+                let foundItem = $spentCategories.find(t=>t!.id!.value == item!.categoryId!.value);
                 categoryName = foundItem != null ? foundItem.category : "!!!";
             }
-            if (item.debtId.value) {
-                let foundItem = $debts.find(t=>t.model.id.value == item.debtId.value);
-                categoryName = foundItem != null ? foundItem.model.description : "!!!";
+            if (item!.debtId!.value) {
+                let foundItem = $debts.find(t=>t!.model!.id!.value == item!.debtId!.value);
+                categoryName = foundItem != null ? foundItem!.model!.description : "!!!";
             }
         }
     }
@@ -59,11 +65,9 @@
 {#if payment.summary}
     <tr>
         <th colspan="8">
-            <span class="card-title">
-                <button class="btn btn-link btn-anchor" on:click="{() => expandCollapse([...parentId, payment.summary.id])}">
-                    {formatUnixMonth(payment.summary.when.seconds)}
-                </button>
-            </span>
+            <a href="#/" on:click="{() => { expandCollapse([...parentId, payment.summary.id]); return false;}}">
+                {formatUnixMonth(payment.summary.when.seconds)}
+            </a>
             {#each payment.summary.summaryList as total}
                 <span class="badge badge-primary">{formatMoney(total.amount)} {total.currency}</span>&nbsp;
             {/each}
@@ -88,14 +92,14 @@
         </td>
         <td>
             <b>{payment.group.what}</b>
-            <button class="btn btn-link btn-anchor" on:click="{() => expandCollapse([...parentId, payment.group.id])}">
+            <a href="#/" on:click="{() => { expandCollapse([...parentId, payment.group.id]); return false;}}">
                 ({payment.group.paymentCount})
-            </button>
+            </a>
         </td>
         <td class="text-nowrap">
-            <button class="btn btn-link btn-anchor" on:click="{() => expandCollapse([...parentId, payment.group.id])}">
+            <a href="#/" on:click="{() => { expandCollapse([...parentId, payment.group.id]); return false;}}">
                 ({payment.group.paymentCount})
-            </button>
+            </a>
         </td>
     </tr>
     {#each payment.group.paymentsList as item, idx}
@@ -116,15 +120,15 @@
         </td>
         <td><b>{payment.payment.what}</b></td>
         <td class="text-nowrap">
-            <button class="btn btn-link btn-anchor" on:click="{() => splitPayment(payment.payment)}" use:tooltip="{"Разделить"}">
+            <a href="#/"  on:click="{() => { splitPayment(payment.payment); return false;}}" use:tooltip="{"Разделить"}">
                 <GitBranchIcon size="16" />
-            </button>&nbsp;
-            <button class="btn btn-link btn-anchor" on:click="{() => editPayment(payment.payment)}" use:tooltip="{"Редактировать"}">
+            </a>&nbsp;
+            <a href="#/" on:click="{() => { editPayment(payment.payment); return false;}}" use:tooltip="{"Редактировать"}">
                 <Edit2Icon size="16" />
-            </button>&nbsp;
-            <button class="btn btn-link btn-anchor" on:click="{() => deletePayment(payment.payment)}" use:tooltip="{"Удалить"}">
+            </a>&nbsp;
+            <a href="#/" on:click="{() => { deletePayment(payment.payment); return false;}}" use:tooltip="{"Удалить"}">
                 <XCircleIcon size="16" />
-            </button>
+            </a>
         </td>
     </tr>
 {:else}

@@ -13,9 +13,6 @@
             error = 'Неверный пароль!';
         }
     }
-
-    // used in template
-    login; password; error;
 </script>
 
 <svelte:head>
