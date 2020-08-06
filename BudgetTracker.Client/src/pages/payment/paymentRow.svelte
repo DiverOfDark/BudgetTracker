@@ -116,14 +116,14 @@
         </td>
         <td><b>{payment.payment.what}</b></td>
         <td class="text-nowrap">
-            <button class="btn btn-link btn-anchor" on:click="{() => splitPayment(payment.payment)}">
-                <span class="fe fe-git-branch"  use:tooltip="{"Разделить"}"></span>
+            <button class="btn btn-link btn-anchor" on:click="{() => splitPayment(payment.payment)}" use:tooltip="{"Разделить"}">
+                <GitBranchIcon size="16" />
             </button>&nbsp;
-            <button class="btn btn-link btn-anchor" on:click="{() => editPayment(payment.payment)}">
-                <span class="fe fe-edit-2" use:tooltip="{"Редактировать"}"></span>
+            <button class="btn btn-link btn-anchor" on:click="{() => editPayment(payment.payment)}" use:tooltip="{"Редактировать"}">
+                <Edit2Icon size="16" />
             </button>&nbsp;
-            <button class="btn btn-link btn-anchor" on:click="{() => deletePayment(payment.payment)}">
-                <span class="fe fe-x-circle" use:tooltip="{"Удалить"}"></span>
+            <button class="btn btn-link btn-anchor" on:click="{() => deletePayment(payment.payment)}" use:tooltip="{"Удалить"}">
+                <XCircleIcon size="16" />
             </button>
         </td>
     </tr>

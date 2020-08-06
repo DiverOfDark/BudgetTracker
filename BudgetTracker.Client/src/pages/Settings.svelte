@@ -133,13 +133,13 @@
                                     Баланс: <b>{item.lastSuccessfulBalanceScraping}</b><br/>
                                     Выписка: <b>{item.lastSuccessfulStatementScraping}</b>
                                     {#if item.lastSuccessfulBalanceScraping != "-" || item.lastSuccessfulStatementScraping != "-"}
-                                        <button on:click="{() => clearLastSuccessful(item.id)}" class="btn btn-anchor btn-link">
+                                        <button on:click="{() => SoWService.clearLastSuccessful(item.id)}" class="btn btn-anchor btn-link">
                                             <DeleteIcon size="16" />
                                         </button>
                                     {/if}
                                 </td>
                                 <td>
-                                    <button class="btn btn-anchor btn-link" on:click="{() => deleteConfig(item.id)}">
+                                    <button class="btn btn-anchor btn-link" on:click="{() => SoWService.deleteConfig(item.id)}">
                                         <XCircleIcon size="16" />
                                     </button>
                                 </td>

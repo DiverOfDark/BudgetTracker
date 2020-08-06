@@ -12,7 +12,7 @@
     import {formatMoney} from '../../services/Shared'
     import { onDestroy } from 'svelte';
     import { formatUnixDate } from '../../services/Shared';
-    import { Edit2Icon } from 'svelte-feather-icons';
+    import { Edit2Icon, XCircleIcon } from 'svelte-feather-icons';
 
     let debts = SoWService.getDebts(onDestroy).debts;
 
@@ -90,7 +90,7 @@
                                         <Edit2Icon size="16" />
                                     </button>
                                     <button class="btn btn-link btn-anchor" on:click="{() => deleteDebt(debt)}">
-                                        <span class="fe fe-x-circle"></span>
+                                        <XCircleIcon size="16" />
                                     </button>
                                 </td>
                             </tr>

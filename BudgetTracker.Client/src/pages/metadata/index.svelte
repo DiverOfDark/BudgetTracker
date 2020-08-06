@@ -1,6 +1,7 @@
 <script lang="ts">
     import {MetadataController } from '../../generated-types';
     import * as interfaces from '../../generated-types';
+    import { PlusIcon, ArrowUpIcon, ArrowDownIcon, Edit2Icon, XCircleIcon } from 'svelte-feather-icons';
     
     import Link from '../../svero/Link.svelte';
 

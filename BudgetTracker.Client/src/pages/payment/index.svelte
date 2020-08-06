@@ -163,7 +163,7 @@
                         <tr>
                             <th>
                                 Когда
-                                <span class="fe fe-chevron-down"></span>
+                                <ChevronDownIcon size="16" />
                             </th>
                             <th>Тип</th>
                             <th>Категория</th>
