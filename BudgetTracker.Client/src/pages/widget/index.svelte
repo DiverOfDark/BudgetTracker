@@ -135,7 +135,7 @@
                     </div>
 
                     {#if showButtons}
-                        <div class="card-footer mb-5">
+                        <div class="card-footer">
                             <button class="float-left btn btn-sm btn-outline-primary" on:click="{() => moveLeft(widget.id)}">
                                 <ArrowLeftIcon size="16" />
                             </button>

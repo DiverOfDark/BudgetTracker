@@ -45,12 +45,13 @@
 			var chartItems : number[] = goodItems.map(v => v[1]);
 			var datesItems : string[] = goodItems.map(v => v[0]);
 
-			if (model.graphKind.getId() == interfaces.GraphKindEnum.Differential.getId())
+			debugger;
+			if (model.graphKind == interfaces.GraphKindEnum.Differential.getId())
 			{
 				chartItems = chartItems.map((a,b) => b == 0 ? a : a - chartItems[b-1]);
 				datesItems.slice(1);
 			}
-			else if (model.graphKind.getId() == interfaces.GraphKindEnum.CumulativeFromTimePeriod.getId())
+			else if (model.graphKind == interfaces.GraphKindEnum.CumulativeFromTimePeriod.getId())
 			{
 				chartItems = chartItems.map(a => a - chartItems[0]);
 			}

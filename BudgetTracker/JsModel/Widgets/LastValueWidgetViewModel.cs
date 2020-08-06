@@ -171,7 +171,7 @@ namespace BudgetTracker.Controllers.ViewModels.Widgets
 
         public override int Columns => IsCompact ? 2 : 4;
 
-        public GraphKind GraphKind => _settings.GraphKind;
+        public int GraphKind => (int) _settings.GraphKind;
         public bool IsCompact => _settings.Compact;
         
         public bool IncompleteData { get; }
