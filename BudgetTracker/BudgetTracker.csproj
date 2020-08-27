@@ -16,7 +16,7 @@
     <PackageReference Include="OutCode.EscapeTeams.ObjectRepository.Hangfire" Version="1.0.155" />
     <PackageReference Include="Selenium.Support" Version="3.141.0" />
     <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />
-    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="84.0.4147.3001" />
+    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="85.0.4183.8300" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
     <PackageReference Include="System.Text.Encodings.Web" Version="4.7.1" />
     <PackageReference Include="Tinkoff.Trading.OpenApi" Version="1.5.0" />
