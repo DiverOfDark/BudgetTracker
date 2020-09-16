@@ -427,6 +427,14 @@ namespace BudgetTracker.GrpcServices
                 ObjectRepository.Add(newPayment);
                 newPayment.UserEdited = true;
             }
+            SendUpdate(new PaymentsStream
+            {
+                Snapshot = new PaymentsList
+                {
+                    ShowCategorized = ShowCategorized,
+                    Payments = {_collection.Select(v => v.ToMonthSummary())}
+                }
+            });
         }
     }
 }
