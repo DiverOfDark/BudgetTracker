@@ -14,8 +14,12 @@ export default function(options) {
             items.forEach(item => {
                 let fullPath = path.resolve('./dist') + '/' + item;
                 let targetPath = path.resolve('../BudgetTracker/wwwroot/')
-                fs.mkdirSync(targetPath + "/css");
-                fs.mkdirSync(targetPath + "/js");
+                if (!fs.existsSync(targetPath + "/css")) {
+                    fs.mkdirSync(targetPath + "/css");
+                }
+                if (!fs.existsSync(targetPath + "/js")) {
+                    fs.mkdirSync(targetPath + "/js");
+                }
                 if (item.indexOf('.css') != -1)
                 {
                     let targetName = targetPath + '/css/' + item;
