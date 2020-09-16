@@ -5,11 +5,11 @@ import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import progress from 'rollup-plugin-progress';
 import babel from 'rollup-plugin-babel';
-import { sizeSnapshot } from "rollup-plugin-size-snapshot";
 import sizes from "rollup-plugin-sizes";
 import autoPreprocess from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
 import css from "rollup-plugin-css-only";
+import generate from './generate';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -18,12 +18,16 @@ const onwarn = warning => {
 	  return
 	}
 
+	if (warning.message.indexOf('A11y') != -1) {
+		return
+	}
+
 	if (warning.message.indexOf('Non-existent export') == 0) {
 		return
 	}
 
 	if (warning.message.indexOf('Use of eval') == 0) {
-		return;
+		return
 	}
 	
 	var cwd = process.cwd() + "/";
@@ -50,8 +54,8 @@ export default {
 	onwarn,
 	plugins: [
 		css({ output: "../BudgetTracker/wwwroot/css/dashboard.css" }),
+		generate(),
 		progress(),
-		sizeSnapshot(), 
 		svelte({
 			// enable run-time checks when not in production
 			dev: !production,

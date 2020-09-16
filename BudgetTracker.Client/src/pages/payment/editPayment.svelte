@@ -11,7 +11,7 @@
     import * as protosAccounts from '../../generated/Accounts_pb';
     import moment from 'moment';
     import SoWService from '../../services/SoWService';
-import SpentCategories from './spentCategories.svelte';
+    // import SpentCategories from './spentCategories.svelte';
 
     export let model = new paymentProtos.Payment().toObject();
 
@@ -19,20 +19,20 @@ import SpentCategories from './spentCategories.svelte';
     export let spentCategories: svelte.Writable<protosCategories.SpentCategory.AsObject[]>;
     export let moneyColumns: svelte.Writable<protosAccounts.MoneyColumnMetadata.AsObject[]>;
 
-    let debtsList: protosDebts.Debt.AsObject[] = [];
+    // let debtsList: protosDebts.Debt.AsObject[] = [];
     let spentCategoriesList: string[] = [];
-    let moneyColumnsList: protosAccounts.MoneyColumnMetadata.AsObject[] = [];
+    // let moneyColumnsList: protosAccounts.MoneyColumnMetadata.AsObject[] = [];
 
     let currentCategory: string = "";
 
     const dispatch = createEventDispatcher();
 
     $: {
-        debtsList = $debts.map(t=>t.model!!);
+//        debtsList = $debts.map(t=>t.model!!);
         spentCategoriesList = $spentCategories.map(t=>t.category).filter((v, i, a) => a.indexOf(v) === i);
         currentCategory = $spentCategories.find(t=>t.id == model.categoryId)?.category ?? "";
-        moneyColumnsList = $moneyColumns;
-    }
+        // moneyColumnsList = $moneyColumns;
+    } 
     let submit = async function() {
         SoWService.editPayment(model);
         dispatch('close');

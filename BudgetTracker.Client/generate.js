@@ -77,7 +77,7 @@ function downloadProtoGrpc(cb) {
     }
 }
 
-function generateCode() {
+function generateCode(callback) {
     console.log("Generating code...");
     const protofilesDir = path.join(__dirname, "../BudgetTracker.Protocol");
     const outputDir = path.join(__dirname, "src/generated");
@@ -96,10 +96,27 @@ function generateCode() {
         ].concat(fs.readdirSync(protofilesDir)), 
         { env: { "PATH": protoc_bin } }, 
         function(err, stdout, stderr) {
+            console.log("Completed code-gen")
             console.log(stdout);
             console.log(stderr);
+            console.log("Finishing .proto code-gen...")
+            callback();
         }
     );
 }
 
-downloadProtoc(() => downloadProtoGrpc(() => generateCode()))
+export default function(options) { 
+    return {
+        name: 'generateProto',
+        load() { 
+            this.addWatchFile(path.resolve('../BudgetTracker.Protocol'));
+            this.addWatchFile(path.resolve('./generate.js'));
+        },
+        async buildStart() { 
+            console.log("Starting .proto code-gen...")
+            return new Promise(resolve => {
+                downloadProtoc(() => downloadProtoGrpc(() => generateCode(resolve)));
+            })
+        }
+    };
+}
