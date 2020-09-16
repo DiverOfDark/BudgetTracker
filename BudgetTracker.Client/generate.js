@@ -108,15 +108,22 @@ function generateCode(callback) {
 export default function(options) { 
     return {
         name: 'generateProto',
+        options(options) {
+            return new Promise(resolve => {
+                console.log("Starting options...")
+                downloadProtoc(() => downloadProtoGrpc(() => generateCode(() => resolve(options))));
+            });
+        },
+
         load() { 
             this.addWatchFile(path.resolve('../BudgetTracker.Protocol'));
             this.addWatchFile(path.resolve('./generate.js'));
         },
-        async buildStart() { 
-            console.log("Starting .proto code-gen...")
+        buildStart() { 
             return new Promise(resolve => {
+                console.log("Starting buildStart...")
                 downloadProtoc(() => downloadProtoGrpc(() => generateCode(resolve)));
-            })
+            });
         }
     };
 }
