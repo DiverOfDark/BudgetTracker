@@ -21,6 +21,10 @@ message Payment {
     UUID column_id = 8;
     
     PaymentKind kind = 9;
+
+    string statement = 10;
+
+    string sms = 11;
 }
 
 message PaymentDetails {

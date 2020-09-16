@@ -44,7 +44,7 @@ namespace BudgetTracker.GrpcServices
 
             public static Payment ToPaymentView(PaymentModel vm)
             {
-                return new Payment
+                var paymentView = new Payment
                 {
                     Id = vm.Id.ToUUID(),
                     Amount = vm.Amount,
@@ -54,8 +54,14 @@ namespace BudgetTracker.GrpcServices
                     CategoryId = vm.CategoryId.ToUUID(),
                     When = vm.When.ToTimestamp(),
                     ColumnId = vm.ColumnId.ToUUID(),
-                    DebtId = vm.DebtId.ToUUID()
+                    DebtId = vm.DebtId.ToUUID(),
+                    Statement = vm.StatementReference
                 };
+                if (vm.Sms != null)
+                {
+                    paymentView.Sms = vm.Sms.Message;
+                }
+                return paymentView;
             }
 
             public static string GetKey(PaymentModel paymentModel) => paymentModel.When.Year + "" + paymentModel.When.Month;

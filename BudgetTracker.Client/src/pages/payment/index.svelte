@@ -7,13 +7,16 @@
     import SoWService from '../../services/SoWService';
     import PaymentRow from './paymentRow.svelte';
     import { ChevronDownIcon } from 'svelte-feather-icons';
-    // import Modal from '../../components/Modal.svelte';
+    import Modal from '../../components/Modal.svelte';
     import * as protosCommons from '../../generated/Commons_pb';
     import * as protosCategories from '../../generated/SpentCategories_pb';
     import * as protosDebts from '../../generated/Debts_pb';
     import * as protosPayments from '../../generated/Payments_pb';
     import { get } from 'svelte/store';
     import { onDestroy } from 'svelte';
+
+    import EditPayment from './editPayment.svelte';
+    import SplitPayment from './splitPayment.svelte';
 
     let debts = SoWService.getDebts(onDestroy).debts;
     let spentCategories = SoWService.getSpentCategories(onDestroy).spentCategories;
@@ -23,6 +26,11 @@
     let showCategorized = vm.showCategorized;
 
     let moneyColumns = SoWService.getMoneyColumnMetadatas(onDestroy).moneyColumnMetadatas;
+
+    let showEdit = false;
+    let showSplit = false;
+
+    var currentPayment: protosPayments.Payment.AsObject;
 
     class CategoryDropDown {
         constructor(name: string, id: protosCommons.UUID.AsObject, isDebt: boolean) {
@@ -66,13 +74,13 @@
     }
 
     async function editPayment(payment: protosPayments.Payment.AsObject) {
-        console.trace(payment);
-        // TODO open window and edit
+        currentPayment = payment;
+        showEdit = true;
     } 
 
     async function splitPayment(payment: protosPayments.Payment.AsObject) {
-        console.trace(payment);
-        // TODO open window and split
+        currentPayment = payment;
+        showSplit = true;
     }
 
     function dragStart(ev: DragEvent, payment: protosPayments.Payment.AsObject) {
@@ -183,3 +191,22 @@
         </div>
     </div>
 </div>
+
+
+{#if showEdit}
+<Modal bind:show="{showEdit}">
+    <div slot="title">
+        Редактировать ДДС
+    </div>
+    <EditPayment model="{currentPayment}" {debts} {spentCategories} {moneyColumns} on:close="{() => showEdit = false}" />
+</Modal>
+{/if}
+
+{#if showSplit}
+<Modal bind:show="{showSplit}">
+    <div slot="title">
+        Разделить ДДС
+    </div>
+    <SplitPayment model="{currentPayment}" {debts} {spentCategories} {moneyColumns} on:close="{() => showSplit = false}" />
+</Modal>
+{/if}
