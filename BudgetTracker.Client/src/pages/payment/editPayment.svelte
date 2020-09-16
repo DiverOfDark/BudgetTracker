@@ -3,7 +3,7 @@
 </svelte:head>
 
 <script lang="ts">
-    import { createEventDispatcher, onMount } from 'svelte';
+    import { createEventDispatcher } from 'svelte';
     import * as svelte from 'svelte/store';
     import paymentProtos from '../../generated/Payments_pb';
     import * as protosCategories from '../../generated/SpentCategories_pb';

@@ -10,7 +10,7 @@ import autoPreprocess from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
 import css from "rollup-plugin-css-only";
 import generate from './generate';
-import copy from "rollup-plugin-copy";
+import copy from './copy';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -88,19 +88,7 @@ export default {
 		// If we're building for production (npm run build
 		// instead of npm run dev), minify
 		production && terser(),
-
-		copy({
-			targets: [
-				{
-					src: 'dist/*.js*',
-					dest: '../BudgetTracker/wwwroot/js/'
-				},
-				{
-					src: 'dist/*.css*',
-					dest: '../BudgetTracker/wwwroot/css/'
-				}
-			]
-		})
+		copy()
 	],
 	watch: {
 		clearScreen: true

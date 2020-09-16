@@ -55,7 +55,7 @@ namespace BudgetTracker.GrpcServices
                     When = vm.When.ToTimestamp(),
                     ColumnId = vm.ColumnId.ToUUID(),
                     DebtId = vm.DebtId.ToUUID(),
-                    Statement = vm.StatementReference
+                    Statement = vm.StatementReference ?? ""
                 };
                 if (vm.Sms != null)
                 {

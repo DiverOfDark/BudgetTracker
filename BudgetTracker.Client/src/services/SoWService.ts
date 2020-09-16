@@ -341,6 +341,13 @@ export class SoWService {
         await this.SoWClient.editPayment(request);
     }
 
+    async splitPayment(payment: protoPayments.Payment.AsObject, amount: number) {
+        let request = new protoPayments.SplitPaymentRequest();
+        request.setId(this.toUuid(payment.id));
+        request.setAmount(amount);
+        await this.SoWClient.splitPayment(request);
+    }
+
     getScreenshot(callback: (base64Image: string) => void): () => void  {
         return this.reconnect(x => x.getScreenshot(this.Empty), response => {
             let object = response.getContents_asB64();
