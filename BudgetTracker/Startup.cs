@@ -105,7 +105,6 @@ namespace BudgetTracker
             services.AddHttpContextAccessor();
             services.AddResponseCompression(x => x.EnableForHttps = true);
             services.AddGrpc();
-            services.AddGrpcWeb(x => x.GrpcWebEnabled = true);
             services.AddMvc().AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.NullValueHandling = NullValueHandling.Include;
