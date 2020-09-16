@@ -48,7 +48,6 @@
 </script>
 
 <div class="form-horizontal">
-    {JSON.stringify(model)}
     <div class="form-group">
         <label class="control-label">Когда: <span class="font-weight-bold font-italic">{moment.unix(model.when.seconds + model.when.nanos / 10e9).format("DD.MM.YY H:mm:ss")}</span></label>
     </div>

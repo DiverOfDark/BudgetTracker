@@ -10,6 +10,7 @@ import autoPreprocess from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
 import css from "rollup-plugin-css-only";
 import generate from './generate';
+import copy from "rollup-plugin-copy";
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -49,11 +50,11 @@ export default {
 		sourcemap: true,
 		format: 'iife',
 		name: 'app',
-		file: '../BudgetTracker/wwwroot/js/bundle.js'
+		file: 'dist/bundle.js'
 	},
 	onwarn,
 	plugins: [
-		css({ output: "../BudgetTracker/wwwroot/css/dashboard.css" }),
+		css({ output: "dist/dashboard.css" }),
 		generate(),
 		progress(),
 		svelte({
@@ -62,7 +63,7 @@ export default {
 			// we'll extract any component CSS out into
 			// a separate file — better for performance
 			css: css => {
-				css.write('../BudgetTracker/wwwroot/css/bundle.css');
+				css.write('bundle.css');
 			},
 			preprocess: autoPreprocess()
 		}),
@@ -86,7 +87,20 @@ export default {
 
 		// If we're building for production (npm run build
 		// instead of npm run dev), minify
-		production && terser()
+		production && terser(),
+
+		copy({
+			targets: [
+				{
+					src: 'dist/*.js*',
+					dest: '../BudgetTracker/wwwroot/js/'
+				},
+				{
+					src: 'dist/*.css*',
+					dest: '../BudgetTracker/wwwroot/css/'
+				}
+			]
+		})
 	],
 	watch: {
 		clearScreen: true

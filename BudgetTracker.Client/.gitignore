@@ -5,3 +5,4 @@ package-lock.json
 yarn.lock
 protoc
 .size-snapshot.json
+dist

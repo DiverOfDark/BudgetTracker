@@ -1,5 +1,5 @@
 <script>
-  import Path from 'path-parser'
+  import { Path } from 'path-parser'
   import { writable } from 'svelte/store';
   import { onMount, getContext, setContext } from 'svelte';
 
