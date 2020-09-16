@@ -35,8 +35,8 @@
     "build": "rollup -c",
     "autobuild": "rollup -c -w",
     "dev": "run-p start:dev autobuild",
-    "start": "sirv --port 3000 public",
-    "start:dev": "sirv --port 3000 public --dev",
+    "start": "sirv --port 9000 public",
+    "start:dev": "sirv --port 9000 public --dev",
     "lint": "eslint src --plugin svelte3 --ext .svelte,.js --fix",
     "check": "svelte-check"
   },

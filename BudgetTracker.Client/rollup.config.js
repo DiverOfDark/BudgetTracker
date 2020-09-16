@@ -78,7 +78,7 @@ export default {
 
 		// Watch the `public` directory and refresh the
 		// browser on changes when not in production
-		!production && livereload('public'),
+		!production && livereload('../BudgetTracker/wwwroot/'),
 		babel({
 			exclude: 'node_modules/**' // only transpile our source code
 		  }),

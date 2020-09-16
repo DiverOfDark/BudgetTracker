@@ -11,7 +11,7 @@
     import * as protosAccounts from '../../generated/Accounts_pb';
     import moment from 'moment';
     import SoWService from '../../services/SoWService';
-    // import SpentCategories from './spentCategories.svelte';
+	import {compare} from '../../services/Shared';
 
     export let model = new paymentProtos.Payment().toObject();
 
@@ -19,19 +19,27 @@
     export let spentCategories: svelte.Writable<protosCategories.SpentCategory.AsObject[]>;
     export let moneyColumns: svelte.Writable<protosAccounts.MoneyColumnMetadata.AsObject[]>;
 
-    // let debtsList: protosDebts.Debt.AsObject[] = [];
-    let spentCategoriesList: string[] = [];
-    // let moneyColumnsList: protosAccounts.MoneyColumnMetadata.AsObject[] = [];
+    let debtsList: protosDebts.Debt.AsObject[] = [];
+    let moneyColumnsList: protosAccounts.MoneyColumnMetadata.AsObject[] = [];
 
-    let currentCategory: string = "";
+    let currentCategory = svelte.get(spentCategories).find(t=>t.id?.value == model.categoryId?.value)?.category ?? "";
+    let currentDebt = model.debtId?.value;
+    let currentColumn = model.columnId?.value;
+    let currentKind = model.kind.valueOf().toString();
+    let spentCategoriesList : string[];
+
+    $: model.categoryId = $spentCategories.find(t=>t.category == currentCategory)?.id;
+    $: model.debtId = currentDebt != undefined ? { value: currentDebt } : undefined;
+    $: model.columnId = currentColumn != undefined ? { value: currentColumn } : undefined;
+    $: model.kind = Number.parseInt(currentKind);
+
+    $: spentCategoriesList = $spentCategories.map(t=>t.category).filter((v, i, a) => a.indexOf(v) === i);
 
     const dispatch = createEventDispatcher();
-
+    
     $: {
-//        debtsList = $debts.map(t=>t.model!!);
-        spentCategoriesList = $spentCategories.map(t=>t.category).filter((v, i, a) => a.indexOf(v) === i);
-        currentCategory = $spentCategories.find(t=>t.id == model.categoryId)?.category ?? "";
-        // moneyColumnsList = $moneyColumns;
+        debtsList = $debts.map(t=>t.model!!);
+        moneyColumnsList = $moneyColumns.filter(t=>t.userFriendlyName.length > 0).sort((a,b)=>compare(a.provider + a.accountName, b.provider + b.accountName));
     } 
     let submit = async function() {
         SoWService.editPayment(model);
@@ -40,8 +48,9 @@
 </script>
 
 <div class="form-horizontal">
+    {JSON.stringify(model)}
     <div class="form-group">
-        <label class="control-label">Когда: <span class="font-weight-bold font-italic">{moment(model.when).format("DD.MM.YY H:mm:ss")}</span></label>
+        <label class="control-label">Когда: <span class="font-weight-bold font-italic">{moment.unix(model.when.seconds + model.when.nanos / 10e9).format("DD.MM.YY H:mm:ss")}</span></label>
     </div>
     <div class="form-group">
         <label class="control-label">Категория:</label>
@@ -54,14 +63,13 @@
             </select>
         </div>
     </div>
-    <!--
     <div class="form-group">
         <label class="control-label">Долг, к которому относится платеж:</label>
         <div control-labelstyle="padding-top: 7px;">
-            <select class="form-control" bind:value="{model.debtId}">
+            <select class="form-control" bind:value="{currentDebt}">
                 <option value=""></option>
                 {#each debtsList as debt}
-                    <option value="{debt.id}">{debt.description}</option>
+                    <option value="{debt.id.value}">{debt.description}</option>
                 {/each}
             </select>
         </div>
@@ -69,10 +77,10 @@
     <div class="form-group">
         <label class="control-label">Провайдер/аккаунт</label>
         <div control-labelstyle="padding-top: 7px;">
-            <select class="form-control" bind:value="{model.columnId}">
+            <select class="form-control" bind:value="{currentColumn}">
                 <option value=""></option>
                 {#each moneyColumnsList as column}
-                    <option value="{column.id}">{column.provider} / {column.accountName}</option>
+                    <option value="{column.id.value}">{column.provider} / {column.accountName}</option>
                 {/each}
             </select>
         </div>
@@ -87,11 +95,10 @@
             <textarea rows="2" class="form-control" disabled="disabled">{model.sms || "<не определена>"}</textarea>
         </div>
     </div>
-
     <div class="form-group">
         <label class="control-label">Тип</label>
         <div control-labelstyle="padding-top: 7px;">
-            <select class="form-control" bind:value="{model.kind}">
+            <select class="form-control" bind:value="{currentKind}">
                 <option value="0">Трата</option>
                 <option value="1">Доход</option>
                 <option value="2">Перевод</option>
@@ -115,7 +122,7 @@
                 <option value="GBP">£</option>
             </select>
         </div>
-    </div>-->
+    </div>
     <div class="form-group">
         <label class="control-label">На что потрачено</label>
         <div control-labelstyle="padding-top: 7px;">
