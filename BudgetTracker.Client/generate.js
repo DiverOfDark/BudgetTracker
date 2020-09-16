@@ -7,8 +7,8 @@ const unzip = require("unzipper");
 const rimraf = require("rimraf");
 
 // --- VERSIONS
-const protoVersion = "3.11.2";
-const protoWebVersion = "1.0.7";
+const protoVersion = "3.13.0";
+const protoWebVersion = "1.2.1";
 
 // --- INSTALL PROTOC STUFF
 
