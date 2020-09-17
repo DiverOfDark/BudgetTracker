@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using BudgetTracker.JsModel.Attributes;
 using Newtonsoft.Json;
 using OutCode.EscapeTeams.ObjectRepository;
 
 namespace BudgetTracker.Model
 {
+    [ExportJsModel]
     public enum WidgetKind
     {
         [JsDisplayName("Не задан")] Unknown,

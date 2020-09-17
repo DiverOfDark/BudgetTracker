@@ -1,8 +1,8 @@
-﻿using System.ComponentModel;
-using BudgetTracker.JsModel.Attributes;
+﻿using BudgetTracker.JsModel.Attributes;
 
 namespace BudgetTracker.Model
 {
+    [ExportJsModel]
     public enum RuleType
     {
         [JsDisplayName("Игнорировать")]

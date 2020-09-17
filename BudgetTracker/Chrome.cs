@@ -24,6 +24,8 @@ namespace BudgetTracker
             Directory.CreateDirectory(_downloadDir);
         }
 
+        public bool HasDriver => _driver != null;
+
         public ChromeDriver Driver
         {
             get

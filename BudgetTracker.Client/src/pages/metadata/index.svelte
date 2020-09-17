@@ -1,7 +1,6 @@
 <script lang="ts">
-    import {MetadataController} from '../../generated-types';
+    import {MetadataController } from '../../generated-types';
     import * as interfaces from '../../generated-types';
-
     import { PlusIcon, ArrowUpIcon, ArrowDownIcon, Edit2Icon, XCircleIcon } from 'svelte-feather-icons';
     
     import Link from '../../svero/Link.svelte';
@@ -62,9 +61,6 @@
         await MetadataController.updateColumnOrder(id, moveUp);
         columns = await MetadataController.indexJson();
     };
-
-    // used in view
-    getUsedIn; deleteColumn; updateColumnOrder; Link; splitFunc; getStyleForReference;
 </script>
 
 <style>

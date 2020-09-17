@@ -1,42 +1,38 @@
 <svelte:head>
     <title>BudgetTracker - Категории расходов</title>
 </svelte:head>
-
-<script>
-    import {SpentCategoryModelController, PaymentController } from '../../generated-types';
+<script lang="ts">
+    import Form from './editCategory.svelte';
+    import Modal from '../../components/Modal.svelte';
+    import SoWService from '../../services/SoWService';
+    import { formatPaymentKind } from '../../services/Shared';
+    import * as protos from '../../generated/SpentCategories_pb';
+    import { onDestroy } from 'svelte';
     import { EditIcon, XCircleIcon } from 'svelte-feather-icons';
-    import {compare} from '../../services/Shared';
-    import { navigateTo } from '../../svero/utils';
 
-    let categories = [];
+    let spentCategories = SoWService.getSpentCategories(onDestroy).spentCategories;
 
     let newCategory = "";
     let newPattern = "";
-    let newKind = "";
+    let newKind = 0;
+    let showEdit = false;
+    let editSpentCategoryModel: protos.SpentCategory.AsObject | undefined = undefined;
 
-    async function load() {
-        categories = await SpentCategoryModelController.list();
-        categories.sort((a,b) => compare(a.category, b.category) * 10 + compare(a.pattern, b.pattern));
+    let edit = function(category: protos.SpentCategory.AsObject) {
+        editSpentCategoryModel = category;
+        showEdit = true;
     }
 
-    let edit = function(id) {
-        navigateTo("/Payment/Category/Edit/" + id);
-    }
-
-    let deleteCategory = async function(id) {
-        await SpentCategoryModelController.delete(id);
-        await load();
+    let deleteCategory = async function(category: protos.SpentCategory.AsObject) {
+        SoWService.deleteSpentCategory(category.id!);
     }
 
     let create = async function() {
-        await PaymentController.createCategory(newPattern, newCategory, newKind);
-        await load();
+        SoWService.createSpentCategory(newCategory, newPattern, newKind);
         newCategory = "";
         newPattern = "";
-        newKind = "";
+        newKind = 0;
     }
-
-    load();
 </script>
 
 <div class="container">
@@ -59,16 +55,16 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {#each categories as category, idx}
+                                {#each $spentCategories as category, idx}
                                 <tr>
                                     <td>{category.category}</td>
-                                    <td>{category.kind}</td>
+                                    <td>{formatPaymentKind(category.kind)}</td>
                                     <td>{category.pattern || ''}</td>
                                     <td>
-                                        <button class="btn btn-link btn-anchor" on:click="{() => edit(category.id)}">
+                                        <button class="btn btn-link btn-anchor" on:click="{() => edit(category)}">
                                             <EditIcon size="16" />
                                         </button>
-                                        <button class="btn btn-link btn-anchor" on:click="{() => deleteCategory(category.id)}">
+                                        <button class="btn btn-link btn-anchor" on:click="{() => deleteCategory(category)}">
                                             <XCircleIcon size="16" />
                                         </button>
                                     </td>
@@ -101,3 +97,12 @@
         </div>
     </div>
 </div>
+
+{#if showEdit}
+<Modal bind:show="{showEdit}">
+    <div slot="title">
+        Редактировать категорию
+    </div>
+    <Form model="{editSpentCategoryModel}" on:close="{() => showEdit = false}" />
+</Modal>
+{/if}

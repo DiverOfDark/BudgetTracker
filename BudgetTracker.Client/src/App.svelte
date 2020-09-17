@@ -33,6 +33,7 @@
   import Auth from './pages/auth.svelte';
 
   let authorized = AuthService.getStore();
+
 </script>
 
 <div class="page">
@@ -43,31 +44,29 @@
       <Nav />
       <div class="page-content mt-4">
         <Router>
-            <Route path="/" component={WidgetIndex} />
-            <Route path="/Table" component={TableIndex} />
-            <Route path="/Widget/Edit" component={WidgetEdit} />
-            <Route path="/Widget/Edit/:id" component={WidgetEdit} />
-            <Route path="/Chart/:provider/:account" component={WidgetChart} />
-            <Route path="/Chart/:provider/:account/:exemptTransfers" component={WidgetChart} />
-            <Route path="/Metadata" component={MetadataIndex} />
-            <Route path="/Metadata/Edit" component={MetadataEdit} />
-            <Route path="/Metadata/Edit/:id" component={MetadataEdit} />
-            <Route path="/SmsList" component={Sms} />
-            <Route path="/SmsList/SmsRules" component={SmsRules} />
-            <Route path="/Payment" component={Payment} />
-            <Route path="/Payment/Split/:id" component={PaymentSplit} />
-            <Route path="/Payment/Edit/:id" component={PaymentEdit} />
-            <Route path="/Payment/Category" component={PaymentCategory} />
-            <Route path="/Payment/Category/Edit" component={PaymentCategoryEdit} />
-            <Route path="/Payment/Category/Edit/:id" component={PaymentCategoryEdit} />
-            <Route path="/Debt" component={Debt} />
-            <Route path="/Debt/Edit" component={DebtAdd} />
-            <Route path="/Debt/Edit/:id" component={DebtAdd} />
-            <Route path="/Settings" component={Settings} />
-            <Route path="/Utility/Tasks" component={UtilityTasks} />
-            <Route path="/Utility/ScriptConsole" component={UtilityScriptConsole} />
-            <Route path="/Utility/Screenshot" component={UtilityScreenshot} />
-            <Route path="*" component={NotFound} />
+            <Route path="/"><WidgetIndex /></Route>
+            <Route path="/Table"><TableIndex /></Route>
+            <Route path="/Widget/Edit"><WidgetEdit /></Route>
+            <Route path="/Widget/Edit/:id"><WidgetEdit /></Route>
+            <Route path="/Chart/:provider/:account"><WidgetChart /></Route>
+            <Route path="/Chart/:provider/:account/:exemptTransfers"><WidgetChart /></Route>
+            <Route path="/Metadata"><MetadataIndex /></Route>
+            <Route path="/Metadata/Edit"><MetadataEdit /></Route>
+            <Route path="/Metadata/Edit/:id"><MetadataEdit /></Route>
+            <Route path="/SmsList"><Sms /></Route>
+            <Route path="/SmsList/SmsRules"><SmsRules /></Route>
+            <Route path="/Payment"><Payment /></Route>
+            <Route path="/Payment/Split/:id"><PaymentSplit /></Route>
+            <Route path="/Payment/Edit/:id"><PaymentEdit /></Route>
+            <Route path="/Payment/Category"><PaymentCategory /></Route>
+            <Route path="/Payment/Category/Edit"><PaymentCategoryEdit /></Route>
+            <Route path="/Payment/Category/Edit/:id"><PaymentCategoryEdit /></Route>
+            <Route path="/Debt"><Debt /></Route>
+            <Route path="/Settings"><Settings /></Route>
+            <Route path="/Utility/Tasks"><UtilityTasks /></Route>
+            <Route path="/Utility/ScriptConsole"><UtilityScriptConsole /></Route>
+            <Route path="/Utility/Screenshot"><UtilityScreenshot /></Route>
+            <Route path="*"><NotFound /></Route>
         </Router>
       </div>
     </div>

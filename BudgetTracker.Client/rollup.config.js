@@ -5,11 +5,12 @@ import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import progress from 'rollup-plugin-progress';
 import babel from 'rollup-plugin-babel';
-import { sizeSnapshot } from "rollup-plugin-size-snapshot";
 import sizes from "rollup-plugin-sizes";
 import autoPreprocess from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
 import css from "rollup-plugin-css-only";
+import generate from './generate';
+import copy from './copy';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -18,7 +19,15 @@ const onwarn = warning => {
 	  return
 	}
 
+	if (warning.message.indexOf('A11y') != -1) {
+		return
+	}
+
 	if (warning.message.indexOf('Non-existent export') == 0) {
+		return
+	}
+
+	if (warning.message.indexOf('Use of eval') == 0) {
 		return
 	}
 	
@@ -41,21 +50,20 @@ export default {
 		sourcemap: true,
 		format: 'iife',
 		name: 'app',
-		file: '../BudgetTracker/wwwroot/js/bundle.js'
+		file: 'dist/bundle.js'
 	},
 	onwarn,
 	plugins: [
-		css({ output: "../BudgetTracker/wwwroot/css/dashboard.css" }),
+		css({ output: "dist/dashboard.css" }),
+		generate(),
 		progress(),
-		sizeSnapshot(), 
-		sizes(),
 		svelte({
 			// enable run-time checks when not in production
 			dev: !production,
 			// we'll extract any component CSS out into
 			// a separate file — better for performance
 			css: css => {
-				css.write('../BudgetTracker/wwwroot/css/bundle.css');
+				css.write('bundle.css');
 			},
 			preprocess: autoPreprocess()
 		}),
@@ -71,14 +79,16 @@ export default {
 
 		// Watch the `public` directory and refresh the
 		// browser on changes when not in production
-		!production && livereload('public'),
+		!production && livereload('../BudgetTracker/wwwroot/'),
 		babel({
 			exclude: 'node_modules/**' // only transpile our source code
 		  }),
+        sizes(),
 
 		// If we're building for production (npm run build
 		// instead of npm run dev), minify
-		production && terser()
+		production && terser(),
+		copy()
 	],
 	watch: {
 		clearScreen: true

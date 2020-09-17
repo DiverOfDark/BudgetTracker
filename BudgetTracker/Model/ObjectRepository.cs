@@ -11,7 +11,7 @@ namespace BudgetTracker.Model
     {
         public ObjectRepository(IStorage storage, ILoggerFactory logger) : base(storage, logger.CreateLogger(nameof(ObjectRepository)))
         {
-            IsReadOnly = false;
+            IsReadOnly = !Startup.IsProduction;
             AddType((MoneyStateModel.MoneyStateEntity x) => new MoneyStateModel(x));
             AddType((XmlKeyModel.XmlKeyEntity x) => new XmlKeyModel(x));
             AddType((MoneyColumnMetadataModel.MoneyColumnMetadataEntity x) => new MoneyColumnMetadataModel(x));

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using OutCode.EscapeTeams.ObjectRepository;
 
 namespace BudgetTracker.Model
@@ -82,5 +83,9 @@ namespace BudgetTracker.Model
             get => _entity.RegexForTransfer;
             set => UpdateProperty(_entity, () => x => x.RegexForTransfer, value);
         }
+
+        public string LastPaymentDate => Payments.OrderByDescending(v => v.When).FirstOrDefault()?.When.ToLongDateString() ?? "";
+        
+        public double Returned => Payments.Where(v=> v.Kind == (Amount < 0 ? PaymentKind.Expense : PaymentKind.Income)).Select(s => s.Amount).Sum();
     }
 }

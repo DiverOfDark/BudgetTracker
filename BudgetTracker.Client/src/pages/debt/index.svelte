@@ -3,18 +3,39 @@
 </svelte:head>
 
 <script lang="ts">
-    import Link from '../../svero/Link.svelte';
-    import * as interfaces from '../../generated-types'
+    import Form from './add.svelte';
+    import Modal from '../../components/Modal.svelte';
+    import SoWService from '../../services/SoWService';
+    import * as commons from '../../generated/Commons_pb';
+    import * as protos from '../../generated/Debts_pb';
     import {formatMoney} from '../../services/Shared'
+    import { onDestroy } from 'svelte';
+    import { formatUnixDate } from '../../services/Shared';
+    import { Edit2Icon, XCircleIcon } from 'svelte-feather-icons';
 
-    import { Edit2Icon } from 'svelte-feather-icons';
+    let debts = SoWService.getDebts(onDestroy).debts;
 
-    let debts: interfaces.DebtJsViewModel[] = [];
+    let showCreate = false;
+    let showEdit = false;
 
-    interfaces.DebtController.indexJson().then(s=> debts = s);
+    let editDebtModel: protos.Debt.AsObject | undefined = undefined;
 
-    //used in views:
-    Link; debts; formatMoney;
+    function formatTimestamp(timestamp: commons.Timestamp.AsObject) {
+         return formatUnixDate(timestamp.seconds + timestamp.nanos / 10e9);
+    }
+
+    function createDebt() {
+        showCreate = true;
+    }
+
+    function editDebt(debt: protos.DebtView.AsObject) {
+        editDebtModel = debt.model;
+        showEdit = true;
+    }
+
+    async function deleteDebt(debt: protos.DebtView.AsObject) {
+        await SoWService.deleteDebt(debt.model!.id!);
+    }
 </script>
 
 <div class="container">
@@ -27,9 +48,9 @@
                     </h3>
                     <div class="card-options">
                         &nbsp;
-                        <Link class="btn btn-primary btn-sm" href="/Debt/Edit">
+                        <button class="btn btn-primary btn-sm" on:click="{() => createDebt()}">
                             Добавить
-                        </Link>
+                        </button>
                     </div>
                 </div>
                 <div class="table-responsive">
@@ -48,22 +69,25 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {#each debts as debt}
+                        {#each $debts as debt}
                             <tr>
-                                <td>{debt.when}</td>
-                                <td>{debt.daysCount} дней</td>
-                                <td>{debt.percentage}%</td>
-                                <td>{formatMoney(debt.amount)} {debt.ccy}</td>
-                                <td>{formatMoney(debt.amount * (1 + debt.percentage / 100))} {debt.ccy}</td>
-                                <td title="Последний платеж - {debt.lastPaymentDate}">
-                                    {formatMoney(debt.returned)} {debt.ccy}
+                                <td>{formatTimestamp(debt.model.issued)}</td>
+                                <td>{debt.model.daysCount} дней</td>
+                                <td>{debt.model.percentage}%</td>
+                                <td>{formatMoney(debt.model.amount)} {debt.model.ccy}</td>
+                                <td>{formatMoney(debt.model.amount * (1 + debt.model.percentage / 100))} {debt.model.ccy}</td>
+                                <td title="Последний платеж - {debt.lastPaymentDate || "неизвестно"}">
+                                    {formatMoney(debt.returned)} {debt.model.ccy}
                                 </td>
-                                <td>{formatMoney((debt.amount * (1 + debt.percentage / 100)) - debt.returned)} {debt.ccy}</td>
-                                <td>{debt.description}</td>
+                                <td>{formatMoney((debt.model.amount * (1 + debt.model.percentage / 100)) - debt.returned)} {debt.model.ccy}</td>
+                                <td>{debt.model.description}</td>
                                 <td>
-                                    <Link href="/Debt/Edit/{debt.id}">
+                                    <button class="btn btn-link btn-anchor" on:click="{() => editDebt(debt)}">
                                         <Edit2Icon size="16" />
-                                    </Link>
+                                    </button>
+                                    <button class="btn btn-link btn-anchor" on:click="{() => deleteDebt(debt)}">
+                                        <XCircleIcon size="16" />
+                                    </button>
                                 </td>
                             </tr>
                         {/each}
@@ -74,3 +98,21 @@
         </div>
     </div>
 </div>
+
+{#if showCreate}
+<Modal bind:show="{showCreate}">
+    <div slot="title">
+        Добавить долг
+    </div>
+    <Form action="Добавить" on:close="{() => showCreate = false}" />
+</Modal>
+{/if}
+
+{#if showEdit}
+<Modal bind:show="{showEdit}">
+    <div slot="title">
+        Редактировать долг
+    </div>
+    <Form action="Редактировать" model="{editDebtModel}" on:close="{() => showEdit = false}" />
+</Modal>
+{/if}

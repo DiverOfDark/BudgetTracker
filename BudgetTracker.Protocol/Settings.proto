@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+option csharp_namespace = "BudgetTracker";
+
+package Protos.Settings;
+
+import "Commons.proto";
+
+message SystemInfo {
+    bool is_production = 1;
+    string launch_time = 2;
+    string stats = 3;
+
+    string current_version = 4;
+    string latest_version = 5;
+    bool has_newer_version = 6;
+}
+
+message ScraperConfig {
+    UUID id = 1;
+    bool enabled = 2;
+    string scraper_name = 3;
+
+    string login = 4;
+    string password = 5;
+    string last_successful_balance_scraping = 6;
+    string last_successful_statement_scraping = 7;
+}
+
+message Settings {
+    bool can_download_db_dump = 1;
+    repeated ScraperConfig scraper_configs = 2;
+}
+
+message AddScraperRequest {
+    string name = 1;
+    string login = 2;
+    string password = 3;
+}
+message UpdatePasswordRequest {
+    string newPassword = 1;
+}
+
+message ExecuteScriptRequest {
+    string script = 1;
+}
+
+message ExecuteScriptResponse {
+    oneof response {
+        string result = 1;
+        string exception = 2;
+    }
+}
+
+message Screenshot {
+    bytes contents = 1;
+}
+
+message DbDump {
+    bytes content = 1;
+}

@@ -9,7 +9,7 @@
         deltaWidgetSettings: {
             accountName: '',
             providerName: '',
-            deltaInterval: '0'
+            deltaInterval: interfaces.DeltaIntervalEnum.Daily
         },
         settings: {},
         title: '',

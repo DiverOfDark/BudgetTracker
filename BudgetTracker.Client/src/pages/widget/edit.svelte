@@ -72,7 +72,7 @@
     }
 
     let save = async function() {
-        await interfaces.WidgetController.editWidget(model.id, model.title, String(model.kindId), model.properties);
+        await interfaces.WidgetController.editWidget(model.id, model.title, interfaces.WidgetKindEnum.getEnums()[model.kindId], model.properties);
         navigateTo('/');
     }
 
@@ -88,9 +88,6 @@
             || model.kindId == interfaces.WidgetKindEnum.Donut.getId()
             || model.kindId == interfaces.WidgetKindEnum.Delta.getId();
     }
-
-    // used in template
-    model; title; interfaces.WidgetKindEnum; interfaces.GraphKindEnum; interfaces.DeltaIntervalEnum; providers; accounts; showAccount; save;
 </script>
 <svelte:head>
     <title>BudgetTracker - {title}</title>

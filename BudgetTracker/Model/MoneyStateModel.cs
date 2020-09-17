@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using OutCode.EscapeTeams.ObjectRepository;
 
 namespace BudgetTracker.Model

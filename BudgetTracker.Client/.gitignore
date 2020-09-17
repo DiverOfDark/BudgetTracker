@@ -3,3 +3,6 @@ node_modules
 out/bundle.*
 package-lock.json
 yarn.lock
+protoc
+.size-snapshot.json
+dist

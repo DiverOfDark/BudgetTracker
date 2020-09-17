@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -22,18 +21,6 @@ namespace BudgetTracker.Model
                     return kind;
             }
         }
-    }
-    
-    public enum PaymentKind
-    {
-        [JsDisplayName("Трата")]
-        Expense = 0,
-        [JsDisplayName("Доход")]
-        Income = 1,
-        [JsDisplayName("Перевод")]
-        Transfer = 2,
-        [JsDisplayName("Неизвестно")]
-        Unknown = -1
     }
     
     public class PaymentModel : ModelBase

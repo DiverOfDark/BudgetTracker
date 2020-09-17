@@ -2,18 +2,21 @@
     BudgetTracker - скриншот фоновых задач
 </svelte:head>
 
-<script>
-    import { UtilityController } from '../../generated-types';
-    import { readable } from 'svelte/store';
+<script lang="ts">
+    import { writable } from 'svelte/store';
+    import { onDestroy } from 'svelte';
+    import SoWService from '../../services/SoWService';
 
-    const image = readable(UtilityController.screenshotFile, set => {
-      const interval = setInterval(() => {
-        set(UtilityController.screenshotFile + '?rand=' + Math.random());
-      }, 3000);
+    const image = writable("");
 
-      return () => clearInterval(interval);
+    let cancelSubscription = SoWService.getScreenshot(x => {
+        if (x)
+            image.set("data:image/png;base64," + x)
+        else
+            image.set("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=");
     });
 
+    onDestroy(cancelSubscription);
 </script>
 
 <style>

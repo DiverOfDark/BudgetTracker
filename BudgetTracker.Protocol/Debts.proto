@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+option csharp_namespace = "BudgetTracker";
+
+package Protos.Debts;
+
+import "Commons.proto";
+
+message Debt {
+    UUID id = 1;
+
+    double amount = 2;
+    double percentage = 3;
+    string description = 4;
+    string regex_for_transfer = 5;
+    string ccy = 6;
+
+    Timestamp issued = 7;
+    int32 days_count = 8;
+}
+
+message DebtView {
+    Debt model = 1;
+    
+    string last_payment_date = 2;
+    double returned = 3;
+}
+
+message DebtsList {
+    repeated DebtView debts = 1;
+}
+
+message DebtsStream {
+    oneof update {
+        DebtsList snapshot = 1;
+        DebtView added = 2;
+        DebtView removed = 3;
+        DebtView updated = 4;
+    }
+}

@@ -1,63 +1,60 @@
-<script>
-    import {SettingsController, UtilityController } from '../generated-types';
+<script lang="ts">
+    import { writable } from 'svelte/store';
+    import { onDestroy } from 'svelte';
+    import SoWService from '../services/SoWService';
+    import protoSettings from '../generated/Settings_pb';
     import Link from '../svero/Link.svelte';
-
     import { DeleteIcon, XCircleIcon } from 'svelte-feather-icons';
 
+    let settings = writable(new protoSettings.Settings().toObject());
+
     let newPassword = '';
+    let downloadInProgress = false;
 
-    let settings = {
-        configs:[]
-    };
-
-    let reload = async function() {
-        let response = await SettingsController.indexJson();
-        settings.canDownloadDbDump = response.canDownloadDbDump;
-        settings.configs = response.possibleScrapers.map(s=> {
-            let found = response.scraperConfigs.find(t=>t.scraperName == s);
-            if (found) {
-                found.new = false;
-                if (found.login == undefined) {
-                    found.login = "<не указан>";
-                }
-                if (found.password == undefined) {
-                    found.password = "<не указан>";
-                }
-                return found;
-            }
-
-            return {
-                new: true,
-                scraperName: s,
-                login: '',
-                password: '',
-                lastSuccessfulBalanceScraping: '',
-                lastSuccessfulStatementScraping: '',
-            };
-        })
+    async function updateSettingsPassword() {
+        await SoWService.updateSettingsPassword(newPassword);
+        newPassword = '';
     }
 
-    let updatePassword = async function() {
-        await SettingsController.updatePassword(newPassword);
-    }
+    async function downloadDump() {
+        downloadInProgress = true;
+        let response = await SoWService.downloadDump();
+        let blob = new File([response.buffer], "database.litedb", {type: 'application/octet-stream'});
+        let href = URL.createObjectURL(blob);
 
-    let clearLastSuccessful = async function(id) {
-        await SettingsController.clearLastSuccessful(id);
-        await reload();
+        let link = document.createElement('a');
+        link.href = href;
+        link.download = "database.litedb";
+        document.body.appendChild(link);
+        link.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true, view: window}));
+        link.remove();
+        URL.revokeObjectURL(href);
+        downloadInProgress = false;
     }
+    
+    let unsubscribe = SoWService.getSettings(x => settings.set(x));
 
-    let addConfig = async function(name, login, password) {
-        await SettingsController.addScraper(name, login, password);
-        await reload();
-    }
+    onDestroy(unsubscribe);
 
-    let deleteConfig = async function(id) {
-        await SettingsController.deleteConfig(id);
-        await reload();
-    }
-
-    reload();
+    Link; downloadDump; updateSettingsPassword; settings; downloadInProgress;
 </script>
+
+<style type="text/css">
+    @keyframes spinner-border {
+        to { transform: rotate(360deg); }
+    }
+
+    .spinner-border {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        vertical-align: text-bottom;
+        border: 2px solid currentColor;
+        border-right-color: transparent;
+        border-radius: 50%;
+        animation: spinner-border .75s linear infinite;
+    }
+</style>
 
 <svelte:head>
     <title>BudgetTracker - Настройки</title>
@@ -71,15 +68,17 @@
                     Общие настройки
                 </div>
                 <div class="card-body">
-                    <div class="form-group">
-                        <label class="form-label">
-                            Пароль для входа
-                        </label>
-                        <input type="password" autocomplete="new-password" class="form-control" bind:value="{newPassword}" placeholder="Пароль" />
-                    </div>
-                    <div class="form-footer">
-                        <button on:click="{() => updatePassword()}" class="btn btn-primary btn-block">Обновить</button>
-                    </div>
+                    <form on:submit|preventDefault="{() => updateSettingsPassword()}">
+                        <div class="form-group">
+                            <label class="form-label">
+                                Пароль для входа
+                            </label>
+                            <input type="password" autocomplete="new-password" class="form-control" bind:value="{newPassword}" placeholder="Пароль" />
+                        </div>
+                        <div class="form-footer">
+                            <input type="submit" value="Обновить" class="btn btn-primary btn-block" />
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -91,8 +90,13 @@
                 <div class="card-body">
                     <Link class="btn btn-pill btn-outline-info btn-sm mb-2" href="/Utility/Tasks">Фоновые&nbsp;задачи</Link>
                     <br/>
-                    {#if settings && settings.canDownloadDbDump}
-                        <a class="btn btn-pill btn-outline-info btn-sm mb-2" href="{UtilityController.downloadDump}">Скачать дамп базы</a>
+                    {#if $settings.canDownloadDbDump}
+                        <input type="button" class="btn btn-pill btn-outline-info btn-sm mb-2" on:click="{() => downloadDump()}" value="Скачать дамп базы" disabled={downloadInProgress} />
+                        {#if downloadInProgress}
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        {/if}
                         <br/>
                     {/if}
                     <Link class="btn btn-pill btn-outline-info btn-sm mb-2" href="/Utility/Screenshot">Скриншот&nbsp;браузера</Link>
@@ -119,23 +123,23 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {#each settings.configs as item}
+                    {#each $settings.scraperConfigsList as item}
                         <tr>
                             <td>{item.scraperName}</td>
-                            {#if !item.new}
+                            {#if item.enabled}
                                 <td class="text-muted">{item.login}</td>
                                 <td class="text-muted">{item.password}</td>
                                 <td>
                                     Баланс: <b>{item.lastSuccessfulBalanceScraping}</b><br/>
                                     Выписка: <b>{item.lastSuccessfulStatementScraping}</b>
                                     {#if item.lastSuccessfulBalanceScraping != "-" || item.lastSuccessfulStatementScraping != "-"}
-                                        <button on:click="{() => clearLastSuccessful(item.id)}" class="btn btn-anchor btn-link">
+                                        <button on:click="{() => SoWService.clearLastSuccessful(item.id)}" class="btn btn-anchor btn-link">
                                             <DeleteIcon size="16" />
                                         </button>
                                     {/if}
                                 </td>
                                 <td>
-                                    <button class="btn btn-anchor btn-link" on:click="{() => deleteConfig(item.id)}">
+                                    <button class="btn btn-anchor btn-link" on:click="{() => SoWService.deleteConfig(item.id)}">
                                         <XCircleIcon size="16" />
                                     </button>
                                 </td>
@@ -143,7 +147,7 @@
                                 <td><input type="text" bind:value="{item.login}" placeholder="Логин" class="form-control form-control-sm"/></td>
                                 <td><input type="text" bind:value="{item.password}" placeholder="Пароль" class="form-control form-control-sm"/></td>
                                 <td>&mdash;</td>
-                                <td><button type="submit" on:click="{() => addConfig(item.scraperName, item.login, item.password)}" class="form-control btn btn-outline-primary btn-sm">Включить</button></td>
+                                <td><button type="submit" on:click="{() => SoWService.addConfig(item.scraperName, item.login, item.password)}" class="form-control btn btn-secondary btn-sm">Включить</button></td>
                             {/if}
                         </tr>
                     {/each}

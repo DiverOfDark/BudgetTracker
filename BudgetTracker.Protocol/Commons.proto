@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option csharp_namespace = "BudgetTracker";
+
+package Protos;
+
+message UUID {
+    string value = 1;
+}
+
+message Timestamp {
+    int64 seconds = 1;
+    int32 nanos = 2; // TODO remove unused
+}
+
+message Empty {
+}

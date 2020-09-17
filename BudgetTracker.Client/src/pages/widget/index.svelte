@@ -5,8 +5,8 @@
 <script lang="ts">
     import { navigateTo } from '../../svero/utils';
 
+    import { WidgetController } from '../../generated-types';
     import { PlusIcon, CalendarIcon, EditIcon, XCircleIcon, ArrowLeftIcon, ArrowRightIcon, EyeIcon, EyeOffIcon } from 'svelte-feather-icons';
-
     import * as interfaces from '../../generated-types';
     import donutWidget from './Widgets/donutWidget.svelte';
     import linearChartWidget from './Widgets/linearChartWidget.svelte';
@@ -135,7 +135,7 @@
                     </div>
 
                     {#if showButtons}
-                        <div class="card-footer mb-5">
+                        <div class="card-footer">
                             <button class="float-left btn btn-sm btn-outline-primary" on:click="{() => moveLeft(widget.id)}">
                                 <ArrowLeftIcon size="16" />
                             </button>

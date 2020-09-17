@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+option csharp_namespace = "BudgetTracker";
+
+package Protos;
+import "Accounts.proto";
+import "Settings.proto";
+import "Commons.proto";
+import "Debts.proto";
+import "Payments.proto";
+import "SpentCategories.proto";
+
+// TODO merge all streams into single active connection because max could be 6 connections, i.e. 5 streams and 1 for action.
+service SoWService {
+  // Settings
+  rpc GetSystemInfo (Empty) returns (stream Settings.SystemInfo);
+  rpc GetSettings (Empty) returns (stream Settings.Settings);
+  rpc UpdateSettingsPassword (Settings.UpdatePasswordRequest) returns (Empty);
+  rpc AddScraper(Settings.AddScraperRequest) returns (Empty);
+  rpc DeleteConfig(UUID) returns (Empty);
+  rpc ClearLastSuccesful(UUID) returns (Empty);
+  
+  // Utility
+  rpc ExecuteScript (Settings.ExecuteScriptRequest) returns (Settings.ExecuteScriptResponse);
+  rpc GetScreenshot (Empty) returns (stream Settings.Screenshot);
+  rpc DownloadDbDump (Empty) returns (Settings.DbDump);
+  
+  // Debts
+  rpc GetDebts (Empty) returns (stream Debts.DebtsStream);
+  rpc EditDebt (Debts.Debt) returns (Empty);
+  rpc DeleteDebt (UUID) returns (Empty);
+  
+  // Payments
+  rpc GetPayments (Empty) returns (stream Payments.PaymentsStream);
+  rpc GetPaymentDetails (UUID) returns (Payments.PaymentDetails);
+
+  rpc EditPayment (Payments.Payment) returns (Empty);
+  rpc SplitPayment (Payments.SplitPaymentRequest) returns (Empty);
+  rpc DeletePayment (UUID) returns (Empty);
+  rpc ShowCategorized (Payments.ShowCategorizedRequest) returns (Empty);
+  rpc ExpandCollapse (Payments.ExpandCollapse) returns (Empty);
+
+  rpc GetSpentCategories (Empty) returns (stream SpentCategories.SpentCategoriesStream);
+  rpc EditSpentCategory (SpentCategories.SpentCategory) returns (Empty);
+  rpc DeleteSpentCategory (UUID) returns (Empty);
+  
+  // Accounts
+  rpc GetMoneyColumnMetadata (Empty) returns (stream Accounts.MoneyColumnMetadataStream);
+}

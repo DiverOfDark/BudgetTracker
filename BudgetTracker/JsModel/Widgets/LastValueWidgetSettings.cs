@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel;
 using BudgetTracker.JsModel.Attributes;
 
 namespace BudgetTracker.Controllers.ViewModels.Widgets
 {
+    [ExportJsModel]
     public enum GraphKind
     {
         [JsDisplayName("Разница с предыдущим днём")]

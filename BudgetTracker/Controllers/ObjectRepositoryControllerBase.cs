@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BudgetTracker.Controllers.ViewModels.Payment;
 using BudgetTracker.JsModel;
 using BudgetTracker.Model;
 using Microsoft.AspNetCore.Authorization;
@@ -10,8 +9,7 @@ using OutCode.EscapeTeams.ObjectRepository;
 
 namespace BudgetTracker.Controllers
 {
-    // TODO: Implement inheritors as dynamic controllers as described here: https://www.strathweb.com/2018/04/generic-and-dynamically-generated-controllers-in-asp-net-core-mvc/
-    // NOTE: need to think how code generation for TS would work with dynamic controllers.
+    // TODO: Remove after migration to gRPC
     [AjaxOnlyActions, Authorize]
     public abstract class ObjectRepositoryControllerBase<TModel, TViewModel>: Controller where TModel:ModelBase where TViewModel:class
     {
@@ -45,34 +43,7 @@ namespace BudgetTracker.Controllers
     public class MoneyColumnMetadataModelController : ObjectRepositoryControllerBase<MoneyColumnMetadataModel,
             MoneyColumnMetadataJsModel>
     {
-        public MoneyColumnMetadataModelController(ObjectRepository objectRepository) : base(objectRepository, x => new MoneyColumnMetadataJsModel(objectRepository, x))
-        {
-        }
-    }
-
-    [Obsolete]
-    public class SpentCategoryModelController : ObjectRepositoryControllerBase<SpentCategoryModel, SpentCategoryJsModel>
-    {
-        public SpentCategoryModelController(ObjectRepository objectRepository) : base(objectRepository,
-            v => new SpentCategoryJsModel(v))
-        {
-        }
-    }
-
-    [Obsolete]
-    public class DebtModelController : ObjectRepositoryControllerBase<DebtModel, DebtJsViewModel>
-    {
-        public DebtModelController(ObjectRepository objectRepository) : base(objectRepository,
-            v => new DebtJsViewModel(v))
-        {
-        }
-    }
-
-    [Obsolete]
-    public class PaymentViewModelController : ObjectRepositoryControllerBase<PaymentModel, PaymentViewModel>
-    {
-        public PaymentViewModelController(ObjectRepository objectRepository) : base(objectRepository,
-            @from => new PaymentViewModel(from))
+        public MoneyColumnMetadataModelController(ObjectRepository objectRepository) : base(objectRepository, x => new MoneyColumnMetadataJsModel(x))
         {
         }
     }

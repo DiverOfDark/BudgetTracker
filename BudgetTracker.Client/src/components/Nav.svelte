@@ -1,13 +1,12 @@
 <script lang="ts">
-    import { SystemController, AuthController } from '../generated-types'
+    import { AuthController } from '../generated-types'
     import * as interfaces from '../generated-types';
     import AuthService from '../services/AuthService'
     import { readable } from 'svelte/store';
     import NavLink from './NavLink.svelte';
+    import SoWService from '../services/SoWService';
 
-    let info : interfaces.SystemInfo;
-
-    SystemController.siteInfo().then(i => info = i);
+    let info : SoWService.SystemInfo;
 
     const time = readable(new Date().toLocaleString(), set => {
       const interval = setInterval(() => {

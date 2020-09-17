@@ -1,38 +1,50 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Octokit;
 
 namespace BudgetTracker.Services
 {
-    public class UpdateService
+    public class UpdateService : ViewModelBase
     {
         private readonly GitHubClient _gitHubClient;
-
-        private DateTime _lastFetchTime = DateTime.MinValue;
-        private string _masterSha;
+        private readonly Timer _timer;
 
         public UpdateService()
         {
             _gitHubClient = new GitHubClient(new ProductHeaderValue("DiverOfDark_BudgetTracker", Startup.CommmitHash));
+            _timer = new Timer(TimerCallback, null, TimeSpan.Zero, TimeSpan.FromHours(1));
+            
+            Anchors.Add(_timer.Dispose);
         }
 
-        public async Task<String> GetLatestVersion()
+        private void TimerCallback(object state)
         {
-            await RefreshVersions();
-
-            return _masterSha;
+            _timer.Change(-1, -1);
+            Init().GetAwaiter().GetResult();
+            _timer.Change(TimeSpan.FromMilliseconds(-1), TimeSpan.FromHours(1));
         }
 
-        private async Task RefreshVersions()
+        private async Task Init()
         {
-            if (_masterSha == null || _lastFetchTime.AddHours(1) < DateTime.Now)
+            try
             {
                 var readOnlyList = await _gitHubClient.Repository.Branch.Get("DiverOfDark", "BudgetTracker", "master");
-                _masterSha = readOnlyList.Commit.Sha;
-                _lastFetchTime = DateTime.Now;
-            }
+                var newVersion = readOnlyList.Commit.Sha;
+
+                if (newVersion != LatestVersion)
+                {
+                    LatestVersion = newVersion;
+                    OnPropertyChanged(nameof(LatestVersion));
+                    OnPropertyChanged(nameof(HasNewerVersion));
+                }
+            } catch(Exception ex) {}
         }
 
-        public async Task<bool> HasNewerVersion() => Startup.CommmitHash != await GetLatestVersion();
+        public String LatestVersion { get; private set; } = "Unknown";
+
+        public bool HasNewerVersion => LatestVersion != null && Startup.CommmitHash != LatestVersion;
     }
 }

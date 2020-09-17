@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using System.Threading;
 using BudgetTracker.Controllers;
 using BudgetTracker.Controllers.ViewModels.Table;
+using BudgetTracker.GrpcServices;
 using BudgetTracker.Model;
 using BudgetTracker.Scrapers;
 using BudgetTracker.Services;
+using Grpc.Core;
 using Hangfire;
 using Hangfire.AspNetCore;
 using LiteDB;
@@ -26,7 +29,6 @@ using Newtonsoft.Json;
 using OutCode.EscapeTeams.ObjectRepository;
 using OutCode.EscapeTeams.ObjectRepository.Hangfire;
 using OutCode.EscapeTeams.ObjectRepository.LiteDB;
-using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace BudgetTracker
 {
@@ -62,63 +64,63 @@ namespace BudgetTracker
 
         public void ConfigureServices(IServiceCollection services)
         {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
-            services.AddResponseCompression(x => x.EnableForHttps = true);
-            services.AddMvc().AddNewtonsoftJson(options =>
-            {
-                options.SerializerSettings.NullValueHandling = NullValueHandling.Include;
-                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                options.SerializerSettings.Formatting = IsProduction ? Formatting.None : Formatting.Indented;
-            });
             services.AddSingleton<Chrome>();
             services.AddSingleton<ScrapeService>();
 
-            ObjectRepository objectRepository;
-            {
-                var liteDb = Configuration.GetConnectionString("LiteDb");
-
-                if (String.IsNullOrEmpty(liteDb))
-                {
-                    throw new Exception("Connection string for 'LiteDb' should been specified.");
-                }
-
-                var connectionString = new ConnectionString(liteDb);
-                DbFileName = connectionString.Filename;
-                var liteDbDatabase = new LiteDatabase(connectionString);
-                liteDbDatabase.Engine.Shrink();
-                IStorage storage = new LiteDbStorage(liteDbDatabase);
-
-                objectRepository = new ObjectRepository(storage, NullLoggerFactory.Instance);
-
-                services.AddSingleton(storage);
-                services.AddSingleton(objectRepository);
-            }
-            
             var scrapers = GetType().Assembly.GetTypes().Where(v => v.IsSubclassOf(typeof(GenericScraper))).ToList();
             foreach (var s in scrapers)
             {
                 services.AddSingleton(typeof(GenericScraper), s);
             }
             
+            services.AddTransient<ScreenshotViewModel>();
+            services.AddTransient<DebtsViewModel>();
+            services.AddTransient<PaymentsViewModel>();
+            services.AddTransient<SpentCategoriesViewModel>();
+            services.AddTransient<MoneyColumnMetadatasViewModel>();
+            services.AddTransient<SystemInfoViewModel>();
+            services.AddTransient<SettingsViewModel>();
+
+            services.AddTransient(x => new TableViewModelFactory(x.GetRequiredService<ObjectRepository>()));
+            services.AddTransient<ScriptService>();
+
+            services.AddSingleton<GrpcProvider>();
+            
+            services.AddSingleton<SmsRuleProcessor>();
+            services.AddSingleton<UpdateService>();
+            services.AddHangfire(x=>{ });
+
+            var objectRepository = ConfigureObjectRepository(services);
+            services.AddDataProtection().AddKeyManagementOptions(options =>
+            {
+                options.XmlRepository = new ObjectRepositoryXmlStorage(objectRepository);
+            });
+            ConfigureAspNet(services);
+        }
+
+        private void ConfigureAspNet(IServiceCollection services)
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+            services.AddHttpContextAccessor();
+            services.AddResponseCompression(x => x.EnableForHttps = true);
+            services.AddGrpc();
+            services.AddMvc().AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.NullValueHandling = NullValueHandling.Include;
+                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                options.SerializerSettings.Formatting = IsProduction ? Formatting.None : Formatting.Indented;
+            });
+
             services.AddWebEncoders(o =>
             {
                 var textEncoderSettings = new TextEncoderSettings();
                 textEncoderSettings.AllowRange(UnicodeRanges.All);
                 o.TextEncoderSettings = textEncoderSettings;
             });
-            services.AddTransient(x => new TableViewModelFactory(x.GetRequiredService<ObjectRepository>()));
-            services.AddSingleton<ScriptService>();
-            services.AddSingleton<SmsRuleProcessor>();
-            services.AddSingleton<UpdateService>();
             services.AddLogging();
             services.AddSession();
             services.AddControllers().AddNewtonsoftJson();
-            services.AddHangfire(x=>{ });
-            services.AddDataProtection().AddKeyManagementOptions(options =>
-            {
-                options.XmlRepository = new ObjectRepositoryXmlStorage(objectRepository);
-            });
             services.AddAuthorization();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(x =>
             {
@@ -126,6 +128,28 @@ namespace BudgetTracker
                 x.LoginPath = "/Auth";
                 x.LogoutPath = "/Auth/Logout";
             });
+        }
+
+        private ObjectRepository ConfigureObjectRepository(IServiceCollection services)
+        {
+            var liteDb = Configuration.GetConnectionString("LiteDb");
+
+            if (String.IsNullOrEmpty(liteDb))
+            {
+                throw new Exception("Connection string for 'LiteDb' should been specified.");
+            }
+
+            var connectionString = new ConnectionString(liteDb);
+            DbFileName = connectionString.Filename;
+            var liteDbDatabase = new LiteDatabase(connectionString);
+            liteDbDatabase.Engine.Shrink();
+            IStorage storage = new LiteDbStorage(liteDbDatabase);
+
+            var objectRepository = new ObjectRepository(storage, NullLoggerFactory.Instance);
+
+            services.AddSingleton(storage);
+            services.AddSingleton(objectRepository);
+            return objectRepository;
         }
 
         private class MyFactory : IServiceScopeFactory
@@ -137,11 +161,10 @@ namespace BudgetTracker
             public IServiceScope CreateScope() => _services.CreateScope();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostEnvironment env, ILoggerFactory loggerFactory)
         {
             app.UseResponseCompression();
             app.UseDeveloperExceptionPage();
-            
             var objRepoLogger = loggerFactory.CreateLogger("ObjectRepository");
             void OnError(Exception ex) => objRepoLogger.LogError(ex, ex.Message);
             
@@ -160,7 +183,8 @@ namespace BudgetTracker
             app.UseStatusCodePagesWithReExecute("/Error", "?statusCode={0}");
             app.UseExceptionHandler("/Error");
             app.UseStaticFiles();
-            
+            app.UseSession();
+
             app.Use(async (context, next) =>
             {
                 context.Response.GetTypedHeaders().CacheControl = 
@@ -173,7 +197,7 @@ namespace BudgetTracker
             });
             
             app.UseRouting();
-            app.UseSession();
+            app.UseGrpcWeb();
             app.UseAuthentication();
             app.UseAuthorization();
             
@@ -189,6 +213,20 @@ namespace BudgetTracker
             
             app.UseEndpoints(routes =>
             {
+                var types = typeof(Startup).Assembly.GetTypes()
+                    .Where(v => v.GetCustomAttributes().Any(t => t is BindServiceMethodAttribute))
+                    .Where(v => !v.IsAbstract)
+                    .ToList();
+
+                foreach (var v in types)
+                {
+                    var method = typeof(GrpcEndpointRouteBuilderExtensions)
+                        .GetMethod(nameof(GrpcEndpointRouteBuilderExtensions.MapGrpcService))
+                        .MakeGenericMethod(v);
+                    var response = method.Invoke(null, new[] {routes}) as GrpcServiceEndpointConventionBuilder;
+                    response.EnableGrpcWeb();
+                }
+                
                 routes.MapControllerRoute("not_so_default", "{controller}/{action}");
                 app.Use(async (a, b) =>
                 {

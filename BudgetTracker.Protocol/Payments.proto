@@ -1,0 +1,117 @@
+syntax = "proto3";
+
+option csharp_namespace = "BudgetTracker";
+
+package Protos.Payments;
+
+import "Commons.proto";
+
+message Payment {
+    UUID id = 1;
+
+    string what = 2;
+    string ccy = 3;
+    
+    double amount = 4;
+    
+    Timestamp when = 5;
+    
+    UUID category_id = 6;
+    UUID debt_id = 7;
+    UUID column_id = 8;
+    
+    PaymentKind kind = 9;
+
+    string statement = 10;
+
+    string sms = 11;
+}
+
+message PaymentDetails {
+    Payment payment = 1;
+    string statement_reference = 2;
+    string sms = 3;
+}
+
+enum PaymentKind {
+    EXPENSE = 0;
+    INCOME = 1;
+    TRANSFER = 2;
+    UNKNOWN = -1;
+}
+
+message PaymentGroup {
+    UUID id = 1;
+    Timestamp when = 2;
+    int32 payment_count = 3;
+    PaymentKind kind = 4;
+    
+    UUID category_id = 5;
+    UUID debt_id = 6;
+    UUID column_id = 7;
+    
+    double amount = 8;
+    string ccy = 9;
+    
+    string what = 10;
+    
+    bool is_expanded = 11;
+
+    repeated PaymentView payments = 12;
+}
+
+message CurrencySummary {
+    string currency = 1;
+    double amount = 2;
+}
+
+message PaymentView {
+    oneof row {
+        Payment payment = 2;
+        PaymentGroup group = 3;
+        MonthSummary summary = 4;
+    }
+}
+
+message MonthSummary {
+    UUID id = 1;    
+    Timestamp when = 2;
+    repeated CurrencySummary summary = 3;
+    int32 uncategorized_count = 4;
+    
+    bool isExpanded = 5;
+    
+    repeated PaymentView payments = 6;
+}
+
+message PaymentViewUpdate {
+    int32 position = 1;
+    MonthSummary view = 2;
+}
+
+message PaymentsList {
+    repeated MonthSummary payments = 1;
+    bool show_categorized = 2;
+}
+
+message PaymentsStream {
+    oneof update {
+        PaymentsList snapshot = 1;
+        PaymentViewUpdate added = 2;
+        PaymentViewUpdate removed = 3;
+        PaymentViewUpdate updated = 4;
+    }
+}
+
+message SplitPaymentRequest {
+    UUID id = 1;
+    double amount = 2;
+}
+
+message ShowCategorizedRequest {
+    bool show_categorized = 1;
+}
+
+message ExpandCollapse {
+    repeated UUID path = 1;
+}
