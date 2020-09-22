@@ -48,7 +48,7 @@
     "chartjs-plugin-doughnutlabel": "^2.0.3",
     "google-protobuf": "^3.13.0",
     "grpc-web": "^1.2.1",
-    "moment": "^2.28.0",
+    "moment": "^2.29.0",
     "path-parser": "^6.1.0",
     "tabler": "^1.0.0-alpha.7"
   }
