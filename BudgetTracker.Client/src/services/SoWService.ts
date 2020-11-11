@@ -63,7 +63,7 @@ class SpentCategoriesStreamViewModel {
             let newCategories = get(this.spentCategories);
             newCategories = newCategories.map((f: protoSpentCategories.SpentCategory.AsObject) => {
                 if (f.id!.value == stream.updated!.id!.value) {
-                    return stream!.updated;
+                    return stream!.updated!;
                 }
                 return f;
             });
@@ -104,7 +104,7 @@ class DebtsStreamViewModel {
             let newDebts = get(this.debts);
             newDebts = newDebts.map((f: protoDebts.DebtView.AsObject) => {
                 if (f.model!.id!.value == stream.updated!.model!.id!.value) {
-                    return stream!.updated;
+                    return stream!.updated!;
                 }
                 return f;
             });
@@ -143,7 +143,7 @@ class MoneyColumnMetadataStreamViewModel {
             let newMetadatas = get(this.moneyColumnMetadatas);
             newMetadatas = newMetadatas.map((f: protoAccounts.MoneyColumnMetadata.AsObject) => {
                 if (f.id!.value == stream.updated!.id!.value) {
-                    return stream!.updated;
+                    return stream!.updated!;
                 }
                 return f;
             });

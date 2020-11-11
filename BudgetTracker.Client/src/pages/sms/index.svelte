@@ -71,7 +71,7 @@
                             {#each months as month, idx}
                                 <tr>
                                     <th colspan="4">
-                                        <a href="#/" on:click="{() => { month.collapsed = !month.collapsed; return false;}}" class="month">
+                                        <a href="#/" on:click|preventDefault="{() => month.collapsed = !month.collapsed }" class="month">
                                             {formatMonth(month.when)}
                                         </a>
                                         <span class="badge badge-secondary">{showHidden ? month.sms.length : month.sms.filter(t=>!t.isHidden).length} SMS</span>

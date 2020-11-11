@@ -65,7 +65,7 @@
 {#if payment.summary}
     <tr>
         <th colspan="8">
-            <a href="#/" on:click="{() => { expandCollapse([...parentId, payment.summary.id]); return false;}}">
+            <a href="#/" on:click|preventDefault="{() => expandCollapse([...parentId, payment.summary.id])}">
                 {formatUnixMonth(payment.summary.when.seconds)}
             </a>
             {#each payment.summary.summaryList as total}
@@ -92,12 +92,12 @@
         </td>
         <td>
             <b>{payment.group.what}</b>
-            <a href="#/" on:click="{() => { expandCollapse([...parentId, payment.group.id]); return false;}}">
+            <a href="#/" on:click|preventDefault="{() => expandCollapse([...parentId, payment.group.id])}">
                 ({payment.group.paymentCount})
             </a>
         </td>
         <td class="text-nowrap">
-            <a href="#/" on:click="{() => { expandCollapse([...parentId, payment.group.id]); return false;}}">
+            <a href="#/" on:click|preventDefault="{() => expandCollapse([...parentId, payment.group.id])}">
                 ({payment.group.paymentCount})
             </a>
         </td>
@@ -120,13 +120,13 @@
         </td>
         <td><b>{payment.payment.what}</b></td>
         <td class="text-nowrap">
-            <a href="#/"  on:click="{() => { splitPayment(payment.payment); return false;}}" use:tooltip="{"Разделить"}">
+            <a href="#/"  on:click|preventDefault="{() => splitPayment(payment.payment)}" use:tooltip="{"Разделить"}">
                 <GitBranchIcon size="16" />
             </a>&nbsp;
-            <a href="#/" on:click="{() => { editPayment(payment.payment); return false;}}" use:tooltip="{"Редактировать"}">
+            <a href="#/" on:click|preventDefault="{() => editPayment(payment.payment)}" use:tooltip="{"Редактировать"}">
                 <Edit2Icon size="16" />
             </a>&nbsp;
-            <a href="#/" on:click="{() => { deletePayment(payment.payment); return false;}}" use:tooltip="{"Удалить"}">
+            <a href="#/" on:click|preventDefault="{() => deletePayment(payment.payment)}" use:tooltip="{"Удалить"}">
                 <XCircleIcon size="16" />
             </a>
         </td>
