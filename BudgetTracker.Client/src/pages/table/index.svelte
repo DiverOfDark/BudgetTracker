@@ -2,7 +2,7 @@
 	import { Edit2Icon, TrendingUpIcon, CopyIcon, CheckIcon, XCircleIcon } from 'svelte-feather-icons';
 	import moment from 'moment';
 	import { tooltip } from '../../services/Tooltip';
-    import Link from '../../svero/Link.svelte';
+    import { Link } from 'yrv';
 	import { TableController } from '../../generated-types.ts';
 	import { formatMoney, formatDate } from '../../services/Shared';
 
@@ -133,7 +133,7 @@
 							</select>
 						</div>
 						<div class="card-options">
-							<Link className="btn btn-outline-primary btn-sm ml-2" href="/Metadata">
+							<Link class="btn btn-outline-primary btn-sm ml-2" href="/Metadata">
 								<Edit2Icon size="14" />
 							</Link>
 							<button class="btn btn-outline-primary btn-sm ml-2" on:click="{ () => showDelta = !showDelta }">

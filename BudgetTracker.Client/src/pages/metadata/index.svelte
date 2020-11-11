@@ -3,7 +3,7 @@
     import * as interfaces from '../../generated-types';
     import { PlusIcon, ArrowUpIcon, ArrowDownIcon, Edit2Icon, XCircleIcon } from 'svelte-feather-icons';
     
-    import Link from '../../svero/Link.svelte';
+    import { Link } from 'yrv';
 
     let columns: interfaces.MoneyColumnMetadataJsModel[] = [];
 

@@ -3,7 +3,7 @@
     import { onDestroy } from 'svelte';
     import SoWService from '../services/SoWService';
     import protoSettings from '../generated/Settings_pb';
-    import Link from '../svero/Link.svelte';
+    import { Link } from 'yrv';
     import { DeleteIcon, XCircleIcon } from 'svelte-feather-icons';
 
     let settings = writable(new protoSettings.Settings().toObject());

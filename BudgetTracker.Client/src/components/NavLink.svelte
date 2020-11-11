@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Link from '../svero/Link.svelte';
+    import { Link } from 'yrv';
 
     import { onMount, onDestroy } from 'svelte';
 
@@ -18,4 +18,4 @@
     listener();
 </script>
 
-<Link className="nav-link {active}" {href}>{title}</Link>
+<Link class="nav-link {active}" {href}>{title}</Link>

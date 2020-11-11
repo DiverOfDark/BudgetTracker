@@ -2,8 +2,7 @@
   import '../node_modules/tabler/dist/css/tabler.min.css';
   import '../node_modules/tabler/dist/css/tabler-buttons.min.css';
 
-  import Router from './svero/Router.svelte';
-  import Route from './svero/Route.svelte';
+  import { Router, Route } from 'yrv';
   import AuthService from './services/AuthService';
 
   import TableIndex from './pages/table/index.svelte';
@@ -44,29 +43,29 @@
       <Nav />
       <div class="page-content mt-4">
         <Router>
-            <Route path="/"><WidgetIndex /></Route>
-            <Route path="/Table"><TableIndex /></Route>
-            <Route path="/Widget/Edit"><WidgetEdit /></Route>
-            <Route path="/Widget/Edit/:id"><WidgetEdit /></Route>
-            <Route path="/Chart/:provider/:account"><WidgetChart /></Route>
-            <Route path="/Chart/:provider/:account/:exemptTransfers"><WidgetChart /></Route>
-            <Route path="/Metadata"><MetadataIndex /></Route>
-            <Route path="/Metadata/Edit"><MetadataEdit /></Route>
-            <Route path="/Metadata/Edit/:id"><MetadataEdit /></Route>
-            <Route path="/SmsList"><Sms /></Route>
-            <Route path="/SmsList/SmsRules"><SmsRules /></Route>
-            <Route path="/Payment"><Payment /></Route>
-            <Route path="/Payment/Split/:id"><PaymentSplit /></Route>
-            <Route path="/Payment/Edit/:id"><PaymentEdit /></Route>
-            <Route path="/Payment/Category"><PaymentCategory /></Route>
-            <Route path="/Payment/Category/Edit"><PaymentCategoryEdit /></Route>
-            <Route path="/Payment/Category/Edit/:id"><PaymentCategoryEdit /></Route>
-            <Route path="/Debt"><Debt /></Route>
-            <Route path="/Settings"><Settings /></Route>
-            <Route path="/Utility/Tasks"><UtilityTasks /></Route>
-            <Route path="/Utility/ScriptConsole"><UtilityScriptConsole /></Route>
-            <Route path="/Utility/Screenshot"><UtilityScreenshot /></Route>
-            <Route path="*"><NotFound /></Route>
+            <Route exact path="/" let:router><WidgetIndex /></Route>
+            <Route exact path="/Table" let:router><TableIndex /></Route>
+            <Route exact path="/Widget/Edit" let:router><WidgetEdit /></Route>
+            <Route exact path="/Widget/Edit/:id" let:router><WidgetEdit /></Route>
+            <Route exact path="/Chart/:provider/:account" let:router><WidgetChart /></Route>
+            <Route exact path="/Chart/:provider/:account/:exemptTransfers" let:router><WidgetChart /></Route>
+            <Route exact path="/Metadata" let:router><MetadataIndex /></Route>
+            <Route exact path="/Metadata/Edit" let:router><MetadataEdit /></Route>
+            <Route exact path="/Metadata/Edit/:id" let:router><MetadataEdit /></Route>
+            <Route exact path="/SmsList" let:router><Sms /></Route>
+            <Route exact path="/SmsList/SmsRules" let:router><SmsRules /></Route>
+            <Route exact path="/Payment" let:router><Payment /></Route>
+            <Route exact path="/Payment/Split/:id" let:router><PaymentSplit /></Route>
+            <Route exact path="/Payment/Edit/:id" let:router><PaymentEdit /></Route>
+            <Route exact path="/Payment/Category" let:router><PaymentCategory /></Route>
+            <Route exact path="/Payment/Category/Edit" let:router><PaymentCategoryEdit /></Route>
+            <Route exact path="/Payment/Category/Edit/:id" let:router><PaymentCategoryEdit /></Route>
+            <Route exact path="/Debt" let:router><Debt /></Route>
+            <Route exact path="/Settings" let:router><Settings /></Route>
+            <Route exact path="/Utility/Tasks" let:router><UtilityTasks /></Route>
+            <Route exact path="/Utility/ScriptConsole" let:router><UtilityScriptConsole /></Route>
+            <Route exact path="/Utility/Screenshot" let:router><UtilityScreenshot /></Route>
+            <Route exact fallback let:router><NotFound /></Route>
         </Router>
       </div>
     </div>

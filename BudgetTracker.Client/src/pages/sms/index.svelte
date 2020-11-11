@@ -13,7 +13,7 @@
 </style>
 
 <script>
-    import Link from '../../svero/Link.svelte';
+    import { Link } from 'yrv';
     import { SmsListController } from '../../generated-types';
     import { XCircleIcon } from 'svelte-feather-icons';
     import { formatDate, formatDateTime, formatMonth } from '../../services/Shared'

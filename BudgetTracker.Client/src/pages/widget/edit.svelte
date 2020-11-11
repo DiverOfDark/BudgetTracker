@@ -1,8 +1,6 @@
 ﻿ <script lang="ts">
-    import { navigateTo } from '../../svero/utils';
+    import { navigateTo, router } from 'yrv';
     import * as interfaces from '../../generated-types';
-
-    export let router: any = {};
 
     let model: interfaces.WidgetJsViewModel = {
         kind: '',
@@ -62,11 +60,11 @@
     }
 
     $: {
-        if (router && router.params) {
-            if (router.params.id) {
+        if ($router && $router.params) {
+            if ($router.params.id) {
                 title = 'Редактировать виджет';
 
-                loadData(router.params.id);
+                loadData($router.params.id);
             }
         }
     }

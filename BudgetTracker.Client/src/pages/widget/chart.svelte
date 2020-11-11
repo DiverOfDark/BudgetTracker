@@ -2,8 +2,7 @@
 <script lang="ts">
     import LinearChartWidget from './Widgets/linearChartWidget.svelte';
     import * as interfaces from '../../generated-types';
-
-    export let router: any = {};
+    import { router } from 'yrv';
 
 	let widgetModel: interfaces.LinearChartWidgetViewModel = {
         title: '',
@@ -23,10 +22,10 @@
     }
 
     $: {
-        if (router && router.params) {
-            let provider = router.params.provider;
-            let account = router.params.account;
-            let exemptTransfers = router.params.exemptTransfers || false;
+        if ($router && $router.params) {
+            let provider = $router.params.provider;
+            let account = $router.params.account;
+            let exemptTransfers = $router.params.exemptTransfers || false;
 
             loadData(provider, account, exemptTransfers);
         }

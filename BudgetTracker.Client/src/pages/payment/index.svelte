@@ -3,7 +3,7 @@
 </svelte:head>
 
 <script lang="ts">
-    import Link from '../../svero/Link.svelte';
+    import { Link } from 'yrv';
     import SoWService from '../../services/SoWService';
     import PaymentRow from './paymentRow.svelte';
     import { ChevronDownIcon } from 'svelte-feather-icons';

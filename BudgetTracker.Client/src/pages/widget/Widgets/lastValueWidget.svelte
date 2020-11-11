@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as interfaces from './../../../generated-types';
-	import Link from '../../../svero/Link.svelte';
+	import { Link } from 'yrv';
     import { formatMoney, formatDate, formatDateJs } from './../../../services/Shared';
 	import { onMount, onDestroy } from 'svelte';
 	import {compare} from './../../../services/Shared'
@@ -45,7 +45,6 @@
 			var chartItems : number[] = goodItems.map(v => v[1]);
 			var datesItems : string[] = goodItems.map(v => v[0]);
 
-			debugger;
 			if (model.graphKind == interfaces.GraphKindEnum.Differential.getId())
 			{
 				chartItems = chartItems.map((a,b) => b == 0 ? a : a - chartItems[b-1]);

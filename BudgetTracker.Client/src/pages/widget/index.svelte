@@ -3,8 +3,7 @@
 </svelte:head>
 
 <script lang="ts">
-    import { navigateTo } from '../../svero/utils';
-
+    import { navigateTo } from 'yrv';
     import { WidgetController } from '../../generated-types';
     import { PlusIcon, CalendarIcon, EditIcon, XCircleIcon, ArrowLeftIcon, ArrowRightIcon, EyeIcon, EyeOffIcon } from 'svelte-feather-icons';
     import * as interfaces from '../../generated-types';

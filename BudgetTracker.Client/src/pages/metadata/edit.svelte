@@ -1,25 +1,25 @@
 <script>
     import {MetadataController} from '../../generated-types';
     import AutoComplete from '../../components/Autocomplete.svelte'
-    import { navigateTo } from '../../svero/utils';
+    import { navigateTo, router } from 'yrv';
 
-    export let router = {};
-    
-    MetadataController.indexJson().then(cols => {
-        knownColumns = cols.map(s=>s.isComputed ? s.userFriendlyName : s.provider + "/" + s.accountName);
-        if (router.params && router.params.id) {
-            let actualCol = cols.find(s=>s.id == router.params.id);
-            if (actualCol) {
-                id = actualCol.id;
-                isComputed = actualCol.isComputed;
-                provider = actualCol.provider;
-                accountName = actualCol.accountName;
-                function2 = actualCol.function;
-                userFriendlyName = actualCol.userFriendlyName;
-                autogenerateStatements = actualCol.autogenerateStatements;
-            }
-        };
-    });
+    $: {
+        if ($router && $router.params && knownColumns.length == 0) {
+            MetadataController.indexJson().then(cols => {
+                knownColumns = cols.map(s=>s.isComputed ? s.userFriendlyName : s.provider + "/" + s.accountName);
+                let actualCol = cols.find(s=>s.id == $router.params.id);
+                if (actualCol) {
+                    id = actualCol.id;
+                    isComputed = actualCol.isComputed;
+                    provider = actualCol.provider;
+                    accountName = actualCol.accountName;
+                    function2 = actualCol.function;
+                    userFriendlyName = actualCol.userFriendlyName;
+                    autogenerateStatements = actualCol.autogenerateStatements;
+                }
+            });
+        }
+    }
 
     let knownColumns = [];
     let id = "";
@@ -98,7 +98,7 @@
                                     <div class="form-group">
                                         <label class="control-label">Автоматически создавать ДДС из баланса</label>
                                         <div class="col-1" control-labelstyle="padding-top: 7px;">
-                                            <input type="checkbox" class="form-control" bind:checked="{autogenerateStatements}" />
+                                            <input type="checkbox" bind:checked="{autogenerateStatements}" />
                                         </div>
                                     </div>
                                     <div class="form-group text-center">
