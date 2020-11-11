@@ -31,11 +31,15 @@ FROM mcr.microsoft.com/dotnet/sdk:5.0
 ENV TZ=Europe/Moscow
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+RUN apt-get -yqq update && \
+    apt-get -yqq install unzip gnupg2 procps htop && \
+    rm -rf /var/lib/apt/lists/*
+
 # Install Google Chrome
 RUN curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
     echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list && \
     apt-get -yqq update && \
-    apt-get -yqq install google-chrome-stable unzip gnupg2 procps htop && \
+    apt-get -yqq install google-chrome-stable && \
     rm -rf /var/lib/apt/lists/*
 
 RUN INSTALLED_VERSION=`google-chrome --version | sed "s/[A-Za-z\ ]*\([0-9]*\).*/\1/"` && \
