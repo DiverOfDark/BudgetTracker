@@ -15,7 +15,7 @@
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-copy": "^3.3.0",
-    "rollup-plugin-css-only": "^2.1.0",
+    "rollup-plugin-css-only": "^3.0.0",
     "rollup-plugin-livereload": "^2.0.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-progress": "^1.1.2",
