@@ -124,7 +124,7 @@
                                     {/each}
                                 </td>
                                 <td class="text-nowrap">
-                                    <Link className="btn btn-link btn-anchor" href="/Metadata/Edit/{meta.id}">
+                                    <Link class="btn btn-link btn-anchor" href="/Metadata/Edit/{meta.id}">
                                         <Edit2Icon size="16" />
                                     </Link>
                                     <button on:click="{() => deleteColumn(meta.id)}" class="btn btn-link btn-anchor">
