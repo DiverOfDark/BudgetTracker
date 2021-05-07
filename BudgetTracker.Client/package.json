@@ -46,7 +46,7 @@
     "chart.js": "^2.9.4",
     "chartjs-plugin-datalabels": "^0.7.0",
     "chartjs-plugin-doughnutlabel": "^2.0.3",
-    "google-protobuf": "^3.13.0",
+    "google-protobuf": "^3.16.0",
     "grpc-web": "^1.2.1",
     "moment": "^2.29.1",
     "tabler": "^1.0.0-alpha.8",
