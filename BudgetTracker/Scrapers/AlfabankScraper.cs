@@ -211,6 +211,8 @@ namespace BudgetTracker.Scrapers
             chrome.SendKeys(configuration.Login);
             chrome.SendKeys(Keys.Return);
             
+            WaitForPageLoad(chrome.Driver);
+            
             var pass = GetElement(driver, By.TagName("input"));
             pass.Click();
             chrome.SendKeys(configuration.Password);
