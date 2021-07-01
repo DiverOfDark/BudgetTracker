@@ -206,12 +206,12 @@ namespace BudgetTracker.Scrapers
             var driver = chrome.Driver;
             driver.Navigate().GoToUrl(@"https://click.alfabank.ru/");
             WaitForPageLoad(chrome.Driver, 2);
-            var name = GetElement(driver, By.Name("username"));
+            var name = GetElement(driver, By.TagName("input"));
             name.Click();
             chrome.SendKeys(configuration.Login);
             chrome.SendKeys(Keys.Return);
             
-            var pass = GetElement(driver, By.Name("password"));
+            var pass = GetElement(driver, By.TagName("input"));
             pass.Click();
             chrome.SendKeys(configuration.Password);
             chrome.SendKeys(Keys.Return);
