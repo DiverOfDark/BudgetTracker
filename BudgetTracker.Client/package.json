@@ -44,7 +44,7 @@
     "@types/chart.js": "^2.9.27",
     "@types/google-protobuf": "^3.7.4",
     "chart.js": "^2.9.4",
-    "chartjs-plugin-datalabels": "^0.7.0",
+    "chartjs-plugin-datalabels": "^1.0.0",
     "chartjs-plugin-doughnutlabel": "^2.0.3",
     "google-protobuf": "^3.13.0",
     "grpc-web": "^1.2.1",
